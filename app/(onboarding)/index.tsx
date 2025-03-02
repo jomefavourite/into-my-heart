@@ -7,7 +7,7 @@ export default function OnboardingStep1() {
 
   return (
     <View style={styles.container}>
-      <Text>Welcome to the App!</Text>
+      <Text className='text-black dark:text-white'>Welcome to the App!</Text>
       <Text>Step 1: Learn about our amazing features.</Text>
       <Button title='Next' onPress={() => router.push('/step2')} />
     </View>

@@ -25,25 +25,25 @@ export default function RootLayout() {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
-  // useEffect(() => {
-  //   async function checkOnboardingStatus() {
-  //     try {
-  //       const value = await AsyncStorage.getItem('onboarded');
-  //       if (value !== null) {
-  //         setIsOnboarded(value === 'true');
-  //       } else {
-  //         setIsOnboarded(false); // Default to onboarding if not set
-  //       }
-  //     } catch (e) {
-  //       console.error('Error reading onboarding status:', e);
-  //       setIsOnboarded(false); // Assume not onboarded on error
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   }
+  useEffect(() => {
+    async function checkOnboardingStatus() {
+      try {
+        const value = await AsyncStorage.getItem('onboarded');
+        if (value !== null) {
+          setIsOnboarded(value === 'true');
+        } else {
+          setIsOnboarded(false); // Default to onboarding if not set
+        }
+      } catch (e) {
+        console.error('Error reading onboarding status:', e);
+        setIsOnboarded(false); // Assume not onboarded on error
+      } finally {
+        setIsLoading(false);
+      }
+    }
 
-  //   checkOnboardingStatus();
-  // }, []);
+    checkOnboardingStatus();
+  }, []);
 
   useEffect(() => {
     if (loaded) {
@@ -62,12 +62,12 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
-        {/* {isOnboarded === false ? (
+        {isOnboarded === false ? (
           <Stack.Screen name='(onboarding)' options={{ headerShown: false }} />
         ) : (
           <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
-        )} */}
-        <Stack.Screen name='(onboarding)' options={{ headerShown: false }} />
+        )}
+        {/* <Stack.Screen name='(onboarding)' options={{ headerShown: false }} /> */}
 
         {/* <Stack.Screen name='(tabs)' options={{ headerShown: false }} /> */}
         {/* <Stack.Screen name='+not-found' /> */}
