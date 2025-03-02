@@ -4,6 +4,7 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { Box } from '@/components/ui/box';
 
 export default function HomeScreen() {
   return (
@@ -21,6 +22,7 @@ export default function HomeScreen() {
         <HelloWave />
       </ThemedView>
       <Text className='text-center text-red-500 text-2xl'>Hello</Text>
+      <Box className='bg-red-600 w-8 h-8' />
       <ThemedView style={styles.stepContainer}>
         <ThemedText type='subtitle'>Step 1: Try it</ThemedText>
         <ThemedText>
