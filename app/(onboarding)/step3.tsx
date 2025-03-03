@@ -8,7 +8,7 @@ export default function OnboardingStep1() {
   return (
     <View style={styles.container}>
       <Text>Welcome to the App!</Text>
-      <Text>Step 1: Learn about our amazing features.</Text>
+      <Text>Step 3: Learn about our amazing features.</Text>
       <Button title='Next' onPress={() => router.navigate('/(tabs)')} />
     </View>
   );
