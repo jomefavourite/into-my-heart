@@ -1,50 +1,80 @@
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from '@react-navigation/native';
-import '@/global.css';
-import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import 'react-native-reanimated';
+import '~/global.css';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect, useState, useCallback } from 'react';
+import {
+  Theme,
+  ThemeProvider,
+  DefaultTheme,
+  DarkTheme,
+} from '@react-navigation/native';
+import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import * as React from 'react';
+import { Platform } from 'react-native';
+import { NAV_THEME } from '~/lib/constants';
+import { useColorScheme } from '~/hooks/useColorScheme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { View, ActivityIndicator } from 'react-native';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
+const LIGHT_THEME: Theme = {
+  ...DefaultTheme,
+  colors: NAV_THEME.light,
+};
+const DARK_THEME: Theme = {
+  ...DarkTheme,
+  colors: NAV_THEME.dark,
+};
+
+export {
+  // Catch any errors thrown by the Layout component.
+  ErrorBoundary,
+} from 'expo-router';
+
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const hasMounted = React.useRef(false);
+  const { colorScheme, isDarkColorScheme } = useColorScheme();
+  const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
+
   const [isOnboarded, setIsOnboarded] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
-  useEffect(() => {
-    async function checkOnboardingStatus() {
-      try {
-        const value = await AsyncStorage.getItem('onboarded');
-        if (value !== null) {
-          setIsOnboarded(value === 'true');
-        } else {
-          setIsOnboarded(false); // Default to onboarding if not set
-        }
-      } catch (e) {
-        console.error('Error reading onboarding status:', e);
-        setIsOnboarded(false); // Assume not onboarded on error
-      } finally {
-        setIsLoading(false);
-      }
+  const checkOnboardingStatus = useCallback(async () => {
+    try {
+      const value = await AsyncStorage.getItem('onboarded');
+      setIsOnboarded(
+        value === 'true' || value === null ? value === 'true' : false
+      );
+    } catch (e) {
+      console.error('Error reading onboarding status:', e);
+      setIsOnboarded(false); // Assume not onboarded on error
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useIsomorphicLayoutEffect(() => {
+    if (hasMounted.current) {
+      return;
     }
 
-    checkOnboardingStatus();
+    if (Platform.OS === 'web') {
+      document.documentElement.classList.add('bg-background');
+    }
+    setIsColorSchemeLoaded(true);
+    hasMounted.current = true;
   }, []);
+
+  useEffect(() => {
+    checkOnboardingStatus();
+  }, [checkOnboardingStatus]);
 
   useEffect(() => {
     if (loaded) {
@@ -52,30 +82,46 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
-  if (!loaded) {
-    return null;
+  if (!isColorSchemeLoaded || !loaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size='large' />
+      </View>
+    );
   }
 
-  // if (isLoading) {
-  //   return <SplashScreen />; // Or a loading indicator
-  // }
+  // Create a stable reference to the Stack.Screen components
+  const OnboardingScreen = (
+    <Stack.Screen
+      name='(onboarding)'
+      options={{ headerShown: false }}
+      key='onboarding'
+    />
+  );
+  const TabsScreen = (
+    <Stack.Screen
+      name='(tabs)'
+      options={{ headerShown: false, headerBackVisible: false }}
+      key='tabs'
+    />
+  );
 
   return (
-    <GluestackUIProvider mode='light'>
-      {/* <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}> */}
+    <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
       <Stack>
-        {isOnboarded === false ? (
-          <Stack.Screen name='(onboarding)' options={{ headerShown: false }} />
-        ) : (
-          <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
-        )}
-        {/* <Stack.Screen name='(onboarding)' options={{ headerShown: false }} /> */}
-
-        {/* <Stack.Screen name='(tabs)' options={{ headerShown: false }} /> */}
-        {/* <Stack.Screen name='+not-found' /> */}
+        {isLoading
+          ? null // Render nothing while loading
+          : isOnboarded === false
+          ? OnboardingScreen
+          : TabsScreen}
+        <Stack.Screen name='+not-found' />
       </Stack>
       <StatusBar style='auto' />
-      {/* </ThemeProvider> */}
-    </GluestackUIProvider>
+    </ThemeProvider>
   );
 }
+
+const useIsomorphicLayoutEffect =
+  Platform.OS === 'web' && typeof window === 'undefined'
+    ? React.useEffect
+    : React.useLayoutEffect;

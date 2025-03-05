@@ -1,9 +1,6 @@
 import React from 'react';
-import { Box } from './ui/box';
-import { Button, ButtonIcon, ButtonSpinner, ButtonText } from './ui/button';
 import { SvgProps } from 'react-native-svg';
-import AddIcon from '../assets/icons/light=add-01.svg';
-import AddCircleIcon from '../assets/icons/light=add-circle.svg';
+import { View } from 'react-native';
 
 type Props = {
   leftIcon?: boolean;
@@ -11,26 +8,44 @@ type Props = {
   Icon?: React.FC<SvgProps>;
 };
 
-const CustomButton = ({ leftIcon = true, rightIcon = true }: Props) => {
+// Note:
+// For Icons you need to specify the right stroke width in the classname
+
+const CustomButton = ({ leftIcon = false, rightIcon = false }: Props) => {
   return (
-    <Box>
-      <Button
-        size='lg'
-        variant='solid'
-        action='secondary'
-        className='w-full rounded-full'
-      >
-        {leftIcon && <ButtonIcon as={AddIcon} className='text-emerald-500' />}
+    <View>
+      {/* <Button size='sm' className='w-full rounded-full'>
+        {leftIcon && (
+          <ButtonIcon as={AddIcon} className='text-emerald-500 stroke-[]' />
+        )}
+
         <ButtonText className=''>Hello</ButtonText>
+
         {rightIcon && (
           <ButtonIcon
             as={AddCircleIcon}
-            className='text-red-500 text-xl font-bold stroke-[1.5]'
+            className='text-red-500 text-xl font-bold stroke-[2]'
             size='lg'
           />
         )}
-      </Button>
-    </Box>
+      </Button> */}
+
+      {/* <Button alignSelf='center' size='$6'>
+        Large
+      </Button> */}
+
+      {/* <VStack space='lg' className='pt-4'> */}
+      {/* <Button size='sm' className='rounded-full'>
+        <ButtonText>Submit</ButtonText>
+      </Button> */}
+      {/* <Box className="flex flex-row"> */}
+      {/* <Button variant="link" size="sm" className="p-0"> */}
+      {/* <ButtonIcon className="mr-1" size="md" as={ArrowLeftIcon} /> */}
+      {/* <ButtonText>Back to login</ButtonText> */}
+      {/* </Button> */}
+      {/* </Box> */}
+      {/* </VStack> */}
+    </View>
   );
 };
 
