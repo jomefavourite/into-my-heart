@@ -83,11 +83,7 @@ export default function RootLayout() {
   }, [loaded]);
 
   if (!isColorSchemeLoaded || !loaded) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size='large' />
-      </View>
-    );
+    return null;
   }
 
   // Create a stable reference to the Stack.Screen components

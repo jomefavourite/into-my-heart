@@ -1,6 +1,7 @@
 import React from 'react';
 import { SvgProps } from 'react-native-svg';
-import { View } from 'react-native';
+import { Button } from './ui/button';
+import { Text } from './ui/text';
 
 type Props = {
   leftIcon?: boolean;
@@ -8,44 +9,23 @@ type Props = {
   Icon?: React.FC<SvgProps>;
 };
 
-// Note:
-// For Icons you need to specify the right stroke width in the classname
-
-const CustomButton = ({ leftIcon = false, rightIcon = false }: Props) => {
+const CustomButton = ({
+  leftIcon = false,
+  rightIcon = false,
+  Icon = () => null,
+}: Props) => {
   return (
-    <View>
-      {/* <Button size='sm' className='w-full rounded-full'>
-        {leftIcon && (
-          <ButtonIcon as={AddIcon} className='text-emerald-500 stroke-[]' />
-        )}
-
-        <ButtonText className=''>Hello</ButtonText>
-
-        {rightIcon && (
-          <ButtonIcon
-            as={AddCircleIcon}
-            className='text-red-500 text-xl font-bold stroke-[2]'
-            size='lg'
-          />
-        )}
-      </Button> */}
-
-      {/* <Button alignSelf='center' size='$6'>
-        Large
-      </Button> */}
-
-      {/* <VStack space='lg' className='pt-4'> */}
-      {/* <Button size='sm' className='rounded-full'>
-        <ButtonText>Submit</ButtonText>
-      </Button> */}
-      {/* <Box className="flex flex-row"> */}
-      {/* <Button variant="link" size="sm" className="p-0"> */}
-      {/* <ButtonIcon className="mr-1" size="md" as={ArrowLeftIcon} /> */}
-      {/* <ButtonText>Back to login</ButtonText> */}
-      {/* </Button> */}
-      {/* </Box> */}
-      {/* </VStack> */}
-    </View>
+    <Button
+      variant={'outline'}
+      size={'lg'}
+      className={
+        'rounded-full flex flex-row w-full justify-center items-center space-x-2 '
+      }
+    >
+      {leftIcon && <Icon className='' />}
+      <Text className='text-center leading-[20px]'>Hello</Text>
+      {rightIcon && <Icon className='  text-red-500 dark:text-white' />}
+    </Button>
   );
 };
 

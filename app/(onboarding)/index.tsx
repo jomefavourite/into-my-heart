@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import CustomButton from '~/components/CustomButton';
 import { Button } from '~/components/ui/button';
 import { Text } from '~/components/ui/text';
+import ArrowLeft from '~/assets/icons/light=arrow-right-01.svg';
 
 export default function OnboardingStep1() {
   const router = useRouter();
@@ -15,7 +16,7 @@ export default function OnboardingStep1() {
       <Button onPress={() => router.push('/step2')}>
         <Text>ksljsd</Text>
       </Button>
-      <CustomButton />
+      <CustomButton rightIcon Icon={ArrowLeft} />
     </View>
   );
 }
