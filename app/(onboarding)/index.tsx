@@ -13,9 +13,13 @@ export default function OnboardingStep1() {
     <View style={styles.container}>
       <Text className='text-black dark:text-white'>Welcome to the App!</Text>
       <Text>Step 1: Learn about our amazing features.</Text>
+
       <Button onPress={() => router.push('/step2')}>
         <Text>ksljsd</Text>
       </Button>
+
+      <Text>Step 1: Learn about our amazing features.</Text>
+
       <CustomButton rightIcon Icon={ArrowLeft} />
     </View>
   );
