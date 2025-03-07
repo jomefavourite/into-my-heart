@@ -9,7 +9,10 @@ export default function OnboardingStep1() {
     <View style={styles.container}>
       <Text>Welcome to the App!</Text>
       <Text>Step 3: Learn about our amazing features.</Text>
-      <Button title='Next' onPress={() => router.navigate('/(tabs)')} />
+      <Button
+        title='Next'
+        onPress={() => router.navigate('/(onboarding)/create-account')}
+      />
     </View>
   );
 }

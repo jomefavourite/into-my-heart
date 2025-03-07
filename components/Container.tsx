@@ -8,11 +8,7 @@ const Container = ({
 }: {
   children: React.ReactNode;
 }): React.PropsWithChildren<React.ReactNode> => {
-  return (
-    <SafeAreaView style={styles.container}>
-      <View>{children}</View>
-    </SafeAreaView>
-  );
+  return <SafeAreaView style={styles.container}>{children}</SafeAreaView>;
 };
 
 export default Container;
@@ -21,5 +17,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 18,
+    justifyContent: 'space-between',
   },
 });
