@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Children } from 'react';
 import { SvgProps } from 'react-native-svg';
 import { Button } from './ui/button';
 import { Text } from './ui/text';
@@ -18,6 +18,7 @@ type Props = React.ComponentPropsWithoutRef<typeof Pressable> & {
   rightIcon?: boolean;
   Icon?: React.FC<SvgProps>;
   className?: string;
+  children?: string;
 };
 
 const CustomButton = ({
@@ -27,6 +28,7 @@ const CustomButton = ({
   rightIcon = false,
   Icon = () => null,
   className,
+  children = '',
   ...props
 }: Props) => {
   return (
@@ -40,7 +42,7 @@ const CustomButton = ({
       {...props}
     >
       {leftIcon && <Icon className='' />}
-      <Text className='text-center leading-[20px]'>Hello</Text>
+      <Text className='text-center leading-[20px]'>{children}</Text>
       {rightIcon && <Icon className='  text-red-500 dark:text-white' />}
     </Button>
   );

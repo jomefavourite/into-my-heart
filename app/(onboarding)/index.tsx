@@ -2,33 +2,37 @@ import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import CustomButton from '~/components/CustomButton';
-import { Button } from '~/components/ui/button';
 import { Text } from '~/components/ui/text';
 import ArrowLeft from '~/assets/icons/light=arrow-right-01.svg';
+import Container from '~/components/Container';
+import { ThemedText } from '~/components/ThemedText';
 
 export default function OnboardingStep1() {
   const router = useRouter();
 
   return (
-    <View style={styles.container}>
-      <Text className='text-black dark:text-white'>Welcome to the App!</Text>
-      <Text>Step 1: Learn about our amazing features.</Text>
+    <Container>
+      <View>
+        <View></View>
+      </View>
 
-      <Button onPress={() => router.push('/step2')}>
-        <Text>ksljsd</Text>
-      </Button>
+      <View className='mb-20'>
+        <ThemedText
+          type='subtitle'
+          className='text-lg font-medium text-black dark:text-white'
+        >
+          God's Word Hidden in Your Heart.
+        </ThemedText>
 
-      <Text>Step 1: Learn about our amazing features.</Text>
+        <ThemedText>
+          Build a habit of hiding God's Word in your heart with interactive
+          tools designed to help you remember and apply scripture.
+        </ThemedText>
+      </View>
 
-      <CustomButton rightIcon Icon={ArrowLeft} />
-    </View>
+      <CustomButton rightIcon Icon={ArrowLeft}>
+        Next
+      </CustomButton>
+    </Container>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

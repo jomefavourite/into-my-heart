@@ -43,7 +43,7 @@ export default function RootLayout() {
   const [isOnboarded, setIsOnboarded] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    Inter: require('../assets/fonts/Inter.ttf'),
   });
 
   const checkOnboardingStatus = useCallback(async () => {
