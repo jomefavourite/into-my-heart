@@ -1,8 +1,9 @@
 import { Image, StyleSheet, Platform, Text, View } from 'react-native';
+import Container from '~/components/Container';
 
 export default function HomeScreen() {
   return (
-    <>
+    <Container>
       <View style={styles.titleContainer}>
         <Text>Welcome!</Text>
       </View>
@@ -36,7 +37,7 @@ export default function HomeScreen() {
           <Text>app</Text> to <Text>app-example</Text>.
         </Text>
       </View>
-    </>
+    </Container>
   );
 }
 

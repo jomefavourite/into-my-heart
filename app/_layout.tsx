@@ -49,6 +49,7 @@ export default function RootLayout() {
   const checkOnboardingStatus = useCallback(async () => {
     try {
       const value = await AsyncStorage.getItem('onboarded');
+
       setIsOnboarded(
         value === 'true' || value === null ? value === 'true' : false
       );
@@ -105,11 +106,13 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
       <Stack>
-        {isLoading
+        {/* {isLoading
           ? null // Render nothing while loading
           : isOnboarded === false
           ? OnboardingScreen
-          : TabsScreen}
+          : TabsScreen} */}
+
+        {TabsScreen}
         <Stack.Screen name='+not-found' />
       </Stack>
       <StatusBar style='auto' />

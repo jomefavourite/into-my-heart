@@ -1,6 +1,10 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
+import GoalsIcon from '~/assets/icons/tabs/GoalsIcon';
+import HomeIcon from '~/assets/icons/tabs/HomeIcon';
+import PracticeIcon from '~/assets/icons/tabs/PracticeIcon';
+import VersesIcon from '~/assets/icons/tabs/VersesIcon';
 
 // import { HapticTab } from '~/components/HapticTab';
 // import { IconSymbol } from '~/components/ui/IconSymbol';
@@ -31,20 +35,30 @@ export default function TabLayout() {
         name='index'
         options={{
           title: 'Home',
-          // tabBarIcon: ({ color }) => (
-          //   <IconSymbol size={28} name='house.fill' color={color} />
-          // ),
+          tabBarIcon: ({ color }) => <HomeIcon color={color} />,
         }}
       />
-      {/* <Tabs.Screen
-        name='explore'
+      <Tabs.Screen
+        name='verses'
         options={{
-          title: 'Explore',
-          // tabBarIcon: ({ color }) => (
-          //   <IconSymbol size={28} name='paperplane.fill' color={color} />
-          // ),
+          title: 'Verses',
+          tabBarIcon: ({ color }) => <VersesIcon color={color} />,
         }}
-      /> */}
+      />
+      <Tabs.Screen
+        name='practice'
+        options={{
+          title: 'Practice',
+          tabBarIcon: ({ color }) => <PracticeIcon color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name='goals'
+        options={{
+          title: 'Goals',
+          tabBarIcon: ({ color }) => <GoalsIcon color={color} />,
+        }}
+      />
     </Tabs>
   );
 }

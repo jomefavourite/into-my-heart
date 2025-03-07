@@ -3,9 +3,10 @@ import React from 'react';
 import { ThemedText } from '~/components/ThemedText';
 import Container from '~/components/Container';
 import CustomButton from '~/components/CustomButton';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 
 export default function CreateAccount() {
+  const router = useRouter();
   return (
     <Container>
       <View className=''>
@@ -19,9 +20,10 @@ export default function CreateAccount() {
 
       <View className='gap-9'>
         <View className='gap-2'>
-          <CustomButton>Continue with Google</CustomButton>
-          <CustomButton variant='outline'>Continue with Google</CustomButton>
-          <CustomButton variant='outline'>Continue with Google</CustomButton>
+          <CustomButton onPress={() => router.push('/(tabs)')}>
+            Continue with Google
+          </CustomButton>
+          <CustomButton variant='outline'>Continue with Email</CustomButton>
         </View>
         <ThemedText className='text-center '>
           Do you have an account?{' '}
