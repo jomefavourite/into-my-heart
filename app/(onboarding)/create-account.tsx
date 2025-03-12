@@ -20,7 +20,7 @@ export default function CreateAccount() {
 
       <View className='gap-9'>
         <View className='gap-2'>
-          <CustomButton onPress={() => router.push('/(tabs)')}>
+          <CustomButton onPress={() => router.replace('/(tabs)')}>
             Continue with Google
           </CustomButton>
           <CustomButton variant='outline'>Continue with Email</CustomButton>
