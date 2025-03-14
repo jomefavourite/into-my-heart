@@ -1,6 +1,6 @@
 import { View, Text } from 'react-native';
 import React from 'react';
-import { ThemedText } from '~/components/ThemedText';
+import ThemedText from '~/components/ThemedText';
 import Container from '~/components/Container';
 import CustomButton from '~/components/CustomButton';
 import { Link, useRouter } from 'expo-router';
@@ -20,7 +20,7 @@ export default function CreateAccount() {
 
       <View className='gap-9'>
         <View className='gap-2'>
-          <CustomButton onPress={() => router.replace('/(tabs)')}>
+          <CustomButton onPress={() => router.push('/(tabs)')}>
             Continue with Google
           </CustomButton>
           <CustomButton variant='outline'>Continue with Email</CustomButton>

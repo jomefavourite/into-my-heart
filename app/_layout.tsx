@@ -37,7 +37,7 @@ export {
 
 export default function RootLayout() {
   const hasMounted = React.useRef(false);
-  const { colorScheme, isDarkColorScheme } = useColorScheme();
+  const { colorScheme, setColorScheme, isDarkColorScheme } = useColorScheme();
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
 
   const [isOnboarded, setIsOnboarded] = useState<boolean | null>(null);
@@ -60,6 +60,31 @@ export default function RootLayout() {
       setIsLoading(false);
     }
   }, []);
+
+  // useEffect(() => {
+  //   (async () => {
+  //     const theme = await AsyncStorage.getItem('theme');
+  //     if (Platform.OS === 'web') {
+  //       // Adds the background color to the html element to prevent white background on overscroll.
+  //       document.documentElement.classList.add('bg-background');
+  //     }
+  //     if (!theme) {
+  //       AsyncStorage.setItem('theme', colorScheme);
+  //       setIsColorSchemeLoaded(true);
+  //       return;
+  //     }
+  //     const colorTheme = theme === 'dark' ? 'dark' : 'light';
+  //     if (colorTheme !== colorScheme) {
+  //       setColorScheme(colorTheme);
+
+  //       setIsColorSchemeLoaded(true);
+  //       return;
+  //     }
+  //     setIsColorSchemeLoaded(true);
+  //   })().finally(() => {
+  //     SplashScreen.hideAsync();
+  //   });
+  // }, []);
 
   useIsomorphicLayoutEffect(() => {
     if (hasMounted.current) {

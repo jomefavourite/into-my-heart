@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import CustomButton from '~/components/CustomButton';
-import { ThemedText } from '~/components/ThemedText';
+import ThemedText from '~/components/ThemedText';
 import CloseIcon from '~/assets/icons/light=cancel-01.svg';
 import { Button } from '~/components/ui/button';
 import { cn, ONBOARDING_DATA } from '~/lib/utils';
@@ -18,19 +18,19 @@ export default function Onboarding({ stepNumber }: { stepNumber: number }) {
           <View
             className={cn(
               'h-[5px] bg-[#E8E8E8] w-10 rounded-full',
-              stepNumber == 1 && 'bg-black '
+              stepNumber == 1 && 'bg-black dark:bg-white'
             )}
           ></View>
           <View
             className={cn(
               'h-[5px] bg-[#E8E8E8] w-10 rounded-full',
-              stepNumber == 2 && 'bg-black '
+              stepNumber == 2 && 'bg-black dark:bg-white'
             )}
           ></View>
           <View
             className={cn(
               'h-[5px] bg-[#E8E8E8] w-10 rounded-full',
-              stepNumber == 3 && 'bg-black '
+              stepNumber == 3 && 'bg-black dark:bg-white'
             )}
           ></View>
         </View>
@@ -48,10 +48,7 @@ export default function Onboarding({ stepNumber }: { stepNumber: number }) {
 
       <View>
         <View className='mb-20'>
-          <ThemedText
-            type='subtitle'
-            className='text-lg font-medium text-black dark:text-white'
-          >
+          <ThemedText type='subtitle' className=' text-black dark:text-white'>
             {stepData.title}
           </ThemedText>
 
