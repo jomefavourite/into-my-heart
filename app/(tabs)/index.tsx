@@ -1,20 +1,38 @@
-import {
-  Image,
-  StyleSheet,
-  Platform,
-  Text,
-  View,
-  ScrollView,
-} from 'react-native';
+import { Image, StyleSheet, Platform, View, ScrollView } from 'react-native';
 import Container from '~/components/Container';
 import CustomButton from '~/components/CustomButton';
 import ThemedText from '~/components/ThemedText';
+import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+
+const GITHUB_AVATAR_URI = 'https://github.com/mrzachnugent.png';
 
 export default function HomeScreen() {
   return (
     <ScrollView>
       <Container>
+        <View className='flex-row justify-between items-center'>
+          {/* Header */}
+          <View className='flex-row gap-2 items-center'>
+            <Avatar alt="Zach Nugent's Avatar">
+              <AvatarImage source={{ uri: GITHUB_AVATAR_URI }} />
+              <AvatarFallback>
+                <ThemedText>ZN</ThemedText>
+              </AvatarFallback>
+            </Avatar>
+            <View>
+              <ThemedText>Welcome</ThemedText>
+              <ThemedText>Favourite</ThemedText>
+            </View>
+          </View>
+
+          <View>
+            <CustomButton size='icon' className='w-fit'>
+              Hello
+            </CustomButton>
+          </View>
+        </View>
+
         {/* Verse of the Day */}
         <View className='py-2'>
           <ThemedText className='text-sm'>Verse of the Day</ThemedText>
