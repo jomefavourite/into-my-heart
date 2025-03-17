@@ -16,7 +16,7 @@ import { Platform } from 'react-native';
 import { NAV_THEME } from '~/lib/constants';
 import { useColorScheme } from '~/hooks/useColorScheme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View, ActivityIndicator } from 'react-native';
+import { ConvexProvider, ConvexReactClient } from 'convex/react';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -29,6 +29,10 @@ const DARK_THEME: Theme = {
   ...DarkTheme,
   colors: NAV_THEME.dark,
 };
+
+const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
+  unsavedChangesWarning: false,
+});
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -130,15 +134,17 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-      <Stack>
-        {isLoading
-          ? null // Render nothing while loading
-          : isOnboarded === false
-          ? OnboardingScreen
-          : TabsScreen}
+      <ConvexProvider client={convex}>
+        <Stack>
+          {isLoading
+            ? null // Render nothing while loading
+            : isOnboarded === false
+              ? OnboardingScreen
+              : TabsScreen}
 
-        <Stack.Screen name='+not-found' />
-      </Stack>
+          <Stack.Screen name='+not-found' />
+        </Stack>
+      </ConvexProvider>
       <StatusBar style='auto' />
     </ThemeProvider>
   );
