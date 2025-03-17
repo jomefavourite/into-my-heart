@@ -17,6 +17,8 @@ import { NAV_THEME } from '~/lib/constants';
 import { useColorScheme } from '~/hooks/useColorScheme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ConvexProvider, ConvexReactClient } from 'convex/react';
+import { ConvexAuthProvider } from '@convex-dev/auth/react';
+import * as SecureStore from 'expo-secure-store';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -33,6 +35,12 @@ const DARK_THEME: Theme = {
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
   unsavedChangesWarning: false,
 });
+
+const secureStorage = {
+  getItem: SecureStore.getItemAsync,
+  setItem: SecureStore.setItemAsync,
+  removeItem: SecureStore.deleteItemAsync,
+};
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -134,7 +142,14 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-      <ConvexProvider client={convex}>
+      <ConvexAuthProvider
+        client={convex}
+        storage={
+          Platform.OS === 'android' || Platform.OS === 'ios'
+            ? secureStorage
+            : undefined
+        }
+      >
         <Stack>
           {isLoading
             ? null // Render nothing while loading
@@ -144,7 +159,7 @@ export default function RootLayout() {
 
           <Stack.Screen name='+not-found' />
         </Stack>
-      </ConvexProvider>
+      </ConvexAuthProvider>
       <StatusBar style='auto' />
     </ThemeProvider>
   );

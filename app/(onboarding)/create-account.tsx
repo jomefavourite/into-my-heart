@@ -4,9 +4,12 @@ import ThemedText from '~/components/ThemedText';
 import Container from '~/components/Container';
 import CustomButton from '~/components/CustomButton';
 import { Link, useRouter } from 'expo-router';
+import { useAuthActions } from '@convex-dev/auth/react';
+import { Button } from '~/components/ui/button';
 
 export default function CreateAccount() {
   const router = useRouter();
+  const { signIn } = useAuthActions();
   return (
     <Container>
       <View className=''>
@@ -20,8 +23,21 @@ export default function CreateAccount() {
 
       <View className='gap-9'>
         <View className='gap-2'>
-          <CustomButton onPress={() => router.push('/(tabs)')}>
-            Continue with Google
+          <Button
+            onPress={() => {
+              signIn('google');
+              console.log('google Pressed');
+            }}
+          >
+            <Text>Continue with Google</Text>
+          </Button>
+          <CustomButton
+            onPress={() => {
+              signIn('github');
+              console.log('github Pressed');
+            }}
+          >
+            Continue with Github
           </CustomButton>
           <CustomButton variant='outline'>Continue with Email</CustomButton>
         </View>
