@@ -2,21 +2,24 @@ import '~/global.css';
 
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect } from 'react';
 import {
   Theme,
   ThemeProvider,
   DefaultTheme,
   DarkTheme,
 } from '@react-navigation/native';
-import { Stack } from 'expo-router';
+import { Stack, Slot, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { Platform } from 'react-native';
 import { NAV_THEME } from '~/lib/constants';
 import { useColorScheme } from '~/hooks/useColorScheme';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View, ActivityIndicator } from 'react-native';
+import { useFrameworkReady } from '~/hooks/useFrameworkReady';
+import { ConvexProvider, ConvexReactClient } from 'convex/react';
+import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
+import { tokenCache } from '@/cache';
+import { ConvexProviderWithClerk } from 'convex/react-clerk';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -30,36 +33,50 @@ const DARK_THEME: Theme = {
   colors: NAV_THEME.dark,
 };
 
+const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
+  unsavedChangesWarning: false,
+});
+
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
 } from 'expo-router';
 
+function InitialLayout() {
+  const { isLoaded, isSignedIn } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+
+  useFrameworkReady();
+
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    const inAuthGroup = segments[0] === '(onboarding)';
+
+    if (isSignedIn && inAuthGroup) {
+      router.replace('/(tabs)');
+    } else if (!isSignedIn && !inAuthGroup) {
+      router.replace('/(onboarding)/create-account');
+    }
+  }, [isSignedIn, segments]);
+
+  return <Slot />;
+}
+
 export default function RootLayout() {
   const hasMounted = React.useRef(false);
-  const { colorScheme, isDarkColorScheme } = useColorScheme();
+  const { isDarkColorScheme } = useColorScheme();
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
-
-  const [isOnboarded, setIsOnboarded] = useState<boolean | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [loaded] = useFonts({
     Inter: require('../assets/fonts/Inter.ttf'),
   });
 
-  const checkOnboardingStatus = useCallback(async () => {
-    try {
-      const value = await AsyncStorage.getItem('onboarded');
+  const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
 
-      setIsOnboarded(
-        value === 'true' || value === null ? value === 'true' : false
-      );
-    } catch (e) {
-      console.error('Error reading onboarding status:', e);
-      setIsOnboarded(false); // Assume not onboarded on error
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  if (!publishableKey) {
+    throw new Error('Add EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in your .env');
+  }
 
   useIsomorphicLayoutEffect(() => {
     if (hasMounted.current) {
@@ -72,10 +89,6 @@ export default function RootLayout() {
     setIsColorSchemeLoaded(true);
     hasMounted.current = true;
   }, []);
-
-  useEffect(() => {
-    checkOnboardingStatus();
-  }, [checkOnboardingStatus]);
 
   useEffect(() => {
     if (loaded) {
@@ -104,18 +117,14 @@ export default function RootLayout() {
   );
 
   return (
-    <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-      <Stack>
-        {isLoading
-          ? null // Render nothing while loading
-          : isOnboarded === false
-          ? OnboardingScreen
-          : TabsScreen}
-
-        <Stack.Screen name='+not-found' />
-      </Stack>
-      <StatusBar style='auto' />
-    </ThemeProvider>
+    <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
+      <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+        <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+          <InitialLayout />
+          <StatusBar style='auto' />
+        </ThemeProvider>
+      </ConvexProviderWithClerk>
+    </ClerkProvider>
   );
 }
 

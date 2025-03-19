@@ -1,57 +1,38 @@
-import { type TextProps, StyleSheet } from 'react-native';
-
+import React from 'react';
+import { type TextProps } from 'react-native';
 import { Text } from './ui/text';
+import { cn } from '~/lib/utils'; // Assuming you have a utility for class names
 
 export type ThemedTextProps = TextProps & {
-  type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link';
+  type?: 'default' | 'medium' | 'semibold' | 'title' | 'subtitle' | 'link';
+  children: React.ReactNode;
 };
 
-export function ThemedText({
-  style,
+const ThemedText = ({
   type = 'default',
-  ...rest
-}: ThemedTextProps) {
-  return (
-    <Text
-      style={[
-        type === 'title' ? styles.title : undefined,
-        type === 'defaultSemiBold' ? styles.defaultSemiBold : undefined,
-        type === 'subtitle' ? styles.subtitle : undefined,
-        type === 'link' ? styles.link : undefined,
-        style,
-      ]}
-      {...rest}
-    />
+  className,
+  children,
+  ...props
+}: ThemedTextProps) => {
+  const textStyles = cn(
+    'font-inter',
+    'text-base', // Default font size, can be adjusted
+    {
+      'font-normal': type === 'default', // FontWeight 400
+      'font-medium': type === 'medium', // FontWeight 500
+      'font-semibold': type === 'semibold', // FontWeight 600
+      'text-3xl font-bold leading-8': type === 'title', // Example title styles
+      'text-xl font-bold': type === 'subtitle', // Example subtitle styles
+      'text-base text-blue-600': type === 'link', // Example link styles
+    },
+    className
   );
-}
 
-const styles = StyleSheet.create({
-  default: {
-    fontSize: 14,
-    lineHeight: 24,
-    fontFamily: 'Inter',
-  },
-  defaultSemiBold: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: '600',
-    fontFamily: 'Inter',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    lineHeight: 32,
-    fontFamily: 'Inter',
-  },
-  subtitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    fontFamily: 'Inter',
-  },
-  link: {
-    lineHeight: 30,
-    fontSize: 16,
-    color: '#0a7ea4',
-    fontFamily: 'Inter',
-  },
-});
+  return (
+    <Text className={textStyles} {...props}>
+      {children}
+    </Text>
+  );
+};
+
+export default ThemedText;
