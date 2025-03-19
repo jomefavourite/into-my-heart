@@ -11,13 +11,21 @@ import { cn } from '~/lib/utils';
 import { useColorScheme } from '~/hooks/useColorScheme';
 import ThemedText from '~/components/ThemedText';
 import CustomButton from '~/components/CustomButton';
+import { useAuth, useUser } from '@clerk/clerk-react';
 
 export default function ProfileScreen() {
   const { isDarkColorScheme, setColorScheme } = useColorScheme();
+  const { signOut } = useAuth();
+  const { user } = useUser();
 
   return (
     <Container>
       <ThemedText>ProfileScreen</ThemedText>
+      <ThemedText>{user?.primaryEmailAddress?.emailAddress}</ThemedText>
+
+      <CustomButton variant='outline' onPress={() => signOut()}>
+        Sign out
+      </CustomButton>
 
       <CustomButton
         onPress={() => {

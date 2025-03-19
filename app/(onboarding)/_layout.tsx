@@ -1,7 +1,13 @@
-import React from 'react';
-import { Stack } from 'expo-router';
+import { Redirect, Stack } from 'expo-router';
+import { useConvexAuth } from 'convex/react';
 
 export default function OnboardingLayout() {
+  const { isAuthenticated } = useConvexAuth();
+
+  if (isAuthenticated) {
+    return <Redirect href={'/'} />;
+  }
+
   return (
     <Stack>
       <Stack.Screen name='index' options={{ headerShown: false }} />
