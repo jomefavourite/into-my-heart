@@ -1,11 +1,11 @@
-import { View, Text } from 'react-native';
 import React from 'react';
 import Container from '~/components/Container';
+import VersesTab from './versesTab';
 
-export default function VersesScreen() {
+export default function VersesHomeScreen() {
   return (
     <Container>
-      <Text>Verses</Text>
+      <VersesTab />
     </Container>
   );
 }

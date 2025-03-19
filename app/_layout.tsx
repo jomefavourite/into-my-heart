@@ -98,7 +98,7 @@ export default function RootLayout() {
   const TabsScreen = (
     <Stack.Screen
       name='(tabs)'
-      options={{ headerShown: false, headerBackVisible: false }}
+      options={{ headerShown: false, headerBackVisible: true }}
       key='tabs'
     />
   );
