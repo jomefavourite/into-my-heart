@@ -1,3 +1,4 @@
+import { useUser } from '@clerk/clerk-expo';
 import { Image, StyleSheet, Platform, View, ScrollView } from 'react-native';
 import Container from '~/components/Container';
 import CustomButton from '~/components/CustomButton';
@@ -8,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 const GITHUB_AVATAR_URI = 'https://github.com/mrzachnugent.png';
 
 export default function HomeScreen() {
+  const { isSignedIn, user, isLoaded } = useUser();
   return (
     <ScrollView>
       <Container>
@@ -15,14 +17,16 @@ export default function HomeScreen() {
           {/* Header */}
           <View className='flex-row gap-2 items-center'>
             <Avatar alt="Zach Nugent's Avatar">
-              <AvatarImage source={{ uri: GITHUB_AVATAR_URI }} />
+              <AvatarImage source={{ uri: user?.imageUrl }} />
               <AvatarFallback>
                 <ThemedText>ZN</ThemedText>
               </AvatarFallback>
             </Avatar>
             <View>
               <ThemedText>Welcome</ThemedText>
-              <ThemedText>Favourite</ThemedText>
+              <ThemedText>
+                {user?.firstName} {user?.lastName}
+              </ThemedText>
             </View>
           </View>
 
