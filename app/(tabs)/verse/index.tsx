@@ -1,6 +1,7 @@
 import React from 'react';
 import Container from '~/components/Container';
 import VersesTab from './versesTab';
+import { StyleSheet } from 'react-native';
 
 export default function VersesHomeScreen() {
   return (
