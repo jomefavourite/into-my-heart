@@ -1,12 +1,9 @@
 import { useUser } from '@clerk/clerk-expo';
-import { Image, StyleSheet, Platform, View, ScrollView } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import Container from '~/components/Container';
 import CustomButton from '~/components/CustomButton';
 import ThemedText from '~/components/ThemedText';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
-
-const GITHUB_AVATAR_URI = 'https://github.com/mrzachnugent.png';
 
 export default function HomeScreen() {
   const { isSignedIn, user, isLoaded } = useUser();

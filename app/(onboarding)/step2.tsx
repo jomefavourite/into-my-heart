@@ -1,11 +1,14 @@
 import React from 'react';
+import { View } from 'react-native';
 import Container from '~/components/Container';
 import Onboarding from '~/components/Onboarding';
 
 export default function OnboardingStep2() {
   return (
     <Container>
-      <Onboarding stepNumber={2} />
+      <View className='flex-1 justify-between'>
+        <Onboarding stepNumber={2} />
+      </View>
     </Container>
   );
 }

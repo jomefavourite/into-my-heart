@@ -18,7 +18,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#313131',
+        // tabBarActiveTintColor: '#313131',
         headerShown: false,
         // tabBarButton: HapticTab,
         // tabBarBackground: TabBarBackground,
@@ -35,10 +35,13 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name='index'
+        name='home'
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <HomeIcon color={color} />,
+          tabBarIcon: ({ focused }) => <HomeIcon focused={focused} />,
+          // tabBarStyle: {
+          //   backgroundColor: '#ff0000',
+          // },
         }}
       />
       <Tabs.Screen
