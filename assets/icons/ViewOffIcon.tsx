@@ -1,0 +1,33 @@
+import * as React from 'react';
+import Svg, { SvgProps, Path } from 'react-native-svg';
+import { useColorScheme } from '~/hooks/useColorScheme';
+const ViewOffIcon = (props: SvgProps) => {
+  const { colorScheme } = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
+
+  return (
+    <Svg width={24} height={24} fill='none' {...props}>
+      <Path
+        stroke={isDarkMode ? '#fff' : '#303030'}
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        strokeWidth={1.5}
+        d='M19.439 15.439a19.517 19.517 0 0 0 2.105-2.484c.304-.426.456-.64.456-.955 0-.316-.152-.529-.456-.955C20.178 9.129 16.689 5 12 5c-.908 0-1.77.155-2.582.418m-2.67 1.33c-2.017 1.36-3.506 3.195-4.292 4.297-.304.426-.456.64-.456.955 0 .316.152.529.456.955C3.822 14.871 7.311 19 12 19c1.99 0 3.765-.744 5.253-1.747'
+      />
+      <Path
+        stroke={isDarkMode ? '#fff' : '#303030'}
+        strokeLinecap='round'
+        strokeWidth={1.5}
+        d='M9.858 10A2.929 2.929 0 1 0 14 14.142'
+      />
+      <Path
+        stroke={isDarkMode ? '#fff' : '#303030'}
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        strokeWidth={1.5}
+        d='m3 3 18 18'
+      />
+    </Svg>
+  );
+};
+export default ViewOffIcon;

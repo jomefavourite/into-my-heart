@@ -1,14 +1,11 @@
 import { useUser } from '@clerk/clerk-expo';
 import { View, ScrollView, Pressable, TouchableOpacity } from 'react-native';
-import Container from '~/components/Container';
 import CustomButton from '~/components/CustomButton';
 import ThemedText from '~/components/ThemedText';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
-import NotificationIcon from '~/assets/icons/light=notification-03.svg';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Notification from '~/assets/icons/NotificationIcon';
-import { Link } from 'expo-router';
+import NotificationIcon from '~/assets/icons/NotificationIcon';
 
 export default function HomeScreen() {
   const { isSignedIn, user, isLoaded } = useUser();
@@ -41,7 +38,7 @@ export default function HomeScreen() {
                 router.push('/(tabs)/home/notifications');
               }}
             >
-              <Notification />
+              <NotificationIcon />
             </Pressable>
           </View>
         </View>

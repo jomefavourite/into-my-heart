@@ -3,9 +3,9 @@ import { View } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import CustomButton from '~/components/CustomButton';
 import ThemedText from '~/components/ThemedText';
-import CloseIcon from '~/assets/icons/light=cancel-01.svg';
 import { Button } from '~/components/ui/button';
 import { cn, ONBOARDING_DATA } from '~/lib/utils';
+import CancelIcon from '~/assets/icons/CancelIcon';
 
 export default function Onboarding({ stepNumber }: { stepNumber: number }) {
   const router = useRouter();
@@ -37,7 +37,7 @@ export default function Onboarding({ stepNumber }: { stepNumber: number }) {
 
         <Button variant={'ghost'} size='icon' className='w-fit'>
           <Link href={'/(onboarding)/create-account'}>
-            <CloseIcon />
+            <CancelIcon />
           </Link>
         </Button>
       </View>
