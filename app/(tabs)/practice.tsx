@@ -9,7 +9,7 @@ import ArrowLeftIcon from '~/assets/icons/ArrowLeftIcon';
 import ArrowRightIcon from '~/assets/icons/ArrowRightIcon';
 import CameraIcon from '~/assets/icons/CameraIcon';
 import CancelIcon from '~/assets/icons/CancelIcon';
-import CheckmarkCircleIcon from '~/assets/icons/CheckMarkCircleIcon';
+import CheckmarkCircleIcon from '~/assets/icons/CheckmarkCircleIcon';
 import CircleIcon from '~/assets/icons/CircleIcon';
 import DeleteIcon from '~/assets/icons/DeleteIcon';
 import DumbbellIcon from '~/assets/icons/DumbbellIcon';

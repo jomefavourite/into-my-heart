@@ -18,6 +18,7 @@ type Props = React.ComponentPropsWithoutRef<typeof Pressable> & {
   rightIcon?: boolean;
   Icon?: React.FC<SvgProps>;
   className?: string;
+  textClassName?: string;
   children?: string;
 };
 
@@ -28,6 +29,7 @@ const CustomButton = ({
   rightIcon = false,
   Icon = () => null,
   className,
+  textClassName,
   children = '',
   ...props
 }: Props) => {
@@ -42,7 +44,9 @@ const CustomButton = ({
       {...props}
     >
       {leftIcon && <Icon className='' />}
-      <Text className='text-center leading-[20px]'>{children}</Text>
+      <Text className={cn('text-center leading-[20px]', textClassName)}>
+        {children}
+      </Text>
       {rightIcon && <Icon className='  text-red-500 dark:text-white' />}
     </Button>
   );

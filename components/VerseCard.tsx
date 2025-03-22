@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-
-import PlusIcon from '../assets/icons/light=add-circle.svg'
+import AddCircleIcon from '~/assets/icons/AddCircleIcon';
 
 
 interface VerseCardProps {
@@ -22,13 +21,13 @@ const VerseCard: React.FC<VerseCardProps> = ({
   textClassName = ""
 }) => {
   return (
-      <View className={`flex-row items-center py-3 border-b border-gray-100 ${containerClassName}`}>
+      <View className={`flex-row items-center py-[18px] px-4 ${containerClassName}`}>
         <View className="flex-1">
-          <Text className={`font-medium mb-1 ${referenceClassName}`}>{reference}</Text>
-          <Text className={`text-gray-600 ${textClassName}`}>{text}</Text>
+          <Text className={`font-medium mb-1 text-base leading-5 ${textClassName}`}>{text}</Text>
+          <Text className={`text-gray-500 text-[15px] ${referenceClassName}`}>{reference}</Text>
         </View>
         <TouchableOpacity className="p-2" onPress={onAddPress}>
-          <PlusIcon />
+          <AddCircleIcon color={'#000'} />
         </TouchableOpacity>
       </View>
   );

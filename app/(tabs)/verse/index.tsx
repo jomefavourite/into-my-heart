@@ -1,82 +1,46 @@
 import React from 'react';
 import Container from '~/components/Container';
 import VersesTab from './versesTab';
-import { StyleSheet } from 'react-native';
+import { Animated, StyleSheet, View } from 'react-native';
+import Title from '~/components/Title';
+import CustomButton from '~/components/CustomButton';
+import CollectionsTab from './CollectionsTab';
+import { useTabStore } from '~/store/tab-store';
 
 export default function VersesHomeScreen() {
+  const { activeTab, setActiveTab } = useTabStore();
   return (
     <Container>
-      <VersesTab />
+      <View>
+      <Title text='Verses & Collections' />
+      <View className='flex flex-row gap-3 py-3'>
+          <CustomButton 
+            className={activeTab === 'verses' ? 'w-fit' : 'bg-white w-fit'} 
+            textClassName={activeTab === 'verses' ? 'text-white' : 'text-gray-600'}
+            onPress={() => setActiveTab('verses')}
+          >
+            Verses
+          </CustomButton>
+          <CustomButton 
+            className={activeTab === 'collections' ? 'w-fit' : 'bg-white w-fit'}
+            textClassName={activeTab === 'collections' ? 'text-white' : 'text-gray-600'}  
+            onPress={() => setActiveTab('collections')}
+          >
+            Collections
+          </CustomButton>
+        </View>
+
+        <Animated.View style={{ opacity: activeTab === 'verses' ? 1 : 0 }}>
+          {activeTab === 'verses' && <VersesTab />}
+        </Animated.View>
+        <Animated.View style={{ opacity: activeTab === 'collections' ? 1 : 0 }}>
+          {activeTab === 'collections' && <CollectionsTab />}
+        </Animated.View>
+    </View>
     </Container>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  messagesContainer: {
-    flex: 1,
-    padding: 16,
-  },
-  messageBox: {
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 8,
-    maxWidth: '80%',
-  },
-  sentMessage: {
-    backgroundColor: '#007AFF',
-    alignSelf: 'flex-end',
-  },
-  receivedMessage: {
-    backgroundColor: '#E5E5EA',
-    alignSelf: 'flex-start',
-  },
-  messageAuthor: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 4,
-  },
-  messageContent: {
-    fontSize: 16,
-    color: '#000',
-  },
-  messageTime: {
-    fontSize: 10,
-    color: '#666',
-    alignSelf: 'flex-end',
-    marginTop: 4,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    padding: 16,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#e5e5e5',
-  },
-  input: {
-    flex: 1,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginRight: 8,
-    maxHeight: 100,
-  },
-  sendButton: {
-    backgroundColor: '#007AFF',
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    justifyContent: 'center',
-  },
-  sendButtonDisabled: {
-    backgroundColor: '#B0B0B0',
-  },
-  sendButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
+
 });
