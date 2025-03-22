@@ -9,7 +9,7 @@ import {
   DefaultTheme,
   DarkTheme,
 } from '@react-navigation/native';
-import { Stack, Slot, useRouter, useSegments } from 'expo-router';
+import { Slot, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { Platform } from 'react-native';
@@ -37,10 +37,10 @@ const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
   unsavedChangesWarning: false,
 });
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
+// export {
+//   // Catch any errors thrown by the Layout component.
+//   d,
+// } from 'expo-router';
 
 function InitialLayout() {
   const { isLoaded, isSignedIn } = useAuth();
@@ -55,7 +55,7 @@ function InitialLayout() {
     const inAuthGroup = segments[0] === '(onboarding)';
 
     if (isSignedIn && inAuthGroup) {
-      router.replace('/(tabs)');
+      router.replace('/(tabs)/home');
     } else if (!isSignedIn && !inAuthGroup) {
       router.replace('/(onboarding)/create-account');
     }
