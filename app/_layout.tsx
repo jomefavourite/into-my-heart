@@ -20,6 +20,7 @@ import { ConvexProvider, ConvexReactClient } from 'convex/react';
 import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
 import { tokenCache } from '@/cache';
 import { ConvexProviderWithClerk } from 'convex/react-clerk';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -104,8 +105,10 @@ export default function RootLayout() {
     <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
       <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
         <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-          <InitialLayout />
-          <StatusBar style='auto' />
+          <GestureHandlerRootView style={{ flex: 1, backgroundColor: 'grey' }}>
+            <InitialLayout />
+            <StatusBar style='auto' />
+          </GestureHandlerRootView>
         </ThemeProvider>
       </ConvexProviderWithClerk>
     </ClerkProvider>

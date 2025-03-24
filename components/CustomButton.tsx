@@ -1,4 +1,4 @@
-import React, { Children } from 'react';
+import React, { Children, ReactNode } from 'react';
 import { SvgProps } from 'react-native-svg';
 import { Button } from './ui/button';
 import { Text } from './ui/text';
@@ -30,7 +30,7 @@ const CustomButton = ({
   className,
   children = '',
   ...props
-}: Props) => {
+}: Props): React.ReactNode => {
   return (
     <Button
       variant={variant}
@@ -41,9 +41,9 @@ const CustomButton = ({
       )}
       {...props}
     >
-      {leftIcon && <Icon className='' />}
+      {leftIcon && <Icon />}
       <Text className='text-center leading-[20px]'>{children}</Text>
-      {rightIcon && <Icon className='  text-red-500 dark:text-white' />}
+      {rightIcon && <Icon />}
     </Button>
   );
 };
