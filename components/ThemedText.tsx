@@ -1,35 +1,54 @@
 import React from 'react';
-import { type TextProps } from 'react-native';
+import { StyleSheet, TextProps } from 'react-native';
+import { cn } from '~/lib/utils';
 import { Text } from './ui/text';
-import { cn } from '~/lib/utils'; // Assuming you have a utility for class names
 
-export type ThemedTextProps = TextProps & {
-  type?: 'default' | 'medium' | 'semibold' | 'title' | 'subtitle' | 'link';
-  children: React.ReactNode;
+type FontVariant = 'regular' | 'medium' | 'semibold' | 'bold';
+type FontSize = 12 | 13 | 14 | 15 | 16 | 18 | 22;
+
+const fontMap: { [key in FontVariant]: string } = {
+  regular: 'Inter_400Regular',
+  medium: 'Inter_500Medium',
+  semibold: 'Inter_600SemiBold',
+  bold: 'Inter_700Bold',
 };
 
-const ThemedText = ({
-  type = 'default',
-  className,
+const sizeMap: { [key in FontSize]: number } = {
+  12: 12,
+  13: 13,
+  14: 14,
+  15: 15,
+  16: 16,
+  18: 18,
+  22: 22,
+};
+
+interface ThemedTextProps extends TextProps {
+  variant?: FontVariant;
+  size?: FontSize;
+  className?: string;
+  children: React.ReactNode;
+}
+
+const ThemedText: React.FC<ThemedTextProps> = ({
+  variant = 'regular',
+  size = 16,
+  className = '',
   children,
   ...props
-}: ThemedTextProps) => {
-  const textStyles = cn(
-    'font-inter',
-    'text-base', // Default font size, can be adjusted
-    {
-      'font-normal': type === 'default', // FontWeight 400
-      'font-medium': type === 'medium', // FontWeight 500
-      'font-semibold': type === 'semibold', // FontWeight 600
-      'text-3xl font-bold leading-8': type === 'title', // Example title styles
-      'text-xl font-bold': type === 'subtitle', // Example subtitle styles
-      'text-base text-blue-600': type === 'link', // Example link styles
+}) => {
+  const fontFamily = fontMap[variant] || fontMap.regular;
+  const fontSize = sizeMap[size] || sizeMap[16];
+
+  const styles = StyleSheet.create({
+    text: {
+      fontFamily: fontFamily,
+      fontSize: fontSize,
     },
-    className
-  );
+  });
 
   return (
-    <Text className={textStyles} {...props}>
+    <Text style={[styles.text]} className={cn(className)} {...props}>
       {children}
     </Text>
   );

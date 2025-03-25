@@ -1,6 +1,5 @@
 import '~/global.css';
 
-import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import {
@@ -20,6 +19,15 @@ import { ConvexProvider, ConvexReactClient } from 'convex/react';
 import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
 import { tokenCache } from '@/cache';
 import { ConvexProviderWithClerk } from 'convex/react-clerk';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import {
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+  Inter_900Black,
+  useFonts,
+} from '@expo-google-fonts/inter';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -37,10 +45,10 @@ const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
   unsavedChangesWarning: false,
 });
 
-// export {
-//   // Catch any errors thrown by the Layout component.
-//   d,
-// } from 'expo-router';
+export {
+  // Catch any errors thrown by the Layout component.
+  ErrorBoundary,
+} from 'expo-router';
 
 function InitialLayout() {
   const { isLoaded, isSignedIn } = useAuth();
@@ -68,8 +76,11 @@ export default function RootLayout() {
   const hasMounted = React.useRef(false);
   const { isDarkColorScheme } = useColorScheme();
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
-  const [loaded] = useFonts({
-    Inter: require('../assets/fonts/Inter.ttf'),
+  const [loaded, error] = useFonts({
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
   });
 
   const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
@@ -91,7 +102,7 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    if (loaded) {
+    if (loaded || error) {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
@@ -104,8 +115,10 @@ export default function RootLayout() {
     <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
       <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
         <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-          <InitialLayout />
-          <StatusBar style='auto' />
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <InitialLayout />
+            <StatusBar style='auto' />
+          </GestureHandlerRootView>
         </ThemeProvider>
       </ConvexProviderWithClerk>
     </ClerkProvider>
