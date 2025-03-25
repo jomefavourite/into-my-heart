@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, Platform } from 'react-native';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
@@ -41,20 +41,28 @@ export default function HomeHeader() {
   return (
     <>
       {/* Header */}
-      <SafeAreaView>
+      <SafeAreaView
+        style={{
+          ...Platform.select({
+            ios: {
+              height: 125,
+            },
+          }),
+        }}
+      >
         <View className='p-4 flex-row justify-between items-center'>
           <View className='flex-row gap-2'>
             <Avatar alt="Zach Nugent's Avatar">
               <AvatarImage source={{ uri: user?.imageUrl }} />
               <AvatarFallback>
-                <ThemedText>ZN</ThemedText>
+                <ThemedText>{user?.firstName?.charAt(0)}</ThemedText>
               </AvatarFallback>
             </Avatar>
             <View>
-              <ThemedText className='text-sm'>Welcome</ThemedText>
-              <ThemedText className='text-base font-medium'>
-                {user?.firstName}
+              <ThemedText size={12} className='text-[#707070]'>
+                Welcome
               </ThemedText>
+              <ThemedText variant='medium'>{user?.firstName}</ThemedText>
             </View>
           </View>
 

@@ -1,6 +1,6 @@
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, Image } from 'react-native';
 import React from 'react';
-import { H2, H4, P } from '~/components/ui/typography';
+import { H2, H3, H4, P, Small } from '~/components/ui/typography';
 import ThemedText from '~/components/ThemedText';
 
 export default function MemorizationTips() {
@@ -10,9 +10,12 @@ export default function MemorizationTips() {
       // contentContainerClassName='p-6 items-center'
       showsVerticalScrollIndicator={false}
     >
-      <Text>MemorizationTips</Text>
-
-      <H2>Bible Study and Memorization Tips</H2>
+      <H3>Bible Study and Memorization Tips</H3>
+      <View className='p-3' />
+      <Image
+        source={require('~/assets/images/bible-tips.png')}
+        className='w-full object-contain h-[170px] rounded-xl'
+      />
       <View className='p-3' />
       <P>
         Studying and memorizing scripture is a powerful way to deepen your
@@ -26,30 +29,45 @@ export default function MemorizationTips() {
       <P>
         1. Pray Before You Begin: Start with a prayer asking God to open your
         heart and mind to His Word. Ask for wisdom and understanding as you
-        study. Choose a Study Plan: Structure helps with consistency. Consider a
+        study.
+      </P>
+      <View className={'flex-row items-start mb-2'}>
+        <Text className={'mr-2'}>•</Text>
+        <P>
+          Pray Before You Begin: Start with a prayer asking God to open your
+          heart and mind to His Word. Ask for wisdom and understanding as you
+          study.
+        </P>
+      </View>
+
+      <P>
+        2. Choose a Study Plan: Structure helps with consistency. Consider a
         topical study, a book-by-book study, or a character study to gain deeper
-        insights. Read in Context: Avoid cherry-picking verses. Read surrounding
+        insights.
+      </P>
+
+      <P>
+        3. Read in Context: Avoid cherry-picking verses. Read surrounding
         passages to understand the full meaning of a scripture. Take Notes &
         Highlight: Write down key insights, underline important verses, and use
         colour coding to categorize themes such as promises, commands, and
         teachings.
       </P>
       <P>
-        2. Ask Reflective Questions: What is God revealing to me in this
+        4. Ask Reflective Questions: What is God revealing to me in this
         passage? How does this apply to my life today? Is there a promise,
         command, or lesson I need to act on?
       </P>
       <P>
-        Use Different Translations: Reading multiple translations can provide
+        5. Use Different Translations: Reading multiple translations can provide
         clarity and deeper understanding of a verse. Join a Study Group:
         Studying with others fosters discussion, accountability, and
         encouragement.
       </P>
       <P>
-        Apply What You Learn: Scripture is meant to transform our lives. Take
+        6. Apply What You Learn: Scripture is meant to transform our lives. Take
         practical steps to live out what you read.
       </P>
-
       <H4>Memorization Tips</H4>
       <P>
         Start Small: Begin with short verses and gradually work up to longer
@@ -91,7 +109,6 @@ export default function MemorizationTips() {
         Review Regularly: Repetition over time solidifies memory. Make scripture
         review part of your daily routine.
       </P>
-
       <H4>Final Thoughts</H4>
       <P>
         Bible study and memorization are not about checking off a task but about

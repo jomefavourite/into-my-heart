@@ -18,7 +18,9 @@ import { useColorScheme } from '~/hooks/useColorScheme';
 import { useBottomSheetStore } from '~/lib/utils';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const { colorScheme } = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
+
   const bottomSheetRef = useRef<BottomSheet>(null);
   const bottomSheetIndex = useBottomSheetStore(
     (state) => state.bottomSheetIndex
@@ -82,10 +84,16 @@ export default function TabLayout() {
         index={bottomSheetIndex}
         snapPoints={['50%']}
         enablePanDownToClose={true}
-        // onChange={handleSheetChanges}
         onChange={(index) => setBottomSheetIndex(index)}
-        // backgroundStyle={[styles.shadow, { elevation: 10 }]}
-        style={styles.sheetContainerShadow}
+        backgroundStyle={{
+          backgroundColor: isDarkMode ? '#313131' : '#fff',
+        }}
+        style={{
+          boxShadow: isDarkMode
+            ? '0px -4px 26px rgba(0,0,0, 0.5)'
+            : '0px -4px 26px rgba(0,0,0, 0.1)',
+          borderRadius: 30,
+        }}
       >
         <BottomSheetView
           // style={styles.shadow}
@@ -94,12 +102,12 @@ export default function TabLayout() {
           <View className='mx-auto mt-6 mb-6'>
             <Svg width={100} height={100} fill='none'>
               <Path
-                fill='#313131'
+                fill={isDarkMode ? '#fff' : '#313131'}
                 d='M50.5 89.587c18.41 0 33.333-14.924 33.333-33.334 0-12.337-6.703-28.724-16.667-38.191l-8.333 11.101-14.583-18.75C29.666 20.83 17.166 39.98 17.166 56.253c0 18.41 14.924 33.334 33.334 33.334Z'
               />
               <Path
-                fill='#fff'
-                stroke='#fff'
+                fill={isDarkMode ? '#313131' : '#fff'}
+                stroke={isDarkMode ? '#313131' : '#fff'}
                 strokeLinejoin='round'
                 strokeWidth={5}
                 d='M50.5 77.08c9.205 0 16.667-8.395 16.667-18.75 0-3.296-.756-6.393-2.083-9.085l-8.334 7.001-12.5-16.67C40.084 43.741 33.834 50.46 33.834 58.33c0 10.355 7.462 18.75 16.666 18.75Z'

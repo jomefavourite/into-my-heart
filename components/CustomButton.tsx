@@ -4,6 +4,7 @@ import { Button } from './ui/button';
 import { Text } from './ui/text';
 import { Pressable } from 'react-native';
 import { cn } from '~/lib/utils';
+import ThemedText from './ThemedText';
 
 type Props = React.ComponentPropsWithoutRef<typeof Pressable> & {
   variant?:
@@ -36,13 +37,19 @@ const CustomButton = ({
       variant={variant}
       size={size}
       className={cn(
-        'rounded-full flex flex-row w-full justify-center items-center space-x-2 ',
+        'rounded-full flex flex-row justify-center items-center space-x-2 ',
         className
       )}
       {...props}
     >
       {leftIcon && <Icon />}
-      <Text className='text-center leading-[20px]'>{children}</Text>
+      <ThemedText
+        size={14}
+        variant='medium'
+        className='text-center leading-[20px]'
+      >
+        {children}
+      </ThemedText>
       {rightIcon && <Icon />}
     </Button>
   );
