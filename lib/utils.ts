@@ -18,13 +18,19 @@ export interface OnboardingStep {
 import { create } from 'zustand';
 
 interface HeaderBottomSheet {
-  bottomSheetIndex: number;
-  setBottomSheetIndex: (by: number) => void;
+  streakBottomSheetIndex: number;
+  startDateBottomSheetIndex: number;
+  setStreakBottomSheetIndex: (by: number) => void;
+  setStartDateBottomSheetIndex: (by: number) => void;
 }
 
 export const useBottomSheetStore = create<HeaderBottomSheet>()((set) => ({
-  bottomSheetIndex: -1,
-  setBottomSheetIndex: (by) => set((state) => ({ bottomSheetIndex: by })),
+  streakBottomSheetIndex: -1,
+  startDateBottomSheetIndex: -1,
+  setStreakBottomSheetIndex: (by) =>
+    set((state) => ({ streakBottomSheetIndex: by })),
+  setStartDateBottomSheetIndex: (by) =>
+    set((state) => ({ startDateBottomSheetIndex: by })),
 }));
 
 export interface OnboardingData {

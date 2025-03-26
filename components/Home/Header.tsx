@@ -21,22 +21,9 @@ export default function HomeHeader() {
   const { colorScheme } = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
 
-  const setBottomSheetIndex = useBottomSheetStore(
-    (state) => state.setBottomSheetIndex
+  const setStreakBottomSheetIndex = useBottomSheetStore(
+    (state) => state.setStreakBottomSheetIndex
   );
-
-  const bottomSheetRef = useRef<BottomSheet>(null);
-
-  const snapPoints = ['50%'];
-
-  // callbacks
-  const handleSheetChanges = useCallback((index: number) => {
-    console.log('handleSheetChanges', index);
-  }, []);
-
-  const handleOpenPress = useCallback(() => {
-    bottomSheetRef.current?.snapToIndex(0); // Opens to the first snap point
-  }, []);
 
   return (
     <>
@@ -69,7 +56,10 @@ export default function HomeHeader() {
           <View className='flex-row items-center justify-end gap-4 '>
             <CustomButton
               className={cn('w-fit !px-4 gap-1 self-end')}
-              onPress={() => setBottomSheetIndex(1)}
+              onPress={() => {
+                console.log('Pressed');
+                setStreakBottomSheetIndex(1);
+              }}
               leftIcon
               Icon={() => (
                 <Svg width={24} height={24} fill='none'>

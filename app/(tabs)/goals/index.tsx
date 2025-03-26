@@ -33,7 +33,7 @@ export default function GoalsScreen() {
         <Tabs
           value={value}
           onValueChange={setValue}
-          className='w-full mx-auto flex-col gap-1.5'
+          className='w-full mx-auto flex-col gap-4'
         >
           <View className='flex-row justify-between'>
             <TabsList className='flex-row'>
@@ -80,67 +80,17 @@ export default function GoalsScreen() {
           </View>
 
           <TabsContent value='goals'>
-            <Card>
-              <CardHeader>
-                <CardTitle>Account</CardTitle>
-                <CardDescription>
-                  Make changes to your account here. Click save when you're
-                  done.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className='gap-4 native:gap-2'>
-                <View className='gap-1'>
-                  <Label nativeID='name'>Name</Label>
-                  <Input
-                    aria-aria-labelledby='name'
-                    defaultValue='Pedro Duarte'
-                  />
-                </View>
-                <View className='gap-1'>
-                  <Label nativeID='username'>Username</Label>
-                  <Input id='username' defaultValue='@peduarte' />
-                </View>
-              </CardContent>
-              <CardFooter>
-                <Button>
-                  <Text>Save changes</Text>
-                </Button>
-              </CardFooter>
-            </Card>
+            <View className='gap-3'>
+              <ThemedText variant='medium'>Goals suggested</ThemedText>
+
+              <View>
+                <CustomButton variant='outline' className='rounded-lg'>
+                  Complete the beatitudes this week
+                </CustomButton>
+              </View>
+            </View>
           </TabsContent>
-          <TabsContent value='completed'>
-            <Card>
-              <CardHeader>
-                <CardTitle>Password</CardTitle>
-                <CardDescription>
-                  Change your password here. After saving, you'll be logged out.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className='gap-4 native:gap-2'>
-                <View className='gap-1'>
-                  <Label nativeID='current'>Current password</Label>
-                  <Input
-                    placeholder='********'
-                    aria-labelledby='current'
-                    secureTextEntry
-                  />
-                </View>
-                <View className='gap-1'>
-                  <Label nativeID='new'>New password</Label>
-                  <Input
-                    placeholder='********'
-                    aria-labelledby='new'
-                    secureTextEntry
-                  />
-                </View>
-              </CardContent>
-              <CardFooter>
-                <Button>
-                  <Text>Save password</Text>
-                </Button>
-              </CardFooter>
-            </Card>
-          </TabsContent>
+          <TabsContent value='completed'></TabsContent>
         </Tabs>
       </View>
     </Container>
