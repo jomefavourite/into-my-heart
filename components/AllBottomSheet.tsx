@@ -1,14 +1,16 @@
-import React, { memo, useCallback, useEffect, useRef } from 'react';
-import { View, Text, Platform, TouchableOpacity } from 'react-native';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import React, { memo, useCallback, useMemo, useRef } from 'react';
+import { View, Text, TouchableOpacity, Pressable } from 'react-native';
+import BottomSheet, {
+  BottomSheetView,
+  useBottomSheet,
+} from '@gorhom/bottom-sheet';
 import { useColorScheme } from '~/hooks/useColorScheme';
 import Svg, { Path } from 'react-native-svg';
 import ThemedText from './ThemedText';
-import { useBottomSheetStore } from '~/lib/utils';
-// import { Calendar, toDateId } from '@marceloterreiro/flash-calendar';
-import { FlashList } from '@shopify/flash-list';
-import { Calendar, CalendarUtils } from 'react-native-calendars';
-import { useNavigation } from 'expo-router';
+import { cn, useBottomSheetStore } from '~/lib/utils';
+import { Calendar } from 'react-native-calendars';
+import { RadioGroup } from '~/components/ui/radio-group';
+import { Label } from './ui/label';
 
 const StreakBottomSheetContent = memo(() => {
   const { colorScheme } = useColorScheme();
@@ -50,8 +52,7 @@ const StartDateBottomSheetContent = memo(() => {
     setCustomHeaderNewMonth(false);
   };
 
-  const today = new Date();
-  const formattedDate = today.toLocaleDateString();
+  const formattedDate = useMemo(() => new Date().toLocaleDateString(), []);
 
   // const today = toDateId(new Date());
 
@@ -75,10 +76,103 @@ const StartDateBottomSheetContent = memo(() => {
 
   return (
     <BottomSheetView>
-      <Calendar />
+      {/* <Calendar /> */}
+      <View></View>
     </BottomSheetView>
   );
 });
+
+const ReviewFreqContent = memo(() => {
+  const { colorScheme } = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
+
+  const { expand, close } = useBottomSheet();
+
+  const reviewFreqValue = useBottomSheetStore((state) => state.reviewFreqValue);
+  const setReviewFreqValue = useBottomSheetStore(
+    (state) => state.setReviewFreqValue
+  );
+
+  const handleValueChange = useCallback(
+    (newValue: string) => {
+      setReviewFreqValue(newValue);
+    },
+    [setReviewFreqValue]
+  );
+
+  // const handleButtonValue = useCallback(
+  //   (value: string) => {
+  //     close();
+  //     setReviewFreqValue(value);
+  //   },
+  //   [setReviewFreqValue]
+  // );
+
+  return (
+    <BottomSheetView className='flex-1 py-4'>
+      <RadioGroup
+        value={reviewFreqValue}
+        onValueChange={handleValueChange}
+        className='gap-0'
+      >
+        <CustomRadioButton
+          label='Daily'
+          value='Daily'
+          isActive={reviewFreqValue === 'Daily'}
+          onPress={() => {
+            close();
+            setReviewFreqValue('Daily');
+          }}
+        />
+        <CustomRadioButton
+          label='Weekly'
+          value='Weekly'
+          isActive={reviewFreqValue === 'Weekly'}
+          onPress={() => {
+            close();
+            setReviewFreqValue('Weekly');
+          }}
+        />
+        <CustomRadioButton
+          label='Every other day'
+          value='Every other day'
+          isActive={reviewFreqValue === 'Every other day'}
+          onPress={() => {
+            close();
+            setReviewFreqValue('Every other day');
+          }}
+        />
+      </RadioGroup>
+    </BottomSheetView>
+  );
+});
+
+interface CustomRadioButtonProps {
+  label: string;
+  value: string;
+  isActive: boolean;
+  onPress: () => void;
+}
+
+const CustomRadioButton = memo(
+  ({ label, value, isActive, onPress }: CustomRadioButtonProps) => {
+    return (
+      <Pressable
+        onPress={onPress}
+        className={cn('py-4 px-3 text-center', isActive ? 'bg-[#FAFAFA]' : '')}
+      >
+        <ThemedText
+          className={cn(
+            isActive ? 'text-black' : 'text-[#707070]',
+            'text-base  text-center'
+          )}
+        >
+          {label}
+        </ThemedText>
+      </Pressable>
+    );
+  }
+);
 
 export default function AllBottomSheet() {
   const { colorScheme } = useColorScheme();
@@ -86,19 +180,21 @@ export default function AllBottomSheet() {
 
   const bottomSheetRef = useRef<BottomSheet>(null);
 
-  const navigation = useNavigation();
-
   const streakBottomSheetIndex = useBottomSheetStore(
     (state) => state.streakBottomSheetIndex
   );
   const startDateBottomSheetIndex = useBottomSheetStore(
     (state) => state.startDateBottomSheetIndex
   );
+  const reviewFreqIndex = useBottomSheetStore((state) => state.reviewFreqIndex);
   const setStreakBottomSheetIndex = useBottomSheetStore(
     (state) => state.setStreakBottomSheetIndex
   );
   const setStartDateBottomSheetIndex = useBottomSheetStore(
     (state) => state.setStartDateBottomSheetIndex
+  );
+  const setReviewFreqIndex = useBottomSheetStore(
+    (state) => state.setReviewFreqIndex
   );
 
   const handleStreakBottomSheetChange = useCallback(
@@ -113,6 +209,12 @@ export default function AllBottomSheet() {
       setStartDateBottomSheetIndex(index);
     },
     [setStartDateBottomSheetIndex]
+  );
+  const handleReviewFreqChange = useCallback(
+    (index: number) => {
+      setReviewFreqIndex(index);
+    },
+    [setReviewFreqIndex]
   );
 
   return (
@@ -154,6 +256,25 @@ export default function AllBottomSheet() {
         }}
       >
         <StartDateBottomSheetContent />
+      </BottomSheet>
+
+      {/* Start Date Bottom Sheet */}
+      <BottomSheet
+        index={reviewFreqIndex}
+        snapPoints={['20%']}
+        enablePanDownToClose={true}
+        onChange={handleReviewFreqChange}
+        backgroundStyle={{
+          backgroundColor: isDarkMode ? '#313131' : '#fff',
+        }}
+        style={{
+          boxShadow: isDarkMode
+            ? '0px -4px 26px rgba(0,0,0, 0.5)'
+            : '0px -4px 26px rgba(0,0,0, 0.1)',
+          borderRadius: 30,
+        }}
+      >
+        <ReviewFreqContent />
       </BottomSheet>
     </>
   );

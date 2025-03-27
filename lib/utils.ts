@@ -20,17 +20,25 @@ import { create } from 'zustand';
 interface HeaderBottomSheet {
   streakBottomSheetIndex: number;
   startDateBottomSheetIndex: number;
+  reviewFreqIndex: number;
+  reviewFreqValue: string;
   setStreakBottomSheetIndex: (by: number) => void;
   setStartDateBottomSheetIndex: (by: number) => void;
+  setReviewFreqIndex: (by: number) => void;
+  setReviewFreqValue: (by: string) => void;
 }
 
 export const useBottomSheetStore = create<HeaderBottomSheet>()((set) => ({
   streakBottomSheetIndex: -1,
   startDateBottomSheetIndex: -1,
+  reviewFreqIndex: -1,
+  reviewFreqValue: 'Daily',
   setStreakBottomSheetIndex: (by) =>
-    set((state) => ({ streakBottomSheetIndex: by })),
+    set(() => ({ streakBottomSheetIndex: by })),
   setStartDateBottomSheetIndex: (by) =>
-    set((state) => ({ startDateBottomSheetIndex: by })),
+    set(() => ({ startDateBottomSheetIndex: by })),
+  setReviewFreqIndex: (by) => set(() => ({ reviewFreqIndex: by })),
+  setReviewFreqValue: (by) => set(() => ({ reviewFreqValue: by })),
 }));
 
 export interface OnboardingData {
