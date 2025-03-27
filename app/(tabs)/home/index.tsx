@@ -87,6 +87,7 @@ export default function HomeScreen() {
                 rightIcon
                 Icon={ArrowRightIcon}
                 className='mt-3'
+                onPress={() => router.push('/(verses)/add-book')}
               >
                 Add verse
               </CustomButton>
