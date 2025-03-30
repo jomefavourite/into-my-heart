@@ -19,6 +19,7 @@ import { cn } from '~/lib/utils';
 import AddIcon from '~/assets/icons/AddIcon';
 import ListViewIcon from '~/assets/icons/ListViewIcon';
 import { useRouter } from 'expo-router';
+import { ScrollView } from 'react-native';
 
 export default function GoalsScreen() {
   const [value, setValue] = React.useState('goals');
@@ -83,11 +84,27 @@ export default function GoalsScreen() {
             <View className='gap-3'>
               <ThemedText variant='medium'>Goals suggested</ThemedText>
 
-              <View>
-                <CustomButton variant='outline' className='rounded-lg'>
-                  Complete the beatitudes this week
-                </CustomButton>
-              </View>
+              <ScrollView
+                horizontal={true}
+                style={{
+                  flexWrap: 'wrap',
+                  flexDirection: 'row',
+                  width: 200,
+                  height: 500,
+                  backgroundColor: 'red',
+                }}
+                // className='flex-wrap gap-3 w-[400px]'
+              >
+                {new Array(6).fill(null).map((_, index) => (
+                  <CustomButton
+                    key={index}
+                    variant='outline'
+                    className='rounded-lg'
+                  >
+                    Complete the beatitudes this week
+                  </CustomButton>
+                ))}
+              </ScrollView>
             </View>
           </TabsContent>
           <TabsContent value='completed'></TabsContent>
