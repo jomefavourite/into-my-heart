@@ -1,5 +1,5 @@
-import { View, Text } from 'react-native';
-import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
 import Container from '~/components/Container';
 import ThemedText from '~/components/ThemedText';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
@@ -20,10 +20,20 @@ import AddIcon from '~/assets/icons/AddIcon';
 import ListViewIcon from '~/assets/icons/ListViewIcon';
 import { useRouter } from 'expo-router';
 import { ScrollView } from 'react-native';
+import ArrowRightIcon from '~/assets/icons/ArrowRightIcon';
+import GridViewIcon from '~/assets/icons/GridViewIcon';
+import GoalCard from '~/components/GoalCard';
 
 export default function GoalsScreen() {
-  const [value, setValue] = React.useState('goals');
+  const [value, setValue] = useState('goals');
+  const [view, setView] = useState('list');
+
   const router = useRouter();
+
+  const containerClassName =
+    view === 'grid' ? 'flex-row flex-wrap' : 'flex-col';
+  const itemClassName = view === 'grid' ? 'w-[49%]' : ' ';
+
   return (
     <Container>
       <View className='gap-5'>
@@ -74,8 +84,16 @@ export default function GoalsScreen() {
               >
                 <AddIcon stroke='white' />
               </Button>
-              <Button size={'icon'} className='bg-transparent'>
-                <ListViewIcon stroke='white' />
+              <Button
+                size={'icon'}
+                className='bg-transparent'
+                onPress={() => setView(view === 'list' ? 'grid' : 'list')}
+              >
+                {view === 'list' ? (
+                  <ListViewIcon stroke='white' />
+                ) : (
+                  <GridViewIcon />
+                )}
               </Button>
             </View>
           </View>
@@ -89,9 +107,10 @@ export default function GoalsScreen() {
                 style={{
                   flexWrap: 'wrap',
                   flexDirection: 'row',
-                  width: 200,
-                  height: 500,
+                  width: 'auto',
+                  height: 'auto',
                   backgroundColor: 'red',
+                  gap: 20,
                 }}
                 // className='flex-wrap gap-3 w-[400px]'
               >
@@ -106,6 +125,19 @@ export default function GoalsScreen() {
                 ))}
               </ScrollView>
             </View>
+
+            <View className='gap-3'>
+              <View className='flex-row items-center justify-between'>
+                <ThemedText variant='medium'>My Goals</ThemedText>
+                <Button size={'icon'} variant={'ghost'}>
+                  <ArrowRightIcon />
+                </Button>
+              </View>
+
+              <View className={cn('gap-2', containerClassName)}>
+                <GoalCard />
+              </View>
+            </View>
           </TabsContent>
           <TabsContent value='completed'></TabsContent>
         </Tabs>
@@ -113,3 +145,36 @@ export default function GoalsScreen() {
     </Container>
   );
 }
+
+const styles = StyleSheet.create({
+  appContainer: {
+    flex: 1,
+    padding: 20,
+  },
+  toggleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  listContainer: {
+    flexDirection: 'column', // List layout
+  },
+  gridContainer: {
+    flexDirection: 'row', // Grid layout (rows)
+    flexWrap: 'wrap', // Allow items to wrap to the next row
+  },
+  listItem: {
+    padding: 15,
+    backgroundColor: 'lightblue',
+    borderBottomWidth: 1,
+    borderColor: 'gray',
+  },
+  gridItem: {
+    width: '50%', // Two columns
+    padding: 15,
+    backgroundColor: 'lightgreen',
+    borderWidth: 1,
+    borderColor: 'gray',
+  },
+});
