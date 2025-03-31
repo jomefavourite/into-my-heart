@@ -25,6 +25,20 @@ const HomeLayout = () => {
           // presentation: 'card',
         }}
       />
+      <Stack.Screen
+        name='verse-of-the-day'
+        options={{
+          title: 'Verse of the day',
+          // presentation: 'card',
+        }}
+      />
+      <Stack.Screen
+        name='memorization-tips'
+        options={{
+          title: '',
+          // presentation: 'card',
+        }}
+      />
     </Stack>
   );
 };

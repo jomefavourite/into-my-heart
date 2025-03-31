@@ -15,6 +15,18 @@ export interface OnboardingStep {
   btnText: string;
 }
 
+import { create } from 'zustand';
+
+interface HeaderBottomSheet {
+  bottomSheetIndex: number;
+  setBottomSheetIndex: (by: number) => void;
+}
+
+export const useBottomSheetStore = create<HeaderBottomSheet>()((set) => ({
+  bottomSheetIndex: -1,
+  setBottomSheetIndex: (by) => set((state) => ({ bottomSheetIndex: by })),
+}));
+
 export interface OnboardingData {
   [stepNumber: number]: OnboardingStep;
 }
