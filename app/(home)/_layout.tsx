@@ -5,38 +5,24 @@ const HomeLayout = () => {
   return (
     <Stack>
       <Stack.Screen
-        name='index'
-        options={{
-          title: 'Home',
-          headerTitle: '',
-          // headerShadowVisible: false,
-          headerShown: false,
-          // headerStyle: {
-          //   backgroundColor: '#f5f5f5',
-          // },
-          // headerLeft: () => <HeaderLeft />,
-          // headerRight: () => <HeaderRight />,
-        }}
-      />
-      <Stack.Screen
         name='notifications'
         options={{
           title: 'Notifications',
-          // presentation: 'card',
+          headerShown: false,
         }}
       />
       <Stack.Screen
         name='verse-of-the-day'
         options={{
           title: 'Verse of the day',
-          // presentation: 'card',
+          headerShown: false,
         }}
       />
       <Stack.Screen
         name='memorization-tips'
         options={{
           title: '',
-          // presentation: 'card',
+          headerShown: false,
         }}
       />
     </Stack>

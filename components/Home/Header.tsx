@@ -39,7 +39,7 @@ export default function HomeHeader() {
       >
         <View className='p-4 flex-row justify-between items-center'>
           <View className='flex-row gap-2'>
-            <Avatar alt="Zach Nugent's Avatar">
+            <Avatar alt={user?.firstName || ''}>
               <AvatarImage source={{ uri: user?.imageUrl }} />
               <AvatarFallback>
                 <ThemedText>{user?.firstName?.charAt(0)}</ThemedText>
@@ -84,7 +84,7 @@ export default function HomeHeader() {
             <Pressable
               className=''
               onPress={() => {
-                router.push('/(tabs)/home/notifications');
+                router.push('/(home)/notifications');
               }}
             >
               <NotificationIcon />
