@@ -80,7 +80,7 @@ export default function GoalsScreen() {
               <Button
                 size={'icon'}
                 variant={'ghost'}
-                onPress={() => router.push('/(tabs)/goals/create-goal')}
+                onPress={() => router.push('/(goals)/create-goal')}
               >
                 <AddIcon stroke='white' />
               </Button>
@@ -104,14 +104,15 @@ export default function GoalsScreen() {
 
               <ScrollView
                 horizontal={true}
-                style={{
-                  flexWrap: 'wrap',
-                  flexDirection: 'row',
-                  width: 'auto',
-                  height: 'auto',
-                  backgroundColor: 'red',
-                  gap: 20,
-                }}
+                showsHorizontalScrollIndicator={false}
+                // style={{
+                //   flexWrap: 'wrap',
+                //   flexDirection: 'row',
+                //   width: 'auto',
+                //   height: 'auto',
+                //   backgroundColor: 'red',
+                //   gap: 20,
+                // }}
                 // className='flex-wrap gap-3 w-[400px]'
               >
                 {new Array(6).fill(null).map((_, index) => (
@@ -132,7 +133,7 @@ export default function GoalsScreen() {
                 <Button
                   size={'icon'}
                   variant={'ghost'}
-                  onPress={() => router.push('/(tabs)/goals/all-goals')}
+                  onPress={() => router.push('/(goals)/all-goals')}
                 >
                   <ArrowRightIcon />
                 </Button>
@@ -143,7 +144,9 @@ export default function GoalsScreen() {
               </View>
             </View>
           </TabsContent>
-          <TabsContent value='completed'></TabsContent>
+          <TabsContent value='completed'>
+            <GoalCard view={view} goalCompleted />
+          </TabsContent>
         </Tabs>
       </View>
     </Container>

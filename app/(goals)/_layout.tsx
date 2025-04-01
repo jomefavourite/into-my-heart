@@ -5,14 +5,14 @@ const GoalsLayout = () => {
   return (
     <>
       <Stack>
-        <Stack.Screen
+        {/* <Stack.Screen
           name='index'
           options={{
             title: 'Goals',
             headerTitle: 'Goals',
             headerShown: false,
           }}
-        />
+        /> */}
         <Stack.Screen
           name='create-goal'
           options={{
@@ -24,6 +24,13 @@ const GoalsLayout = () => {
           name='all-goals'
           options={{
             title: 'My Goals',
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name='remove-goals'
+          options={{
+            title: 'Remove Goals',
             headerShown: false,
           }}
         />

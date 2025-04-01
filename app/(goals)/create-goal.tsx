@@ -36,7 +36,7 @@ export default function CreateGoal() {
 
         {/* This should be centered properly, it's not currently */}
         <ThemedText size={16} variant='medium'>
-          My Goals
+          Create Goal
         </ThemedText>
 
         <View></View>

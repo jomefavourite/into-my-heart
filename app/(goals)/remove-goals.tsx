@@ -7,30 +7,28 @@ import { Button } from '~/components/ui/button';
 import ArrowLeftIcon from '~/assets/icons/ArrowLeftIcon';
 import { useRouter } from 'expo-router';
 import RemoveCircleIcon from '~/assets/icons/RemoveCircleIcon';
+import CancelIcon from '~/assets/icons/CancelIcon';
+import DeleteIcon from '~/assets/icons/DeleteIcon';
 
-const AllGoalsScreen = () => {
+const RemoveGoalsScreen = () => {
   const router = useRouter();
   return (
     <Container>
       <View className='items-center justify-between flex-row mb-7'>
         <Button size={'icon'} variant={'ghost'} onPress={() => router.back()}>
-          <ArrowLeftIcon />
+          <CancelIcon />
         </Button>
 
-        <ThemedText size={16} variant='medium'>
-          My Goals
-        </ThemedText>
-
         <Button size={'icon'} variant={'ghost'}>
-          <RemoveCircleIcon />
+          <DeleteIcon />
         </Button>
       </View>
 
       <ScrollView>
-        <GoalCard />
+        <GoalCard checkMark />
       </ScrollView>
     </Container>
   );
 };
 
-export default AllGoalsScreen;
+export default RemoveGoalsScreen;
