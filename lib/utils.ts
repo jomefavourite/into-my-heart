@@ -18,13 +18,31 @@ export interface OnboardingStep {
 import { create } from 'zustand';
 
 interface HeaderBottomSheet {
-  bottomSheetIndex: number;
-  setBottomSheetIndex: (by: number) => void;
+  streakBottomSheetIndex: number;
+  startDateBottomSheetIndex: number;
+  reviewFreqIndex: number;
+  reviewFreqValue: string;
+  removeGoalIndex: number;
+  setStreakBottomSheetIndex: (by: number) => void;
+  setStartDateBottomSheetIndex: (by: number) => void;
+  setReviewFreqIndex: (by: number) => void;
+  setReviewFreqValue: (by: string) => void;
+  setRemoveGoalIndex: (by: number) => void;
 }
 
 export const useBottomSheetStore = create<HeaderBottomSheet>()((set) => ({
-  bottomSheetIndex: -1,
-  setBottomSheetIndex: (by) => set((state) => ({ bottomSheetIndex: by })),
+  streakBottomSheetIndex: -1,
+  startDateBottomSheetIndex: -1,
+  reviewFreqIndex: -1,
+  reviewFreqValue: 'Daily',
+  removeGoalIndex: -1,
+  setStreakBottomSheetIndex: (by) =>
+    set(() => ({ streakBottomSheetIndex: by })),
+  setStartDateBottomSheetIndex: (by) =>
+    set(() => ({ startDateBottomSheetIndex: by })),
+  setReviewFreqIndex: (by) => set(() => ({ reviewFreqIndex: by })),
+  setReviewFreqValue: (by) => set(() => ({ reviewFreqValue: by })),
+  setRemoveGoalIndex: (by) => set(() => ({ removeGoalIndex: by })),
 }));
 
 export interface OnboardingData {

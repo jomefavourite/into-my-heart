@@ -15,9 +15,9 @@ import { Platform } from 'react-native';
 import { NAV_THEME } from '~/lib/constants';
 import { useColorScheme } from '~/hooks/useColorScheme';
 import { useFrameworkReady } from '~/hooks/useFrameworkReady';
-import { ConvexProvider, ConvexReactClient } from 'convex/react';
+import { ConvexReactClient } from 'convex/react';
 import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
-import { tokenCache } from '@/cache';
+import { tokenCache } from '~/cache';
 import { ConvexProviderWithClerk } from 'convex/react-clerk';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {
@@ -25,9 +25,9 @@ import {
   Inter_500Medium,
   Inter_600SemiBold,
   Inter_700Bold,
-  Inter_900Black,
   useFonts,
 } from '@expo-google-fonts/inter';
+import AllBottomSheet from '~/components/AllBottomSheet';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -69,7 +69,17 @@ function InitialLayout() {
     }
   }, [isSignedIn, segments]);
 
-  return <Slot />;
+  return (
+    <>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      />
+
+      <AllBottomSheet />
+    </>
+  );
 }
 
 export default function RootLayout() {
