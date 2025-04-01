@@ -17,11 +17,14 @@ const GoalsLayout = () => {
           name='create-goal'
           options={{
             title: 'Create Goal',
-            // headerShown: false,
-            headerShadowVisible: false,
-            // headerStyle: {
-            //   backgroundColor: '#f5f5f5',
-            // },
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name='all-goals'
+          options={{
+            title: 'My Goals',
+            headerShown: false,
           }}
         />
       </Stack>

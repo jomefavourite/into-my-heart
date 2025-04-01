@@ -9,10 +9,14 @@ import AddIcon from '~/assets/icons/AddIcon';
 import { cn, useBottomSheetStore } from '~/lib/utils';
 import UnfoldMoreIcon from '~/assets/icons/UnfoldMoreIcon';
 import { useColorScheme } from '~/hooks/useColorScheme';
+import ArrowLeftIcon from '~/assets/icons/ArrowLeftIcon';
+import { useRouter } from 'expo-router';
 
 export default function CreateGoal() {
   const { colorScheme } = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
+
+  const router = useRouter();
 
   const setStartDateBottomSheetIndex = useBottomSheetStore(
     (state) => state.setStartDateBottomSheetIndex
@@ -24,8 +28,21 @@ export default function CreateGoal() {
   const reviewFreqValue = useBottomSheetStore((state) => state.reviewFreqValue);
 
   return (
-    <>
-      <View className='flex-1 p-4'>
+    <Container>
+      <View className='items-center justify-between flex-row mb-7'>
+        <Button size={'icon'} variant={'ghost'} onPress={() => router.back()}>
+          <ArrowLeftIcon />
+        </Button>
+
+        {/* This should be centered properly, it's not currently */}
+        <ThemedText size={16} variant='medium'>
+          My Goals
+        </ThemedText>
+
+        <View></View>
+      </View>
+
+      <View className='flex-1'>
         <View className='gap-1 pb-3'>
           <Label nativeID='goalName'>Goal Name</Label>
           <Input
@@ -82,6 +99,6 @@ export default function CreateGoal() {
           </Button>
         </View>
       </View>
-    </>
+    </Container>
   );
 }

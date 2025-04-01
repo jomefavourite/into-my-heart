@@ -26,7 +26,7 @@ import GoalCard from '~/components/GoalCard';
 
 export default function GoalsScreen() {
   const [value, setValue] = useState('goals');
-  const [view, setView] = useState('list');
+  const [view, setView] = useState<'list' | 'grid'>('list');
 
   const router = useRouter();
 
@@ -79,14 +79,14 @@ export default function GoalsScreen() {
             <View className='flex-row'>
               <Button
                 size={'icon'}
-                className='bg-transparent'
+                variant={'ghost'}
                 onPress={() => router.push('/(tabs)/goals/create-goal')}
               >
                 <AddIcon stroke='white' />
               </Button>
               <Button
                 size={'icon'}
-                className='bg-transparent'
+                variant={'ghost'}
                 onPress={() => setView(view === 'list' ? 'grid' : 'list')}
               >
                 {view === 'list' ? (
@@ -129,13 +129,17 @@ export default function GoalsScreen() {
             <View className='gap-3'>
               <View className='flex-row items-center justify-between'>
                 <ThemedText variant='medium'>My Goals</ThemedText>
-                <Button size={'icon'} variant={'ghost'}>
+                <Button
+                  size={'icon'}
+                  variant={'ghost'}
+                  onPress={() => router.push('/(tabs)/goals/all-goals')}
+                >
                   <ArrowRightIcon />
                 </Button>
               </View>
 
               <View className={cn('gap-2', containerClassName)}>
-                <GoalCard />
+                <GoalCard view={view} />
               </View>
             </View>
           </TabsContent>
@@ -145,36 +149,3 @@ export default function GoalsScreen() {
     </Container>
   );
 }
-
-const styles = StyleSheet.create({
-  appContainer: {
-    flex: 1,
-    padding: 20,
-  },
-  toggleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  listContainer: {
-    flexDirection: 'column', // List layout
-  },
-  gridContainer: {
-    flexDirection: 'row', // Grid layout (rows)
-    flexWrap: 'wrap', // Allow items to wrap to the next row
-  },
-  listItem: {
-    padding: 15,
-    backgroundColor: 'lightblue',
-    borderBottomWidth: 1,
-    borderColor: 'gray',
-  },
-  gridItem: {
-    width: '50%', // Two columns
-    padding: 15,
-    backgroundColor: 'lightgreen',
-    borderWidth: 1,
-    borderColor: 'gray',
-  },
-});
