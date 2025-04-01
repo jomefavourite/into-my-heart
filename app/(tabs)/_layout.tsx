@@ -1,11 +1,9 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform, StyleSheet } from 'react-native';
 import GoalsIcon from '~/assets/icons/tabs/GoalsIcon';
 import HomeIcon from '~/assets/icons/tabs/HomeIcon';
 import PracticeIcon from '~/assets/icons/tabs/PracticeIcon';
 import VersesIcon from '~/assets/icons/tabs/VersesIcon';
-import AllBottomSheet from '~/components/AllBottomSheet';
 
 export default function TabLayout() {
   return (
@@ -57,8 +55,6 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-
-      <AllBottomSheet />
     </>
   );
 }

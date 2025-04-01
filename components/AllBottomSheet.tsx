@@ -11,6 +11,7 @@ import { cn, useBottomSheetStore } from '~/lib/utils';
 import { Calendar } from 'react-native-calendars';
 import { RadioGroup } from '~/components/ui/radio-group';
 import { Label } from './ui/label';
+import CustomButton from './CustomButton';
 
 const StreakBottomSheetContent = memo(() => {
   const { colorScheme } = useColorScheme();
@@ -174,6 +175,26 @@ const CustomRadioButton = memo(
   }
 );
 
+const RemoveGoalBottomSheetContent = memo(() => {
+  return (
+    <BottomSheetView className='flex-1 p-4'>
+      <View className='mt-auto'>
+        <ThemedText variant='medium' className='text-center mb-2'>
+          This goal will be removed
+        </ThemedText>
+        <ThemedText
+          size={14}
+          className='text-center text-[#707070] dark:text-[#909090] max-w-[288px] mx-auto'
+        >
+          This goal and all progress will be removed. This action cannot be
+          undone.
+        </ThemedText>
+        <CustomButton className='mt-7'>Remove goal</CustomButton>
+      </View>
+    </BottomSheetView>
+  );
+});
+
 export default function AllBottomSheet() {
   const { colorScheme } = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
@@ -187,6 +208,11 @@ export default function AllBottomSheet() {
     (state) => state.startDateBottomSheetIndex
   );
   const reviewFreqIndex = useBottomSheetStore((state) => state.reviewFreqIndex);
+  const removeGoalIndex = useBottomSheetStore((state) => state.removeGoalIndex);
+  const setRemoveGoalIndex = useBottomSheetStore(
+    (state) => state.setRemoveGoalIndex
+  );
+
   const setStreakBottomSheetIndex = useBottomSheetStore(
     (state) => state.setStreakBottomSheetIndex
   );
@@ -215,6 +241,12 @@ export default function AllBottomSheet() {
       setReviewFreqIndex(index);
     },
     [setReviewFreqIndex]
+  );
+  const handleRemoveGoal = useCallback(
+    (index: number) => {
+      setRemoveGoalIndex(index);
+    },
+    [removeGoalIndex]
   );
 
   return (
@@ -275,6 +307,25 @@ export default function AllBottomSheet() {
         }}
       >
         <ReviewFreqContent />
+      </BottomSheet>
+
+      {/* Remove Goal Bottom Sheet */}
+      <BottomSheet
+        index={removeGoalIndex}
+        snapPoints={['25%']}
+        enablePanDownToClose={true}
+        onChange={handleRemoveGoal}
+        backgroundStyle={{
+          backgroundColor: isDarkMode ? '#313131' : '#fff',
+        }}
+        style={{
+          boxShadow: isDarkMode
+            ? '0px -4px 26px rgba(0,0,0, 0.5)'
+            : '0px -4px 26px rgba(0,0,0, 0.1)',
+          borderRadius: 30,
+        }}
+      >
+        <RemoveGoalBottomSheetContent />
       </BottomSheet>
     </>
   );

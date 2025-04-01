@@ -9,9 +9,15 @@ import { useRouter } from 'expo-router';
 import RemoveCircleIcon from '~/assets/icons/RemoveCircleIcon';
 import CancelIcon from '~/assets/icons/CancelIcon';
 import DeleteIcon from '~/assets/icons/DeleteIcon';
+import { useBottomSheetStore } from '~/lib/utils';
 
 const RemoveGoalsScreen = () => {
   const router = useRouter();
+
+  const setRemoveGoalIndex = useBottomSheetStore(
+    (state) => state.setRemoveGoalIndex
+  );
+
   return (
     <Container>
       <View className='items-center justify-between flex-row mb-7'>
@@ -19,7 +25,11 @@ const RemoveGoalsScreen = () => {
           <CancelIcon />
         </Button>
 
-        <Button size={'icon'} variant={'ghost'}>
+        <Button
+          size={'icon'}
+          variant={'ghost'}
+          onPress={() => setRemoveGoalIndex(1)}
+        >
           <DeleteIcon />
         </Button>
       </View>

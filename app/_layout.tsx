@@ -27,6 +27,7 @@ import {
   Inter_700Bold,
   useFonts,
 } from '@expo-google-fonts/inter';
+import AllBottomSheet from '~/components/AllBottomSheet';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -69,11 +70,15 @@ function InitialLayout() {
   }, [isSignedIn, segments]);
 
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    />
+    <>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      />
+
+      <AllBottomSheet />
+    </>
   );
 }
 
