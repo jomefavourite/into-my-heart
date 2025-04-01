@@ -8,7 +8,7 @@ import {
   DefaultTheme,
   DarkTheme,
 } from '@react-navigation/native';
-import { Slot, Stack, useRouter, useSegments } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { Platform } from 'react-native';
@@ -63,7 +63,7 @@ function InitialLayout() {
     const inAuthGroup = segments[0] === '(onboarding)';
 
     if (isSignedIn && inAuthGroup) {
-      router.replace('/(tabs)/home');
+      router.replace('/(tabs)');
     } else if (!isSignedIn && !inAuthGroup) {
       router.replace('/(onboarding)/create-account');
     }
@@ -120,22 +120,6 @@ export default function RootLayout() {
   if (!isColorSchemeLoaded || !loaded) {
     return null;
   }
-
-  // Create a stable reference to the Stack.Screen components
-  const OnboardingScreen = (
-    <Stack.Screen
-      name='(onboarding)'
-      options={{ headerShown: false }}
-      key='onboarding'
-    />
-  );
-  const TabsScreen = (
-    <Stack.Screen
-      name='(tabs)'
-      options={{ headerShown: false, headerBackVisible: true }}
-      key='tabs'
-    />
-  );
 
   return (
     <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>

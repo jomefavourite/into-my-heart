@@ -62,7 +62,7 @@ export default function HomeScreen() {
               <CustomButton
                 variant='secondary'
                 className='w-fit'
-                onPress={() => router.push('/(tabs)/home/verse-of-the-day')}
+                onPress={() => router.push('/(home)/verse-of-the-day')}
               >
                 Memorize
               </CustomButton>
@@ -143,7 +143,7 @@ export default function HomeScreen() {
             />
 
             <Pressable
-              onPress={() => router.push('/(tabs)/home/memorization-tips')}
+              onPress={() => router.push('/(home)/memorization-tips')}
               className='flex-row items-center gap-1'
             >
               <ThemedText size={13} className=' ml-auto'>
