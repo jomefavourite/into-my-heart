@@ -8,7 +8,7 @@ import {
   DefaultTheme,
   DarkTheme,
 } from '@react-navigation/native';
-import { Slot, useRouter, useSegments } from 'expo-router';
+import { Slot, Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { Platform } from 'react-native';
@@ -110,6 +110,22 @@ export default function RootLayout() {
   if (!isColorSchemeLoaded || !loaded) {
     return null;
   }
+
+  // Create a stable reference to the Stack.Screen components
+  const OnboardingScreen = (
+    <Stack.Screen
+      name='(onboarding)'
+      options={{ headerShown: false }}
+      key='onboarding'
+    />
+  );
+  const TabsScreen = (
+    <Stack.Screen
+      name='(tabs)'
+      options={{ headerShown: false, headerBackVisible: true }}
+      key='tabs'
+    />
+  );
 
   return (
     <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
