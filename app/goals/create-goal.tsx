@@ -44,8 +44,8 @@ export default function CreateGoal() {
           <View></View>
         </View>
 
-        <View className='flex-1'>
-          <View className='gap-1 pb-3'>
+        <View className='flex-1 '>
+          <View className='gap-1 pb-3 p-[18px]'>
             <Label nativeID='goalName'>Goal Name</Label>
             <Input
               aria-aria-labelledby='goalName'
@@ -55,20 +55,20 @@ export default function CreateGoal() {
             />
           </View>
 
-          <View className='border-1 border-[#E8E8E8] dark:border-[#E8E8E8] py-4 border-y flex-row items-center justify-between'>
+          <View className='p-[18px] border-1 border-[#E8E8E8] dark:border-[#E8E8E8] py-4 border-y flex-row items-center justify-between'>
             <ThemedText size={14} variant='medium'>
               Verses
             </ThemedText>
             <Button
               size={'icon'}
               className='bg-transparent'
-              // onPress={() => router.push('/(tabs)/goals/create-goal')}
+              onPress={() => router.push('/(verses)/add-book')}
             >
               <AddIcon stroke='white' />
             </Button>
           </View>
 
-          <View className='border-b border-[#E8E8E8] dark:border-[#E8E8E8] py-4 flex-row gap-5'>
+          <View className='p-[18px] border-b border-[#E8E8E8] dark:border-[#E8E8E8] py-4 flex-row gap-5'>
             <View className='flex-1'>
               <ThemedText size={14} variant='medium'>
                 Start date
@@ -87,7 +87,7 @@ export default function CreateGoal() {
             </View>
           </View>
 
-          <View className='border-b border-[#E8E8E8] flex-row items-center justify-between dark:border-[#E8E8E8] py-4'>
+          <View className='p-[18px] border-b border-[#E8E8E8] flex-row items-center justify-between dark:border-[#E8E8E8] py-4'>
             <ThemedText size={14} variant='medium'>
               Review Frequency
             </ThemedText>

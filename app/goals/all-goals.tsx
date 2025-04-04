@@ -24,7 +24,7 @@ const AllGoalsScreen = () => {
         <Button
           size={'icon'}
           variant={'ghost'}
-          onPress={() => router.push('/(goals)/remove-goals')}
+          onPress={() => router.push('/goals/remove-goals')}
         >
           <RemoveCircleIcon />
         </Button>

@@ -80,7 +80,7 @@ export default function GoalsScreen() {
               <Button
                 size={'icon'}
                 variant={'ghost'}
-                onPress={() => router.push('/(goals)/create-goal')}
+                onPress={() => router.push('/goals/create-goal')}
               >
                 <AddIcon stroke='white' />
               </Button>
@@ -133,7 +133,7 @@ export default function GoalsScreen() {
                 <Button
                   size={'icon'}
                   variant={'ghost'}
-                  onPress={() => router.push('/(goals)/all-goals')}
+                  onPress={() => router.push('/goals/all-goals')}
                 >
                   <ArrowRightIcon />
                 </Button>
