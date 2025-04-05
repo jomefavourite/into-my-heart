@@ -1,5 +1,6 @@
 import React from 'react';
 import { Stack } from 'expo-router';
+import { PortalHost } from '@rn-primitives/portal';
 
 const GoalsLayout = () => {
   return (
@@ -34,7 +35,16 @@ const GoalsLayout = () => {
             headerShown: false,
           }}
         />
+        <Stack.Screen
+          name='[goalName]'
+          options={{
+            title: '',
+            headerShown: false,
+          }}
+        />
       </Stack>
+
+      <PortalHost />
     </>
   );
 };
