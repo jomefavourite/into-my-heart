@@ -11,6 +11,7 @@ export default function VersesLayout() {
   return (
     <Stack>
       <Stack.Screen name='add-book' options={{ headerShown: false }} />
+      <Stack.Screen name='select-verse' options={{ headerShown: false }} />
       {/* <Stack.Screen name='step2' options={{ headerShown: false }} /> */}
     </Stack>
   );

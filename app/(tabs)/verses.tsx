@@ -10,9 +10,14 @@ import { cn } from '~/lib/utils';
 import { Animated } from 'react-native';
 import AddIcon from '~/assets/icons/AddIcon';
 import GridViewIcon from '~/assets/icons/GridViewIcon';
+import { Button } from '~/components/ui/button';
+import { useRouter } from 'expo-router';
+import ListViewIcon from '~/assets/icons/ListViewIcon';
 
 export default function VersesHomeScreen() {
   const [value, setValue] = useState('verses');
+  const [view, setView] = useState<'list' | 'grid'>('list');
+  const router = useRouter();
 
   return (
     <Container>
@@ -26,8 +31,8 @@ export default function VersesHomeScreen() {
           onValueChange={setValue}
           className="w-full mx-auto flex-col gap-1.5"
         >
-          <View className='relative flex justify-center'>
-          <TabsList className="flex-row">
+          <View className='relative flex flex-row justify-between'>
+          <TabsList className="flex flex-row">
             <TabsTrigger value="verses" className="">
               <ThemedText
                 size={13}
@@ -53,21 +58,38 @@ export default function VersesHomeScreen() {
               </ThemedText>
             </TabsTrigger>
           </TabsList>
-          <View className='absolute right-0 flex items-center px-2'>
-            <AddIcon />
-            <GridViewIcon />
-          </View>
+
+          <View className='flex flex-row'>
+              <Button
+                size={'icon'}
+                variant={'ghost'}
+                onPress={() => router.push('/(verses)/add-book')}
+              >
+                <AddIcon stroke='white' />
+              </Button>
+              <Button
+                size={'icon'}
+                variant={'ghost'}
+                onPress={() => setView(view === 'list' ? 'grid' : 'list')}
+              >
+                {view === 'list' ? (
+                  <ListViewIcon stroke='white' />
+                ) : (
+                  <GridViewIcon />
+                )}
+              </Button>
+            </View>
           </View>
 
           <Animated.View style={{ opacity: value === 'verses' ? 1 : 0 }}>
             <TabsContent value="verses">
-              <VersesTab />
+              <VersesTab view={view} />
             </TabsContent>
           </Animated.View>
           
           <Animated.View style={{ opacity: value === 'collections' ? 1 : 0 }}>
             <TabsContent value="collections">
-              <CollectionsTab />
+              <CollectionsTab view={view} />
             </TabsContent>
           </Animated.View>
         </Tabs>

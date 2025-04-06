@@ -3,7 +3,11 @@ import React from 'react'
 import { verses } from '~/lib/constants'
 import VerseCard from '~/components/VerseCard'
 
-const CollectionsTab = () => {
+type CollectionsTabProps = {
+  view?: 'list' | 'grid';
+}
+
+const CollectionsTab = ({ view }: CollectionsTabProps) => {
   return (
     <View>
     <Text style={styles.text}>Collection Suggestions</Text>

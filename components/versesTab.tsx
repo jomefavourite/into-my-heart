@@ -1,17 +1,29 @@
-import { FlatList, StyleSheet, Text, View } from 'react-native'
+import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import VerseCard from '~/components/VerseCard'
 import { verses } from '~/lib/constants'
+import { cn } from '~/lib/utils'
+import ThemedText from './ThemedText'
 
-const VersesTab = () => {
+type VersesTabProps = {
+  view?: 'list' | 'grid';
+}
+
+const VersesTab = ({ view }: VersesTabProps) => {
+  const itemClassName = view === 'grid' ? 'w-[49%]' : ' ';
+
   return (
       <View>
-        <Text style={styles.text}>Verse Suggestions</Text>
+      <ThemedText size={14} variant='medium' numberOfLines={2}>
+        Verse Suggestions
+      </ThemedText>
         <FlatList
             data={verses}
             keyExtractor={(item, index) => index.toString()} 
             renderItem={({ item }) => (
-              <VerseCard reference={item.reference} text={item.text} onAddPress={() => console.log(`${item.text} pressed`)} />
+              <ScrollView className={cn('', itemClassName)}>
+                <VerseCard view={view} reference={item.reference} text={item.text} onAddPress={() => console.log(`${item.text} pressed`)} />
+              </ScrollView>
             )}
           />
       </View>
@@ -19,6 +31,7 @@ const VersesTab = () => {
 }
 
 export default VersesTab
+
 
 const styles = StyleSheet.create({
   text: {
