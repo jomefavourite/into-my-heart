@@ -12,6 +12,8 @@ import { useColorScheme } from '~/hooks/useColorScheme';
 import ArrowLeftIcon from '~/assets/icons/ArrowLeftIcon';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import BackHeader from '~/components/BackHeader';
+import CustomButton from '~/components/CustomButton';
 
 export default function CreateGoal() {
   const { colorScheme } = useColorScheme();
@@ -30,78 +32,67 @@ export default function CreateGoal() {
 
   return (
     <SafeAreaView>
-      <View className='flex-1'>
-        <View className='items-center justify-between flex-row mb-7 p-[18px]'>
-          <Button size={'icon'} variant={'ghost'} onPress={() => router.back()}>
-            <ArrowLeftIcon />
-          </Button>
+      <BackHeader title='Create Goal' />
 
-          {/* This should be centered properly, it's not currently */}
-          <ThemedText size={16} variant='medium'>
-            Create Goal
+      <View className=' '>
+        <View className='gap-1 pb-3 p-[18px]'>
+          <Label nativeID='goalName'>Goal Name</Label>
+          <Input
+            aria-aria-labelledby='goalName'
+            defaultValue=''
+            placeholder='Enter goal name'
+            className='dark:text-white'
+          />
+        </View>
+
+        <View className='p-[18px] border-1 border-[#E8E8E8] dark:border-[#E8E8E8] py-4 border-y flex-row items-center justify-between'>
+          <ThemedText size={14} variant='medium'>
+            Verses
+          </ThemedText>
+          <Button
+            size={'icon'}
+            className='bg-transparent'
+            onPress={() => router.push('/(verses)/add-book')}
+          >
+            <AddIcon stroke='white' />
+          </Button>
+        </View>
+
+        <View className='p-[18px] border-b border-[#E8E8E8] dark:border-[#E8E8E8] py-4 flex-row gap-5'>
+          <View className='flex-1'>
+            <ThemedText size={14} variant='medium'>
+              Start date
+            </ThemedText>
+            <Button onPress={() => setStartDateBottomSheetIndex(1)}>
+              <ThemedText>hello</ThemedText>
+            </Button>
+          </View>
+          <View className='flex-1'>
+            <ThemedText size={14} variant='medium'>
+              End date
+            </ThemedText>
+            <Button onPress={() => setStartDateBottomSheetIndex(1)}>
+              <ThemedText>hello</ThemedText>
+            </Button>
+          </View>
+        </View>
+
+        <View className='p-[18px] border-b border-[#E8E8E8] flex-row items-center justify-between dark:border-[#E8E8E8] py-4'>
+          <ThemedText size={14} variant='medium'>
+            Review Frequency
           </ThemedText>
 
-          <View></View>
+          <Button
+            variant={'ghost'}
+            className='w-fit flex-row gap-2 items-center'
+            onPress={() => setReviewFreqIndex(1)}
+          >
+            <ThemedText>{reviewFreqValue}</ThemedText>
+            <UnfoldMoreIcon />
+          </Button>
         </View>
 
-        <View className='flex-1 '>
-          <View className='gap-1 pb-3 p-[18px]'>
-            <Label nativeID='goalName'>Goal Name</Label>
-            <Input
-              aria-aria-labelledby='goalName'
-              defaultValue=''
-              placeholder='Enter goal name'
-              className='dark:text-white'
-            />
-          </View>
-
-          <View className='p-[18px] border-1 border-[#E8E8E8] dark:border-[#E8E8E8] py-4 border-y flex-row items-center justify-between'>
-            <ThemedText size={14} variant='medium'>
-              Verses
-            </ThemedText>
-            <Button
-              size={'icon'}
-              className='bg-transparent'
-              onPress={() => router.push('/(verses)/add-book')}
-            >
-              <AddIcon stroke='white' />
-            </Button>
-          </View>
-
-          <View className='p-[18px] border-b border-[#E8E8E8] dark:border-[#E8E8E8] py-4 flex-row gap-5'>
-            <View className='flex-1'>
-              <ThemedText size={14} variant='medium'>
-                Start date
-              </ThemedText>
-              <Button onPress={() => setStartDateBottomSheetIndex(1)}>
-                <ThemedText>hello</ThemedText>
-              </Button>
-            </View>
-            <View className='flex-1'>
-              <ThemedText size={14} variant='medium'>
-                End date
-              </ThemedText>
-              <Button onPress={() => setStartDateBottomSheetIndex(1)}>
-                <ThemedText>hello</ThemedText>
-              </Button>
-            </View>
-          </View>
-
-          <View className='p-[18px] border-b border-[#E8E8E8] flex-row items-center justify-between dark:border-[#E8E8E8] py-4'>
-            <ThemedText size={14} variant='medium'>
-              Review Frequency
-            </ThemedText>
-
-            <Button
-              variant={'ghost'}
-              className='w-fit flex-row gap-2 items-center'
-              onPress={() => setReviewFreqIndex(1)}
-            >
-              <ThemedText>{reviewFreqValue}</ThemedText>
-              <UnfoldMoreIcon />
-            </Button>
-          </View>
-        </View>
+        <CustomButton className='mt-8'>Create goal</CustomButton>
       </View>
     </SafeAreaView>
   );
