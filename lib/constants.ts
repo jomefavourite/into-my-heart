@@ -30,4 +30,12 @@ export const verses = [
     reference: 'In the beginning, God created the heavens and the earth.',
     text: 'Genesis 1:1'
   },
+  { 
+    reference: 'In the beginning, God created the heavens and the earth.',
+    text: 'Genesis 1:1'
+  },
+  { 
+    reference: 'In the beginning, God created the heavens and the earth.',
+    text: 'Genesis 1:1'
+  },
 ]

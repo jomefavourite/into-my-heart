@@ -12,23 +12,26 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { Button } from '~/components/ui/button';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import BackHeader from '~/components/BackHeader';
 
 export default function AddBookScreen() {
   const router = useRouter();
   return (
-    <SafeAreaView style={{ padding: 18 }}>
-      <View className='flex-row items-center'>
-        <ThemedText>Select book</ThemedText>
-        <Button
-          variant={'outline'}
-          className='rounded-full px-4 py-2'
-          onPress={() => router.push('/(verses)/versions')}
-        >
-          <ThemedText>KJV</ThemedText>
-        </Button>
-      </View>
+    <SafeAreaView>
+      <BackHeader
+        title='Select book'
+        RightComponent={
+          <Button
+            variant={'outline'}
+            className='rounded-full px-4 py-2'
+            onPress={() => router.push('/(verses)/versions')}
+          >
+            <ThemedText>KJV</ThemedText>
+          </Button>
+        }
+      />
 
-      <ScrollView>
+      <ScrollView style={{ padding: 18 }}>
         <Accordion
           type='multiple'
           collapsible

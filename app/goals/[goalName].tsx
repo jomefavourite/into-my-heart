@@ -15,9 +15,11 @@ import Container from '~/components/Container';
 import { Progress } from '~/components/ui/progress';
 import BackHeader from '~/components/BackHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import DumbbellIcon from '~/assets/icons/DumbbellIcon';
 
 export default function GoalName() {
   const router = useRouter();
+  // const { goalName } = useLocalSearchParams();
 
   return (
     <SafeAreaView className='flex-1'>
@@ -29,7 +31,7 @@ export default function GoalName() {
                 <MoreVerticalIcon />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className='w-64 native:w-72'>
+            <DropdownMenuContent className='w-48 native:w-52'>
               <DropdownMenuItem>
                 <Text>Add Verse</Text>
               </DropdownMenuItem>
@@ -54,8 +56,20 @@ export default function GoalName() {
         </View>
 
         <View className='flex-row items-center'>
-          <Progress value={20} className='w-full bg-red-500' />
+          <Progress value={20} className='w-[30%] bg-red-500' />
           <ThemedText className=''>100%</ThemedText>
+        </View>
+
+        <View className='bg-container p-4 rounded-lg gap-1]'>
+          <View className='flex-row gap-1 items-center'>
+            <DumbbellIcon fontSize={13} />
+            <ThemedText size={14} variant='medium'>
+              Faith Boost
+            </ThemedText>
+          </View>
+          <ThemedText size={12}>
+            A little progress each day adds up to big results! Keep going!
+          </ThemedText>
         </View>
       </View>
     </SafeAreaView>

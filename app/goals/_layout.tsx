@@ -1,8 +1,15 @@
 import React from 'react';
-import { Stack } from 'expo-router';
+import { Redirect, Stack } from 'expo-router';
 import { PortalHost } from '@rn-primitives/portal';
+import { useAuth } from '@clerk/clerk-expo';
 
 const GoalsLayout = () => {
+  const { isSignedIn } = useAuth();
+
+  // if (!isSignedIn) {
+  //   return <Redirect href='/(onboarding)/create-account' />;
+  // }
+
   return (
     <>
       <Stack>

@@ -1,10 +1,16 @@
 import { Redirect, Stack } from 'expo-router';
 import { useConvexAuth } from 'convex/react';
+import { useAuth } from '@clerk/clerk-expo';
 
 export default function OnboardingLayout() {
   const { isAuthenticated } = useConvexAuth();
+  const { isSignedIn, isLoaded } = useAuth();
 
   if (isAuthenticated) {
+    return <Redirect href={'/'} />;
+  }
+
+  if (isSignedIn) {
     return <Redirect href={'/'} />;
   }
 

@@ -8,7 +8,7 @@ import {
   DefaultTheme,
   DarkTheme,
 } from '@react-navigation/native';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Redirect, Slot, Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { Platform } from 'react-native';
@@ -60,14 +60,21 @@ function InitialLayout() {
   useEffect(() => {
     if (!isLoaded) return;
 
-    const inAuthGroup = segments[0] === '(onboarding)';
+    const isOnboarding = segments[0] === '(onboarding)';
+    const isProtectedRoute = !isOnboarding;
 
-    if (isSignedIn && inAuthGroup) {
-      router.replace('/(tabs)');
-    } else if (!isSignedIn && !inAuthGroup) {
-      router.replace('/(onboarding)/create-account');
+    // if (isSignedIn && isOnboarding) {
+    //   router.replace('/(tabs)');
+    // } else if (!isSignedIn && isProtectedRoute) {
+    //   router.replace('/(onboarding)/create-account');
+    // }
+
+    if (isSignedIn && isOnboarding) {
+      <Redirect href='/(tabs)' />;
+    } else if (!isSignedIn && isProtectedRoute) {
+      <Redirect href='/(onboarding)/create-account' />;
     }
-  }, [isSignedIn, segments]);
+  }, [isLoaded, isSignedIn, segments]);
 
   return (
     <>

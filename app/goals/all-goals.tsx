@@ -7,33 +7,30 @@ import { Button } from '~/components/ui/button';
 import ArrowLeftIcon from '~/assets/icons/ArrowLeftIcon';
 import { useRouter } from 'expo-router';
 import RemoveCircleIcon from '~/assets/icons/RemoveCircleIcon';
+import BackHeader from '~/components/BackHeader';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const AllGoalsScreen = () => {
   const router = useRouter();
   return (
-    <Container>
-      <View className='items-center justify-between flex-row mb-7'>
-        <Button size={'icon'} variant={'ghost'} onPress={() => router.back()}>
-          <ArrowLeftIcon />
-        </Button>
+    <SafeAreaView>
+      <BackHeader
+        title='My Goals'
+        RightComponent={
+          <Button
+            size={'icon'}
+            variant={'ghost'}
+            onPress={() => router.push('/goals/remove-goals')}
+          >
+            <RemoveCircleIcon />
+          </Button>
+        }
+      />
 
-        <ThemedText size={16} variant='medium'>
-          My Goals
-        </ThemedText>
-
-        <Button
-          size={'icon'}
-          variant={'ghost'}
-          onPress={() => router.push('/goals/remove-goals')}
-        >
-          <RemoveCircleIcon />
-        </Button>
-      </View>
-
-      <ScrollView>
+      <ScrollView className='px-[18px]'>
         <GoalCard />
       </ScrollView>
-    </Container>
+    </SafeAreaView>
   );
 };
 
