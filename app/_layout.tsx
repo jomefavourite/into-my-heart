@@ -60,21 +60,14 @@ function InitialLayout() {
   useEffect(() => {
     if (!isLoaded) return;
 
-    const isOnboarding = segments[0] === '(onboarding)';
-    const isProtectedRoute = !isOnboarding;
+    const inAuthGroup = segments[0] === '(onboarding)';
 
-    // if (isSignedIn && isOnboarding) {
-    //   router.replace('/(tabs)');
-    // } else if (!isSignedIn && isProtectedRoute) {
-    //   router.replace('/(onboarding)/create-account');
-    // }
-
-    if (isSignedIn && isOnboarding) {
-      <Redirect href='/(tabs)' />;
-    } else if (!isSignedIn && isProtectedRoute) {
-      <Redirect href='/(onboarding)/create-account' />;
+    if (isSignedIn && inAuthGroup) {
+      router.replace('/(tabs)');
+    } else if (!isSignedIn && !inAuthGroup) {
+      router.replace('/(onboarding)/create-account');
     }
-  }, [isLoaded, isSignedIn, segments]);
+  }, [isSignedIn, segments]);
 
   return (
     <>

@@ -13,7 +13,7 @@ export default function FillInBlanks() {
   const [value, setValue] = useState('verses');
 
   return (
-    <SafeAreaView className="flex-1">
+    <SafeAreaView className='flex-1'>
       <BackHeader />
 
       <View className='p-[18]'>
@@ -74,28 +74,25 @@ export default function FillInBlanks() {
             <View className='gap-3 '>
               <ThemedText size={13}>10 verses</ThemedText>
 
-<View>
-              <FlatList
-                data={verses}
-                // style={{flex: 1}}
-            
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => (
-                  <VerseCard
-                    reference={item.reference}
-                    text={item.text}
-                    onAddPress={() => console.log(`${item.text} pressed`)}
-                  />
-                )}
-              />
+              <View>
+                <FlatList
+                  data={verses}
+                  // style={{flex: 1}}
+
+                  keyExtractor={(item, index) => index.toString()}
+                  renderItem={({ item }) => (
+                    <VerseCard
+                      reference={item.reference}
+                      text={item.text}
+                      onAddPress={() => console.log(`${item.text} pressed`)}
+                    />
+                  )}
+                />
               </View>
 
-              <CustomButton
-              
-                onPress={() => console.log('Practice started')}
-         
-              >Start Practice</CustomButton>
-
+              <CustomButton onPress={() => console.log('Practice started')}>
+                Start Practice
+              </CustomButton>
             </View>
           </TabsContent>
           <TabsContent value='completed'>
