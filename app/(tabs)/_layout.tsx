@@ -3,6 +3,7 @@ import React from 'react';
 import GoalsIcon from '~/assets/icons/tabs/GoalsIcon';
 import HomeIcon from '~/assets/icons/tabs/HomeIcon';
 import PracticeIcon from '~/assets/icons/tabs/PracticeIcon';
+import ProfileIcon from '~/assets/icons/tabs/ProfileIcon';
 import VersesIcon from '~/assets/icons/tabs/VersesIcon';
 
 export default function TabLayout() {
@@ -49,6 +50,13 @@ export default function TabLayout() {
           options={{
             title: 'Goals',
             tabBarIcon: ({ color }) => <GoalsIcon color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name='profile'
+          options={{
+            title: 'Profile',
+            tabBarIcon: ({ color }) => <ProfileIcon color={color} />,
           }}
         />
       </Tabs>
