@@ -38,6 +38,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "convex": "^1.21.0",
+    "date-fns": "^4.1.0",
     "expo": "~52.0.42",
     "expo-auth-session": "^6.0.3",
     "expo-blur": "~14.0.3",

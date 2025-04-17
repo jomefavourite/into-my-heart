@@ -8,13 +8,27 @@ import { cn } from '~/lib/utils';
 import CustomButton from '~/components/CustomButton';
 import { verses } from '~/lib/constants';
 import VerseCard from '~/components/VerseCard';
+import SettingsIcon from '~/assets/icons/SettingsIcon';
+import { Button } from '~/components/ui/button';
+import { useRouter } from 'expo-router';
 
 export default function FillInBlanks() {
   const [value, setValue] = useState('verses');
+  const router = useRouter();
 
   return (
     <SafeAreaView className='flex-1'>
-      <BackHeader />
+      <BackHeader
+        RightComponent={
+          <Button
+            size={'icon'}
+            variant='ghost'
+            onPress={() => router.push('/practice/fill-in-blanks/settings')}
+          >
+            <SettingsIcon />
+          </Button>
+        }
+      />
 
       <View className='p-[18]'>
         <View>

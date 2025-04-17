@@ -8,10 +8,14 @@ import { useColorScheme } from '~/hooks/useColorScheme';
 import Svg, { Path } from 'react-native-svg';
 import ThemedText from './ThemedText';
 import { cn, useBottomSheetStore } from '~/lib/utils';
-import { Calendar } from 'react-native-calendars';
+// import { Calendar } from 'react-native-calendars';
 import { RadioGroup } from '~/components/ui/radio-group';
 import { Label } from './ui/label';
 import CustomButton from './CustomButton';
+import { Calendar, toDateId } from '@marceloterreiro/flash-calendar';
+// import { useState } from "react";
+
+const today = toDateId(new Date());
 
 const StreakBottomSheetContent = memo(() => {
   const { colorScheme } = useColorScheme();
@@ -42,7 +46,7 @@ const StreakBottomSheetContent = memo(() => {
   );
 });
 
-const StartDateBottomSheetContent = memo(() => {
+export const StartDateBottomSheetContent = memo(() => {
   const customHeaderProps: any = useRef();
 
   const setCustomHeaderNewMonth = (next = false) => {};
@@ -76,14 +80,20 @@ const StartDateBottomSheetContent = memo(() => {
   });
 
   return (
-    <BottomSheetView>
+    <BottomSheetView className='flex-1 px-4'>
       {/* <Calendar /> */}
-      <View></View>
+
+      <View className='flex-row gap-2 '>
+        <CustomButton variant='outline' className='flex-1'>
+          Cancel
+        </CustomButton>
+        <CustomButton className='flex-1'>Save</CustomButton>
+      </View>
     </BottomSheetView>
   );
 });
 
-const ReviewFreqContent = memo(() => {
+export const ReviewFreqContent = memo(() => {
   const { colorScheme } = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
 
@@ -155,7 +165,7 @@ interface CustomRadioButtonProps {
   onPress: () => void;
 }
 
-const CustomRadioButton = memo(
+export const CustomRadioButton = memo(
   ({ label, value, isActive, onPress }: CustomRadioButtonProps) => {
     return (
       <Pressable
@@ -290,8 +300,8 @@ export default function AllBottomSheet() {
         <StartDateBottomSheetContent />
       </BottomSheet>
 
-      {/* Start Date Bottom Sheet */}
-      <BottomSheet
+      {/* Review Bottom Sheet */}
+      {/* <BottomSheet
         index={reviewFreqIndex}
         snapPoints={['20%']}
         enablePanDownToClose={true}
@@ -307,7 +317,7 @@ export default function AllBottomSheet() {
         }}
       >
         <ReviewFreqContent />
-      </BottomSheet>
+      </BottomSheet> */}
 
       {/* Remove Goal Bottom Sheet */}
       <BottomSheet
