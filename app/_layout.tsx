@@ -84,7 +84,7 @@ function InitialLayout() {
 
 export default function RootLayout() {
   const hasMounted = React.useRef(false);
-  const { isDarkColorScheme } = useColorScheme();
+  const { isDarkMode } = useColorScheme();
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
   const [loaded, error] = useFonts({
     Inter_400Regular,
@@ -124,7 +124,7 @@ export default function RootLayout() {
   return (
     <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
       <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-        <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+        <ThemeProvider value={isDarkMode ? DARK_THEME : LIGHT_THEME}>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <InitialLayout />
             <StatusBar style='auto' />

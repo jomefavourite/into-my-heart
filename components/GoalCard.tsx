@@ -21,8 +21,7 @@ export default function GoalCard({
   goalCompleted = false,
   isPractice = false,
 }: GoalCardProps) {
-  const { colorScheme } = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+  const { isDarkMode } = useColorScheme();
 
   const [isChecked, setIsChecked] = useState(false);
 

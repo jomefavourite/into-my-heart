@@ -4,7 +4,7 @@ import { cn } from '~/lib/utils';
 import { Text } from './ui/text';
 
 type FontVariant = 'regular' | 'medium' | 'semibold' | 'bold';
-type FontSize = 12 | 13 | 14 | 15 | 16 | 18 | 22;
+type FontSize = 12 | 13 | 14 | 15 | 16 | 18 | 22 | 27;
 
 const fontMap: { [key in FontVariant]: string } = {
   regular: 'Inter_400Regular',
@@ -21,6 +21,7 @@ const sizeMap: { [key in FontSize]: number } = {
   16: 16,
   18: 18,
   22: 22,
+  27: 27,
 };
 
 interface ThemedTextProps extends TextProps {

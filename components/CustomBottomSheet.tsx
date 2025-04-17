@@ -12,8 +12,7 @@ const CustomBottomSheet = forwardRef<
   BottomSheetMethods,
   CustomBottomSheetProps
 >((props, ref) => {
-  const { colorScheme } = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+  const { isDarkMode } = useColorScheme();
 
   const defaultBackgroundStyle = {
     backgroundColor: isDarkMode ? '#313131' : '#fff',
@@ -46,7 +45,6 @@ const CustomBottomSheet = forwardRef<
       enablePanDownToClose={true}
       {...props}
     />
-    
   );
 });
 

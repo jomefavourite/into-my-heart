@@ -15,8 +15,7 @@ const CustomCalendar = ({
   selectedDate,
   setSelectedDate,
 }: CustomCalendarProps) => {
-  const { colorScheme } = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+  const { isDarkMode } = useColorScheme();
 
   const handleDayPress = (day: { dateString: string }) => {
     setSelectedDate(day.dateString);

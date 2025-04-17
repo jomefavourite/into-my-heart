@@ -2,8 +2,7 @@ import * as React from 'react';
 import Svg, { SvgProps, Path } from 'react-native-svg';
 import { useColorScheme } from '~/hooks/useColorScheme';
 const NotificationIcon = (props: SvgProps) => {
-  const { colorScheme } = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+  const { isDarkMode } = useColorScheme();
 
   return (
     <Svg width={24} height={24} fill='none' {...props}>

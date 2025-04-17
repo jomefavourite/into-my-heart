@@ -31,6 +31,7 @@
     "@rn-primitives/progress": "^1.1.0",
     "@rn-primitives/radio-group": "^1.1.0",
     "@rn-primitives/slot": "^1.1.0",
+    "@rn-primitives/switch": "^1.1.0",
     "@rn-primitives/tabs": "^1.1.0",
     "@rn-primitives/types": "^1.1.0",
     "@shopify/flash-list": "1.7.3",

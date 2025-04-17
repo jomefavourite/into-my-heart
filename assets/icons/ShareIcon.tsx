@@ -8,8 +8,7 @@ interface ShareIconProps extends SvgProps {
 }
 
 const ShareIcon: React.FC<ShareIconProps> = ({ stroke, ...props }) => {
-  const { colorScheme } = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+  const { isDarkMode } = useColorScheme();
   const defaultStroke = isDarkMode ? '#fff' : '#303030';
   const strokeColor = stroke === undefined ? defaultStroke : stroke;
 

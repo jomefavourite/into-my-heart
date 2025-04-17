@@ -18,8 +18,7 @@ export default function HomeHeader() {
   const { user } = useUser();
   const router = useRouter();
 
-  const { colorScheme } = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+  const { isDarkMode } = useColorScheme();
 
   const setStreakBottomSheetIndex = useBottomSheetStore(
     (state) => state.setStreakBottomSheetIndex
@@ -57,7 +56,6 @@ export default function HomeHeader() {
             <CustomButton
               className={cn('w-fit !px-4 gap-1 self-end')}
               onPress={() => {
-                console.log('Pressed');
                 setStreakBottomSheetIndex(1);
               }}
               leftIcon

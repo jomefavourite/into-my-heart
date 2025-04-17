@@ -8,8 +8,7 @@ interface FavouriteIconProps extends SvgProps {
 }
 
 const FavouriteIcon: React.FC<FavouriteIconProps> = ({ stroke, ...props }) => {
-  const { colorScheme } = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+  const { isDarkMode } = useColorScheme();
 
   const defaultStroke = isDarkMode ? '#fff' : '#303030';
   const strokeColor = stroke === undefined ? defaultStroke : stroke;

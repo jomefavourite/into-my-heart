@@ -18,8 +18,7 @@ import { Calendar, toDateId } from '@marceloterreiro/flash-calendar';
 const today = toDateId(new Date());
 
 const StreakBottomSheetContent = memo(() => {
-  const { colorScheme } = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+  const { isDarkMode } = useColorScheme();
 
   return (
     <BottomSheetView className='flex-1 p-4'>
@@ -94,8 +93,7 @@ export const StartDateBottomSheetContent = memo(() => {
 });
 
 export const ReviewFreqContent = memo(() => {
-  const { colorScheme } = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+  const { isDarkMode } = useColorScheme();
 
   const { expand, close } = useBottomSheet();
 
@@ -206,8 +204,7 @@ const RemoveGoalBottomSheetContent = memo(() => {
 });
 
 export default function AllBottomSheet() {
-  const { colorScheme } = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+  const { isDarkMode } = useColorScheme();
 
   const bottomSheetRef = useRef<BottomSheet>(null);
 

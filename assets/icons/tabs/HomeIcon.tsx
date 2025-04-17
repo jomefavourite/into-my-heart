@@ -2,8 +2,7 @@ import * as React from 'react';
 import Svg, { SvgProps, Path } from 'react-native-svg';
 import { useColorScheme } from '~/hooks/useColorScheme';
 const HomeIcon = (focused: { focused: boolean }, props?: SvgProps) => {
-  const { colorScheme } = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+  const { isDarkMode } = useColorScheme();
 
   const fillColor = focused?.focused
     ? isDarkMode
