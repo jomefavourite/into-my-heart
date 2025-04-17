@@ -14,12 +14,12 @@ const ProfileLayout = () => {
     <>
       <Stack>
         <Stack.Screen
-          name='fill-in-blanks'
+          name='edit-profile'
           options={{
             headerShown: false,
           }}
         />
-        <Stack.Screen
+        {/* <Stack.Screen
           name='flashcards'
           options={{
             headerShown: false,
@@ -30,7 +30,7 @@ const ProfileLayout = () => {
           options={{
             headerShown: false,
           }}
-        />
+        /> */}
       </Stack>
     </>
   );

@@ -28,7 +28,7 @@ const ProfileLinks: ProfileLinks = {
   account: [
     {
       title: 'Profile',
-      link: '/',
+      link: '/profile/edit-profile',
     },
     {
       title: 'Notifications',
@@ -71,8 +71,8 @@ const ProfileLinks: ProfileLinks = {
   ],
 };
 
-const LinkItem = ({ title, link }: { title: string; link: string }) => (
-  <Link href={'/'}>
+const LinkItem = ({ title, link }: { title: string; link: Href }) => (
+  <Link href={link}>
     <View className='py-3 px-2 flex flex-row items-center justify-between w-full'>
       <ThemedText>{title}</ThemedText>
       <ArrowRightIcon />
@@ -113,7 +113,7 @@ export default function ProfileScreen() {
         </View>
 
         <View>
-          <View className='mx-auto mb-6'>
+          <View className='mx-auto my-6'>
             <Avatar alt={user?.firstName || ''} className='w-24 h-24'>
               <AvatarImage source={{ uri: user?.imageUrl }} />
               <AvatarFallback>
@@ -196,7 +196,7 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-          <View>
+          <View className='gap-6'>
             {Object.entries(ProfileLinks).map(([sectionTitle, items]) => (
               <View key={sectionTitle}>
                 <ThemedText
@@ -205,6 +205,7 @@ export default function ProfileScreen() {
                 >
                   {sectionTitle}
                 </ThemedText>
+
                 {items.map((item, index) =>
                   item.isCheckbox ? (
                     <CheckboxItem key={index} title={item.title} />
