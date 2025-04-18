@@ -82,7 +82,16 @@ const LinkItem = ({ title, link }: { title: string; link: Href }) => (
 
 const CheckboxItem = ({ title }: { title: string }) => {
   const [isEnabled, setIsEnabled] = useState(false);
-  const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
+  const { isDarkMode, setColorScheme } = useColorScheme();
+
+  const toggleSwitch = () => {
+    if (title === 'Dark mode') {
+      const newTheme = isDarkMode ? 'light' : 'dark';
+      setColorScheme(newTheme);
+      AsyncStorage.setItem('theme', newTheme);
+    }
+    setIsEnabled((previousState) => !previousState);
+  };
 
   return (
     <View className='py-3 px-2 flex flex-row items-center justify-between w-full'>
