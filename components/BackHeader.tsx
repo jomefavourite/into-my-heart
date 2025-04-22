@@ -18,7 +18,7 @@ export default function BackHeader({
   const router = useRouter();
 
   return (
-    <View className='items-center justify-between flex-row py-[18px]'>
+    <View className='items-center justify-between flex-row p-[18px]'>
       <Button size={'icon'} variant={'ghost'} onPress={() => router.back()}>
         <ArrowLeftIcon />
       </Button>

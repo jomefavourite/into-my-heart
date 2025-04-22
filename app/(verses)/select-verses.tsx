@@ -8,8 +8,11 @@ import {
   ToggleGroupIcon,
   ToggleGroupItem,
 } from '~/components/ui/toggle-group';
+import CustomButton from '~/components/CustomButton';
+import { useRouter } from 'expo-router';
 
 export default function SelectVerses() {
+  const router = useRouter();
   const [value, setValue] = React.useState<string[]>([]);
   return (
     <SafeAreaView>
@@ -26,6 +29,10 @@ export default function SelectVerses() {
           <ThemedText>Bold</ThemedText>
         </ToggleGroupItem>
       </ToggleGroup>
+
+      <CustomButton onPress={() => router.push('/verse-summary')}>
+        Continue
+      </CustomButton>
     </SafeAreaView>
   );
 }
