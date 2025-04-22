@@ -1,5 +1,5 @@
 import { Pressable, View } from 'react-native';
-import React from 'react';
+import React, { useEffect } from 'react';
 import ThemedText from '~/components/ThemedText';
 import {
   Accordion,
@@ -13,9 +13,13 @@ import { Button } from '~/components/ui/button';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BackHeader from '~/components/BackHeader';
+import { FlashList } from '@shopify/flash-list';
+import { BOOKS } from '~/lib/books';
 
 export default function AddBookScreen() {
   const router = useRouter();
+  const [books, setBooks] = React.useState<any[]>([]);
+
   return (
     <SafeAreaView>
       <BackHeader
@@ -31,23 +35,35 @@ export default function AddBookScreen() {
         }
       />
 
+      {/* <FlashList
+        data={BOOKS}
+        renderItem={({ item }) => <Text>{item.id}</Text>}
+        estimatedItemSize={200}
+      /> */}
+
       <ScrollView style={{ padding: 18 }}>
         <Accordion
           type='multiple'
           collapsible
-          // defaultValue={['item-1']}
           className='w-full max-w-sm native:max-w-md'
         >
-          {new Array(66).fill(null).map((_, index) => (
+          {BOOKS.map((_, index) => (
             <AccordionItem key={index} value={`item-${index + 1}`}>
               <AccordionTrigger>
-                <Text>Is it accessible?</Text>
+                <View className='flex-row items-center justify-between w-full'>
+                  <ThemedText>{_.name}</ThemedText>
+                  <ThemedText>{_.chaptersLength}</ThemedText>
+                </View>
               </AccordionTrigger>
-              <AccordionContent>
-                <Text>Yes. It adheres to the WAI-ARIA design pattern.</Text>
-                <Pressable className='bg-container !w-fit p-2 rounded-md'>
-                  <ThemedText>1</ThemedText>
-                </Pressable>
+              <AccordionContent className='flex-row flex-wrap gap-2'>
+                {new Array(_.chaptersLength).fill(0).map((_, index) => (
+                  <Pressable
+                    className='bg-container py-[10px] px-4 rounded-md'
+                    onPress={() => router.push('/(verses)/select-verses')}
+                  >
+                    <ThemedText>{index + 1}</ThemedText>
+                  </Pressable>
+                ))}
               </AccordionContent>
             </AccordionItem>
           ))}
