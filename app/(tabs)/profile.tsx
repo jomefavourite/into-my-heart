@@ -13,6 +13,8 @@ import { Switch } from '~/components/ui/switch';
 import { Href, Link } from 'expo-router';
 import ArrowRightIcon from '~/assets/icons/ArrowRightIcon';
 import Svg, { Path } from 'react-native-svg';
+import { useQuery } from 'convex/react';
+import { api } from '~/convex/_generated/api';
 
 interface ProfileLinkItem {
   title: string;
@@ -105,6 +107,9 @@ export default function ProfileScreen() {
   const { isDarkMode, setColorScheme } = useColorScheme();
   const { signOut } = useAuth();
   const { user } = useUser();
+
+  // const data = useQuery(api.users.getUsers);
+  // console.log(data);
 
   const setStreakBottomSheetIndex = useBottomSheetStore(
     (state) => state.setStreakBottomSheetIndex

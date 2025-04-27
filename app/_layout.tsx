@@ -16,7 +16,7 @@ import { NAV_THEME } from '~/lib/constants';
 import { useColorScheme } from '~/hooks/useColorScheme';
 import { useFrameworkReady } from '~/hooks/useFrameworkReady';
 import { ConvexReactClient } from 'convex/react';
-import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
+import { ClerkLoaded, ClerkProvider, useAuth } from '@clerk/clerk-expo';
 import { tokenCache } from '~/cache';
 import { ConvexProviderWithClerk } from 'convex/react-clerk';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -67,7 +67,7 @@ function InitialLayout() {
     } else if (!isSignedIn && !inAuthGroup) {
       router.replace('/(onboarding)/create-account');
     }
-  }, [isSignedIn, segments]);
+  }, [isSignedIn]);
 
   return (
     <>
@@ -123,6 +123,7 @@ export default function RootLayout() {
 
   return (
     <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
+      {/* <ClerkLoaded> */}
       <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
         <ThemeProvider value={isDarkMode ? DARK_THEME : LIGHT_THEME}>
           <GestureHandlerRootView style={{ flex: 1 }}>
@@ -131,6 +132,7 @@ export default function RootLayout() {
           </GestureHandlerRootView>
         </ThemeProvider>
       </ConvexProviderWithClerk>
+      {/* </ClerkLoaded> */}
     </ClerkProvider>
   );
 }
