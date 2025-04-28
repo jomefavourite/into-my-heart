@@ -75,10 +75,10 @@ export default function CreateAccount() {
     <Container>
       <View className='flex-1 justify-between'>
         <View className=''>
-          <ThemedText type='title' className='text-center'>
+          <ThemedText className='text-center'>
             Create an account or Sign In
           </ThemedText>
-          <ThemedText type='subtitle'>
+          <ThemedText>
             Keep your progress safe and sync across devices.
           </ThemedText>
         </View>
