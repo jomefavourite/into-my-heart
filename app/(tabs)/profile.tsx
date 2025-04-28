@@ -117,15 +117,14 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView className='flex-1'>
+      <View className='px-[18px] flex-row items-center justify-between'>
+        <ThemedText size={22} variant='semibold'>
+          Profile
+        </ThemedText>
+
+        <CustomButton className=''>Donate</CustomButton>
+      </View>
       <ScrollView className='p-[18px]'>
-        <View className='flex-row items-center justify-between'>
-          <ThemedText size={22} variant='semibold'>
-            Profile
-          </ThemedText>
-
-          <CustomButton className=''>Donate</CustomButton>
-        </View>
-
         <View>
           <View className='mx-auto my-6'>
             <Avatar alt={user?.firstName || ''} className='w-24 h-24'>

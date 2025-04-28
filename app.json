@@ -42,6 +42,14 @@
             "node_modules/@expo-google-fonts/inter/Inter_900Black.ttf"
           ]
         }
+      ],
+      [
+        "@sentry/react-native/expo",
+        {
+          "organization": "favourites-org",
+          "project": "into-my-heart",
+          "url": "https://sentry.io/"
+        }
       ]
     ],
     "experiments": {
@@ -54,6 +62,12 @@
       "eas": {
         "projectId": "679de2a0-3e97-498c-b7ae-322f00b43f36"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/679de2a0-3e97-498c-b7ae-322f00b43f36"
     }
   }
 }

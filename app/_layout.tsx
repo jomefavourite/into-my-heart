@@ -8,7 +8,14 @@ import {
   DefaultTheme,
   DarkTheme,
 } from '@react-navigation/native';
-import { Redirect, Slot, Stack, useRouter, useSegments } from 'expo-router';
+import {
+  Redirect,
+  Slot,
+  Stack,
+  useNavigationContainerRef,
+  useRouter,
+  useSegments,
+} from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { Platform } from 'react-native';
@@ -16,7 +23,7 @@ import { NAV_THEME } from '~/lib/constants';
 import { useColorScheme } from '~/hooks/useColorScheme';
 import { useFrameworkReady } from '~/hooks/useFrameworkReady';
 import { ConvexReactClient } from 'convex/react';
-import { ClerkLoaded, ClerkProvider, useAuth } from '@clerk/clerk-expo';
+import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
 import { tokenCache } from '~/cache';
 import { ConvexProviderWithClerk } from 'convex/react-clerk';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -28,6 +35,8 @@ import {
   useFonts,
 } from '@expo-google-fonts/inter';
 import AllBottomSheet from '~/components/AllBottomSheet';
+// import * as Sentry from '@sentry/react-native';
+// import { isRunningInExpoGo } from 'expo';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -44,6 +53,22 @@ const DARK_THEME: Theme = {
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
   unsavedChangesWarning: false,
 });
+
+// const navigationIntegration = Sentry.reactNavigationIntegration({
+//   enableTimeToInitialDisplay: !isRunningInExpoGo(),
+// });
+
+// Sentry.init({
+//   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+//   attachStacktrace: true,
+//   debug: process.env.NODE_ENV !== 'production',
+//   sendDefaultPii: true,
+//   integrations: [
+//     // Pass integration
+//     navigationIntegration,
+//   ],
+//   enableNativeFramesTracking: !isRunningInExpoGo(),
+// });
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -69,6 +94,14 @@ function InitialLayout() {
     }
   }, [isSignedIn]);
 
+  // const ref = useNavigationContainerRef();
+
+  // useEffect(() => {
+  //   if (ref?.current) {
+  //     navigationIntegration.registerNavigationContainer(ref);
+  //   }
+  // }, [ref]);
+
   return (
     <>
       <Stack
@@ -82,7 +115,7 @@ function InitialLayout() {
   );
 }
 
-export default function RootLayout() {
+function RootLayout() {
   const hasMounted = React.useRef(false);
   const { isDarkMode } = useColorScheme();
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
@@ -136,6 +169,9 @@ export default function RootLayout() {
     </ClerkProvider>
   );
 }
+
+// export default Sentry.wrap(RootLayout);
+export default RootLayout;
 
 const useIsomorphicLayoutEffect =
   Platform.OS === 'web' && typeof window === 'undefined'
