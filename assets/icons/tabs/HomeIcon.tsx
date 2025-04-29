@@ -1,10 +1,10 @@
 import * as React from 'react';
 import Svg, { SvgProps, Path } from 'react-native-svg';
 import { useColorScheme } from '~/hooks/useColorScheme';
-const HomeIcon = (focused: { focused: boolean }, props?: SvgProps) => {
+const HomeIcon = ({ focused, ...rest }) => {
   const { isDarkMode } = useColorScheme();
 
-  const fillColor = focused?.focused
+  const fillColor = focused
     ? isDarkMode
       ? '#FFFFFF' // Dark mode focused color
       : '#303030' // Light mode focused color
@@ -12,7 +12,7 @@ const HomeIcon = (focused: { focused: boolean }, props?: SvgProps) => {
 
   const strokeColor = isDarkMode ? '#FFFFFF' : '#303030';
   return (
-    <Svg width={24} height={24} fill='none' {...props}>
+    <Svg width={24} height={24} fill='none' {...rest}>
       <Path
         stroke={strokeColor}
         fill={fillColor}

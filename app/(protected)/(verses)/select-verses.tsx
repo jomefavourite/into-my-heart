@@ -16,7 +16,10 @@ export default function SelectVerses() {
   const [value, setValue] = React.useState<string[]>([]);
   return (
     <SafeAreaView>
-      <BackHeader title='Select Verses' />
+      <BackHeader
+        title='Select Verses'
+        items={[{ label: 'Verses', href: '/verses' }]}
+      />
 
       <ToggleGroup value={value} onValueChange={setValue} type='multiple'>
         <ToggleGroupItem value='bold' aria-label='Toggle bold'>

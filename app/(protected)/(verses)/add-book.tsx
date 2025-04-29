@@ -30,6 +30,7 @@ export default function AddBookScreen() {
             <ThemedText>KJV</ThemedText>
           </Button>
         }
+        items={[{ label: 'Verses', href: '/verses' }]}
       />
       <View className='px-[18]'>
         <Input placeholder='Search' />

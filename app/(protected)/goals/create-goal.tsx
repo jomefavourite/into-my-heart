@@ -61,7 +61,10 @@ export default function CreateGoal() {
   return (
     <>
       <SafeAreaView className='flex-1'>
-        <BackHeader title='Create Goal' />
+        <BackHeader
+          title='Create Goal'
+          items={[{ label: 'Verses', href: '/verses' }]}
+        />
 
         <View className=' '>
           <View className='gap-1 pb-3 p-[18px]'>
@@ -81,7 +84,7 @@ export default function CreateGoal() {
             <Button
               size={'icon'}
               className='bg-transparent'
-              onPress={() => router.push('/(verses)/add-book')}
+              onPress={() => router.push('/add-book')}
             >
               <AddIcon stroke='white' />
             </Button>
@@ -144,7 +147,7 @@ export default function CreateGoal() {
             >
               <CustomRadioButton
                 label='Daily'
-                value='Daily'
+                value='sDaily'
                 isActive={reviewFreqValue === 'Daily'}
                 onPress={() => {
                   bottomSheetRef?.current?.close();
@@ -185,6 +188,7 @@ export default function CreateGoal() {
             />
           </BottomSheetView>
         </CustomBottomSheet>
+
         <CustomBottomSheet
           ref={endDateBottomSheetRef}
           index={-1}

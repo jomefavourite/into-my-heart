@@ -10,7 +10,10 @@ import CustomButton from '~/components/CustomButton';
 export default function VerseSummary() {
   return (
     <SafeAreaView>
-      <BackHeader title='Add Verse' />
+      <BackHeader
+        title='Add Verse'
+        items={[{ label: 'Verses', href: '/verses' }]}
+      />
 
       <View className='px-[18]'>
         <View className='flex-row items-center justify-between w-full'>

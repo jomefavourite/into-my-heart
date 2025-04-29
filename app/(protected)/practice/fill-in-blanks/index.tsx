@@ -28,6 +28,7 @@ export default function FillInBlanks() {
             <SettingsIcon />
           </Button>
         }
+        items={[{ label: 'Verses', href: '/verses' }]}
       />
 
       <View className='p-[18]'>

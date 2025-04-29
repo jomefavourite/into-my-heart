@@ -25,6 +25,10 @@ const AllGoalsScreen = () => {
             <RemoveCircleIcon />
           </Button>
         }
+        items={[
+          { label: 'Goals', href: '/goals' },
+          { label: 'My Goals', href: '/goals/all-goals' },
+        ]}
       />
 
       <ScrollView className='px-[18px]'>

@@ -6,7 +6,7 @@ import BackHeader from '~/components/BackHeader';
 export default function Recitation() {
   return (
     <SafeAreaView>
-      <BackHeader />
+      <BackHeader items={[{ label: 'Verses', href: '/verses' }]} />
       <Text>Recitation</Text>
     </SafeAreaView>
   );

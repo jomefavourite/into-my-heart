@@ -1,21 +1,33 @@
 import ThemedText from '~/components/ThemedText';
 import ArrowLeftIcon from '~/assets/icons/ArrowLeftIcon';
-import { useRouter } from 'expo-router';
+import { Href, useRouter } from 'expo-router';
 import { Button } from './ui/button';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
+import Breadcrumb from './ui/Breadcrumb';
+
+type BreadcrumbItem = {
+  label: string;
+  href?: Href;
+};
 
 type BackHeaderProps = {
   RightComponent?: React.ReactNode;
   TitleComponent?: React.ReactNode;
   title?: string;
+  items: BreadcrumbItem[];
 };
 
 export default function BackHeader({
   RightComponent,
   TitleComponent,
   title,
+  items,
 }: BackHeaderProps) {
   const router = useRouter();
+
+  if (Platform.OS === 'web') {
+    return <Breadcrumb items={items} />;
+  }
 
   return (
     <View className='items-center justify-between flex-row p-[18px]'>

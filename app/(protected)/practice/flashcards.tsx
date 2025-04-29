@@ -6,7 +6,7 @@ import BackHeader from '~/components/BackHeader';
 export default function Flashcards() {
   return (
     <SafeAreaView>
-      <BackHeader />
+      <BackHeader items={[{ label: 'Verses', href: '/verses' }]} />
 
       <Text>Flashcards</Text>
     </SafeAreaView>

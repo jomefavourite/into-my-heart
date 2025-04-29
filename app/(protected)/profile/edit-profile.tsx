@@ -36,7 +36,10 @@ export default function EditProfile() {
 
   return (
     <SafeAreaView className='flex-1 p-[18px]'>
-      <BackHeader title='Profile Details' />
+      <BackHeader
+        title='Profile Details'
+        items={[{ label: 'Verses', href: '/verses' }]}
+      />
 
       <View className='gap-10'>
         <View className='mx-auto mt-6'>

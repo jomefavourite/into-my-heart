@@ -126,86 +126,90 @@ export default function ProfileScreen() {
       </View>
       <ScrollView className='p-[18px]'>
         <View>
-          <View className='mx-auto my-6'>
-            <Avatar alt={user?.firstName || ''} className='w-24 h-24'>
-              <AvatarImage source={{ uri: user?.imageUrl }} />
-              <AvatarFallback>
-                <ThemedText>{user?.firstName?.charAt(0)}</ThemedText>
-              </AvatarFallback>
-            </Avatar>
+          <View className='web:lg:flex-row web:lg:items-center web:lg:justify-between'>
+            <View className='web:lg:flex-row lg:items-center'>
+              <View className='mx-auto my-6 lg:mx-0 '>
+                <Avatar alt={user?.firstName || ''} className='w-24 h-24'>
+                  <AvatarImage source={{ uri: user?.imageUrl }} />
+                  <AvatarFallback>
+                    <ThemedText>{user?.firstName?.charAt(0)}</ThemedText>
+                  </AvatarFallback>
+                </Avatar>
 
-            <View>
-              <CustomButton
-                className={cn(
-                  'w-fit !py-2 !px-4 gap-1 self-end absolute -bottom-5 -right-5'
-                )}
-                onPress={() => {
-                  setStreakBottomSheetIndex(1);
-                }}
-                leftIcon
-                Icon={() => (
-                  <Svg width={24} height={24} fill='none'>
-                    <Path
-                      stroke={isDarkMode ? '#303030' : '#fff'}
-                      strokeLinejoin='round'
-                      strokeWidth={1.5}
-                      d='M12 21.5a8 8 0 0 0 8-8c0-2.96-1.609-6.893-4-9.165l-2 2.664-3.5-4.5C7 5 4 9.595 4 13.501a8 8 0 0 0 8 8Z'
-                    />
-                    <Path
-                      stroke={isDarkMode ? '#303030' : '#fff'}
-                      strokeLinejoin='round'
-                      fill={isDarkMode ? '#303030' : '#fff'}
-                      strokeWidth={1.5}
-                      d='M12 18.5c2.21 0 4-2.016 4-4.5 0-.792-.181-1.535-.5-2.181l-2 1.68-3-4c-1 1-2.5 2.612-2.5 4.5 0 2.485 1.79 4.5 4 4.5Z'
-                    />
-                  </Svg>
-                )}
-              >
-                1
-              </CustomButton>
-            </View>
-          </View>
+                <View>
+                  <CustomButton
+                    className={cn(
+                      'w-fit !py-2 !px-4 gap-1 self-end absolute -bottom-5 -right-5'
+                    )}
+                    onPress={() => {
+                      setStreakBottomSheetIndex(1);
+                    }}
+                    leftIcon
+                    Icon={() => (
+                      <Svg width={24} height={24} fill='none'>
+                        <Path
+                          stroke={isDarkMode ? '#303030' : '#fff'}
+                          strokeLinejoin='round'
+                          strokeWidth={1.5}
+                          d='M12 21.5a8 8 0 0 0 8-8c0-2.96-1.609-6.893-4-9.165l-2 2.664-3.5-4.5C7 5 4 9.595 4 13.501a8 8 0 0 0 8 8Z'
+                        />
+                        <Path
+                          stroke={isDarkMode ? '#303030' : '#fff'}
+                          strokeLinejoin='round'
+                          fill={isDarkMode ? '#303030' : '#fff'}
+                          strokeWidth={1.5}
+                          d='M12 18.5c2.21 0 4-2.016 4-4.5 0-.792-.181-1.535-.5-2.181l-2 1.68-3-4c-1 1-2.5 2.612-2.5 4.5 0 2.485 1.79 4.5 4 4.5Z'
+                        />
+                      </Svg>
+                    )}
+                  >
+                    1
+                  </CustomButton>
+                </View>
+              </View>
 
-          <ThemedText size={18} variant='medium' className='text-center'>
-            {user?.firstName} {user?.lastName}
-          </ThemedText>
-
-          <View className='flex-row items-center justify-between my-6'>
-            <View className='flex-row items-center gap-2'>
-              <ThemedText
-                size={27}
-                variant='semibold'
-                className='text-[#707070]'
-              >
-                0
-              </ThemedText>
-              <ThemedText size={12} className='max-w-[65px]'>
-                verses memorized
+              <ThemedText size={18} variant='medium' className='text-center'>
+                {user?.firstName} {user?.lastName}
               </ThemedText>
             </View>
-            <View className='flex-row items-center gap-2'>
-              <ThemedText
-                size={27}
-                variant='semibold'
-                className='text-[#707070]'
-              >
-                0
-              </ThemedText>
-              <ThemedText size={12} className='max-w-[65px]'>
-                collections memorized
-              </ThemedText>
-            </View>
-            <View className='flex-row items-center gap-2'>
-              <ThemedText
-                size={27}
-                variant='semibold'
-                className='text-[#707070]'
-              >
-                0
-              </ThemedText>
-              <ThemedText size={12} className='max-w-[65px]'>
-                goals completed
-              </ThemedText>
+
+            <View className='flex-row items-center justify-between my-6'>
+              <View className='flex-row items-center gap-2'>
+                <ThemedText
+                  size={27}
+                  variant='semibold'
+                  className='text-[#707070]'
+                >
+                  0
+                </ThemedText>
+                <ThemedText size={12} className='max-w-[65px]'>
+                  verses memorized
+                </ThemedText>
+              </View>
+              <View className='flex-row items-center gap-2'>
+                <ThemedText
+                  size={27}
+                  variant='semibold'
+                  className='text-[#707070]'
+                >
+                  0
+                </ThemedText>
+                <ThemedText size={12} className='max-w-[65px]'>
+                  collections memorized
+                </ThemedText>
+              </View>
+              <View className='flex-row items-center gap-2'>
+                <ThemedText
+                  size={27}
+                  variant='semibold'
+                  className='text-[#707070]'
+                >
+                  0
+                </ThemedText>
+                <ThemedText size={12} className='max-w-[65px]'>
+                  goals completed
+                </ThemedText>
+              </View>
             </View>
           </View>
 

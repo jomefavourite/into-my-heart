@@ -44,6 +44,7 @@ export default function GoalName() {
             </DropdownMenuContent>
           </DropdownMenu>
         }
+        items={[{ label: 'Verses', href: '/verses' }]}
       />
 
       <View className='p-[18px]'>

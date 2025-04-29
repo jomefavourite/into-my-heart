@@ -49,7 +49,10 @@ const notifications: Notification[] = [
 export default function NotificationsScreen() {
   return (
     <SafeAreaView className='flex-1'>
-      <BackHeader title='Notifications' />
+      <BackHeader
+        title='Notifications'
+        items={[{ label: 'Notification', href: '/notifications' }]}
+      />
 
       <ScrollView style={styles.container}>
         <ThemedText>Hello Notification</ThemedText>
