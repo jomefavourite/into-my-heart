@@ -12,12 +12,12 @@ import { useCallback, useRef } from 'react';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import HomeHeader from '~/components/Home/Header';
 import { Button } from '~/components/ui/button';
-import FavouriteIcon from '~/assets/icons/FavouriteIcon';
-import ShareIcon from '~/assets/icons/ShareIcon';
+import FavouriteIcon from '~/components/icons/FavouriteIcon';
+import ShareIcon from '~/components/icons/ShareIcon';
 import { useRouter } from 'expo-router';
-import ArrowRightIcon from '~/assets/icons/ArrowRightIcon';
+import ArrowRightIcon from '~/components/icons/ArrowRightIcon';
 import { H3 } from '~/components/ui/typography';
-import AddCircleIcon from '~/assets/icons/AddCircleIcon';
+import AddCircleIcon from '~/components/icons/AddCircleIcon';
 
 export default function HomeScreen() {
   const bottomSheetRef = useRef<BottomSheet>(null);

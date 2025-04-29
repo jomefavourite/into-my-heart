@@ -8,7 +8,7 @@ import { Label } from '~/components/ui/label';
 import { Input } from '~/components/ui/input';
 import * as ImagePicker from 'expo-image-picker';
 import CustomButton from '~/components/CustomButton';
-import DeleteIcon, { DeleteLightIcon } from '~/assets/icons/DeleteIcon';
+import DeleteIcon, { DeleteLightIcon } from '~/components/icons/DeleteIcon';
 import CustomBottomSheet from '~/components/CustomBottomSheet';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 

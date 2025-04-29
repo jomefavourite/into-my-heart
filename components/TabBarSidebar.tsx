@@ -17,11 +17,11 @@ import {
   User,
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import HomeIcon from '~/assets/icons/tabs/HomeIcon';
-import PracticeIcon from '~/assets/icons/tabs/PracticeIcon';
-import ProfileIcon from '~/assets/icons/tabs/ProfileIcon';
-import VersesIcon from '~/assets/icons/tabs/VersesIcon';
-import GoalsIcon from '~/assets/icons/tabs/GoalsIcon';
+import HomeIcon from '~/components/icons/tabs/HomeIcon';
+import PracticeIcon from '~/components/icons/tabs/PracticeIcon';
+import ProfileIcon from '~/components/icons/tabs/ProfileIcon';
+import VersesIcon from '~/components/icons/tabs/VersesIcon';
+import GoalsIcon from '~/components/icons/tabs/GoalsIcon';
 import ThemedText from './ThemedText';
 import HomeHeader from './Home/Header';
 

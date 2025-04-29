@@ -8,7 +8,7 @@ import { cn } from '~/lib/utils';
 import CustomButton from '~/components/CustomButton';
 import { verses } from '~/lib/constants';
 import VerseCard from '~/components/VerseCard';
-import SettingsIcon from '~/assets/icons/SettingsIcon';
+import SettingsIcon from '~/components/icons/SettingsIcon';
 import { Button } from '~/components/ui/button';
 import { useRouter } from 'expo-router';
 

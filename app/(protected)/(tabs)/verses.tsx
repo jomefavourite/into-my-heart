@@ -8,8 +8,8 @@ import CollectionsTab from '../../../components/Verses/CollectionsTab';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { cn } from '~/lib/utils';
 import { Animated } from 'react-native';
-import AddIcon from '~/assets/icons/AddIcon';
-import GridViewIcon from '~/assets/icons/GridViewIcon';
+import AddIcon from '~/components/icons/AddIcon';
+import GridViewIcon from '~/components/icons/GridViewIcon';
 
 export default function VersesHomeScreen() {
   const [value, setValue] = useState('verses');

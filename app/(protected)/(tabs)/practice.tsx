@@ -4,7 +4,7 @@ import Container from '~/components/Container';
 import ThemedText from '~/components/ThemedText';
 import CustomButton from '~/components/CustomButton';
 import { Link } from 'expo-router';
-import FillInBlanksIcon from '~/assets/icons/practice/FillInBlanksIcon';
+import FillInBlanksIcon from '~/components/icons/practice/FillInBlanksIcon';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 

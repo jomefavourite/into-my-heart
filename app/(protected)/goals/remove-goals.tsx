@@ -4,11 +4,11 @@ import Container from '~/components/Container';
 import ThemedText from '~/components/ThemedText';
 import GoalCard from '~/components/GoalCard';
 import { Button } from '~/components/ui/button';
-import ArrowLeftIcon from '~/assets/icons/ArrowLeftIcon';
+import ArrowLeftIcon from '~/components/icons/ArrowLeftIcon';
 import { useRouter } from 'expo-router';
-import RemoveCircleIcon from '~/assets/icons/RemoveCircleIcon';
-import CancelIcon from '~/assets/icons/CancelIcon';
-import DeleteIcon from '~/assets/icons/DeleteIcon';
+import RemoveCircleIcon from '~/components/icons/RemoveCircleIcon';
+import CancelIcon from '~/components/icons/CancelIcon';
+import DeleteIcon from '~/components/icons/DeleteIcon';
 import { useBottomSheetStore } from '~/lib/utils';
 
 const RemoveGoalsScreen = () => {

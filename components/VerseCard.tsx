@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import AddCircleIcon from '~/assets/icons/AddCircleIcon';
+import AddCircleIcon from '~/components/icons/AddCircleIcon';
 
 interface VerseCardProps {
   reference: string;

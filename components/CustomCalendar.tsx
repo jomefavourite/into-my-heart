@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Calendar } from 'react-native-calendars';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import ArrowLeftIcon from '~/assets/icons/ArrowLeftIcon';
-import ArrowRightIcon from '~/assets/icons/ArrowRightIcon';
+import ArrowLeftIcon from '~/components/icons/ArrowLeftIcon';
+import ArrowRightIcon from '~/components/icons/ArrowRightIcon';
 import { Direction } from 'react-native-calendars/src/types';
 import { useColorScheme } from '~/hooks/useColorScheme';
 

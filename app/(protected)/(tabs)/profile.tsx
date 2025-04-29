@@ -11,7 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import { Switch } from '~/components/ui/switch';
 import { Href, Link } from 'expo-router';
-import ArrowRightIcon from '~/assets/icons/ArrowRightIcon';
+import ArrowRightIcon from '~/components/icons/ArrowRightIcon';
 import Svg, { Path } from 'react-native-svg';
 import { useQuery } from 'convex/react';
 import { api } from '~/convex/_generated/api';

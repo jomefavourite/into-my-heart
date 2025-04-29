@@ -1,5 +1,5 @@
 import ThemedText from '~/components/ThemedText';
-import ArrowLeftIcon from '~/assets/icons/ArrowLeftIcon';
+import ArrowLeftIcon from '~/components/icons/ArrowLeftIcon';
 import { Href, useRouter } from 'expo-router';
 import { Button } from './ui/button';
 import { Platform, View } from 'react-native';

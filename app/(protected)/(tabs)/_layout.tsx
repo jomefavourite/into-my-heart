@@ -1,11 +1,11 @@
 import { Slot, Tabs } from 'expo-router';
 import React from 'react';
 import { Platform, useWindowDimensions } from 'react-native';
-import GoalsIcon from '~/assets/icons/tabs/GoalsIcon';
-import HomeIcon from '~/assets/icons/tabs/HomeIcon';
-import PracticeIcon from '~/assets/icons/tabs/PracticeIcon';
-import ProfileIcon from '~/assets/icons/tabs/ProfileIcon';
-import VersesIcon from '~/assets/icons/tabs/VersesIcon';
+import GoalsIcon from '~/components/icons/tabs/GoalsIcon';
+import HomeIcon from '~/components/icons/tabs/HomeIcon';
+import PracticeIcon from '~/components/icons/tabs/PracticeIcon';
+import ProfileIcon from '~/components/icons/tabs/ProfileIcon';
+import VersesIcon from '~/components/icons/tabs/VersesIcon';
 
 export default function TabLayout() {
   const { width } = useWindowDimensions();

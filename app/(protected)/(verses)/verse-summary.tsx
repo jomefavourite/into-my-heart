@@ -4,7 +4,7 @@ import ThemedText from '~/components/ThemedText';
 import BackHeader from '~/components/BackHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '~/components/ui/button';
-import ArrowRightIcon from '~/assets/icons/ArrowRightIcon';
+import ArrowRightIcon from '~/components/icons/ArrowRightIcon';
 import CustomButton from '~/components/CustomButton';
 
 export default function VerseSummary() {

@@ -5,11 +5,11 @@ import { Input } from '~/components/ui/input';
 import Container from '~/components/Container';
 import ThemedText from '~/components/ThemedText';
 import { Button } from '~/components/ui/button';
-import AddIcon from '~/assets/icons/AddIcon';
+import AddIcon from '~/components/icons/AddIcon';
 import { cn, useBottomSheetStore } from '~/lib/utils';
-import UnfoldMoreIcon from '~/assets/icons/UnfoldMoreIcon';
+import UnfoldMoreIcon from '~/components/icons/UnfoldMoreIcon';
 import { useColorScheme } from '~/hooks/useColorScheme';
-import ArrowLeftIcon from '~/assets/icons/ArrowLeftIcon';
+import ArrowLeftIcon from '~/components/icons/ArrowLeftIcon';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BackHeader from '~/components/BackHeader';
@@ -24,7 +24,7 @@ import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { RadioGroup } from '@rn-primitives/dropdown-menu';
 import { Calendar } from 'react-native-calendars';
 
-import ArrowRightIcon from '~/assets/icons/ArrowRightIcon';
+import ArrowRightIcon from '~/components/icons/ArrowRightIcon';
 import CustomCalendar from '~/components/CustomCalendar';
 
 export default function CreateGoal() {
