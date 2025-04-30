@@ -18,7 +18,7 @@ import {
 } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform } from 'react-native';
+import { Platform, useWindowDimensions, View } from 'react-native';
 import { NAV_THEME } from '~/lib/constants';
 import { useColorScheme } from '~/hooks/useColorScheme';
 import { useFrameworkReady } from '~/hooks/useFrameworkReady';
@@ -35,6 +35,7 @@ import {
   useFonts,
 } from '@expo-google-fonts/inter';
 import AllBottomSheet from '~/components/AllBottomSheet';
+import TabBarSidebar from '~/components/TabBarSidebar';
 // import * as Sentry from '@sentry/react-native';
 // import { isRunningInExpoGo } from 'expo';
 
@@ -101,6 +102,20 @@ function InitialLayout() {
   //     navigationIntegration.registerNavigationContainer(ref);
   //   }
   // }, [ref]);
+
+  const { width } = useWindowDimensions();
+
+  if (Platform.OS === 'web' && width > 720) {
+    const inOnboardingGroup = segments[0] === '(onboarding)';
+
+    if (!inOnboardingGroup) {
+      return (
+        <View className='flex-1 max-w-7xl mx-auto'>
+          <TabBarSidebar />
+        </View>
+      );
+    }
+  }
 
   return (
     <>
