@@ -2,10 +2,11 @@ import { View, Text } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { cn } from '~/lib/utils';
 import ThemedText from './ThemedText';
-import CheckmarkCircleIcon from '~/assets/icons/CheckmarkCircleIcon';
+import CheckmarkCircleIcon from '~/components/icons/CheckmarkCircleIcon';
 import { useColorScheme } from '~/hooks/useColorScheme';
 import Svg, { SvgProps, Path } from 'react-native-svg';
 import { Button } from './ui/button';
+import { Link } from 'expo-router';
 
 type GoalCardProps = {
   view?: 'list' | 'grid';
@@ -20,8 +21,7 @@ export default function GoalCard({
   goalCompleted = false,
   isPractice = false,
 }: GoalCardProps) {
-  const { colorScheme } = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+  const { isDarkMode } = useColorScheme();
 
   const [isChecked, setIsChecked] = useState(false);
 
@@ -32,63 +32,68 @@ export default function GoalCard({
   const itemClassName = view === 'grid' ? 'w-[49%]' : ' ';
 
   return (
-    <View className={cn('bg-container p-4 rounded-lg gap-1', itemClassName)}>
-      <View className='flex-row justify-between items-center'>
-        <ThemedText size={14} variant='medium' numberOfLines={2}>
-          Enter goal name
-        </ThemedText>
-
-        {(checkMark || goalCompleted) && (
-          <Button
-            size={'icon'}
-            variant={'ghost'}
-            disabled={goalCompleted}
-            onPress={() => setIsChecked(!isChecked)}
-          >
-            <Svg width={24} height={24} fill='none'>
-              <Path
-                stroke={isDarkMode ? '#fff' : '#303030'}
-                fill={
-                  !isChecked ? 'transparent' : isDarkMode ? '#fff' : '#303030'
-                }
-                strokeWidth={1.5}
-                d='M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12s4.477 10 10 10 10-4.477 10-10Z'
-              />
-              {isChecked && (
-                <Path
-                  stroke={isDarkMode ? '#303030' : '#fff'}
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={1.5}
-                  d='m8 12.5 2.5 2.5L16 9'
-                />
-              )}
-            </Svg>
-          </Button>
-        )}
-      </View>
-      <View className='flex-row justify-between'>
-        {isPractice ? (
-          <ThemedText size={12} className='text-[#707070] dark:text-[#909090]'>
-            1 verse
+    <Link href={'/goals/kdjsdds'}>
+      <View className={cn('bg-container p-4 rounded-lg gap-1', itemClassName)}>
+        <View className='flex-row justify-between items-center'>
+          <ThemedText size={14} variant='medium' numberOfLines={2}>
+            Enter goal name
           </ThemedText>
-        ) : (
-          <>
+
+          {(checkMark || goalCompleted) && (
+            <Button
+              size={'icon'}
+              variant={'ghost'}
+              disabled={goalCompleted}
+              onPress={() => setIsChecked(!isChecked)}
+            >
+              <Svg width={24} height={24} fill='none'>
+                <Path
+                  stroke={isDarkMode ? '#fff' : '#303030'}
+                  fill={
+                    !isChecked ? 'transparent' : isDarkMode ? '#fff' : '#303030'
+                  }
+                  strokeWidth={1.5}
+                  d='M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12s4.477 10 10 10 10-4.477 10-10Z'
+                />
+                {isChecked && (
+                  <Path
+                    stroke={isDarkMode ? '#303030' : '#fff'}
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={1.5}
+                    d='m8 12.5 2.5 2.5L16 9'
+                  />
+                )}
+              </Svg>
+            </Button>
+          )}
+        </View>
+        <View className='flex-row justify-between'>
+          {isPractice ? (
             <ThemedText
               size={12}
               className='text-[#707070] dark:text-[#909090]'
             >
-              Daily
+              1 verse
             </ThemedText>
-            <ThemedText
-              size={12}
-              className='text-[#707070] dark:text-[#909090]'
-            >
-              {goalCompleted ? 'Completed' : 'Due 17 Jan'}
-            </ThemedText>
-          </>
-        )}
+          ) : (
+            <>
+              <ThemedText
+                size={12}
+                className='text-[#707070] dark:text-[#909090]'
+              >
+                Daily
+              </ThemedText>
+              <ThemedText
+                size={12}
+                className='text-[#707070] dark:text-[#909090]'
+              >
+                {goalCompleted ? 'Completed' : 'Due 17 Jan'}
+              </ThemedText>
+            </>
+          )}
+        </View>
       </View>
-    </View>
+    </Link>
   );
 }

@@ -6,6 +6,8 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import BackHeader from '~/components/BackHeader';
 import ThemedText from '~/components/ThemedText';
 
 type Notification = {
@@ -46,26 +48,33 @@ const notifications: Notification[] = [
 
 export default function NotificationsScreen() {
   return (
-    <ScrollView style={styles.container}>
-      <ThemedText>Hello Notification</ThemedText>
-      {notifications.map((notification) => (
-        <TouchableOpacity
-          key={notification.id}
-          style={[
-            styles.notificationCard,
-            notification.read && styles.readNotification,
-          ]}
-        >
-          <Image source={{ uri: notification.image }} style={styles.avatar} />
-          <View style={styles.content}>
-            <Text style={styles.title}>{notification.title}</Text>
-            <Text style={styles.description}>{notification.description}</Text>
-            <Text style={styles.time}>{notification.time}</Text>
-          </View>
-          {!notification.read && <View style={styles.unreadDot} />}
-        </TouchableOpacity>
-      ))}
-    </ScrollView>
+    <SafeAreaView className='flex-1'>
+      <BackHeader
+        title='Notifications'
+        items={[{ label: 'Notification', href: '/notifications' }]}
+      />
+
+      <ScrollView style={styles.container}>
+        <ThemedText>Hello Notification</ThemedText>
+        {notifications.map((notification) => (
+          <TouchableOpacity
+            key={notification.id}
+            style={[
+              styles.notificationCard,
+              notification.read && styles.readNotification,
+            ]}
+          >
+            <Image source={{ uri: notification.image }} style={styles.avatar} />
+            <View style={styles.content}>
+              <Text style={styles.title}>{notification.title}</Text>
+              <Text style={styles.description}>{notification.description}</Text>
+              <Text style={styles.time}>{notification.time}</Text>
+            </View>
+            {!notification.read && <View style={styles.unreadDot} />}
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 

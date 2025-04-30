@@ -8,10 +8,17 @@ import {
   DefaultTheme,
   DarkTheme,
 } from '@react-navigation/native';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import {
+  Redirect,
+  Slot,
+  Stack,
+  useNavigationContainerRef,
+  useRouter,
+  useSegments,
+} from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform } from 'react-native';
+import { Platform, useWindowDimensions, View } from 'react-native';
 import { NAV_THEME } from '~/lib/constants';
 import { useColorScheme } from '~/hooks/useColorScheme';
 import { useFrameworkReady } from '~/hooks/useFrameworkReady';
@@ -28,6 +35,9 @@ import {
   useFonts,
 } from '@expo-google-fonts/inter';
 import AllBottomSheet from '~/components/AllBottomSheet';
+import TabBarSidebar from '~/components/TabBarSidebar';
+// import * as Sentry from '@sentry/react-native';
+// import { isRunningInExpoGo } from 'expo';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -44,6 +54,22 @@ const DARK_THEME: Theme = {
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
   unsavedChangesWarning: false,
 });
+
+// const navigationIntegration = Sentry.reactNavigationIntegration({
+//   enableTimeToInitialDisplay: !isRunningInExpoGo(),
+// });
+
+// Sentry.init({
+//   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+//   attachStacktrace: true,
+//   debug: process.env.NODE_ENV !== 'production',
+//   sendDefaultPii: true,
+//   integrations: [
+//     // Pass integration
+//     navigationIntegration,
+//   ],
+//   enableNativeFramesTracking: !isRunningInExpoGo(),
+// });
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -67,7 +93,29 @@ function InitialLayout() {
     } else if (!isSignedIn && !inAuthGroup) {
       router.replace('/(onboarding)/create-account');
     }
-  }, [isSignedIn, segments]);
+  }, [isSignedIn]);
+
+  // const ref = useNavigationContainerRef();
+
+  // useEffect(() => {
+  //   if (ref?.current) {
+  //     navigationIntegration.registerNavigationContainer(ref);
+  //   }
+  // }, [ref]);
+
+  const { width } = useWindowDimensions();
+
+  if (Platform.OS === 'web' && width > 720) {
+    const inOnboardingGroup = segments[0] === '(onboarding)';
+
+    if (!inOnboardingGroup) {
+      return (
+        <View className='flex-1 max-w-7xl mx-auto'>
+          <TabBarSidebar />
+        </View>
+      );
+    }
+  }
 
   return (
     <>
@@ -82,9 +130,9 @@ function InitialLayout() {
   );
 }
 
-export default function RootLayout() {
+function RootLayout() {
   const hasMounted = React.useRef(false);
-  const { isDarkColorScheme } = useColorScheme();
+  const { isDarkMode } = useColorScheme();
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
   const [loaded, error] = useFonts({
     Inter_400Regular,
@@ -123,17 +171,22 @@ export default function RootLayout() {
 
   return (
     <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
+      {/* <ClerkLoaded> */}
       <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-        <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+        <ThemeProvider value={isDarkMode ? DARK_THEME : LIGHT_THEME}>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <InitialLayout />
             <StatusBar style='auto' />
           </GestureHandlerRootView>
         </ThemeProvider>
       </ConvexProviderWithClerk>
+      {/* </ClerkLoaded> */}
     </ClerkProvider>
   );
 }
+
+// export default Sentry.wrap(RootLayout);
+export default RootLayout;
 
 const useIsomorphicLayoutEffect =
   Platform.OS === 'web' && typeof window === 'undefined'

@@ -1,10 +1,10 @@
 import { View, Text, Pressable, Platform } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import { useRouter } from 'expo-router';
-import NotificationIcon from '~/assets/icons/NotificationIcon';
-import FireIcon from '~/assets/icons/FireIcon';
+import NotificationIcon from '~/components/icons/NotificationIcon';
+import FireIcon from '~/components/icons/FireIcon';
 import Svg, { SvgProps, Path } from 'react-native-svg';
 import { useUser } from '@clerk/clerk-expo';
 import ThemedText from '../ThemedText';
@@ -14,16 +14,30 @@ import { useCallback, useRef } from 'react';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { cn, useBottomSheetStore } from '~/lib/utils';
 
-export default function HomeHeader() {
+export default function HomeHeader({
+  isWelcome = false,
+}: {
+  isWelcome?: boolean;
+}) {
   const { user } = useUser();
   const router = useRouter();
 
-  const { colorScheme } = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const bottomSheetRef = useRef<BottomSheet>(null);
+
+  const { isDarkMode } = useColorScheme();
 
   const setStreakBottomSheetIndex = useBottomSheetStore(
     (state) => state.setStreakBottomSheetIndex
   );
+
+  const handleOpenSheet = () => {
+    if (Platform.OS === 'web') {
+      setIsModalVisible(true);
+    } else {
+      bottomSheetRef.current?.expand();
+    }
+  };
 
   return (
     <>
@@ -37,27 +51,33 @@ export default function HomeHeader() {
           }),
         }}
       >
-        <View className='p-4 flex-row justify-between items-center'>
-          <View className='flex-row gap-2'>
-            <Avatar alt={user?.firstName || ''}>
-              <AvatarImage source={{ uri: user?.imageUrl }} />
-              <AvatarFallback>
-                <ThemedText>{user?.firstName?.charAt(0)}</ThemedText>
-              </AvatarFallback>
-            </Avatar>
-            <View>
-              <ThemedText size={12} className='text-[#707070]'>
-                Welcome
-              </ThemedText>
-              <ThemedText variant='medium'>{user?.firstName}</ThemedText>
+        <View
+          className={cn(
+            'p-4 flex-row justify-between items-center',
+            !!isWelcome && 'justify-end'
+          )}
+        >
+          {isWelcome && (
+            <View className='flex-row gap-2'>
+              <Avatar alt={user?.firstName || ''}>
+                <AvatarImage source={{ uri: user?.imageUrl }} />
+                <AvatarFallback>
+                  <ThemedText>{user?.firstName?.charAt(0)}</ThemedText>
+                </AvatarFallback>
+              </Avatar>
+              <View>
+                <ThemedText size={12} className='text-[#707070]'>
+                  Welcome
+                </ThemedText>
+                <ThemedText variant='medium'>{user?.firstName}</ThemedText>
+              </View>
             </View>
-          </View>
+          )}
 
-          <View className='flex-row items-center justify-end gap-4 '>
+          <View className='flex-row items-center justify-end gap-4 ml-auto'>
             <CustomButton
               className={cn('w-fit !px-4 gap-1 self-end')}
               onPress={() => {
-                console.log('Pressed');
                 setStreakBottomSheetIndex(1);
               }}
               leftIcon
@@ -81,10 +101,11 @@ export default function HomeHeader() {
             >
               1
             </CustomButton>
+
             <Pressable
               className=''
               onPress={() => {
-                router.push('/(home)/notifications');
+                router.push('/notifications');
               }}
             >
               <NotificationIcon />

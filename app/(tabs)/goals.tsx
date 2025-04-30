@@ -16,12 +16,12 @@ import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import CustomButton from '~/components/CustomButton';
 import { cn } from '~/lib/utils';
-import AddIcon from '~/assets/icons/AddIcon';
-import ListViewIcon from '~/assets/icons/ListViewIcon';
+import AddIcon from '~/components/icons/AddIcon';
+import ListViewIcon from '~/components/icons/ListViewIcon';
 import { useRouter } from 'expo-router';
 import { ScrollView } from 'react-native';
-import ArrowRightIcon from '~/assets/icons/ArrowRightIcon';
-import GridViewIcon from '~/assets/icons/GridViewIcon';
+import ArrowRightIcon from '~/components/icons/ArrowRightIcon';
+import GridViewIcon from '~/components/icons/GridViewIcon';
 import GoalCard from '~/components/GoalCard';
 
 export default function GoalsScreen() {
@@ -80,7 +80,7 @@ export default function GoalsScreen() {
               <Button
                 size={'icon'}
                 variant={'ghost'}
-                onPress={() => router.push('/(goals)/create-goal')}
+                onPress={() => router.push('/goals/create-goal')}
               >
                 <AddIcon stroke='white' />
               </Button>
@@ -133,7 +133,7 @@ export default function GoalsScreen() {
                 <Button
                   size={'icon'}
                   variant={'ghost'}
-                  onPress={() => router.push('/(goals)/all-goals')}
+                  onPress={() => router.push('/goals/all-goals')}
                 >
                   <ArrowRightIcon />
                 </Button>

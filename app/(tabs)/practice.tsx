@@ -2,82 +2,62 @@ import { View, Text } from 'react-native';
 import React from 'react';
 import Container from '~/components/Container';
 import ThemedText from '~/components/ThemedText';
-import AddIcon from '~/assets/icons/AddIcon';
-import AddCircleIcon from '~/assets/icons/AddCircleIcon';
-import AlbumIcon from '~/assets/icons/AlbumIcon';
-import ArrowLeftIcon from '~/assets/icons/ArrowLeftIcon';
-import ArrowRightIcon from '~/assets/icons/ArrowRightIcon';
-import CameraIcon from '~/assets/icons/CameraIcon';
-import CancelIcon from '~/assets/icons/CancelIcon';
-import CheckmarkCircleIcon from '~/assets/icons/CheckmarkCircleIcon';
-import CircleIcon from '~/assets/icons/CircleIcon';
-import DeleteIcon from '~/assets/icons/DeleteIcon';
-import DumbbellIcon from '~/assets/icons/DumbbellIcon';
-import FavouriteIcon from '~/assets/icons/FavouriteIcon';
-import FilesIcon from '~/assets/icons/FilesIcon';
-import FireIcon from '~/assets/icons/FireIcon';
-import GoBack15secIcon from '~/assets/icons/GoBack15secIcon';
-import GoForward15secIcon from '~/assets/icons/GoForward15secIcon';
-import GridViewIcon from '~/assets/icons/GridViewIcon';
-import IdeaIcon from '~/assets/icons/IdeaIcon';
-import ImageIcon from '~/assets/icons/ImageIcon';
-import ListViewIcon from '~/assets/icons/ListViewIcon';
-import MailValidationIcon from '~/assets/icons/MailValidationIcon';
-import MicIcon from '~/assets/icons/MicIcon';
-import MoreVerticalIcon from '~/assets/icons/MoreVerticalIcon';
-import NoteIcon from '~/assets/icons/NoteIcon';
-import PlayIcon from '~/assets/icons/Playicon';
-import RadioButtonIcon from '~/assets/icons/RadioButtonIcon';
-import RemoveCircleIcon from '~/assets/icons/RemoveCircleIcon';
-import SettingsIcon from '~/assets/icons/SettingsIcon';
-import ShareIcon from '~/assets/icons/ShareIcon';
-import TargetIcon from '~/assets/icons/TargetIcon';
-import TimeScheduleIcon from '~/assets/icons/TimeScheduleIcon';
-import UnfoldMoreIcon from '~/assets/icons/UnfoldMoreIcon';
-import ViewOffIcon from '~/assets/icons/ViewOffIcon';
-import ViewIcon from '~/assets/icons/ViewIcon';
-import VolumeHighIcon from '~/assets/icons/VolumeHighIcon';
+import CustomButton from '~/components/CustomButton';
+import { Link } from 'expo-router';
+import FillInBlanksIcon from '~/components/icons/practice/FillInBlanksIcon';
+import { ScrollView } from 'react-native-gesture-handler';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function PracticeScreen() {
   return (
-    <Container>
-      <ThemedText>PracticeScreen</ThemedText>
+    <SafeAreaView className='flex-1'>
+      <View className='p-[18]'>
+        <ThemedText size={22} variant='semibold'>
+          Practice
+        </ThemedText>
+      </View>
 
-      <AddIcon />
-      <AddCircleIcon />
-      <AlbumIcon />
-      <ArrowLeftIcon />
-      <ArrowRightIcon />
-      <CameraIcon />
-      <CancelIcon />
-      <CheckmarkCircleIcon />
-      <CircleIcon />
-      <DeleteIcon />
-      <DumbbellIcon />
-      <FavouriteIcon />
-      <FilesIcon />
-      <FireIcon />
-      <GoBack15secIcon />
-      <GoForward15secIcon />
-      <GridViewIcon />
-      <IdeaIcon />
-      <ImageIcon />
-      <ListViewIcon />
-      <MailValidationIcon />
-      <MicIcon />
-      <MoreVerticalIcon />
-      <NoteIcon />
-      <PlayIcon />
-      <RadioButtonIcon />
-      <RemoveCircleIcon />
-      <SettingsIcon />
-      <ShareIcon />
-      <TargetIcon />
-      <TimeScheduleIcon />
-      <UnfoldMoreIcon />
-      <ViewOffIcon />
-      <ViewIcon />
-      <VolumeHighIcon />
-    </Container>
+      <ScrollView className=' p-[18px]'>
+        <View className='my-[76] max-w-[192px] mx-auto text-center'>
+          <ThemedText size={18} variant='medium' className='text-center'>
+            All Verses Mode
+          </ThemedText>
+          <ThemedText
+            size={14}
+            className='text-center text-[#707070] dark:text-[#909090] mt-1'
+          >
+            Practice every verse you've added all in one session
+          </ThemedText>
+          <CustomButton className='mt-4 text-center'>Practice</CustomButton>
+        </View>
+
+        <View>
+          <ThemedText variant='semibold'>Practice Techniques</ThemedText>
+
+          <View className='gap-3 mt-2'>
+            <Link href='/practice/fill-in-blanks'>
+              <View className='flex-row justify-between items-center w-full px-4 py-2 web:p-6 border border-[#E8E8E8] dark:border-[#E8E8E8] rounded-lg my-2'>
+                <ThemedText variant='medium'>Fill-in-the-blanks</ThemedText>
+                <FillInBlanksIcon className='web:absolute right-0 bottom-0' />
+              </View>
+            </Link>
+
+            <Link href='/practice/recitation'>
+              <View className='flex-row justify-between items-center w-full px-4 py-2 web:p-6 border border-[#E8E8E8] dark:border-[#E8E8E8] rounded-lg my-2'>
+                <ThemedText variant='medium'>Recitation</ThemedText>
+                <FillInBlanksIcon className='web:absolute right-0 bottom-0' />
+              </View>
+            </Link>
+
+            <Link href='/practice/flashcards'>
+              <View className='flex-row justify-between items-center w-full px-4 py-2 web:p-6 border border-[#E8E8E8] dark:border-[#E8E8E8] rounded-lg my-2'>
+                <ThemedText variant='medium'>Flashcards</ThemedText>
+                <FillInBlanksIcon className='web:absolute right-0 bottom-0' />
+              </View>
+            </Link>
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }

@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from 'clsx';
 import { Href } from 'expo-router';
 import { twMerge } from 'tailwind-merge';
-import OnboardIcon1 from '~/assets/icons/onboarding/onboarding-1.svg';
+import OnboardIcon1 from '~/components/icons/onboarding/onboarding-1.svg';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

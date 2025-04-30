@@ -1,19 +1,24 @@
-import { Tabs } from 'expo-router';
+import { Slot, Tabs } from 'expo-router';
 import React from 'react';
-import GoalsIcon from '~/assets/icons/tabs/GoalsIcon';
-import HomeIcon from '~/assets/icons/tabs/HomeIcon';
-import PracticeIcon from '~/assets/icons/tabs/PracticeIcon';
-import VersesIcon from '~/assets/icons/tabs/VersesIcon';
+import { Platform, useWindowDimensions } from 'react-native';
+import GoalsIcon from '~/components/icons/tabs/GoalsIcon';
+import HomeIcon from '~/components/icons/tabs/HomeIcon';
+import PracticeIcon from '~/components/icons/tabs/PracticeIcon';
+import ProfileIcon from '~/components/icons/tabs/ProfileIcon';
+import VersesIcon from '~/components/icons/tabs/VersesIcon';
 
 export default function TabLayout() {
+  const { width } = useWindowDimensions();
+
+  if (Platform.OS === 'web' && width > 720) {
+    return <Slot />;
+  }
+
   return (
     <>
       <Tabs
         screenOptions={{
-          // tabBarActiveTintColor: '#313131',
           headerShown: false,
-          // tabBarButton: HapticTab,
-          // tabBarBackground: TabBarBackground,
           tabBarStyle: {
             paddingTop: 15,
             paddingBottom: 15,
@@ -24,6 +29,13 @@ export default function TabLayout() {
             fontWeight: 500,
             fontFamily: 'Inter',
           },
+          tabBarItemStyle:
+            Platform.OS === 'web'
+              ? {
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                }
+              : undefined,
         }}
       >
         <Tabs.Screen
@@ -37,21 +49,28 @@ export default function TabLayout() {
           name='verses'
           options={{
             title: 'Verses',
-            tabBarIcon: ({ color }) => <VersesIcon color={color} />,
+            tabBarIcon: ({ focused }) => <VersesIcon focused={focused} />,
           }}
         />
         <Tabs.Screen
           name='practice'
           options={{
             title: 'Practice',
-            tabBarIcon: ({ color }) => <PracticeIcon color={color} />,
+            tabBarIcon: ({ focused }) => <PracticeIcon focused={focused} />,
           }}
         />
         <Tabs.Screen
           name='goals'
           options={{
             title: 'Goals',
-            tabBarIcon: ({ color }) => <GoalsIcon color={color} />,
+            tabBarIcon: ({ focused }) => <GoalsIcon focused={focused} />,
+          }}
+        />
+        <Tabs.Screen
+          name='profile'
+          options={{
+            title: 'Profile',
+            tabBarIcon: ({ focused }) => <ProfileIcon focused={focused} />,
           }}
         />
       </Tabs>
