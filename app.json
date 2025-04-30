@@ -45,15 +45,15 @@
             "node_modules/@expo-google-fonts/inter/Inter_900Black.ttf"
           ]
         }
-      ],
-      [
-        "@sentry/react-native/expo",
-        {
-          "organization": "favourites-org",
-          "project": "into-my-heart",
-          "url": "https://sentry.io/"
-        }
       ]
+      // [
+      //   "@sentry/react-native/expo",
+      //   {
+      //     "organization": "favourites-org",
+      //     "project": "into-my-heart",
+      //     "url": "https://sentry.io/"
+      //   }
+      // ]
     ],
     "experiments": {
       "typedRoutes": true
