@@ -10,9 +10,14 @@ import { cn } from '~/lib/utils';
 import { Animated } from 'react-native';
 import AddIcon from '~/components/icons/AddIcon';
 import GridViewIcon from '~/components/icons/GridViewIcon';
+import { Button } from '~/components/ui/button';
+import { useRouter } from 'expo-router';
+import ListViewIcon from '~/components/icons/ListViewIcon';
 
 export default function VersesHomeScreen() {
   const [value, setValue] = useState('verses');
+  const [gridView, setGridView] = useState<boolean>(false);
+  const router = useRouter();
 
   return (
     <Container>
@@ -26,7 +31,7 @@ export default function VersesHomeScreen() {
           onValueChange={setValue}
           className='w-full mx-auto flex-col gap-1.5'
         >
-          <View className='relative flex justify-center'>
+          <View className='flex-row justify-between'>
             <TabsList className='flex-row'>
               <TabsTrigger value='verses' className=''>
                 <ThemedText
@@ -55,15 +60,28 @@ export default function VersesHomeScreen() {
                 </ThemedText>
               </TabsTrigger>
             </TabsList>
-            <View className='absolute right-0 flex items-center px-2'>
-              <AddIcon />
-              <GridViewIcon />
+
+            <View className='flex-row'>
+              <Button
+                size={'icon'}
+                variant={'ghost'}
+                onPress={() => router.push('/verses/select-book')}
+              >
+                <AddIcon stroke='white' />
+              </Button>
+              <Button
+                size={'icon'}
+                variant={'ghost'}
+                onPress={() => setGridView(!gridView)}
+              >
+                {gridView ? <GridViewIcon /> : <ListViewIcon stroke='white' />}
+              </Button>
             </View>
           </View>
 
           <Animated.View style={{ opacity: value === 'verses' ? 1 : 0 }}>
             <TabsContent value='verses'>
-              <VersesTab />
+              <VersesTab gridView={gridView} />
             </TabsContent>
           </Animated.View>
 

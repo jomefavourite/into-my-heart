@@ -18,6 +18,10 @@ import { useRouter } from 'expo-router';
 import ArrowRightIcon from '~/components/icons/ArrowRightIcon';
 import { H3 } from '~/components/ui/typography';
 import AddCircleIcon from '~/components/icons/AddCircleIcon';
+import { FlatList } from 'react-native';
+import { verses } from '~/lib/constants';
+import VerseCard from '~/components/VerseCard';
+import ItemSeparator from '~/components/ItemSeparator';
 
 export default function HomeScreen() {
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -88,7 +92,7 @@ export default function HomeScreen() {
                   rightIcon
                   Icon={ArrowRightIcon}
                   className='mt-3'
-                  onPress={() => router.push('/(verses)/add-book')}
+                  onPress={() => router.push('/verses/select-book')}
                 >
                   Add verse
                 </CustomButton>
@@ -100,32 +104,19 @@ export default function HomeScreen() {
             <View className='gap-3'>
               <ThemedText variant='medium'>Verse Suggestions</ThemedText>
 
-              <View className='gap-2'>
-                {[1, 2, 3].map((_, index) => (
-                  <View
-                    key={index}
-                    className='flex-row bg-container py-3 px-4 w-full rounded-xl gap-2'
-                  >
-                    <View className='gap-1 '>
-                      <ThemedText size={14} variant='medium'>
-                        Genesis 1:1
-                      </ThemedText>
-                      <ThemedText
-                        size={13}
-                        className='w-fit text-[#707070] dark:text-[#909090]'
-                      >
-                        In the beginning, God created the heavens and the earth.
-                      </ThemedText>
-                    </View>
-
-                    <View className=' items-center justify-center '>
-                      <Pressable className=' '>
-                        <AddCircleIcon />
-                      </Pressable>
-                    </View>
-                  </View>
-                ))}
-              </View>
+              <FlatList
+                data={verses}
+                style={{ height: 300 }}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item }) => (
+                  <VerseCard
+                    reference={item.reference}
+                    text={item.text}
+                    onAddPress={() => console.log(`${item.text} pressed`)}
+                  />
+                )}
+                ItemSeparatorComponent={ItemSeparator}
+              />
             </View>
 
             <View className='mb-12 gap-2'>

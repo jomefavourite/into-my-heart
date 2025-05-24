@@ -30,7 +30,10 @@ export default function AddBookScreen() {
             <ThemedText>KJV</ThemedText>
           </Button>
         }
-        items={[{ label: 'Verses', href: '/verses' }]}
+        items={[
+          { label: 'Verses', href: '/verses' },
+          { label: 'Select Book', href: '/verses/select-book' },
+        ]}
       />
       <View className='px-[18]'>
         <Input placeholder='Search' />
@@ -45,11 +48,11 @@ export default function AddBookScreen() {
           <Accordion
             type='multiple'
             collapsible
-            className='w-full max-w-sm native:max-w-md'
+            className='w-full native:max-w-md'
           >
             {BOOKS.map((_, index) => (
               <AccordionItem key={index} value={`item-${index + 1}`}>
-                <AccordionTrigger>
+                <AccordionTrigger className='hover:no-underline'>
                   <View className='flex-row items-center justify-between w-full'>
                     <ThemedText>{_.name}</ThemedText>
                     <ThemedText>{_.chaptersLength}</ThemedText>
@@ -59,10 +62,12 @@ export default function AddBookScreen() {
                   {new Array(_.chaptersLength).fill(0).map((_, index) => (
                     <Pressable
                       key={index}
-                      className='bg-container py-[10px] px-4 rounded-md'
-                      onPress={() => router.push('/(verses)/select-verses')}
+                      className='bg-container flex-row justify-center items-center rounded-md w-[54px] h-[40px]'
+                      onPress={() => router.push('/verses/select-verses')}
                     >
-                      <ThemedText>{index + 1}</ThemedText>
+                      <ThemedText className='text-center'>
+                        {index + 1}
+                      </ThemedText>
                     </Pressable>
                   ))}
                 </AccordionContent>

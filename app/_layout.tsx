@@ -110,7 +110,7 @@ function InitialLayout() {
 
     if (!inOnboardingGroup) {
       return (
-        <View className='flex-1 max-w-7xl mx-auto'>
+        <View className='flex-1 '>
           <TabBarSidebar />
         </View>
       );
