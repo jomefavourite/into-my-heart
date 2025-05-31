@@ -2,7 +2,11 @@ import * as React from 'react';
 import Svg, { SvgProps, G, Path } from 'react-native-svg';
 import { useColorScheme } from '~/hooks/useColorScheme';
 
-const ProfileIcon = ({ focused, ...rest }) => {
+interface ProfileIconProps extends SvgProps {
+  focused: boolean;
+}
+
+const ProfileIcon = ({ focused, ...rest }: ProfileIconProps) => {
   const { isDarkMode } = useColorScheme();
 
   const fillColor = focused

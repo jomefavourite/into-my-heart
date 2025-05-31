@@ -13,7 +13,7 @@ import { Switch } from '~/components/ui/switch';
 import { Href, Link } from 'expo-router';
 import ArrowRightIcon from '~/components/icons/ArrowRightIcon';
 import Svg, { Path } from 'react-native-svg';
-import { useQuery } from 'convex/react';
+import { useConvexAuth, useQuery } from 'convex/react';
 import { api } from '~/convex/_generated/api';
 
 interface ProfileLinkItem {
@@ -90,7 +90,7 @@ const CheckboxItem = ({ title }: { title: string }) => {
     if (title === 'Dark mode') {
       const newTheme = isDarkMode ? 'light' : 'dark';
       setColorScheme(newTheme);
-      AsyncStorage.setItem('theme', newTheme);
+      // AsyncStorage.setItem('theme', newTheme);
     }
     setIsEnabled((previousState) => !previousState);
   };
@@ -105,7 +105,7 @@ const CheckboxItem = ({ title }: { title: string }) => {
 
 export default function ProfileScreen() {
   const { isDarkMode, setColorScheme } = useColorScheme();
-  const { signOut } = useAuth();
+  // const { signOut } = useAuth();
   const { user } = useUser();
 
   // const data = useQuery(api.users.getUsers);
@@ -246,7 +246,10 @@ export default function ProfileScreen() {
           {isDarkMode ? 'Light mode' : 'Dark mode'}
         </CustomButton>
 
-        <CustomButton variant='outline' onPress={() => signOut()}>
+        <CustomButton
+          variant='outline'
+          // onPress={() => signOut()}
+        >
           Sign out
         </CustomButton>
       </ScrollView>
