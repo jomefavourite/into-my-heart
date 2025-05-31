@@ -5,7 +5,7 @@ import { cn, useBottomSheetStore } from '~/lib/utils';
 import { useColorScheme } from '~/hooks/useColorScheme';
 import ThemedText from '~/components/ThemedText';
 import CustomButton from '~/components/CustomButton';
-import { useAuth, useUser } from '@clerk/clerk-react';
+import { useAuth, useClerk, useUser } from '@clerk/clerk-react';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
@@ -105,7 +105,7 @@ const CheckboxItem = ({ title }: { title: string }) => {
 
 export default function ProfileScreen() {
   const { isDarkMode, setColorScheme } = useColorScheme();
-  // const { signOut } = useAuth();
+  const { signOut } = useClerk();
   const { user } = useUser();
 
   // const data = useQuery(api.users.getUsers);
@@ -246,10 +246,7 @@ export default function ProfileScreen() {
           {isDarkMode ? 'Light mode' : 'Dark mode'}
         </CustomButton>
 
-        <CustomButton
-          variant='outline'
-          // onPress={() => signOut()}
-        >
+        <CustomButton variant='outline' onPress={() => signOut()}>
           Sign out
         </CustomButton>
       </ScrollView>
