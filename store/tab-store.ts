@@ -1,4 +1,4 @@
-import { create } from 'zustand'
+import { create } from 'zustand';
 interface TabStore {
   activeTab: 'verses' | 'collections';
   setActiveTab: (tab: 'verses' | 'collections') => void;

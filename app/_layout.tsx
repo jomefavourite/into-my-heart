@@ -91,7 +91,7 @@ function InitialLayout() {
     if (isSignedIn && inAuthGroup) {
       router.replace('/(tabs)');
     } else if (!isSignedIn && !inAuthGroup) {
-      router.replace('/(onboarding)/create-account');
+      router.replace('/(onboarding)/onboard');
     }
   }, [isSignedIn]);
 

@@ -8,6 +8,7 @@ import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
 import { useSSO } from '@clerk/clerk-expo';
 import Logo from '~/components/icons/logo/Logo';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const useWarmUpBrowser = () => {
   useEffect(() => {
@@ -73,21 +74,30 @@ export default function CreateAccount() {
   }, []);
 
   return (
-    <Container>
-      <Logo />
-      <View className='flex-1 h-full md:max-w-sm md:mx-auto'>
-        <View className=''>
-          <View className=''>
-            <ThemedText className='text-center text-lg md:text-2xl font-semibold'>
-              Create an account or Sign In
-            </ThemedText>
-            <ThemedText className='text-secondary-text text-center mt-2'>
-              Keep your progress safe and sync <br /> across devices.
-            </ThemedText>
-          </View>
+    <SafeAreaView className='flex-1'>
+      <View className='flex flex-col flex-1 justify-between p-[18px]'>
+        <Logo />
 
+        <View className=' md:max-w-sm md:mx-auto'>
           <View className=''>
-            <View className='gap-2 my-12'>
+            <View className=''>
+              <ThemedText
+                size={18}
+                variant='medium'
+                className='text-center text-lg md:text-2xl font-semibold'
+              >
+                Sign in or Create an account
+              </ThemedText>
+
+              <ThemedText
+                size={14}
+                className='text-secondary-text text-center mt-2 max-w-[260px] mx-auto'
+              >
+                Keep your progress safe and sync across devices.
+              </ThemedText>
+            </View>
+
+            <View className='gap-3 my-12'>
               <CustomButton onPress={onGooglePress}>
                 Continue with Google
               </CustomButton>
@@ -95,21 +105,16 @@ export default function CreateAccount() {
                 Continue with Apple
               </CustomButton>
             </View>
-            <ThemedText className='text-center text-secondary-text'>
-              Do you have an account?{' '}
-              <Link
-                href={'/create-account'}
-                className='font-semibold text-black '
-              >
-                Sign In
-              </Link>
-            </ThemedText>
           </View>
         </View>
+
+        <ThemedText
+          size={12}
+          className='text-center text-secondary-text text-sm'
+        >
+          By signing up, you agree to our Terms and have read our Privacy Policy
+        </ThemedText>
       </View>
-      <ThemedText className='text-center text-secondary-text text-sm'>
-        By signing up, you agree to our Terms and have read our Privacy Policy
-      </ThemedText>
-    </Container>
+    </SafeAreaView>
   );
 }

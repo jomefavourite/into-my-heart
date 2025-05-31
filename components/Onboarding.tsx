@@ -36,7 +36,7 @@ export default function Onboarding({ stepNumber }: { stepNumber: number }) {
         </View>
 
         <Button variant={'ghost'} size='icon' className='w-fit'>
-          <Link href={'/(onboarding)/create-account'}>
+          <Link href={'/(onboarding)/onboard'}>
             <CancelIcon />
           </Link>
         </Button>

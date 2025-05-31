@@ -70,7 +70,7 @@ export const ONBOARDING_DATA: OnboardingData = {
     title: 'Scripture. Practice. Retain.',
     subtile:
       'Use fill-in-the-blanks, flashcards, and guided review to make scripture memorization simple and effective.',
-    link: '/(onboarding)/create-account',
+    link: '/(onboarding)/onboard',
     Icon: null,
     btnText: 'Get started',
   },

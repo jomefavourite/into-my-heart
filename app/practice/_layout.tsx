@@ -7,7 +7,7 @@ const PracticeLayout = () => {
   // const { isSignedIn } = useAuth();
 
   // if (!isSignedIn) {
-  //   return <Redirect href='/(onboarding)/create-account' />;
+  //   return <Redirect href='/(onboarding)/onboard' />;
   // }
 
   return (
