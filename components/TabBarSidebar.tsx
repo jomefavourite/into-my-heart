@@ -9,13 +9,6 @@ import {
   Platform,
 } from 'react-native';
 import { Link, usePathname, Slot } from 'expo-router';
-import {
-  Chrome as Home,
-  BookOpen,
-  BookText,
-  Target,
-  User,
-} from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HomeIcon from '~/components/icons/tabs/HomeIcon';
 import PracticeIcon from '~/components/icons/tabs/PracticeIcon';

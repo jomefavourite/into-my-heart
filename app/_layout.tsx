@@ -105,7 +105,7 @@ function InitialLayout() {
 
   const { width } = useWindowDimensions();
 
-  if (Platform.OS === 'web' && width > 720) {
+  if (Platform.OS === 'web' && width > 768) {
     const inOnboardingGroup = segments[0] === '(onboarding)';
 
     if (!inOnboardingGroup) {

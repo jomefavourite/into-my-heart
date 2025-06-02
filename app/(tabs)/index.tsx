@@ -29,18 +29,25 @@ export default function HomeScreen() {
 
   return (
     <>
-      {Platform.OS !== 'web' && <HomeHeader isWelcome />}
+      {/* {Platform.OS !== 'web' && <HomeHeader isWelcome />} */}
+      <View className='md:hidden'>
+        <HomeHeader isWelcome />
+      </View>
 
       <ScrollView style={{ paddingHorizontal: 18, paddingVertical: 10 }}>
-        <View className='web:grid web:gap-3 web:xl:grid-cols-2'>
-          <View className=''>
+        <View className='web:grid web:gap-4 web:lg:grid-cols-2 '>
+          <View className='gap-4'>
             {/* Verse of the Day */}
             <View>
-              <ThemedText size={12} variant='semibold'>
+              <ThemedText
+                size={12}
+                variant='medium'
+                className='!font-semibold md:text-base md:font-medium'
+              >
                 Verse of the Day
               </ThemedText>
 
-              <View className='bg-[#313131] dark:bg-[#343434] border-none rounded-3xl py-6 px-5 mt-3'>
+              <View className='bg-[#313131] dark:bg-[#343434] border-none rounded-3xl py-6 px-5 mt-2'>
                 <ThemedText
                   size={12}
                   variant='medium'
@@ -77,6 +84,7 @@ export default function HomeScreen() {
               </View>
             </View>
 
+            {/* My Verses */}
             <View className='gap-3'>
               <ThemedText variant='medium'>My Verses</ThemedText>
 
@@ -100,8 +108,8 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          <View className=''>
-            <View className='gap-3'>
+          <View className='gap-3'>
+            <View className='gap-2'>
               <ThemedText variant='medium'>Verse Suggestions</ThemedText>
 
               <FlatList
@@ -133,6 +141,7 @@ export default function HomeScreen() {
 
               <Image
                 source={require('~/assets/images/bible-tips.png')}
+                style={{ width: '100%', height: 300 }}
                 className='w-full rounded-xl my-2'
               />
 
