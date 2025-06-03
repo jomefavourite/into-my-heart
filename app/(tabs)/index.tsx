@@ -14,7 +14,7 @@ import HomeHeader from '~/components/Home/Header';
 import { Button } from '~/components/ui/button';
 import FavouriteIcon from '~/components/icons/FavouriteIcon';
 import ShareIcon from '~/components/icons/ShareIcon';
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import ArrowRightIcon from '~/components/icons/ArrowRightIcon';
 import { H3 } from '~/components/ui/typography';
 import AddCircleIcon from '~/components/icons/AddCircleIcon';
@@ -35,7 +35,7 @@ export default function HomeScreen() {
       </View>
 
       <ScrollView style={{ paddingHorizontal: 18, paddingVertical: 10 }}>
-        <View className='web:grid web:gap-4 web:lg:grid-cols-2 '>
+        <View className='web:grid gap-8 web:lg:grid-cols-2 '>
           <View className='gap-4'>
             {/* Verse of the Day */}
             <View>
@@ -85,7 +85,7 @@ export default function HomeScreen() {
             </View>
 
             {/* My Verses */}
-            <View className='gap-3'>
+            <View className='gap-2'>
               <ThemedText variant='medium'>My Verses</ThemedText>
 
               <View className='bg-container p-7 rounded-2xl '>
@@ -110,7 +110,12 @@ export default function HomeScreen() {
 
           <View className='gap-3'>
             <View className='gap-2'>
-              <ThemedText variant='medium'>Verse Suggestions</ThemedText>
+              <View className='flex-row items-center justify-between mb-2'>
+                <ThemedText variant='medium'>Verse Suggestions</ThemedText>
+                <Link href={'/verses/verse-suggestions'}>
+                  <ThemedText size={12}>View all -{'>'}</ThemedText>
+                </Link>
+              </View>
 
               <FlatList
                 data={verses}

@@ -27,6 +27,7 @@ export default function SelectVerses() {
         title='Select Verses'
         items={[
           { label: 'Verses', href: '/verses' },
+          { label: 'Select Book', href: '/verses/select-book' },
           { label: 'Select Verses', href: '/verses/select-verses' },
         ]}
       />
