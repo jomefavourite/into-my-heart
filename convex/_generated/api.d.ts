@@ -16,6 +16,7 @@ import type {
 import type * as http from "../http.js";
 import type * as messages from "../messages.js";
 import type * as users from "../users.js";
+import type * as verses from "../verses.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -29,6 +30,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   messages: typeof messages;
   users: typeof users;
+  verses: typeof verses;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

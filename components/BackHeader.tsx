@@ -31,9 +31,13 @@ export default function BackHeader({
 
   return (
     <View className='items-center justify-between flex-row p-[18px]'>
-      <Button size={'icon'} variant={'ghost'} onPress={() => router.back()}>
-        <ArrowLeftIcon />
-      </Button>
+      <View className='flex-row items-center'>
+        <Button size={'icon'} variant={'ghost'} onPress={() => router.back()}>
+          <ArrowLeftIcon />
+        </Button>
+        {/* This is done to make the space evenly centered */}
+        {RightComponent && <View style={{ width: 35, height: 35 }} />}
+      </View>
 
       {TitleComponent ? (
         <>{TitleComponent}</>

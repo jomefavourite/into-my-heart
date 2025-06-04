@@ -7,11 +7,14 @@ import type { WebhookEvent } from '@clerk/backend';
 const http = httpRouter();
 
 const handleClerkWebhook = httpAction(async (ctx, request) => {
-  const event = await validateRequest(request);
-  if (!event) {
-    return new Response('Error occurred', { status: 400 });
-  }
-  const { data, type } = event;
+  // const event = await validateRequest(request);
+
+  // if (!event) {
+  //   return new Response('Error occurred', { status: 400 });
+  // }
+  // const { data, type } = event;
+
+  const { data, type } = await request.json();
 
   switch (type) {
     case 'user.created':
@@ -26,9 +29,10 @@ const handleClerkWebhook = httpAction(async (ctx, request) => {
     case 'user.deleted':
       break;
     default:
-      console.log('Ignored Clerk webhook event', event.type);
+      console.log('Ignored Clerk webhook event', type);
       break;
   }
+
   return new Response(null, {
     status: 200,
   });

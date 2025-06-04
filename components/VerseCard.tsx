@@ -4,8 +4,8 @@ import AddCircleIcon from '~/components/icons/AddCircleIcon';
 import ThemedText from './ThemedText';
 
 interface VerseCardProps {
-  reference: string;
-  text: string;
+  bookName: string;
+  chapter: string;
   onAddPress: () => void;
   containerClassName?: string;
   referenceClassName?: string;
@@ -13,8 +13,8 @@ interface VerseCardProps {
 }
 
 const VerseCard: React.FC<VerseCardProps> = ({
-  reference,
-  text,
+  bookName = 'Genesis',
+  chapter = '1',
   onAddPress,
   containerClassName = '',
   referenceClassName = '',
@@ -36,7 +36,7 @@ const VerseCard: React.FC<VerseCardProps> = ({
           {reference}
         </ThemedText> */}
         <ThemedText size={14} variant='medium'>
-          Genesis 1:1
+          {bookName} {chapter}:1
         </ThemedText>
 
         <ThemedText
@@ -46,6 +46,7 @@ const VerseCard: React.FC<VerseCardProps> = ({
           In the beginning, God created the heavens and the earth.
         </ThemedText>
       </View>
+
       <TouchableOpacity className='p-2' onPress={onAddPress}>
         <AddCircleIcon color={'#000'} />
       </TouchableOpacity>

@@ -1,6 +1,5 @@
 import React, { useCallback, memo, useMemo, useState } from 'react';
 import { View, Pressable, FlatList, Dimensions } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
@@ -15,17 +14,31 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '~/components/ui/accordion';
+import { useBookStore } from '~/store/bookStore';
 
 const screenWidth = Dimensions.get('window').width;
 const numColumns = Math.floor(screenWidth / 60); // ~60px per chapter item
 
 const ChapterItem = memo(
-  ({ bookId, chapter }: { bookId: string; chapter: number }) => {
+  ({
+    bookName,
+    chapter,
+    chapterLength,
+  }: {
+    bookName: string;
+    chapter: number;
+    chapterLength: number;
+  }) => {
     const router = useRouter();
+    const { setBookName, setChapter, setChapterLength } = useBookStore();
 
     const handlePress = useCallback(() => {
-      router.push(`/verses/select-verses?book=${bookId}&chapter=${chapter}`);
-    }, [bookId, chapter]);
+      setBookName(bookName);
+      setChapter(chapter);
+      setChapterLength(chapterLength);
+
+      router.push(`/verses/select-verses?book=${bookName}&chapter=${chapter}`);
+    }, [bookName, chapter]);
 
     return (
       <Pressable
@@ -66,14 +79,19 @@ export default function AddBookScreen() {
         ]}
       />
 
-      <View className='flex-1 px-[18] gap-2'>
+      <View className='mb-4 gap-2 px-[18]'>
         <Input
           placeholder='Search by name or abbreviation'
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
+      </View>
 
-        <ScrollView className='flex-1'>
+      <FlatList
+        className='flex-1 px-[18]'
+        data={[{ id: 'accordion' }]} // single item to render accordion
+        keyExtractor={(item) => item.id}
+        renderItem={() => (
           <Accordion
             type='single'
             collapsible
@@ -88,7 +106,7 @@ export default function AddBookScreen() {
                   </View>
                 </AccordionTrigger>
 
-                <AccordionContent className='flex-row flex-wrap gap-2 place-content-center md:place-content-start'>
+                <AccordionContent className='flex-row flex-wrap gap-2'>
                   <FlatList
                     data={Array.from(
                       { length: book.chaptersLength },
@@ -96,20 +114,22 @@ export default function AddBookScreen() {
                     )}
                     keyExtractor={(item) => item.toString()}
                     numColumns={numColumns}
-                    // scrollEnabled={false}
-                    contentContainerStyle={{
-                      paddingBottom: 10,
-                    }}
+                    scrollEnabled={false} // prevent nested scroll issues
+                    contentContainerStyle={{ paddingBottom: 10 }}
                     renderItem={({ item }) => (
-                      <ChapterItem chapter={item} bookId={book.id} />
+                      <ChapterItem
+                        chapter={item}
+                        bookName={book.name}
+                        chapterLength={book.chaptersLength}
+                      />
                     )}
                   />
                 </AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
-        </ScrollView>
-      </View>
+        )}
+      />
     </SafeAreaView>
   );
 }

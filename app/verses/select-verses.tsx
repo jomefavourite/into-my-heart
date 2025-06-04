@@ -1,25 +1,30 @@
 import { View } from 'react-native';
-import React from 'react';
+import React, { useCallback } from 'react';
 import ThemedText from '~/components/ThemedText';
 import BackHeader from '~/components/BackHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {
-  ToggleGroup,
-  ToggleGroupIcon,
-  ToggleGroupItem,
-} from '~/components/ui/toggle-group';
+import { ToggleGroup, ToggleGroupItem } from '~/components/ui/toggle-group';
 import CustomButton from '~/components/CustomButton';
 import { useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
+import { useBookStore } from '~/store/bookStore';
 
 export default function SelectVerses() {
   const router = useRouter();
-  const [value, setValue] = React.useState<string[]>([]);
+  // const [verses, setVerses] = React.useState<string[]>([]);
+  const { bookName, chapter, chapterLength, verses, setVerses } =
+    useBookStore();
+
+  console.log(verses, 'verses');
 
   const handleValueChange = (newValue: string[]) => {
-    setValue(newValue);
+    setVerses(newValue);
   };
 
-  console.log('Selected verses:', value);
+  const handlePress = useCallback(() => {
+    console.log(verses, verses.join(','));
+    router.push(`/verses/verse-summary`);
+  }, [bookName, chapter, verses]);
 
   return (
     <SafeAreaView className='flex-1'>
@@ -32,42 +37,46 @@ export default function SelectVerses() {
         ]}
       />
 
-      <View className='px-[18px]'>
-        <ThemedText className=' text-lg font-semibold mb-4'>
-          Select Verses - Genesis 1
-        </ThemedText>
+      <View className='flex-1 justify-between px-[18px]'>
+        <View>
+          <ThemedText variant='medium' className=' text-lg font-semibold mb-4'>
+            Select Verses - {bookName} {chapter}
+          </ThemedText>
 
-        <ToggleGroup
-          value={value}
-          onValueChange={handleValueChange}
-          type='multiple'
-          className=' w-full flex-wrap gap-2 justify-start'
-        >
-          {new Array(20).fill(0).map((_, index) => {
-            const verseValue = `${index + 1}`;
-            const isActive = value.includes(verseValue);
+          <ToggleGroup
+            value={verses}
+            onValueChange={handleValueChange}
+            type='multiple'
+            className=' w-full flex-wrap gap-2 justify-start'
+          >
+            {new Array(chapterLength).fill(0).map((_, index) => {
+              const verseValue = `${index + 1}`;
+              const isActive = verses.includes(verseValue);
 
-            return (
-              <ToggleGroupItem
-                key={index}
-                value={verseValue}
-                aria-label={`Select verse ${index + 1}`}
-                className={`bg-container flex-row  items-center rounded-md w-[54px] h-[40px] ${isActive ? 'bg-black hover:bg-black web:group-hover:bg-black' : ''}`}
-              >
-                <ThemedText style={isActive ? { color: 'white' } : {}}>
-                  {index + 1}
-                </ThemedText>
-              </ToggleGroupItem>
-            );
-          })}
-        </ToggleGroup>
+              return (
+                <ToggleGroupItem
+                  key={index}
+                  value={verseValue}
+                  aria-label={`Select verse ${index + 1}`}
+                  className={`bg-container flex-row  items-center rounded-md w-[54px] h-[40px] ${isActive ? 'bg-black hover:bg-black dark:bg-zinc-500 web:group-hover:bg-black' : ''}`}
+                >
+                  <ThemedText style={isActive ? { color: 'white' } : {}}>
+                    {index + 1}
+                  </ThemedText>
+                </ToggleGroupItem>
+              );
+            })}
+          </ToggleGroup>
+        </View>
 
-        <CustomButton
-          onPress={() => router.push('/verses/verse-summary')}
-          disabled={value.length === 0}
-        >
-          Continue
-        </CustomButton>
+        <View className='my-5'>
+          <CustomButton
+            onPress={() => handlePress()}
+            disabled={verses.length === 0}
+          >
+            Continue
+          </CustomButton>
+        </View>
       </View>
     </SafeAreaView>
   );

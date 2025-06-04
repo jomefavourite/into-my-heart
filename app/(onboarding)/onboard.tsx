@@ -1,9 +1,7 @@
 import { View, Platform } from 'react-native';
 import React, { useCallback, useEffect } from 'react';
 import ThemedText from '~/components/ThemedText';
-import Container from '~/components/Container';
 import CustomButton from '~/components/CustomButton';
-import { Link } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
 import { useSSO } from '@clerk/clerk-expo';
@@ -36,7 +34,6 @@ export default function CreateAccount() {
       const { createdSessionId, setActive, signIn, signUp } =
         await startSSOFlow({
           strategy: 'oauth_google',
-
           redirectUrl: AuthSession.makeRedirectUri(),
         });
 
@@ -60,7 +57,6 @@ export default function CreateAccount() {
       const { createdSessionId, setActive, signIn, signUp } =
         await startSSOFlow({
           strategy: 'oauth_apple',
-
           redirectUrl: AuthSession.makeRedirectUri(),
         });
 
