@@ -3,7 +3,6 @@ import React, { PropsWithChildren, ReactNode } from 'react';
 import ThemedText from '~/components/ThemedText';
 import CustomButton from '~/components/CustomButton';
 import { cn } from '~/lib/utils';
-import { ClassArray, ClassDictionary } from 'clsx';
 import { Link, useRouter } from 'expo-router';
 
 const Container = (props: { className?: string; children: ReactNode }) => (
@@ -17,10 +16,10 @@ const LandingPage = () => {
   return (
     <View>
       <Container>
-        <View>
-          <ThemedText size={44}>
+        <div>
+          <h1 className=''>
             The Engaging Way To Keep God's Word In Your Heart
-          </ThemedText>
+          </h1>
           <ThemedText className='text-secondary-text'>
             Build a daily habit of engaging with God's Word. Our app helps you
             memorize Bible verses with proven techniques, track your progress,
@@ -33,7 +32,54 @@ const LandingPage = () => {
             </CustomButton>
             <CustomButton variant='secondary'>Download the App</CustomButton>
           </View>
-        </View>
+        </div>
+
+        <div>
+          <div>
+            <span>How It Works</span>
+            <h2>Simple, fun, and interactive</h2>
+            <p>
+              Our simple 4-step process makes Scripture memorization accessible
+              and effective for everyone.
+            </p>
+          </div>
+
+          <div>
+            <div></div>
+            <div>
+              <div>
+                <h4>Select Verses</h4>
+                <p>
+                  Choose from curated collections or search for specific
+                  passages that resonate with you.
+                </p>
+              </div>
+              <div>
+                <h4>Listen, reflect, and take notes</h4>
+                <p>
+                  Our simple 4-step process makes Scripture memorization
+                  accessible and effective for everyone.
+                </p>
+              </div>
+              <div>
+                <h4>Practice to memorize and track your progress</h4>
+                <p>
+                  Our simple 4-step process makes Scripture memorization
+                  accessible and effective for everyone.
+                </p>
+              </div>
+              <div>
+                <h4>Practice to memorize and track your progress</h4>
+                <p>
+                  Our simple 4-step process makes Scripture memorization
+                  accessible and effective for everyone.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div></div>
       </Container>
     </View>
   );
