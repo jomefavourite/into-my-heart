@@ -5,7 +5,8 @@ import ThemedText from './ThemedText';
 
 interface VerseCardProps {
   bookName: string;
-  chapter: string;
+  chapter: number;
+  verses?: string[];
   onAddPress: () => void;
   containerClassName?: string;
   referenceClassName?: string;
@@ -15,6 +16,7 @@ interface VerseCardProps {
 const VerseCard: React.FC<VerseCardProps> = ({
   bookName = 'Genesis',
   chapter = '1',
+  verses = [],
   onAddPress,
   containerClassName = '',
   referenceClassName = '',
@@ -36,7 +38,7 @@ const VerseCard: React.FC<VerseCardProps> = ({
           {reference}
         </ThemedText> */}
         <ThemedText size={14} variant='medium'>
-          {bookName} {chapter}:1
+          {bookName} {chapter}: {verses.length > 0 ? verses.join(', ') : '1'}
         </ThemedText>
 
         <ThemedText

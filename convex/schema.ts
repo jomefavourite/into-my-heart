@@ -19,9 +19,19 @@ export const Verse = {
   reviewFreq: v.string(), // e.g., "daily", "weekly", "monthly"
 };
 
+export const Collection = {
+  collectionName: v.string(),
+  bookName: v.string(),
+  chapter: v.number(),
+  verses: v.array(v.string()),
+  reviewFreq: v.string(), // e.g., "daily", "weekly", "monthly"
+  userId: v.id('users'), // Reference to the user who created the collection
+};
+
 export default defineSchema({
   users: defineTable(User),
   verses: defineTable(Verse),
+  collections: defineTable(Collection),
   messages: defineTable({
     content: v.string(),
     authorId: v.string(),

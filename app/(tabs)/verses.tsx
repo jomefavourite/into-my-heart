@@ -13,11 +13,14 @@ import GridViewIcon from '~/components/icons/GridViewIcon';
 import { Button } from '~/components/ui/button';
 import { useRouter } from 'expo-router';
 import ListViewIcon from '~/components/icons/ListViewIcon';
+import { useVersesTabStore } from '~/store/tab-store';
 
 export default function VersesHomeScreen() {
-  const [value, setValue] = useState('verses');
+  const { activeTab, setActiveTab } = useVersesTabStore();
   const [gridView, setGridView] = useState<boolean>(false);
   const router = useRouter();
+
+  console.log(activeTab, 'activeTab in verses home screen');
 
   return (
     <Container>
@@ -27,8 +30,8 @@ export default function VersesHomeScreen() {
         </ThemedText>
 
         <Tabs
-          value={value}
-          onValueChange={setValue}
+          value={activeTab}
+          onValueChange={setActiveTab}
           className='w-full mx-auto flex-col gap-1.5'
         >
           <View className='flex-row justify-between'>
@@ -39,7 +42,7 @@ export default function VersesHomeScreen() {
                   variant='medium'
                   className={cn(
                     'text-muted-foreground',
-                    value === 'verses' &&
+                    activeTab === 'verses' &&
                       'text-white dark:text-primary-foreground'
                   )}
                 >
@@ -52,7 +55,7 @@ export default function VersesHomeScreen() {
                   variant='medium'
                   className={cn(
                     'text-muted-foreground',
-                    value === 'collections' &&
+                    activeTab === 'collections' &&
                       'text-white dark:text-primary-foreground'
                   )}
                 >
@@ -79,13 +82,15 @@ export default function VersesHomeScreen() {
             </View>
           </View>
 
-          <Animated.View style={{ opacity: value === 'verses' ? 1 : 0 }}>
+          <Animated.View style={{ opacity: activeTab === 'verses' ? 1 : 0 }}>
             <TabsContent value='verses'>
               <VersesTab gridView={gridView} />
             </TabsContent>
           </Animated.View>
 
-          <Animated.View style={{ opacity: value === 'collections' ? 1 : 0 }}>
+          <Animated.View
+            style={{ opacity: activeTab === 'collections' ? 1 : 0 }}
+          >
             <TabsContent value='collections'>
               <CollectionsTab />
             </TabsContent>

@@ -20,13 +20,19 @@ import {
 } from '~/components/ui/dropdown-menu';
 import { useMutation } from 'convex/react';
 import { api } from '~/convex/_generated/api';
+import { useVersesTabStore } from '~/store/tab-store';
+import { addCollection } from '~/convex/collections';
 
 export default function VerseSummary() {
   const router = useRouter();
   const [reviewFreqValue, setReviewFreqValue] = React.useState('Daily');
-  const { bookName, chapter, verses, setVerses } = useBookStore();
+  const { bookName, chapter, verses, collectionName, setVerses, resetAll } =
+    useBookStore();
+
+  const { activeTab } = useVersesTabStore();
 
   const addVerse = useMutation(api.verses.addVerse);
+  const addCollection = useMutation(api.collections.addCollection);
 
   const versesList = verses ? verses.map(Number) : [];
 
@@ -41,6 +47,16 @@ export default function VerseSummary() {
   const handleAddVerse = useCallback(async () => {
     if (versesList.length === 0) return;
 
+    if (!bookName || !chapter) {
+      console.error('Book name or chapter is not set');
+      return;
+    }
+
+    if (activeTab === 'collections') {
+      router.push('/verses/create-collection');
+      return;
+    }
+
     try {
       await addVerse({
         bookName: bookName,
@@ -48,6 +64,7 @@ export default function VerseSummary() {
         verses: versesList.map((v) => v.toString()),
         reviewFreq: reviewFreqValue,
       });
+      resetAll();
       router.push('/verses');
     } catch (error) {
       console.error('Error adding verse:', error);
@@ -67,6 +84,20 @@ export default function VerseSummary() {
 
       <View className='flex-1 justify-between px-[18px]'>
         <View className='gap-3'>
+          {activeTab === 'collections' && (
+            <View className='flex-row items-center justify-between w-full'>
+              <ThemedText size={14}>Collection name</ThemedText>
+              <Button
+                size={'sm'}
+                variant={'ghost'}
+                className='flex-row items-center text-sm'
+                // onPress={handleBookChange}
+              >
+                <ThemedText size={14}>{collectionName}</ThemedText>
+                <ArrowRightIcon />
+              </Button>
+            </View>
+          )}
           <View className='flex-row items-center justify-between w-full'>
             <ThemedText size={14}>Book</ThemedText>
             <Button

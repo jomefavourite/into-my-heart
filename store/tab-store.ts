@@ -1,10 +1,10 @@
 import { create } from 'zustand';
-interface TabStore {
-  activeTab: 'verses' | 'collections';
-  setActiveTab: (tab: 'verses' | 'collections') => void;
+interface VersesTabStore {
+  activeTab: string;
+  setActiveTab: (value: string) => void;
 }
 
-export const useTabStore = create<TabStore>((set) => ({
+export const useVersesTabStore = create<VersesTabStore>((set) => ({
   activeTab: 'verses',
-  setActiveTab: (tab) => set({ activeTab: tab }),
+  setActiveTab: (value) => set({ activeTab: value }),
 }));

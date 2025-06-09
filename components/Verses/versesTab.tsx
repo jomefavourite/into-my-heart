@@ -27,6 +27,7 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
             <VerseCard
               bookName={item.bookName}
               chapter={item.chapter}
+              verses={item.verses}
               text={'hello'}
               onAddPress={() => console.log(`${item} pressed`)}
               // containerClassName={gridView ? 'w-[50%]' : 'w-full'}
