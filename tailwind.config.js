@@ -9,6 +9,7 @@ module.exports = {
     extend: {
       fontFamily: {
         inter: ['Inter', 'sans-serif'],
+        onest: ['Onest', 'Helvetica', 'sans-serif'],
       },
       colors: {
         border: 'hsl(var(--border))',

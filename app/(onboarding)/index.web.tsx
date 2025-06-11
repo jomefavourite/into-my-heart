@@ -18,9 +18,9 @@ const Container = (props: { className?: string; children: ReactNode }) => (
 const LandingPage = () => {
   const router = useRouter();
   return (
-    <div className='flex-1 overflow-auto'>
+    <div className='flex-1 overflow-auto  '>
+      <HeroSection />
       <Container>
-        <HeroSection />
         <HowItWorksSection />
         <FeaturesSection />
         <FooterSection />

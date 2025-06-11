@@ -2,37 +2,38 @@ import React from 'react';
 import { Badge } from '~/components/ui/badge';
 import { Card } from '~/components/ui/card';
 import OpenBookSVG from '../icons/onboarding/open-book.svg';
-import PhoneMockupSVG from '../icons/onboarding/phone-mock.svg';
+import { Image } from 'react-native';
+// import PhoneMockupSVG from '../icons/onboarding/phone-mock.svg';
+
+// Data for the steps to make the code more maintainable
+const steps = [
+  {
+    number: 1,
+    title: 'Select Verses',
+    description:
+      'Choose from curated collections or search for specific passages that resonate with you.',
+  },
+  {
+    number: 2,
+    title: 'Listen, reflect, and take notes',
+    description:
+      'Our simple 4-step process makes Scripture memorization accessible and effective for everyone.',
+  },
+  {
+    number: 3,
+    title: 'Practice to memorize and track your progress',
+    description:
+      'Our simple 4-step process makes Scripture memorization accessible and effective for everyone.',
+  },
+  {
+    number: 4,
+    title: 'Practice to memorize and track your progress',
+    description:
+      'Our simple 4-step process makes Scripture memorization accessible and effective for everyone.',
+  },
+];
 
 const HowItWorksSection = (): JSX.Element => {
-  // Data for the steps to make the code more maintainable
-  const steps = [
-    {
-      number: 1,
-      title: 'Select Verses',
-      description:
-        'Choose from curated collections or search for specific passages that resonate with you.',
-    },
-    {
-      number: 2,
-      title: 'Listen, reflect, and take notes',
-      description:
-        'Our simple 4-step process makes Scripture memorization accessible and effective for everyone.',
-    },
-    {
-      number: 3,
-      title: 'Practice to memorize and track your progress',
-      description:
-        'Our simple 4-step process makes Scripture memorization accessible and effective for everyone.',
-    },
-    {
-      number: 4,
-      title: 'Practice to memorize and track your progress',
-      description:
-        'Our simple 4-step process makes Scripture memorization accessible and effective for everyone.',
-    },
-  ];
-
   return (
     <>
       <section className='flex flex-col items-center gap-[50px] py-[50px] px-6 md:px-[107px] w-full'>
@@ -62,26 +63,27 @@ const HowItWorksSection = (): JSX.Element => {
         {/* Main content section */}
         <div className='flex flex-col md:flex-row items-center justify-center gap-[50px]'>
           {/* Phone mockup card */}
-          {/* <Card className='w-full md:w-[460px] h-[470px] bg-neutral-50 rounded-[20px] overflow-hidden border-none'>
-          <div className='relative w-full h-[427px] top-[43px]'> */}
-          {/* <img
-              className='absolute w-[374px] h-[427px] left-1/2 transform -translate-x-1/2'
-              alt='iPhone showing app interface'
-              src='/iphone-13-pro.png'
-            /> */}
-          {/* <div className='absolute w-full h-[61px] bottom-0 left-0 backdrop-blur-[5px] [background:linear-gradient(0deg,rgba(240,240,240,1)_0%,rgba(255,255,255,0)_100%)]' /> */}
-          {/* </div>
-        </Card> */}
+          <Card className='w-full md:w-[460px] h-[470px] bg-neutral-50 rounded-[20px] overflow-hidden border-none'>
+            <div className='relative w-full h-[427px] top-[43px]'>
+              <Image
+                className='object-center w-full mx-auto'
+                alt='iPhone showing app interface'
+                source={require('/assets/images/phone-mock.png')}
+              />
+              <div className='absolute w-full h-[61px] bottom-0 left-0 backdrop-blur-[5px] [background:linear-gradient(0deg, #F0F0F0 37.23%, rgba(255, 255, 255, 0.00) 109.02%)]' />
+            </div>
+          </Card>
 
           {/* Steps section */}
           <div className='flex items-start justify-center gap-2.5'>
             {/* Numbers column */}
             <div className='flex flex-col items-center gap-[72px] relative'>
-              <img
+              {/* <img
                 className='absolute w-px h-[350px] top-[17px] left-5 object-cover'
                 alt='Vertical line connecting steps'
                 src='/line-4.svg'
-              />
+              /> */}
+              <div className='absolute w-px h-[350px] bg-[#e8e8e8] top-[17px] left-5 object-cover -z-10'></div>
 
               {steps.map((step) => (
                 <div
@@ -113,7 +115,6 @@ const HowItWorksSection = (): JSX.Element => {
           </div>
         </div>
       </section>
-      <PhoneMockupSVG />
     </>
   );
 };
