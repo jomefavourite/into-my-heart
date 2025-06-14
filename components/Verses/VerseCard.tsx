@@ -1,9 +1,13 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Pressable } from 'react-native';
 import AddCircleIcon from '~/components/icons/AddCircleIcon';
 import ThemedText from '../ThemedText';
+import { Skeleton } from '../ui/skeleton';
+import { Link, useRouter } from 'expo-router';
+import { Id } from '~/convex/_generated/dataModel';
 
 interface VerseCardProps {
+  _id: Id<'verses'>;
   bookName: string;
   chapter: number;
   verses?: string[];
@@ -15,6 +19,7 @@ interface VerseCardProps {
 }
 
 const VerseCard: React.FC<VerseCardProps> = ({
+  _id,
   bookName = 'Genesis',
   chapter = '1',
   verses = [],
@@ -24,8 +29,11 @@ const VerseCard: React.FC<VerseCardProps> = ({
   textClassName = '',
   canCheck = true,
 }) => {
+  const router = useRouter();
+
   return (
-    <View
+    <Pressable
+      onPress={() => (canCheck ? null : router.push(`/verses/${_id}`))}
       className={`flex-row bg-container rounded-xl items-center py-[18px] px-4 ${containerClassName}`}
     >
       <View className='flex-1 gap-2'>
@@ -58,8 +66,16 @@ const VerseCard: React.FC<VerseCardProps> = ({
           <AddCircleIcon color={'#000'} />
         </TouchableOpacity>
       )}
-    </View>
+    </Pressable>
   );
 };
 
 export default VerseCard;
+
+export const VerseCardSkeleton = () => {
+  return (
+    <View className='flex-row bg-container rounded-xl items-center py-[18px] px-4'>
+      <Skeleton />
+    </View>
+  );
+};

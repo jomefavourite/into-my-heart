@@ -16,12 +16,12 @@ export const addCollection = mutation({
     ),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    const user = await getCurrentUserOrThrow(ctx);
+    // const identity = await ctx.auth.getUserIdentity();
 
-    if (!identity) {
-      throw new Error('Unauthorized');
-    }
+    // if (!identity) {
+    //   throw new Error('Unauthorized');
+    // }
+    const user = await getCurrentUserOrThrow(ctx);
 
     await ctx.db.insert('collections', {
       collectionName: args.collectionName,
@@ -34,10 +34,10 @@ export const addCollection = mutation({
 
 export const getCollections = query({
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Unauthorized');
-    }
+    // const identity = await ctx.auth.getUserIdentity();
+    // if (!identity) {
+    //   throw new Error('Unauthorized');
+    // }
 
     const verses = await ctx.db.query('collections').order('desc').take(50);
 

@@ -2,7 +2,7 @@ import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
 import { getCurrentUserOrThrow } from './users';
 
-export const addVerse = mutation({
+export const addVerseSuggestion = mutation({
   args: {
     bookName: v.string(),
     chapter: v.number(),
@@ -17,7 +17,7 @@ export const addVerse = mutation({
     //   throw new Error('Unauthorized');
     // }
 
-    await ctx.db.insert('verses', {
+    await ctx.db.insert('versesSuggestions', {
       bookName: args.bookName,
       chapter: args.chapter,
       verses: args.verses,
@@ -27,7 +27,7 @@ export const addVerse = mutation({
   },
 });
 
-export const getVerses = query({
+export const getVersesSuggestion = query({
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
@@ -35,11 +35,31 @@ export const getVerses = query({
     }
 
     const verses = await ctx.db
-      .query('verses')
+      .query('versesSuggestions')
       .order('desc')
       // .filter((q) => q.eq(q.field('authorId'), identity.subject)) // makes sure I always get the verses from the current user
       .take(50);
 
     return verses;
+  },
+});
+
+export const deleteVerseSuggestion = mutation({
+  args: {
+    _id: v.id('versesSuggestions'),
+  },
+  handler: async (ctx, { _id }) => {
+    const user = await getCurrentUserOrThrow(ctx);
+    const verseSuggestion = await ctx.db.get(_id);
+
+    if (!verseSuggestion) {
+      throw new Error('Verse suggestion not found');
+    }
+
+    if (verseSuggestion.userId !== user._id) {
+      throw new Error('Unauthorized to delete this verse suggestion');
+    }
+
+    await ctx.db.delete(_id);
   },
 });

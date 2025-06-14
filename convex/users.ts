@@ -1,9 +1,14 @@
 import { v } from 'convex/values';
-import { internalMutation, query, QueryCtx } from './_generated/server';
+import {
+  internalMutation,
+  mutation,
+  query,
+  QueryCtx,
+} from './_generated/server';
 
 export const getUserByClerkId = query({
   args: {
-    clerkId: v.string(),
+    clerkId: v.optional(v.string()),
   },
   handler: async (ctx, { clerkId }) => {
     const user = await ctx.db
@@ -31,6 +36,22 @@ export const createUser = internalMutation({
   },
 });
 
+export const updateUser = mutation({
+  args: {
+    _id: v.id('users'),
+    first_name: v.optional(v.string()),
+    last_name: v.optional(v.string()),
+    imageUrl: v.optional(v.string()),
+    pushToken: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await getCurrentUserOrThrow(ctx);
+
+    const { _id, ...rest } = args;
+    return await ctx.db.patch(_id, rest);
+  },
+});
+
 export async function getCurrentUserOrThrow(ctx: QueryCtx) {
   const userRecord = await getCurrentUser(ctx);
   if (!userRecord) throw new Error("Can't get current user");
@@ -48,6 +69,6 @@ export async function getCurrentUser(ctx: QueryCtx) {
 async function userByExternalId(ctx: QueryCtx, externalId: string) {
   return await ctx.db
     .query('users')
-    // .withIndex('byClerkId', (q) => q.eq('clerkId', externalId))
+    .withIndex('byClerkId', (q) => q.eq('clerkId', externalId))
     .unique();
 }

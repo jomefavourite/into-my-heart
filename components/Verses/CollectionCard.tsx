@@ -1,9 +1,13 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Pressable } from 'react-native';
 import AddCircleIcon from '~/components/icons/AddCircleIcon';
 import ThemedText from '../ThemedText';
+import { useRouter } from 'expo-router';
+import { Id } from '~/convex/_generated/dataModel';
+import { Link } from 'expo-router';
 
 interface CollectionCardProps {
+  _id: Id<'collections'>;
   collectionName: string;
   versesLength?: number;
   containerClassName?: string;
@@ -12,14 +16,18 @@ interface CollectionCardProps {
 }
 
 const CollectionCard: React.FC<CollectionCardProps> = ({
+  _id,
   collectionName = 'Genesis',
   versesLength = 0,
   containerClassName = '',
   onAddPress = () => {},
   canCheck = true,
 }) => {
+  const router = useRouter();
+
   return (
-    <View
+    <Pressable
+      onPress={() => (canCheck ? null : router.push(`/verses/${_id}`))}
       className={`flex-row bg-container rounded-xl items-center py-[18px] px-4 ${containerClassName}`}
     >
       <View className='flex-1 gap-2'>
@@ -54,7 +62,7 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
           <AddCircleIcon color={'#000'} />
         </TouchableOpacity>
       )}
-    </View>
+    </Pressable>
   );
 };
 

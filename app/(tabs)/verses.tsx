@@ -3,7 +3,7 @@ import { FlatList, ScrollView, Text, View } from 'react-native';
 import Container from '~/components/Container';
 import Title from '~/components/Title';
 import ThemedText from '~/components/ThemedText';
-import VersesTab from '~/components/Verses/versesTab';
+import VersesTab from '~/components/Verses/VersesTab';
 import CollectionsTab from '~/components/Verses/CollectionsTab';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { cn } from '~/lib/utils';
@@ -47,7 +47,7 @@ export default function VersesHomeScreen() {
         >
           <View className='flex-row justify-between px-[18px]'>
             <TabsList className='flex-row'>
-              <TabsTrigger value='verses' className=''>
+              <TabsTrigger value='verses' className='' id='verses'>
                 <ThemedText
                   size={13}
                   variant='medium'
@@ -60,7 +60,11 @@ export default function VersesHomeScreen() {
                   Verses
                 </ThemedText>
               </TabsTrigger>
-              <TabsTrigger value='collections' className='w-fit'>
+              <TabsTrigger
+                value='collections'
+                className='w-fit'
+                id='collections'
+              >
                 <ThemedText
                   size={13}
                   variant='medium'

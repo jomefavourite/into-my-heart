@@ -4,7 +4,8 @@ import VerseCard from '~/components/Verses/VerseCard';
 import { verses } from '~/lib/constants';
 import ThemedText from '../ThemedText';
 import ItemSeparator from '../ItemSeparator';
-import { useQuery } from 'convex/react';
+// import { useQuery } from 'convex/react';
+import { useQuery } from 'convex-helpers/react/cache';
 import { api } from '~/convex/_generated/api';
 import CollectionCard from './CollectionCard';
 
@@ -31,6 +32,7 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
           numColumns={gridView ? 2 : 1}
           renderItem={({ item }) => (
             <CollectionCard
+              _id={item._id}
               collectionName={item.collectionName}
               versesLength={item.versesLength}
               onAddPress={() => console.log(`${item} pressed`)}

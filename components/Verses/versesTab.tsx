@@ -1,14 +1,17 @@
 import { FlatList, StyleSheet, View } from 'react-native';
 import React, { memo } from 'react';
-import VerseCard from '~/components/Verses/VerseCard';
+import VerseCard, { VerseCardSkeleton } from '~/components/Verses/VerseCard';
 import { verses } from '~/lib/constants';
 import ThemedText from '../ThemedText';
 import ItemSeparator from '../ItemSeparator';
-import { useQuery } from 'convex/react';
+// import { useQuery } from 'convex/react';
+import { useQuery } from 'convex-helpers/react/cache';
 import { api } from '~/convex/_generated/api';
 import { Button } from '../ui/button';
 import { useRouter } from 'expo-router';
 import ArrowRightIcon from '../icons/ArrowRightIcon';
+import { useMutation } from 'convex/react';
+import { addVerseSuggestion } from '~/convex/verseSuggestions';
 
 type VersesTabProps = {
   gridView: boolean;
@@ -16,9 +19,26 @@ type VersesTabProps = {
 
 const VersesTab = ({ gridView }: VersesTabProps) => {
   const getVerses = useQuery(api.verses.getVerses);
+  const getVerseSuggestions = useQuery(
+    api.verseSuggestions.getVersesSuggestion
+  );
   const router = useRouter();
 
+  const addVerse = useMutation(api.verses.addVerse);
+  const addVerseSuggestion = useMutation(
+    api.verseSuggestions.addVerseSuggestion
+  );
+
   // console.log(getVerses, 'getVerses');
+
+  const handleAddVerseSuggestion = (verseData) => {
+    addVerse({
+      bookName: verseData.bookName,
+      chapter: verseData.chapter,
+      verses: verseData.verses,
+      reviewFreq: '',
+    });
+  };
 
   return (
     <View>
@@ -41,13 +61,17 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
           data={getVerses}
           keyExtractor={(item, index) => index.toString()}
           numColumns={gridView ? 2 : 1}
+          ListEmptyComponent={() => (
+            <>
+              <VerseCardSkeleton />
+            </>
+          )}
           renderItem={({ item }) => (
             <VerseCard
+              _id={item._id}
               bookName={item.bookName}
               chapter={item.chapter}
               verses={item.verses}
-              text={'hello'}
-              onAddPress={() => console.log(`${item} pressed`)}
               containerClassName={gridView ? 'w-[50%]' : 'w-full'}
               canCheck={false}
             />
@@ -71,14 +95,16 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
 
         <FlatList
           key={gridView ? 'grid-suggestions' : 'list-suggestions'}
-          data={verses}
+          data={getVerseSuggestions}
           keyExtractor={(item, index) => index.toString()}
           numColumns={gridView ? 2 : 1}
           renderItem={({ item }) => (
             <VerseCard
-              reference={item.reference}
-              text={item.text}
-              onAddPress={() => console.log(`${item.text} pressed`)}
+              _id={item._id}
+              bookName={item.bookName}
+              chapter={item.chapter}
+              verses={item.verses}
+              onAddPress={() => handleAddVerseSuggestion(item)}
               containerClassName={gridView ? 'w-[50%]' : 'w-full'} // Keep this for card sizing
             />
           )}

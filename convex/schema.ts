@@ -1,5 +1,6 @@
 import { defineSchema, defineTable } from 'convex/server';
 import { v } from 'convex/values';
+import { verses } from '~/lib/constants';
 
 export const User = {
   email: v.string(),
@@ -12,11 +13,19 @@ export const User = {
 };
 
 export const Verse = {
-  userId: v.id('users'), // Reference to the user who created the verse
+  userId: v.id('users'),
   bookName: v.string(),
   chapter: v.number(),
   verses: v.array(v.string()),
-  reviewFreq: v.string(), // e.g., "daily", "weekly", "monthly"
+  reviewFreq: v.string(),
+};
+
+export const VerseSuggestion = {
+  userId: v.id('users'),
+  bookName: v.string(),
+  chapter: v.number(),
+  verses: v.array(v.string()),
+  reviewFreq: v.string(),
 };
 
 export const Collection = {
@@ -34,8 +43,9 @@ export const Collection = {
 };
 
 export default defineSchema({
-  users: defineTable(User),
+  users: defineTable(User).index('byClerkId', ['clerkId']),
   verses: defineTable(Verse),
+  versesSuggestions: defineTable(VerseSuggestion),
   collections: defineTable(Collection),
   messages: defineTable({
     content: v.string(),

@@ -47,12 +47,10 @@ const CreateCollection = () => {
       versesLength: mappedCollectionVerses.length,
     };
 
-    console.log(payload, 'Create Collection Payload');
-
     try {
       await addCollection(payload);
       resetAll();
-      router.push('/verses');
+      router.push('/verses#collections');
     } catch (error) {
       console.error('Error adding collection:', error);
     }

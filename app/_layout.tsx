@@ -37,6 +37,7 @@ import {
 import AllBottomSheet from '~/components/AllBottomSheet';
 import TabBarSidebar from '~/components/TabBarSidebar';
 import { PortalHost } from '@rn-primitives/portal';
+import { ConvexQueryCacheProvider } from 'convex-helpers/react/cache';
 
 // import * as Sentry from '@sentry/react-native';
 // import { isRunningInExpoGo } from 'expo';
@@ -175,13 +176,15 @@ function RootLayout() {
     <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
       {/* <ClerkLoaded> */}
       <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-        <ThemeProvider value={isDarkMode ? DARK_THEME : LIGHT_THEME}>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <InitialLayout />
-            <PortalHost />
-            <StatusBar style='auto' />
-          </GestureHandlerRootView>
-        </ThemeProvider>
+        <ConvexQueryCacheProvider>
+          <ThemeProvider value={isDarkMode ? DARK_THEME : LIGHT_THEME}>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <InitialLayout />
+              <PortalHost />
+              <StatusBar style='auto' />
+            </GestureHandlerRootView>
+          </ThemeProvider>
+        </ConvexQueryCacheProvider>
       </ConvexProviderWithClerk>
       {/* </ClerkLoaded> */}
     </ClerkProvider>
