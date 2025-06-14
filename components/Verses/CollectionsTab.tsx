@@ -8,6 +8,8 @@ import ItemSeparator from '../ItemSeparator';
 import { useQuery } from 'convex-helpers/react/cache';
 import { api } from '~/convex/_generated/api';
 import CollectionCard from './CollectionCard';
+import AddVersesEmpty from '../EmptyScreen/AddVersesEmpty';
+import SuggestionEmpty from '../EmptyScreen/SuggestionEmpty';
 
 type CollectionsTabProps = {
   gridView: boolean;
@@ -30,6 +32,13 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
           data={getCollections}
           keyExtractor={(item, index) => index.toString()}
           numColumns={gridView ? 2 : 1}
+          ListEmptyComponent={() => (
+            <>
+              {/* Loading */}
+              {/* <VerseCardSkeleton /> */}
+              <AddVersesEmpty collection />
+            </>
+          )}
           renderItem={({ item }) => (
             <CollectionCard
               _id={item._id}
@@ -63,6 +72,13 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
           data={verses}
           keyExtractor={(item, index) => index.toString()}
           numColumns={gridView ? 2 : 1}
+          ListEmptyComponent={() => (
+            <>
+              {/* Loading */}
+              {/* <VerseCardSkeleton /> */}
+              <SuggestionEmpty collection />
+            </>
+          )}
           renderItem={({ item }) => (
             <VerseCard
               reference={item.reference}

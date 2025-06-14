@@ -1,16 +1,12 @@
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
 import React, { useCallback } from 'react';
 import ThemedText from '~/components/ThemedText';
 import BackHeader from '~/components/BackHeader';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '~/components/ui/button';
 import ArrowRightIcon from '~/components/icons/ArrowRightIcon';
 import CustomButton from '~/components/CustomButton';
 import { useRouter } from 'expo-router';
-import { useLocalSearchParams } from 'expo-router';
 import { useBookStore } from '~/store/bookStore';
 import {
   DropdownMenu,
@@ -20,8 +16,44 @@ import {
 } from '~/components/ui/dropdown-menu';
 import { useMutation } from 'convex/react';
 import { api } from '~/convex/_generated/api';
-import { useIsCollOrVerse, useVersesTabStore } from '~/store/tab-store';
-import { addCollection } from '~/convex/collections';
+import { useIsCollOrVerse } from '~/store/tab-store';
+import { ActivityIndicator } from 'react-native';
+
+type GetVerseTextsParams = {
+  bookName: string;
+  chapter: number;
+  verse: number;
+};
+
+const getVerseTexts = async ({
+  bookName,
+  chapter,
+  verse,
+}: GetVerseTextsParams) => {
+  try {
+    const verseData = await fetch(
+      `https://cdn.jsdelivr.net/gh/jomefavourite/bible-api/bibles/en-kjv/books/${bookName.toLowerCase()}/chapters/${chapter}/verses/${verse}.json`
+    );
+
+    if (!verseData.ok) {
+      console.error(
+        `Failed to fetch verse data for ${bookName} ${chapter}:${verse}`
+      );
+      // Consider throwing an error here if you want the sequence to stop on failure
+      return null; // Or handle the error gracefully
+    }
+    const verseJson = await verseData.json();
+
+    console.log(`Fetched ${bookName} ${chapter}:${verse}:`, verseJson);
+    return verseJson; // Return the fetched data if you need it
+  } catch (error) {
+    console.error(
+      `Error fetching verse ${bookName} ${chapter}:${verse}:`,
+      error
+    );
+    return null;
+  }
+};
 
 export default function VerseSummary() {
   const router = useRouter();
@@ -36,8 +68,8 @@ export default function VerseSummary() {
     resetAll,
   } = useBookStore();
 
-  const { activeTab } = useVersesTabStore();
   const { isCollOrVerse } = useIsCollOrVerse();
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const addVerse = useMutation(api.verses.addVerse);
 
@@ -53,11 +85,25 @@ export default function VerseSummary() {
 
   const handleAddVerse = useCallback(async () => {
     if (versesList.length === 0) return;
+    setIsLoading(true);
 
     if (!bookName || !chapter) {
       console.error('Book name or chapter is not set');
       return;
     }
+
+    const fetchVersesSequentially = async () => {
+      const allVerseResults = [];
+      for (const verse of versesList) {
+        const result = await getVerseTexts({ bookName, chapter, verse });
+        if (result) {
+          allVerseResults.push(result);
+        }
+      }
+      return allVerseResults;
+    };
+
+    const verseTexts = await fetchVersesSequentially();
 
     if (isCollOrVerse === 'collections') {
       setCollectionVerses({
@@ -67,17 +113,25 @@ export default function VerseSummary() {
         verses: versesList.map((v) => v.toString()),
       });
       setVerses([]);
+      setIsLoading(false);
       router.push('/verses/create-collection');
       return;
     }
 
     try {
-      await addVerse({
+      const payload = {
         bookName: bookName,
         chapter: chapter,
         verses: versesList.map((v) => v.toString()),
         reviewFreq: reviewFreqValue,
-      });
+        versesTexts: verseTexts.map((text, index) => ({
+          verse: (index + 1).toString(),
+          text: text.text,
+        })),
+      };
+
+      await addVerse(payload);
+      setIsLoading(false);
       resetAll();
       router.push('/verses');
     } catch (error) {
@@ -185,8 +239,12 @@ export default function VerseSummary() {
           </View>
         </View>
 
-        <CustomButton className='my-5' onPress={handleAddVerse}>
-          Add verse
+        <CustomButton
+          isLoading={isLoading}
+          className='my-5'
+          onPress={handleAddVerse}
+        >
+          Add Verse
         </CustomButton>
       </View>
     </SafeAreaView>

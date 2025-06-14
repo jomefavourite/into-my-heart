@@ -13,6 +13,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as collectionSuggestions from "../collectionSuggestions.js";
 import type * as collections from "../collections.js";
 import type * as http from "../http.js";
 import type * as messages from "../messages.js";
@@ -29,6 +30,7 @@ import type * as verses from "../verses.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  collectionSuggestions: typeof collectionSuggestions;
   collections: typeof collections;
   http: typeof http;
   messages: typeof messages;

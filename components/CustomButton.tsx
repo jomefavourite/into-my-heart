@@ -5,6 +5,8 @@ import { Text } from './ui/text';
 import { Pressable } from 'react-native';
 import { cn } from '~/lib/utils';
 import ThemedText from './ThemedText';
+import { ActivityIndicator } from 'react-native';
+import { useColorScheme } from '~/hooks/useColorScheme';
 
 type Props = React.ComponentPropsWithoutRef<typeof Pressable> & {
   variant?:
@@ -21,6 +23,7 @@ type Props = React.ComponentPropsWithoutRef<typeof Pressable> & {
   className?: string;
   textClassName?: string;
   children?: string;
+  isLoading?: boolean;
 };
 
 const CustomButton = ({
@@ -28,12 +31,14 @@ const CustomButton = ({
   size = 'default',
   leftIcon = false,
   rightIcon = false,
+  isLoading = false,
   Icon = () => null,
   className,
   textClassName,
   children = '',
   ...props
 }: Props): React.ReactNode => {
+  const { isDarkMode } = useColorScheme();
   return (
     <Button
       variant={variant}
@@ -45,13 +50,18 @@ const CustomButton = ({
       {...props}
     >
       {leftIcon && <Icon />}
-      <ThemedText
-        size={14}
-        variant='medium'
-        className='text-center leading-[20px]'
-      >
-        {children}
-      </ThemedText>
+      {isLoading ? (
+        <ActivityIndicator color={isDarkMode ? '#000' : '#fff'} />
+      ) : (
+        <ThemedText
+          size={14}
+          variant='medium'
+          className='text-center leading-[20px]'
+        >
+          {children}
+        </ThemedText>
+      )}
+
       {rightIcon && <Icon />}
     </Button>
   );

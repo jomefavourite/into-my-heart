@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { View, Text, TouchableOpacity, Pressable } from 'react-native';
 import AddCircleIcon from '~/components/icons/AddCircleIcon';
 import ThemedText from '../ThemedText';
@@ -13,8 +13,7 @@ interface VerseCardProps {
   verses?: string[];
   onAddPress: () => void;
   containerClassName?: string;
-  referenceClassName?: string;
-  textClassName?: string;
+  verseTexts: { verse: string; text: string }[];
   canCheck?: boolean;
 }
 
@@ -25,8 +24,7 @@ const VerseCard: React.FC<VerseCardProps> = ({
   verses = [],
   onAddPress,
   containerClassName = '',
-  referenceClassName = '',
-  textClassName = '',
+  verseTexts = [],
   canCheck = true,
 }) => {
   const router = useRouter();
@@ -57,7 +55,9 @@ const VerseCard: React.FC<VerseCardProps> = ({
           size={13}
           className='w-fit text-[#707070] dark:text-[#909090] !overflow-hidden !text-ellipsis'
         >
-          In the beginning, God created the heavens and the earth.
+          {verseTexts.length > 0
+            ? verseTexts.map((text, index) => `${text.verse}. ${text.text}`)
+            : 'No verses added yet.'}
         </ThemedText>
       </View>
 
@@ -70,7 +70,7 @@ const VerseCard: React.FC<VerseCardProps> = ({
   );
 };
 
-export default VerseCard;
+export default memo(VerseCard);
 
 export const VerseCardSkeleton = () => {
   return (
