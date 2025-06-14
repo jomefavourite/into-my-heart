@@ -7,7 +7,7 @@ import { TabsContent, TabsList, TabsTrigger, Tabs } from '~/components/ui/tabs';
 import { cn } from '~/lib/utils';
 import CustomButton from '~/components/CustomButton';
 import { verses } from '~/lib/constants';
-import VerseCard from '~/components/VerseCard';
+import VerseCard from '~/components/Verses/VerseCard';
 import SettingsIcon from '~/components/icons/SettingsIcon';
 import { Button } from '~/components/ui/button';
 import { useRouter } from 'expo-router';

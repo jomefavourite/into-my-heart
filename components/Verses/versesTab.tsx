@@ -1,6 +1,6 @@
 import { FlatList, StyleSheet, View } from 'react-native';
 import React, { memo } from 'react';
-import VerseCard from '~/components/VerseCard';
+import VerseCard from '~/components/Verses/VerseCard';
 import { verses } from '~/lib/constants';
 import ThemedText from '../ThemedText';
 import ItemSeparator from '../ItemSeparator';

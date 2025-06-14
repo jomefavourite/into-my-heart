@@ -1,18 +1,19 @@
 import { FlatList, StyleSheet, View } from 'react-native';
 import React, { memo } from 'react';
-import VerseCard from '~/components/VerseCard';
+import VerseCard from '~/components/Verses/VerseCard';
 import { verses } from '~/lib/constants';
 import ThemedText from '../ThemedText';
 import ItemSeparator from '../ItemSeparator';
 import { useQuery } from 'convex/react';
 import { api } from '~/convex/_generated/api';
+import CollectionCard from './CollectionCard';
 
 type CollectionsTabProps = {
   gridView: boolean;
 };
 
 const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
-  const getVerses = useQuery(api.verses.getVerses);
+  const getCollections = useQuery(api.collections.getCollections);
 
   // console.log(getVerses, 'getVerses');
 
@@ -25,15 +26,13 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
 
         <FlatList
           key={gridView ? 'grid-myverses' : 'list-myverses'}
-          data={getVerses}
+          data={getCollections}
           keyExtractor={(item, index) => index.toString()}
           numColumns={gridView ? 2 : 1}
           renderItem={({ item }) => (
-            <VerseCard
-              bookName={item.bookName}
-              chapter={item.chapter}
-              verses={item.verses}
-              text={'hello'}
+            <CollectionCard
+              collectionName={item.collectionName}
+              versesLength={item.versesLength}
               onAddPress={() => console.log(`${item} pressed`)}
               containerClassName={gridView ? 'w-[50%]' : 'w-full'}
               canCheck={false}

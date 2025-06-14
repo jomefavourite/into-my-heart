@@ -26,14 +26,20 @@ import { addCollection } from '~/convex/collections';
 export default function VerseSummary() {
   const router = useRouter();
   const [reviewFreqValue, setReviewFreqValue] = React.useState('Daily');
-  const { bookName, chapter, verses, collectionName, setVerses, resetAll } =
-    useBookStore();
+  const {
+    bookName,
+    chapter,
+    verses,
+    collectionName,
+    setVerses,
+    setCollectionVerses,
+    resetAll,
+  } = useBookStore();
 
   const { activeTab } = useVersesTabStore();
   const { isCollOrVerse } = useIsCollOrVerse();
 
   const addVerse = useMutation(api.verses.addVerse);
-  const addCollection = useMutation(api.collections.addCollection);
 
   const versesList = verses ? verses.map(Number) : [];
 
@@ -54,6 +60,13 @@ export default function VerseSummary() {
     }
 
     if (isCollOrVerse === 'collections') {
+      setCollectionVerses({
+        bookName,
+        chapter,
+        reviewFreq: reviewFreqValue,
+        verses: versesList.map((v) => v.toString()),
+      });
+      setVerses([]);
       router.push('/verses/create-collection');
       return;
     }

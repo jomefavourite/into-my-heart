@@ -21,10 +21,15 @@ export const Verse = {
 
 export const Collection = {
   collectionName: v.string(),
-  bookName: v.string(),
-  chapter: v.number(),
-  verses: v.array(v.string()),
-  reviewFreq: v.string(), // e.g., "daily", "weekly", "monthly"
+  versesLength: v.number(), // Total number of verses in the collection
+  collectionVerses: v.array(
+    v.object({
+      bookName: v.string(),
+      chapter: v.number(),
+      verses: v.array(v.string()), // Array of verse numbers as strings
+      reviewFreq: v.string(), // e.g., "daily", "weekly", "monthly"
+    })
+  ),
   userId: v.id('users'), // Reference to the user who created the collection
 };
 

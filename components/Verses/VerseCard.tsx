@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import AddCircleIcon from '~/components/icons/AddCircleIcon';
-import ThemedText from './ThemedText';
+import ThemedText from '../ThemedText';
 
 interface VerseCardProps {
   bookName: string;

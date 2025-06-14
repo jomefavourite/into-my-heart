@@ -20,9 +20,10 @@ import { H3 } from '~/components/ui/typography';
 import AddCircleIcon from '~/components/icons/AddCircleIcon';
 import { FlatList } from 'react-native';
 import { verses } from '~/lib/constants';
-import VerseCard from '~/components/VerseCard';
+import VerseCard from '~/components/Verses/VerseCard';
 import ItemSeparator from '~/components/ItemSeparator';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AddVersesEmpty from '~/components/EmptyScreen/AddVersesEmpty';
 
 export default function HomeScreen() {
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -93,23 +94,7 @@ export default function HomeScreen() {
               <View className='gap-2'>
                 <ThemedText variant='medium'>My Verses</ThemedText>
 
-                <View className='bg-container p-7 rounded-2xl '>
-                  <ThemedText
-                    // variant='medium'
-                    className=' text-center max-w-[160px] mx-auto'
-                  >
-                    Start hiding God's Word in your heart
-                  </ThemedText>
-                  <CustomButton
-                    variant='ghost'
-                    rightIcon
-                    Icon={ArrowRightIcon}
-                    className='mt-3'
-                    onPress={() => router.push('/verses/select-book')}
-                  >
-                    Add verse
-                  </CustomButton>
-                </View>
+                <AddVersesEmpty />
               </View>
             </View>
 
