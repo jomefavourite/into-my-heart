@@ -20,7 +20,7 @@ import {
 } from '~/components/ui/dropdown-menu';
 import { useMutation } from 'convex/react';
 import { api } from '~/convex/_generated/api';
-import { useVersesTabStore } from '~/store/tab-store';
+import { useIsCollOrVerse, useVersesTabStore } from '~/store/tab-store';
 import { addCollection } from '~/convex/collections';
 
 export default function VerseSummary() {
@@ -30,6 +30,7 @@ export default function VerseSummary() {
     useBookStore();
 
   const { activeTab } = useVersesTabStore();
+  const { isCollOrVerse } = useIsCollOrVerse();
 
   const addVerse = useMutation(api.verses.addVerse);
   const addCollection = useMutation(api.collections.addCollection);
@@ -52,7 +53,7 @@ export default function VerseSummary() {
       return;
     }
 
-    if (activeTab === 'collections') {
+    if (isCollOrVerse === 'collections') {
       router.push('/verses/create-collection');
       return;
     }
@@ -84,7 +85,7 @@ export default function VerseSummary() {
 
       <View className='flex-1 justify-between px-[18px]'>
         <View className='gap-3'>
-          {activeTab === 'collections' && (
+          {isCollOrVerse === 'collections' && (
             <View className='flex-row items-center justify-between w-full'>
               <ThemedText size={14}>Collection name</ThemedText>
               <Button

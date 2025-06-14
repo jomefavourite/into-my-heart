@@ -32,8 +32,8 @@ const CreateCollection = () => {
         ]}
       />
 
-      <View className='p-[18px]'>
-        <View className='gap-1 pb-3 p-[18px]'>
+      <View className='px-[18px]'>
+        <View className='gap-1 pb-3 '>
           <Label nativeID='collectionName'>Collection name</Label>
           <Input
             aria-aria-labelledby='collectionName'

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, View } from 'react-native';
+import { FlatList, ScrollView, Text, View } from 'react-native';
 import Container from '~/components/Container';
 import Title from '~/components/Title';
 import ThemedText from '~/components/ThemedText';
@@ -13,28 +13,39 @@ import GridViewIcon from '~/components/icons/GridViewIcon';
 import { Button } from '~/components/ui/button';
 import { useRouter } from 'expo-router';
 import ListViewIcon from '~/components/icons/ListViewIcon';
-import { useVersesTabStore } from '~/store/tab-store';
+import { useIsCollOrVerse, useVersesTabStore } from '~/store/tab-store';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '~/components/ui/dropdown-menu';
 
 export default function VersesHomeScreen() {
   const { activeTab, setActiveTab } = useVersesTabStore();
+
+  const { setIsCollOrVerse } = useIsCollOrVerse();
   const [gridView, setGridView] = useState<boolean>(false);
   const router = useRouter();
 
-  console.log(activeTab, 'activeTab in verses home screen');
+  // console.log(activeTab, 'activeTab in verses home screen');
 
   return (
-    <Container>
-      <View className='gap-5'>
-        <ThemedText size={22} variant='semibold'>
-          Verses & Collections
-        </ThemedText>
+    <SafeAreaView className='flex-1'>
+      <View className='gap-5 flex-1'>
+        <View className='p-[18px]'>
+          <ThemedText size={22} variant='semibold'>
+            Verses & Collections
+          </ThemedText>
+        </View>
 
         <Tabs
           value={activeTab}
           onValueChange={setActiveTab}
-          className='w-full mx-auto flex-col gap-1.5'
+          className='w-full mx-auto flex-col gap-1.5 flex-1'
         >
-          <View className='flex-row justify-between'>
+          <View className='flex-row justify-between px-[18px]'>
             <TabsList className='flex-row'>
               <TabsTrigger value='verses' className=''>
                 <ThemedText
@@ -65,13 +76,39 @@ export default function VersesHomeScreen() {
             </TabsList>
 
             <View className='flex-row'>
-              <Button
-                size={'icon'}
-                variant={'ghost'}
-                onPress={() => router.push('/verses/select-book')}
-              >
-                <AddIcon stroke='white' />
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    size={'icon'}
+                    variant={'ghost'}
+                    // onPress={() => router.push('/verses/select-book')}
+                  >
+                    <AddIcon stroke='white' />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className='mr-4'>
+                  <DropdownMenuItem
+                    onPress={() => {
+                      setIsCollOrVerse('verses');
+                      router.push('/verses/select-book');
+                    }}
+                  >
+                    <ThemedText size={14} variant='medium'>
+                      Add Verse
+                    </ThemedText>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onPress={() => {
+                      setIsCollOrVerse('collections');
+                      router.push('/verses/create-collection');
+                    }}
+                  >
+                    <ThemedText size={14} variant='medium'>
+                      Add Collection
+                    </ThemedText>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <Button
                 size={'icon'}
                 variant={'ghost'}
@@ -82,21 +119,32 @@ export default function VersesHomeScreen() {
             </View>
           </View>
 
-          <Animated.View style={{ opacity: activeTab === 'verses' ? 1 : 0 }}>
-            <TabsContent value='verses'>
-              <VersesTab gridView={gridView} />
-            </TabsContent>
-          </Animated.View>
+          <FlatList
+            className='px-[18px]'
+            data={[{ id: 'page' }]} // single item to render accordion
+            keyExtractor={(item) => item.id}
+            renderItem={() => (
+              <>
+                <Animated.View
+                  style={{ opacity: activeTab === 'verses' ? 1 : 0 }}
+                >
+                  <TabsContent value='verses'>
+                    <VersesTab gridView={gridView} />
+                  </TabsContent>
+                </Animated.View>
 
-          <Animated.View
-            style={{ opacity: activeTab === 'collections' ? 1 : 0 }}
-          >
-            <TabsContent value='collections'>
-              <CollectionsTab />
-            </TabsContent>
-          </Animated.View>
+                <Animated.View
+                  style={{ opacity: activeTab === 'collections' ? 1 : 0 }}
+                >
+                  <TabsContent value='collections'>
+                    <CollectionsTab gridView={gridView} />
+                  </TabsContent>
+                </Animated.View>
+              </>
+            )}
+          />
         </Tabs>
       </View>
-    </Container>
+    </SafeAreaView>
   );
 }

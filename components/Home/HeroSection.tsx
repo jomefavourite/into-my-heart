@@ -2,17 +2,19 @@ import React from 'react';
 import { Button } from '~/components/ui/button';
 import Logo from '../icons/logo/Logo';
 import { Onest_400Regular } from '@expo-google-fonts/onest';
+import { useRouter } from 'expo-router';
+
+// Navigation links data
+const navLinks = [
+  { text: 'Home', active: true },
+  { text: 'Our Approach', active: false },
+  { text: 'About Us', active: false },
+  { text: 'FAQs', active: false },
+  { text: 'Donate', active: false },
+];
 
 const HeroSection = (): JSX.Element => {
-  // Navigation links data
-  const navLinks = [
-    { text: 'Home', active: true },
-    { text: 'Our Approach', active: false },
-    { text: 'About Us', active: false },
-    { text: 'FAQs', active: false },
-    { text: 'Donate', active: false },
-  ];
-
+  const router = useRouter();
   return (
     <section className='relative w-full'>
       {/* Navigation Bar */}
@@ -80,6 +82,7 @@ const HeroSection = (): JSX.Element => {
           {/* CTA Buttons */}
           <div className='flex items-start gap-3'>
             <Button
+              onPress={() => router.push('/onboard')}
               className='w-[172px] bg-[#3d3d3d] hover:bg-[#2d2d2d] text-white rounded-[999px] px-6 py-3.5'
               variant='default'
             >

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Redirect, Stack } from 'expo-router';
-import { PortalHost } from '@rn-primitives/portal';
 import { useAuth } from '@clerk/clerk-expo';
 
 const PracticeLayout = () => {

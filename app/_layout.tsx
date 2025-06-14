@@ -36,6 +36,8 @@ import {
 } from '@expo-google-fonts/inter';
 import AllBottomSheet from '~/components/AllBottomSheet';
 import TabBarSidebar from '~/components/TabBarSidebar';
+import { PortalHost } from '@rn-primitives/portal';
+
 // import * as Sentry from '@sentry/react-native';
 // import { isRunningInExpoGo } from 'expo';
 
@@ -176,6 +178,7 @@ function RootLayout() {
         <ThemeProvider value={isDarkMode ? DARK_THEME : LIGHT_THEME}>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <InitialLayout />
+            <PortalHost />
             <StatusBar style='auto' />
           </GestureHandlerRootView>
         </ThemeProvider>

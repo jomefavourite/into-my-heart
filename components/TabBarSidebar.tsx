@@ -8,7 +8,7 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
-import { Link, usePathname, Slot } from 'expo-router';
+import { Link, usePathname, Slot, Href } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HomeIcon from '~/components/icons/tabs/HomeIcon';
 import PracticeIcon from '~/components/icons/tabs/PracticeIcon';
@@ -19,7 +19,13 @@ import ThemedText from './ThemedText';
 import HomeHeader from './Home/Header';
 import Logo from './icons/logo/Logo';
 
-const tabs = [
+type Tab = {
+  name: string;
+  href: Href;
+  icon: React.ComponentType<{ focused: boolean; inverse: boolean }>;
+}[];
+
+const tabs: Tab = [
   { name: 'Home', href: '/', icon: HomeIcon },
   { name: 'Verses', href: '/verses', icon: VersesIcon },
   { name: 'Practice', href: '/practice', icon: PracticeIcon },
@@ -47,7 +53,7 @@ export default function TabBarSidebar() {
           {tabs.map((tab, index) => {
             const isActive =
               pathname === tab.href ||
-              (pathname.startsWith(tab.href) && tab.href !== '/');
+              (pathname.startsWith(`${tab.href}`) && tab.href !== '/');
             const Icon = tab.icon;
 
             return (
@@ -56,7 +62,7 @@ export default function TabBarSidebar() {
                   <View
                     style={[styles.navItem, isActive && styles.activeNavItem]}
                   >
-                    <Icon focused={isActive} />
+                    <Icon focused={isActive} inverse />
                     <ThemedText
                       style={[styles.navText, isActive && { color: '#fff' }]}
                     >
