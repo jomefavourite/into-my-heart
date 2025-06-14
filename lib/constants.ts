@@ -19,35 +19,10 @@ export const NAV_THEME = {
 
 export const verses = [
   {
+    bookName: 'Genesis',
+    chapter: 1,
+    verses: ['1'],
+    reviewFreq: 'Daily',
     reference: 'In the beginning, God created the heavens and the earth.',
-    text: 'Genesis 1:1',
-  },
-  {
-    reference: 'In the beginning, God created the heavens and the earth.',
-    text: 'Genesis 1:1',
-  },
-  {
-    reference: 'In the beginning, God created the heavens and the earth.',
-    text: 'Genesis 1:1',
-  },
-  {
-    reference: 'In the beginning, God created the heavens and the earth.',
-    text: 'Genesis 1:1',
-  },
-  {
-    reference: 'In the beginning, God created the heavens and the earth.',
-    text: 'Genesis 1:1',
-  },
-  {
-    reference: 'In the beginning, God created the heavens and the earth.',
-    text: 'Genesis 1:1',
-  },
-  {
-    reference: 'In the beginning, God created the heavens and the earth.',
-    text: 'Genesis 1:1',
-  },
-  {
-    reference: 'In the beginning, God created the heavens and the earth.',
-    text: 'Genesis 1:1',
   },
 ];

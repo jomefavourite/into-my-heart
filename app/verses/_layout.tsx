@@ -16,6 +16,8 @@ export default function VersesLayout() {
       <Stack.Screen name='verse-suggestions' options={{ headerShown: false }} />
       <Stack.Screen name='create-collection' options={{ headerShown: false }} />
       <Stack.Screen name='all-verses' options={{ headerShown: false }} />
+      <Stack.Screen name='[verseId]' options={{ headerShown: false }} />
+      <Stack.Screen name='[collectionId]' options={{ headerShown: false }} />
     </Stack>
   );
 }

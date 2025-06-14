@@ -15,14 +15,14 @@ export default function SelectVerses() {
   const { bookName, chapter, chapterLength, verses, setVerses } =
     useBookStore();
 
-  console.log(verses, 'verses');
+  // console.log(verses, 'verses');
 
   const handleValueChange = (newValue: string[]) => {
     setVerses(newValue);
   };
 
   const handlePress = useCallback(() => {
-    console.log(verses, verses.join(','));
+    // console.log(verses, verses.join(','));
     router.push(`/verses/verse-summary`);
   }, [bookName, chapter, verses]);
 
