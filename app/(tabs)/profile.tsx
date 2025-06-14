@@ -5,7 +5,7 @@ import { cn, useBottomSheetStore } from '~/lib/utils';
 import { useColorScheme } from '~/hooks/useColorScheme';
 import ThemedText from '~/components/ThemedText';
 import CustomButton from '~/components/CustomButton';
-import { useAuth, useUser } from '@clerk/clerk-react';
+import { useAuth, useClerk, useUser } from '@clerk/clerk-react';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
@@ -13,7 +13,7 @@ import { Switch } from '~/components/ui/switch';
 import { Href, Link } from 'expo-router';
 import ArrowRightIcon from '~/components/icons/ArrowRightIcon';
 import Svg, { Path } from 'react-native-svg';
-import { useQuery } from 'convex/react';
+import { useConvexAuth, useQuery } from 'convex/react';
 import { api } from '~/convex/_generated/api';
 
 interface ProfileLinkItem {
@@ -90,7 +90,7 @@ const CheckboxItem = ({ title }: { title: string }) => {
     if (title === 'Dark mode') {
       const newTheme = isDarkMode ? 'light' : 'dark';
       setColorScheme(newTheme);
-      AsyncStorage.setItem('theme', newTheme);
+      // AsyncStorage.setItem('theme', newTheme);
     }
     setIsEnabled((previousState) => !previousState);
   };
@@ -105,7 +105,7 @@ const CheckboxItem = ({ title }: { title: string }) => {
 
 export default function ProfileScreen() {
   const { isDarkMode, setColorScheme } = useColorScheme();
-  const { signOut } = useAuth();
+  const { signOut } = useClerk();
   const { user } = useUser();
 
   // const data = useQuery(api.users.getUsers);

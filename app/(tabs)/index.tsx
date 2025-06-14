@@ -14,10 +14,15 @@ import HomeHeader from '~/components/Home/Header';
 import { Button } from '~/components/ui/button';
 import FavouriteIcon from '~/components/icons/FavouriteIcon';
 import ShareIcon from '~/components/icons/ShareIcon';
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import ArrowRightIcon from '~/components/icons/ArrowRightIcon';
 import { H3 } from '~/components/ui/typography';
 import AddCircleIcon from '~/components/icons/AddCircleIcon';
+import { FlatList } from 'react-native';
+import { verses } from '~/lib/constants';
+import VerseCard from '~/components/VerseCard';
+import ItemSeparator from '~/components/ItemSeparator';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -25,139 +30,145 @@ export default function HomeScreen() {
 
   return (
     <>
-      {Platform.OS !== 'web' && <HomeHeader isWelcome />}
+      {/* {Platform.OS !== 'web' && <HomeHeader isWelcome />} */}
+      <View className='md:hidden'>
+        <HomeHeader isWelcome />
+      </View>
 
-      <ScrollView style={{ paddingHorizontal: 18, paddingVertical: 10 }}>
-        <View className='web:grid web:gap-3 web:xl:grid-cols-2'>
-          <View className=''>
-            {/* Verse of the Day */}
-            <View>
-              <ThemedText size={12} variant='semibold'>
-                Verse of the Day
-              </ThemedText>
-
-              <View className='bg-[#313131] dark:bg-[#343434] border-none rounded-3xl py-6 px-5 mt-3'>
+      <FlatList
+        className='flex-1 px-[18]'
+        data={[{ id: 'accordion' }]}
+        keyExtractor={(item) => item.id}
+        renderItem={() => (
+          <View className='web:grid gap-8 web:lg:grid-cols-2 '>
+            <View className='gap-4'>
+              {/* Verse of the Day */}
+              <View>
                 <ThemedText
                   size={12}
                   variant='medium'
-                  className='text-white dark:text-primary '
+                  className='!font-semibold md:text-base md:font-medium'
                 >
-                  John 3:16 KJV
-                </ThemedText>
-                <ThemedText
-                  variant='medium'
-                  className='text-white dark:text-primary text-base my-7'
-                >
-                  For God so loved the world, that he gave his only Son, that
-                  whoever believes in him should not perish but have eternal
-                  life.
+                  Verse of the Day
                 </ThemedText>
 
-                <View className='flex-row items-center justify-between'>
-                  <View className='flex-row gap-2'>
-                    <Button size={'icon'} className='bg-transparent'>
-                      <FavouriteIcon stroke='white' />
-                    </Button>
-                    <Button size={'icon'} className='bg-transparent'>
-                      <ShareIcon stroke='white' />
-                    </Button>
-                  </View>
-                  <CustomButton
-                    variant='secondary'
-                    className='w-fit'
-                    onPress={() => router.push('/(home)/verse-of-the-day')}
+                <View className='bg-[#313131] dark:bg-[#343434] border-none rounded-3xl py-6 px-5 mt-2'>
+                  <ThemedText
+                    size={12}
+                    variant='medium'
+                    className='text-white dark:text-primary '
                   >
-                    Memorize
+                    John 3:16 KJV
+                  </ThemedText>
+                  <ThemedText
+                    variant='medium'
+                    className='text-white dark:text-primary text-base my-7'
+                  >
+                    For God so loved the world, that he gave his only Son, that
+                    whoever believes in him should not perish but have eternal
+                    life.
+                  </ThemedText>
+
+                  <View className='flex-row items-center justify-between'>
+                    <View className='flex-row gap-2'>
+                      <Button size={'icon'} className='bg-transparent'>
+                        <FavouriteIcon stroke='white' />
+                      </Button>
+                      <Button size={'icon'} className='bg-transparent'>
+                        <ShareIcon stroke='white' />
+                      </Button>
+                    </View>
+                    <CustomButton
+                      variant='secondary'
+                      className='w-fit'
+                      onPress={() => router.push('/(home)/verse-of-the-day')}
+                    >
+                      Memorize
+                    </CustomButton>
+                  </View>
+                </View>
+              </View>
+
+              {/* My Verses */}
+              <View className='gap-2'>
+                <ThemedText variant='medium'>My Verses</ThemedText>
+
+                <View className='bg-container p-7 rounded-2xl '>
+                  <ThemedText
+                    // variant='medium'
+                    className=' text-center max-w-[160px] mx-auto'
+                  >
+                    Start hiding God's Word in your heart
+                  </ThemedText>
+                  <CustomButton
+                    variant='ghost'
+                    rightIcon
+                    Icon={ArrowRightIcon}
+                    className='mt-3'
+                    onPress={() => router.push('/verses/select-book')}
+                  >
+                    Add verse
                   </CustomButton>
                 </View>
               </View>
             </View>
 
             <View className='gap-3'>
-              <ThemedText variant='medium'>My Verses</ThemedText>
-
-              <View className='bg-container p-7 rounded-2xl '>
-                <ThemedText
-                  // variant='medium'
-                  className=' text-center max-w-[160px] mx-auto'
-                >
-                  Start hiding God's Word in your heart
-                </ThemedText>
-                <CustomButton
-                  variant='ghost'
-                  rightIcon
-                  Icon={ArrowRightIcon}
-                  className='mt-3'
-                  onPress={() => router.push('/(verses)/add-book')}
-                >
-                  Add verse
-                </CustomButton>
-              </View>
-            </View>
-          </View>
-
-          <View className=''>
-            <View className='gap-3'>
-              <ThemedText variant='medium'>Verse Suggestions</ThemedText>
-
               <View className='gap-2'>
-                {[1, 2, 3].map((_, index) => (
-                  <View
-                    key={index}
-                    className='flex-row bg-container py-3 px-4 w-full rounded-xl gap-2'
-                  >
-                    <View className='gap-1 '>
-                      <ThemedText size={14} variant='medium'>
-                        Genesis 1:1
-                      </ThemedText>
-                      <ThemedText
-                        size={13}
-                        className='w-fit text-[#707070] dark:text-[#909090]'
-                      >
-                        In the beginning, God created the heavens and the earth.
-                      </ThemedText>
-                    </View>
+                <View className='flex-row items-center justify-between mb-2'>
+                  <ThemedText variant='medium'>Verse Suggestions</ThemedText>
+                  <Link href={'/verses/verse-suggestions'}>
+                    <ThemedText size={12}>View all -{'>'}</ThemedText>
+                  </Link>
+                </View>
 
-                    <View className=' items-center justify-center '>
-                      <Pressable className=' '>
-                        <AddCircleIcon />
-                      </Pressable>
-                    </View>
-                  </View>
-                ))}
+                <FlatList
+                  data={verses}
+                  style={{ height: 300 }}
+                  keyExtractor={(item, index) => index.toString()}
+                  renderItem={({ item }) => (
+                    <VerseCard
+                      reference={item.reference}
+                      text={item.text}
+                      onAddPress={() => console.log(`${item.text} pressed`)}
+                    />
+                  )}
+                  ItemSeparatorComponent={ItemSeparator}
+                />
+              </View>
+
+              <View className='mb-12 gap-2'>
+                <ThemedText size={18} variant='medium'>
+                  Bible study and Memorization tips
+                </ThemedText>
+
+                <ThemedText className='text-[#707070] dark:text-[#909090]'>
+                  Discover practical ways to study scripture and memorize verses
+                  effectively. Whether you're just starting out or looking to
+                  deepen your understanding, these strategies will guide you
+                  every step of the way.
+                </ThemedText>
+
+                <Image
+                  source={require('~/assets/images/bible-tips.png')}
+                  style={{ width: '100%', height: 300 }}
+                  className='w-full rounded-xl my-2'
+                />
+
+                <Pressable
+                  onPress={() => router.push('/memorization-tips')}
+                  className='flex-row items-center gap-1'
+                >
+                  <ThemedText size={13} className=' ml-auto'>
+                    Read here
+                  </ThemedText>
+                  <ArrowRightIcon />
+                </Pressable>
               </View>
             </View>
-
-            <View className='mb-12 gap-2'>
-              <ThemedText size={18} variant='medium'>
-                Bible study and Memorization tips
-              </ThemedText>
-
-              <ThemedText className='text-[#707070] dark:text-[#909090]'>
-                Discover practical ways to study scripture and memorize verses
-                effectively. Whether you're just starting out or looking to
-                deepen your understanding, these strategies will guide you every
-                step of the way.
-              </ThemedText>
-
-              <Image
-                source={require('~/assets/images/bible-tips.png')}
-                className='w-full rounded-xl my-2'
-              />
-
-              <Pressable
-                onPress={() => router.push('/memorization-tips')}
-                className='flex-row items-center gap-1'
-              >
-                <ThemedText size={13} className=' ml-auto'>
-                  Read here
-                </ThemedText>
-                <ArrowRightIcon />
-              </Pressable>
-            </View>
           </View>
-        </View>
-      </ScrollView>
+        )}
+      />
     </>
   );
 }

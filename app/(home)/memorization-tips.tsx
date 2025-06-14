@@ -31,6 +31,7 @@ export default function MemorizationTips() {
         <View className='p-3' />
         <Image
           source={require('~/assets/images/bible-tips.png')}
+          style={{ width: '100%', height: 200 }}
           className='w-full object-contain h-[170px] rounded-xl'
         />
         <View className='p-3' />

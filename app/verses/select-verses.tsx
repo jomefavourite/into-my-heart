@@ -1,41 +1,83 @@
-import { View, Text } from 'react-native';
-import React from 'react';
+import { View } from 'react-native';
+import React, { useCallback } from 'react';
 import ThemedText from '~/components/ThemedText';
 import BackHeader from '~/components/BackHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {
-  ToggleGroup,
-  ToggleGroupIcon,
-  ToggleGroupItem,
-} from '~/components/ui/toggle-group';
+import { ToggleGroup, ToggleGroupItem } from '~/components/ui/toggle-group';
 import CustomButton from '~/components/CustomButton';
 import { useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
+import { useBookStore } from '~/store/bookStore';
 
 export default function SelectVerses() {
   const router = useRouter();
-  const [value, setValue] = React.useState<string[]>([]);
+  // const [verses, setVerses] = React.useState<string[]>([]);
+  const { bookName, chapter, chapterLength, verses, setVerses } =
+    useBookStore();
+
+  console.log(verses, 'verses');
+
+  const handleValueChange = (newValue: string[]) => {
+    setVerses(newValue);
+  };
+
+  const handlePress = useCallback(() => {
+    console.log(verses, verses.join(','));
+    router.push(`/verses/verse-summary`);
+  }, [bookName, chapter, verses]);
+
   return (
-    <SafeAreaView>
+    <SafeAreaView className='flex-1'>
       <BackHeader
         title='Select Verses'
-        items={[{ label: 'Verses', href: '/verses' }]}
+        items={[
+          { label: 'Verses', href: '/verses' },
+          { label: 'Select Book', href: '/verses/select-book' },
+          { label: 'Select Verses', href: '/verses/select-verses' },
+        ]}
       />
 
-      <ToggleGroup value={value} onValueChange={setValue} type='multiple'>
-        <ToggleGroupItem value='bold' aria-label='Toggle bold'>
-          <ThemedText>Bold</ThemedText>
-        </ToggleGroupItem>
-        <ToggleGroupItem value='italic' aria-label='Toggle italic'>
-          <ThemedText>Bold</ThemedText>
-        </ToggleGroupItem>
-        <ToggleGroupItem value='underline' aria-label='Toggle underline'>
-          <ThemedText>Bold</ThemedText>
-        </ToggleGroupItem>
-      </ToggleGroup>
+      <View className='flex-1 justify-between px-[18px]'>
+        <View>
+          <ThemedText variant='medium' className=' text-lg font-semibold mb-4'>
+            Select Verses - {bookName} {chapter}
+          </ThemedText>
 
-      <CustomButton onPress={() => router.push('/verse-summary')}>
-        Continue
-      </CustomButton>
+          <ToggleGroup
+            value={verses}
+            onValueChange={handleValueChange}
+            type='multiple'
+            className=' w-full flex-wrap gap-2 justify-start'
+          >
+            {new Array(chapterLength).fill(0).map((_, index) => {
+              const verseValue = `${index + 1}`;
+              const isActive = verses.includes(verseValue);
+
+              return (
+                <ToggleGroupItem
+                  key={index}
+                  value={verseValue}
+                  aria-label={`Select verse ${index + 1}`}
+                  className={`bg-container flex-row  items-center rounded-md w-[54px] h-[40px] ${isActive ? 'bg-black hover:bg-black dark:bg-zinc-500 web:group-hover:bg-black' : ''}`}
+                >
+                  <ThemedText style={isActive ? { color: 'white' } : {}}>
+                    {index + 1}
+                  </ThemedText>
+                </ToggleGroupItem>
+              );
+            })}
+          </ToggleGroup>
+        </View>
+
+        <View className='my-5'>
+          <CustomButton
+            onPress={() => handlePress()}
+            disabled={verses.length === 0}
+          >
+            Continue
+          </CustomButton>
+        </View>
+      </View>
     </SafeAreaView>
   );
 }

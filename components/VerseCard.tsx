@@ -1,41 +1,63 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import AddCircleIcon from '~/components/icons/AddCircleIcon';
+import ThemedText from './ThemedText';
 
 interface VerseCardProps {
-  reference: string;
-  text: string;
+  bookName: string;
+  chapter: number;
+  verses?: string[];
   onAddPress: () => void;
   containerClassName?: string;
   referenceClassName?: string;
   textClassName?: string;
+  canCheck?: boolean;
 }
 
 const VerseCard: React.FC<VerseCardProps> = ({
-  reference,
-  text,
+  bookName = 'Genesis',
+  chapter = '1',
+  verses = [],
   onAddPress,
   containerClassName = '',
   referenceClassName = '',
   textClassName = '',
+  canCheck = true,
 }) => {
   return (
     <View
-      className={`flex-row items-center py-[18px] px-4 ${containerClassName}`}
+      className={`flex-row bg-container rounded-xl items-center py-[18px] px-4 ${containerClassName}`}
     >
-      <View className='flex-1'>
-        <Text
-          className={`font-medium mb-1 text-base leading-5 ${textClassName}`}
+      <View className='flex-1 gap-2'>
+        <View className='flex-row items-center justify-between'>
+          <ThemedText
+            numberOfLines={1}
+            ellipsizeMode='tail'
+            size={14}
+            variant='medium'
+          >
+            {bookName} {chapter}:{verses.length > 0 ? verses.join(', ') : '1'}
+          </ThemedText>
+          {/* <TouchableOpacity className='p-2' onPress={onAddPress}>
+            <AddCircleIcon color={'#000'} />
+          </TouchableOpacity> */}
+        </View>
+
+        <ThemedText
+          numberOfLines={2}
+          ellipsizeMode='tail'
+          size={13}
+          className='w-fit text-[#707070] dark:text-[#909090] !overflow-hidden !text-ellipsis'
         >
-          {text}
-        </Text>
-        <Text className={`text-gray-500 text-[15px] ${referenceClassName}`}>
-          {reference}
-        </Text>
+          In the beginning, God created the heavens and the earth.
+        </ThemedText>
       </View>
-      <TouchableOpacity className='p-2' onPress={onAddPress}>
-        <AddCircleIcon color={'#000'} />
-      </TouchableOpacity>
+
+      {canCheck && (
+        <TouchableOpacity className='p-2' onPress={onAddPress}>
+          <AddCircleIcon color={'#000'} />
+        </TouchableOpacity>
+      )}
     </View>
   );
 };

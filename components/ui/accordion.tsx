@@ -27,7 +27,9 @@ const Accordion = React.forwardRef<
         {...props}
         asChild={Platform.OS !== 'web'}
       >
-        <Animated.View layout={LinearTransition.duration(200)}>
+        <Animated.View
+        // layout={LinearTransition.duration(200)}
+        >
           {children}
         </Animated.View>
       </AccordionPrimitive.Root>
@@ -44,7 +46,7 @@ const AccordionItem = React.forwardRef<
   return (
     <Animated.View
       className={'overflow-hidden'}
-      layout={LinearTransition.duration(200)}
+      // layout={LinearTransition.duration(200)}
     >
       <AccordionPrimitive.Item
         ref={ref}

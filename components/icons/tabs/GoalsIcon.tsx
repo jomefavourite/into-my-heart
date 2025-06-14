@@ -1,7 +1,11 @@
 import * as React from 'react';
 import Svg, { SvgProps, Path } from 'react-native-svg';
 import { useColorScheme } from '~/hooks/useColorScheme';
-const GoalsIcon = ({ focused, ...rest }) => {
+interface GoalsIconProps extends SvgProps {
+  focused: boolean;
+}
+
+const GoalsIcon: React.FC<GoalsIconProps> = ({ focused, ...rest }) => {
   const { isDarkMode } = useColorScheme();
 
   const fillColor = focused

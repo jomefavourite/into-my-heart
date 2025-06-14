@@ -36,6 +36,8 @@ import {
 } from '@expo-google-fonts/inter';
 import AllBottomSheet from '~/components/AllBottomSheet';
 import TabBarSidebar from '~/components/TabBarSidebar';
+import { PortalHost } from '@rn-primitives/portal';
+
 // import * as Sentry from '@sentry/react-native';
 // import { isRunningInExpoGo } from 'expo';
 
@@ -91,7 +93,7 @@ function InitialLayout() {
     if (isSignedIn && inAuthGroup) {
       router.replace('/(tabs)');
     } else if (!isSignedIn && !inAuthGroup) {
-      router.replace('/(onboarding)/create-account');
+      router.replace('/(onboarding)/onboard');
     }
   }, [isSignedIn]);
 
@@ -105,12 +107,12 @@ function InitialLayout() {
 
   const { width } = useWindowDimensions();
 
-  if (Platform.OS === 'web' && width > 720) {
+  if (Platform.OS === 'web' && width > 768) {
     const inOnboardingGroup = segments[0] === '(onboarding)';
 
     if (!inOnboardingGroup) {
       return (
-        <View className='flex-1 max-w-7xl mx-auto'>
+        <View className='flex-1 '>
           <TabBarSidebar />
         </View>
       );
@@ -176,6 +178,7 @@ function RootLayout() {
         <ThemeProvider value={isDarkMode ? DARK_THEME : LIGHT_THEME}>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <InitialLayout />
+            <PortalHost />
             <StatusBar style='auto' />
           </GestureHandlerRootView>
         </ThemeProvider>

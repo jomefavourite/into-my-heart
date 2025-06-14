@@ -9,6 +9,7 @@ module.exports = {
     extend: {
       fontFamily: {
         inter: ['Inter', 'sans-serif'],
+        onest: ['Onest', 'Helvetica', 'sans-serif'],
       },
       colors: {
         border: 'hsl(var(--border))',
@@ -24,6 +25,7 @@ module.exports = {
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',
           foreground: 'hsl(var(--secondary-foreground))',
+          text: '#707070',
         },
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',

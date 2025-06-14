@@ -8,14 +8,7 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
-import { Link, usePathname, Slot } from 'expo-router';
-import {
-  Chrome as Home,
-  BookOpen,
-  BookText,
-  Target,
-  User,
-} from 'lucide-react-native';
+import { Link, usePathname, Slot, Href } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HomeIcon from '~/components/icons/tabs/HomeIcon';
 import PracticeIcon from '~/components/icons/tabs/PracticeIcon';
@@ -24,8 +17,15 @@ import VersesIcon from '~/components/icons/tabs/VersesIcon';
 import GoalsIcon from '~/components/icons/tabs/GoalsIcon';
 import ThemedText from './ThemedText';
 import HomeHeader from './Home/Header';
+import Logo from './icons/logo/Logo';
 
-const tabs = [
+type Tab = {
+  name: string;
+  href: Href;
+  icon: React.ComponentType<{ focused: boolean; inverse: boolean }>;
+}[];
+
+const tabs: Tab = [
   { name: 'Home', href: '/', icon: HomeIcon },
   { name: 'Verses', href: '/verses', icon: VersesIcon },
   { name: 'Practice', href: '/practice', icon: PracticeIcon },
@@ -40,20 +40,20 @@ export default function TabBarSidebar() {
   const isDark = colorScheme === 'dark';
 
   return (
-    <View style={styles.container}>
+    <View className='flex-1 flex-row max-w-7xl justify-center'>
       {/* Sidebar */}
-      <View style={[styles.sidebar, { paddingTop: insets.top || 24 }]}>
-        {/* App logo/title */}
-        <View style={styles.logoContainer}>
-          <ThemedText style={styles.logoText}>Into My Heart</ThemedText>
-        </View>
+      <View
+        className='w-[240px] h-full flex-col border-r border-[#E8E8E8]'
+        style={[{ paddingTop: insets.top || 24 }]}
+      >
+        <Logo />
 
         {/* Navigation links */}
-        <ScrollView style={styles.navContainer}>
+        <ScrollView className='flex-1 px-4'>
           {tabs.map((tab, index) => {
             const isActive =
               pathname === tab.href ||
-              (pathname.startsWith(tab.href) && tab.href !== '/');
+              (pathname.startsWith(`${tab.href}`) && tab.href !== '/');
             const Icon = tab.icon;
 
             return (
@@ -62,7 +62,7 @@ export default function TabBarSidebar() {
                   <View
                     style={[styles.navItem, isActive && styles.activeNavItem]}
                   >
-                    <Icon focused={isActive} />
+                    <Icon focused={isActive} inverse />
                     <ThemedText
                       style={[styles.navText, isActive && { color: '#fff' }]}
                     >
@@ -77,7 +77,7 @@ export default function TabBarSidebar() {
       </View>
 
       {/* Content area */}
-      <View className='w-[1040px] flex-1'>
+      <View className='flex-1' style={{ width: 'auto' }}>
         {Platform.OS === 'web' && <HomeHeader />}
         <Slot />
       </View>
@@ -86,33 +86,6 @@ export default function TabBarSidebar() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  sidebar: {
-    width: 240,
-    height: '100%',
-    flexDirection: 'column',
-    borderRightWidth: 1,
-    borderColor: '#E8E8E8',
-  },
-  logoContainer: {
-    padding: 24,
-    marginBottom: 16,
-  },
-  logoText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  logoSubText: {
-    fontSize: 14,
-    marginTop: 4,
-  },
-  navContainer: {
-    flex: 1,
-    paddingHorizontal: 16,
-  },
   navItem: {
     flexDirection: 'row',
     alignItems: 'center',

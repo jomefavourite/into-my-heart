@@ -10,9 +10,12 @@ export default function VersesLayout() {
 
   return (
     <Stack>
-      <Stack.Screen name='add-book' options={{ headerShown: false }} />
+      <Stack.Screen name='select-book' options={{ headerShown: false }} />
       <Stack.Screen name='select-verses' options={{ headerShown: false }} />
       <Stack.Screen name='verse-summary' options={{ headerShown: false }} />
+      <Stack.Screen name='verse-suggestions' options={{ headerShown: false }} />
+      <Stack.Screen name='create-collection' options={{ headerShown: false }} />
+      <Stack.Screen name='all-verses' options={{ headerShown: false }} />
     </Stack>
   );
 }
