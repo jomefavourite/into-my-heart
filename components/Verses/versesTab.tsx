@@ -12,13 +12,15 @@ import { useRouter } from 'expo-router';
 import ArrowRightIcon from '../icons/ArrowRightIcon';
 import { useMutation } from 'convex/react';
 import { addVerseSuggestion } from '~/convex/verseSuggestions';
+import AddVersesEmpty from '../EmptyScreen/AddVersesEmpty';
+import SuggestionEmpty from '../EmptyScreen/SuggestionEmpty';
 
 type VersesTabProps = {
   gridView: boolean;
 };
 
 const VersesTab = ({ gridView }: VersesTabProps) => {
-  const getVerses = useQuery(api.verses.getVerses);
+  const getVerses = useQuery(api.verses.getVerses, { take: 5 });
   const getVerseSuggestions = useQuery(
     api.verseSuggestions.getVersesSuggestion
   );
@@ -32,12 +34,12 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
   // console.log(getVerses, 'getVerses');
 
   const handleAddVerseSuggestion = (verseData) => {
-    addVerse({
-      bookName: verseData.bookName,
-      chapter: verseData.chapter,
-      verses: verseData.verses,
-      reviewFreq: '',
-    });
+    // addVerse({
+    //   bookName: verseData.bookName,
+    //   chapter: verseData.chapter,
+    //   verses: verseData.verses,
+    //   reviewFreq: '',
+    // });
   };
 
   return (
@@ -63,7 +65,9 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
           numColumns={gridView ? 2 : 1}
           ListEmptyComponent={() => (
             <>
-              <VerseCardSkeleton />
+              {/* Loading */}
+              {/* <VerseCardSkeleton /> */}
+              <AddVersesEmpty />
             </>
           )}
           renderItem={({ item }) => (
@@ -72,6 +76,7 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
               bookName={item.bookName}
               chapter={item.chapter}
               verses={item.verses}
+              verseTexts={item.verseTexts}
               containerClassName={gridView ? 'w-[50%]' : 'w-full'}
               canCheck={false}
             />
@@ -98,6 +103,13 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
           data={getVerseSuggestions}
           keyExtractor={(item, index) => index.toString()}
           numColumns={gridView ? 2 : 1}
+          ListEmptyComponent={() => (
+            <>
+              {/* Loading */}
+              {/* <VerseCardSkeleton /> */}
+              <SuggestionEmpty />
+            </>
+          )}
           renderItem={({ item }) => (
             <VerseCard
               _id={item._id}

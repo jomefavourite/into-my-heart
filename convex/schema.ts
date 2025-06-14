@@ -1,6 +1,5 @@
 import { defineSchema, defineTable } from 'convex/server';
 import { v } from 'convex/values';
-import { verses } from '~/lib/constants';
 
 export const User = {
   email: v.string(),
@@ -17,6 +16,12 @@ export const Verse = {
   bookName: v.string(),
   chapter: v.number(),
   verses: v.array(v.string()),
+  verseTexts: v.array(
+    v.object({
+      verse: v.string(),
+      text: v.string(),
+    })
+  ),
   reviewFreq: v.string(),
 };
 
@@ -25,6 +30,25 @@ export const VerseSuggestion = {
   bookName: v.string(),
   chapter: v.number(),
   verses: v.array(v.string()),
+  verseTexts: v.array(
+    v.object({
+      verse: v.string(),
+      text: v.string(),
+    })
+  ),
+  reviewFreq: v.string(),
+};
+export const CollectionSuggestion = {
+  userId: v.id('users'),
+  bookName: v.string(),
+  chapter: v.number(),
+  verses: v.array(v.string()),
+  verseTexts: v.array(
+    v.object({
+      verse: v.string(),
+      text: v.string(),
+    })
+  ),
   reviewFreq: v.string(),
 };
 
@@ -35,8 +59,14 @@ export const Collection = {
     v.object({
       bookName: v.string(),
       chapter: v.number(),
-      verses: v.array(v.string()), // Array of verse numbers as strings
-      reviewFreq: v.string(), // e.g., "daily", "weekly", "monthly"
+      verses: v.array(v.string()),
+      verseTexts: v.array(
+        v.object({
+          verse: v.string(),
+          text: v.string(),
+        })
+      ),
+      reviewFreq: v.string(),
     })
   ),
   userId: v.id('users'), // Reference to the user who created the collection
@@ -46,6 +76,7 @@ export default defineSchema({
   users: defineTable(User).index('byClerkId', ['clerkId']),
   verses: defineTable(Verse),
   versesSuggestions: defineTable(VerseSuggestion),
+  collectionSuggestions: defineTable(CollectionSuggestion),
   collections: defineTable(Collection),
   messages: defineTable({
     content: v.string(),

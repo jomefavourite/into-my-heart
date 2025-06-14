@@ -20,14 +20,14 @@ const AllVersesScreen = () => {
           <Button
             size={'icon'}
             variant={'ghost'}
-            onPress={() => router.push('/goals/remove-goals')}
+            onPress={() => router.push('/verses/remove-verses')}
           >
             <RemoveCircleIcon />
           </Button>
         }
         items={[
           { label: 'Verses', href: '/verses' },
-          { label: 'My Verses', href: '/goals/all-verses' },
+          { label: 'My Verses', href: '/verses/all-verses' },
         ]}
       />
 

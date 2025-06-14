@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { View, Text, TouchableOpacity, Pressable } from 'react-native';
 import AddCircleIcon from '~/components/icons/AddCircleIcon';
 import ThemedText from '../ThemedText';
@@ -66,4 +66,4 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
   );
 };
 
-export default CollectionCard;
+export default memo(CollectionCard);

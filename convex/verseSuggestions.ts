@@ -7,6 +7,12 @@ export const addVerseSuggestion = mutation({
     bookName: v.string(),
     chapter: v.number(),
     verses: v.array(v.string()),
+    versesTexts: v.array(
+      v.object({
+        verse: v.string(),
+        text: v.string(),
+      })
+    ),
     reviewFreq: v.string(), // e.g., "daily", "weekly", "monthly"
   },
   handler: async (ctx, args) => {
@@ -22,6 +28,7 @@ export const addVerseSuggestion = mutation({
       chapter: args.chapter,
       verses: args.verses,
       reviewFreq: args.reviewFreq,
+      verseTexts: args.versesTexts,
       userId: user._id, // Reference to the user who created the verse
     });
   },
