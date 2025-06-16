@@ -13,12 +13,12 @@ import VerseCard from '~/components/Verses/VerseCard';
 import ItemSeparator from '~/components/ItemSeparator';
 import ThemedText from '~/components/ThemedText';
 
-const AllVersesScreen = () => {
+const AllCollectionScreen = () => {
   const router = useRouter();
   const [gridView, setGridView] = useState<boolean>(false);
 
   const { results, status, loadMore } = usePaginatedQuery(
-    api.verses.getAllVerses,
+    api.collections.getAllCollections,
     {},
     { initialNumItems: 20 }
   );
@@ -40,12 +40,12 @@ const AllVersesScreen = () => {
         }
         items={[
           { label: 'Verses', href: '/verses' },
-          { label: 'All My Verses', href: '/verses/all-verses' },
+          { label: 'My Collections', href: '/verses/all-collections' },
         ]}
       />
-      {/* 
-      <ThemedText size={18} variant='semibold' className='py-2'>
-        All My Verses
+
+      {/* <ThemedText size={18} variant='semibold' className='py-2'>
+        All My Collections
       </ThemedText> */}
 
       <View className='flex-1 px-[18px]'>
@@ -83,4 +83,4 @@ const AllVersesScreen = () => {
   );
 };
 
-export default AllVersesScreen;
+export default AllCollectionScreen;

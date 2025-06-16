@@ -10,6 +10,9 @@ import { api } from '~/convex/_generated/api';
 import CollectionCard from './CollectionCard';
 import AddVersesEmpty from '../EmptyScreen/AddVersesEmpty';
 import SuggestionEmpty from '../EmptyScreen/SuggestionEmpty';
+import { Button } from '../ui/button';
+import { useRouter } from 'expo-router';
+import ArrowRightIcon from '../icons/ArrowRightIcon';
 
 type CollectionsTabProps = {
   gridView: boolean;
@@ -17,15 +20,30 @@ type CollectionsTabProps = {
 
 const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
   const getCollections = useQuery(api.collections.getCollections);
+  const router = useRouter();
 
   // console.log(getVerses, 'getVerses');
 
   return (
     <View>
       <View>
-        <ThemedText size={18} variant='semibold' className='py-2'>
-          My Collections
-        </ThemedText>
+        <View className='flex-row items-center justify-between'>
+          <ThemedText size={18} variant='semibold' className='py-2'>
+            My Collections
+          </ThemedText>
+
+          <Button
+            size={'icon'}
+            variant={'ghost'}
+            onPress={() => router.push('/verses/all-collections')}
+            className='flex-row '
+          >
+            <ThemedText size={12} className='pl-2'>
+              View all
+            </ThemedText>
+            <ArrowRightIcon />
+          </Button>
+        </View>
 
         <FlatList
           key={gridView ? 'grid-myverses' : 'list-myverses'}

@@ -125,7 +125,7 @@ export default function VerseSummary() {
         verses: versesList.map((v) => v.toString()),
         reviewFreq: reviewFreqValue,
         versesTexts: verseTexts.map((text, index) => ({
-          verse: (index + 1).toString(),
+          verse: text.verse,
           text: text.text,
         })),
       };

@@ -11,7 +11,7 @@ interface VerseCardProps {
   bookName: string;
   chapter: number;
   verses?: string[];
-  onAddPress: () => void;
+  onAddPress?: () => void;
   containerClassName?: string;
   verseTexts: { verse: string; text: string }[];
   canCheck?: boolean;
@@ -56,8 +56,8 @@ const VerseCard: React.FC<VerseCardProps> = ({
           className='w-fit text-[#707070] dark:text-[#909090] !overflow-hidden !text-ellipsis'
         >
           {verseTexts.length > 0
-            ? verseTexts.map((text, index) => `${text.verse}. ${text.text}`)
-            : 'No verses added yet.'}
+            ? verseTexts.map((text, index) => `${text.verse}. ${text.text} `)
+            : '...'}
         </ThemedText>
       </View>
 

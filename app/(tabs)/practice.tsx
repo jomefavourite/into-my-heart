@@ -17,21 +17,30 @@ export default function PracticeScreen() {
         </ThemedText>
       </View>
 
-      <ScrollView className=' p-[18px]'>
-        <View className='my-[76] max-w-[192px] mx-auto text-center'>
-          <ThemedText size={18} variant='medium' className='text-center'>
-            All Verses Mode
-          </ThemedText>
-          <ThemedText
-            size={14}
-            className='text-center text-[#707070] dark:text-[#909090] mt-1'
-          >
-            Practice every verse you've added all in one session
-          </ThemedText>
-          <CustomButton className='mt-4 text-center'>Practice</CustomButton>
+      <ScrollView className='px-[18px]'>
+        <View className='my-[76] max-w-[192px] mx-auto md:flex-row md:items-start md:justify-between md:max-w-full md:mx-0 md:my-2'>
+          <View>
+            <ThemedText
+              size={18}
+              variant='medium'
+              className='text-center md:text-left'
+            >
+              All Verses Mode
+            </ThemedText>
+            <ThemedText
+              size={14}
+              className='text-center text-[#707070] dark:text-[#909090] mt-1 md:text-left'
+            >
+              Practice every verse you've added all in one session
+            </ThemedText>
+          </View>
+
+          <CustomButton size='lg' className='mt-4 text-center md:mt-0'>
+            Practice All
+          </CustomButton>
         </View>
 
-        <View>
+        <View className='md:mt-6'>
           <ThemedText variant='semibold'>Practice Techniques</ThemedText>
 
           <View className='gap-3 mt-2'>

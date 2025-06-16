@@ -1,6 +1,7 @@
 import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
 import { getCurrentUserOrThrow } from './users';
+import { paginationOptsValidator } from 'convex/server';
 
 export const addVerse = mutation({
   args: {
@@ -55,7 +56,8 @@ export const getVerses = query({
 });
 
 export const getAllVerses = query({
-  handler: async (ctx) => {
+  args: { paginationOpts: paginationOptsValidator },
+  handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
       throw new Error('Unauthorized');
@@ -64,9 +66,7 @@ export const getAllVerses = query({
     const verses = await ctx.db
       .query('verses')
       .order('desc')
-      // .filter((q) => q.eq(q.field('authorId'), identity.subject)) // makes sure I always get the verses from the current user
-      .collect();
-
+      .paginate(args.paginationOpts);
     return verses;
   },
 });
