@@ -1,6 +1,8 @@
 import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
 import { getCurrentUserOrThrow } from './users';
+import { paginationOptsValidator } from 'convex/server';
+import { Id } from './_generated/dataModel';
 
 export const addVerse = mutation({
   args: {
@@ -8,7 +10,7 @@ export const addVerse = mutation({
     chapter: v.number(),
     verses: v.array(v.string()),
     reviewFreq: v.string(),
-    versesTexts: v.array(
+    verseTexts: v.array(
       v.object({
         verse: v.string(),
         text: v.string(),
@@ -28,7 +30,7 @@ export const addVerse = mutation({
       chapter: args.chapter,
       verses: args.verses,
       reviewFreq: args.reviewFreq,
-      verseTexts: args.versesTexts,
+      verseTexts: args.verseTexts,
       userId: user._id, // Reference to the user who created the verse
     });
   },
@@ -39,15 +41,12 @@ export const getVerses = query({
     take: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Unauthorized');
-    }
+    const user = await getCurrentUserOrThrow(ctx);
 
     const verses = await ctx.db
       .query('verses')
       .order('desc')
-      // .filter((q) => q.eq(q.field('authorId'), identity.subject)) // makes sure I always get the verses from the current user
+      .filter((q) => q.eq(q.field('userId'), user._id))
       .take(args.take ?? 50);
 
     return verses;
@@ -55,18 +54,35 @@ export const getVerses = query({
 });
 
 export const getAllVerses = query({
-  handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Unauthorized');
-    }
+  args: { paginationOpts: paginationOptsValidator },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUserOrThrow(ctx);
 
     const verses = await ctx.db
       .query('verses')
       .order('desc')
-      // .filter((q) => q.eq(q.field('authorId'), identity.subject)) // makes sure I always get the verses from the current user
-      .collect();
-
+      .filter((q) => q.eq(q.field('userId'), user._id))
+      .paginate(args.paginationOpts);
     return verses;
+  },
+});
+
+export const deleteVerses = mutation({
+  args: {
+    ids: v.array(v.id('verses')),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUserOrThrow(ctx);
+
+    const verses = await Promise.all(
+      args.ids.map(async (id) => {
+        const verse = await ctx.db.get(id);
+        return verse && verse.userId === user._id ? id : null;
+      })
+    );
+
+    const validIds = verses.filter((id): id is Id<'verses'> => id !== null);
+
+    await Promise.all(validIds.map((id) => ctx.db.delete(id)));
   },
 });

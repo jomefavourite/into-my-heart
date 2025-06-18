@@ -18,6 +18,7 @@ import GoalsIcon from '~/components/icons/tabs/GoalsIcon';
 import ThemedText from './ThemedText';
 import HomeHeader from './Home/Header';
 import Logo from './icons/logo/Logo';
+import { Stack } from 'expo-router';
 
 type Tab = {
   name: string;
@@ -79,7 +80,12 @@ export default function TabBarSidebar() {
       {/* Content area */}
       <View className='flex-1' style={{ width: 'auto' }}>
         {Platform.OS === 'web' && <HomeHeader />}
-        <Slot />
+        {/* <Slot /> */}
+        <Stack
+          screenOptions={{
+            headerShown: false,
+          }}
+        />
       </View>
     </View>
   );

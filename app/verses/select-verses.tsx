@@ -40,7 +40,7 @@ export default function SelectVerses() {
       <View className='flex-1 justify-between px-[18px]'>
         <View>
           <ThemedText variant='medium' className=' text-lg font-semibold mb-4'>
-            Select Verses - {bookName} {chapter}
+            {bookName} {chapter}
           </ThemedText>
 
           <ToggleGroup

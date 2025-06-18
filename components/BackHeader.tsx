@@ -12,32 +12,42 @@ type BreadcrumbItem = {
 
 type BackHeaderProps = {
   RightComponent?: React.ReactNode;
+  LiftComponent?: React.ReactNode;
   TitleComponent?: React.ReactNode;
   title?: string;
   items: BreadcrumbItem[];
+  canDelete?: boolean;
 };
 
 export default function BackHeader({
   RightComponent,
+  LiftComponent,
   TitleComponent,
   title,
   items,
+  canDelete,
 }: BackHeaderProps) {
   const router = useRouter();
 
   if (Platform.OS === 'web') {
-    return <Breadcrumb items={items} />;
+    return <Breadcrumb items={items} canDelete={canDelete} />;
   }
 
   return (
     <View className='items-center justify-between flex-row p-[18px]'>
-      <View className='flex-row items-center'>
-        <Button size={'icon'} variant={'ghost'} onPress={() => router.back()}>
-          <ArrowLeftIcon />
-        </Button>
-        {/* This is done to make the space evenly centered */}
-        {RightComponent && <View style={{ width: 35, height: 35 }} />}
-      </View>
+      {LiftComponent ? (
+        LiftComponent
+      ) : (
+        <View className='flex-row items-center'>
+          <Button size={'icon'} variant={'ghost'} onPress={() => router.back()}>
+            <ArrowLeftIcon />
+          </Button>
+          {/* This is done to make the space evenly centered */}
+          {RightComponent && !title && (
+            <View style={{ width: 35, height: 35 }} />
+          )}
+        </View>
+      )}
 
       {TitleComponent ? (
         <>{TitleComponent}</>

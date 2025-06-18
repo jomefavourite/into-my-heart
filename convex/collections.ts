@@ -1,6 +1,7 @@
 import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
 import { getCurrentUserOrThrow } from './users';
+import { paginationOptsValidator } from 'convex/server';
 
 export const addCollection = mutation({
   args: {
@@ -11,8 +12,8 @@ export const addCollection = mutation({
         bookName: v.string(),
         chapter: v.number(),
         verses: v.array(v.string()),
-        reviewFreq: v.string(), // e.g., "daily", "weekly", "monthly"
-        versesTexts: v.array(
+        reviewFreq: v.string(),
+        verseTexts: v.array(
           v.object({
             verse: v.string(),
             text: v.string(),
@@ -47,6 +48,22 @@ export const getCollections = query({
 
     const verses = await ctx.db.query('collections').order('desc').take(50);
 
+    return verses;
+  },
+});
+
+export const getAllCollections = query({
+  args: { paginationOpts: paginationOptsValidator },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error('Unauthorized');
+    }
+
+    const verses = await ctx.db
+      .query('collections')
+      .order('desc')
+      .paginate(args.paginationOpts);
     return verses;
   },
 });

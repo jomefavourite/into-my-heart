@@ -1,5 +1,12 @@
-import React, { useCallback, memo, useMemo, useState } from 'react';
-import { View, Pressable, FlatList, Dimensions } from 'react-native';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
+import {
+  View,
+  Pressable,
+  FlatList,
+  Dimensions,
+  InteractionManager,
+  ActivityIndicator,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
@@ -13,13 +20,14 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '~/components/ui/accordion';
+} from '~/components/ui/accordion'; // from react-native-reusables
 import { useBookStore } from '~/store/bookStore';
+import { ScrollView } from 'react-native';
 
 const screenWidth = Dimensions.get('window').width;
 const numColumns = Math.floor(screenWidth / 60); // ~60px per chapter item
 
-const ChapterItem = memo(
+const ChapterItem = React.memo(
   ({
     bookName,
     chapter,
@@ -53,6 +61,15 @@ const ChapterItem = memo(
 
 export default function AddBookScreen() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [ready, setReady] = useState(false);
+
+  // Defer rendering to after transition
+  useEffect(() => {
+    const task = InteractionManager.runAfterInteractions(() => {
+      setReady(true);
+    });
+    return () => task.cancel();
+  }, []);
 
   const filteredBooks = useMemo(() => {
     if (!searchQuery.trim()) return BOOKS;
@@ -63,6 +80,14 @@ export default function AddBookScreen() {
         book.abbreviation.toLowerCase().includes(lower)
     );
   }, [searchQuery]);
+
+  if (!ready) {
+    return (
+      <SafeAreaView className='flex-1 justify-center items-center'>
+        <ActivityIndicator size='large' />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className='flex-1'>
@@ -87,49 +112,43 @@ export default function AddBookScreen() {
         />
       </View>
 
-      <FlatList
+      <ScrollView
         className='flex-1 px-[18]'
-        data={[{ id: 'accordion' }]} // single item to render accordion
-        keyExtractor={(item) => item.id}
-        renderItem={() => (
-          <Accordion
-            type='single'
-            collapsible
-            className='w-full native:max-w-md'
-          >
-            {filteredBooks.map((book) => (
-              <AccordionItem key={book.id} value={`item-${book.id}`}>
-                <AccordionTrigger className='hover:no-underline'>
-                  <View className='flex-row items-center justify-between w-full'>
-                    <ThemedText>{book.name}</ThemedText>
-                    <ThemedText>{book.chaptersLength}</ThemedText>
-                  </View>
-                </AccordionTrigger>
+        contentContainerStyle={{ paddingBottom: 24 }}
+      >
+        <Accordion type='single' collapsible>
+          {filteredBooks.map((book) => (
+            <AccordionItem key={book.id} value={book.id}>
+              <AccordionTrigger className='hover:no-underline'>
+                <View className='flex-row items-center justify-between w-full'>
+                  <ThemedText>{book.name}</ThemedText>
+                  <ThemedText>{book.chaptersLength}</ThemedText>
+                </View>
+              </AccordionTrigger>
 
-                <AccordionContent className='flex-row flex-wrap gap-2'>
-                  <FlatList
-                    data={Array.from(
-                      { length: book.chaptersLength },
-                      (_, i) => i + 1
-                    )}
-                    keyExtractor={(item) => item.toString()}
-                    numColumns={numColumns}
-                    scrollEnabled={false} // prevent nested scroll issues
-                    contentContainerStyle={{ paddingBottom: 10 }}
-                    renderItem={({ item }) => (
-                      <ChapterItem
-                        chapter={item}
-                        bookName={book.name}
-                        chapterLength={book.chaptersLength}
-                      />
-                    )}
-                  />
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        )}
-      />
+              <AccordionContent className='flex-row flex-wrap gap-2'>
+                <FlatList
+                  data={Array.from(
+                    { length: book.chaptersLength },
+                    (_, i) => i + 1
+                  )}
+                  keyExtractor={(item) => item.toString()}
+                  numColumns={numColumns}
+                  scrollEnabled={false}
+                  contentContainerStyle={{ paddingBottom: 10 }}
+                  renderItem={({ item }) => (
+                    <ChapterItem
+                      chapter={item}
+                      bookName={book.name}
+                      chapterLength={book.chaptersLength}
+                    />
+                  )}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </ScrollView>
     </SafeAreaView>
   );
 }

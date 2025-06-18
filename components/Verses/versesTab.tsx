@@ -54,7 +54,11 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
             size={'icon'}
             variant={'ghost'}
             onPress={() => router.push('/verses/all-verses')}
+            className='flex-row '
           >
+            <ThemedText size={12} className='pl-2'>
+              View all
+            </ThemedText>
             <ArrowRightIcon />
           </Button>
         </View>
@@ -85,11 +89,6 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
             gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
           }
           ItemSeparatorComponent={ItemSeparator}
-          // contentContainerStyle={
-          //   gridView
-          //     ? { paddingVertical: 8, paddingHorizontal: 16 }
-          //     : { paddingVertical: 8, paddingHorizontal: 16 }
-          // }
           scrollEnabled={false}
         />
       </View>

@@ -1,21 +1,34 @@
 import { Redirect, Stack } from 'expo-router';
 import { useConvexAuth } from 'convex/react';
+import { useColorScheme } from '~/hooks/useColorScheme';
 
 export default function VersesLayout() {
   const { isAuthenticated } = useConvexAuth();
+  const { isDarkMode } = useColorScheme();
 
   // if (isAuthenticated) {
   //   return <Redirect href={'/'} />;
   // }
 
   return (
-    <Stack>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        contentStyle: {
+          backgroundColor: isDarkMode ? 'hsl(240 10% 3.9%)' : 'hsl(0 0% 100%)',
+        },
+        headerStyle: {
+          backgroundColor: isDarkMode ? 'hsl(240 10% 3.9%)' : 'hsl(0 0% 100%)',
+        },
+      }}
+    >
       <Stack.Screen name='select-book' options={{ headerShown: false }} />
       <Stack.Screen name='select-verses' options={{ headerShown: false }} />
       <Stack.Screen name='verse-summary' options={{ headerShown: false }} />
       <Stack.Screen name='verse-suggestions' options={{ headerShown: false }} />
       <Stack.Screen name='create-collection' options={{ headerShown: false }} />
       <Stack.Screen name='all-verses' options={{ headerShown: false }} />
+      <Stack.Screen name='all-collections' options={{ headerShown: false }} />
       <Stack.Screen name='[verseId]' options={{ headerShown: false }} />
       <Stack.Screen name='[collectionId]' options={{ headerShown: false }} />
     </Stack>

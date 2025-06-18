@@ -111,6 +111,10 @@ export default function VerseSummary() {
         chapter,
         reviewFreq: reviewFreqValue,
         verses: versesList.map((v) => v.toString()),
+        verseTexts: verseTexts.map((text, index) => ({
+          verse: text.verse,
+          text: text.text,
+        })),
       });
       setVerses([]);
       setIsLoading(false);
@@ -124,8 +128,8 @@ export default function VerseSummary() {
         chapter: chapter,
         verses: versesList.map((v) => v.toString()),
         reviewFreq: reviewFreqValue,
-        versesTexts: verseTexts.map((text, index) => ({
-          verse: (index + 1).toString(),
+        verseTexts: verseTexts.map((text, index) => ({
+          verse: text.verse,
           text: text.text,
         })),
       };

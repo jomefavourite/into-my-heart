@@ -5,6 +5,10 @@ type CollectionVerses = {
   chapter: number;
   verses: string[];
   reviewFreq?: string;
+  verseTexts: {
+    verse: string;
+    text: string;
+  }[];
 };
 interface BookStore {
   collectionName: string;
