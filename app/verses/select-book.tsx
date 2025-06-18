@@ -27,25 +27,33 @@ import { ScrollView } from 'react-native';
 const screenWidth = Dimensions.get('window').width;
 const numColumns = Math.floor(screenWidth / 60); // ~60px per chapter item
 
+type ChapterItemType = {
+  bookName: string;
+  chapter: number;
+  chapterLength: number;
+  chapters: {
+    chapterNumber: number;
+    versesLength: number;
+  }[];
+};
+
 const ChapterItem = React.memo(
-  ({
-    bookName,
-    chapter,
-    chapterLength,
-  }: {
-    bookName: string;
-    chapter: number;
-    chapterLength: number;
-  }) => {
+  ({ bookName, chapter, chapterLength, chapters }: ChapterItemType) => {
     const router = useRouter();
-    const { setBookName, setChapter, setChapterLength } = useBookStore();
+    const { setBookName, setChapter, setChapterLength, setVersesLength } =
+      useBookStore();
 
     const handlePress = useCallback(() => {
       setBookName(bookName);
       setChapter(chapter);
       setChapterLength(chapterLength);
 
-      router.push(`/verses/select-verses?book=${bookName}&chapter=${chapter}`);
+      const verseLength = chapters[chapter - 1].versesLength;
+      setVersesLength(verseLength);
+
+      router.push(
+        `/verses/select-verses?book=${bookName}&chapter=${chapter}&verseLength=${verseLength}`
+      );
     }, [bookName, chapter]);
 
     return (
@@ -141,6 +149,7 @@ export default function AddBookScreen() {
                       chapter={item}
                       bookName={book.name}
                       chapterLength={book.chaptersLength}
+                      chapters={book.chapters}
                     />
                   )}
                 />

@@ -19,10 +19,10 @@ import { useColorScheme } from '~/hooks/useColorScheme';
 import CustomButton from '~/components/CustomButton';
 import { useMutation } from 'convex/react';
 import CancelIcon from '~/components/icons/CancelIcon';
+import { useGridListView } from '~/store/tab-store';
 
 const AllVersesScreen = () => {
-  const router = useRouter();
-  const [gridView, setGridView] = useState<boolean>(false);
+  const { gridView } = useGridListView();
   const [shouldDelete, setShouldDelete] = useState(false);
   const [selectedToDelete, setSelectedToDelete] = useState<Id<'verses'>[]>([]);
   const [bottomSheetIndex, setBottomSheetIndex] = useState(-1);
@@ -80,6 +80,7 @@ const AllVersesScreen = () => {
               <Button
                 size={'icon'}
                 variant={'ghost'}
+                disabled={results.length === 0}
                 onPress={() => setShouldDelete(true)}
               >
                 <RemoveCircleIcon />

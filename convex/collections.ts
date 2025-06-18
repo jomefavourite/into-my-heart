@@ -2,6 +2,7 @@ import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
 import { getCurrentUserOrThrow } from './users';
 import { paginationOptsValidator } from 'convex/server';
+import { Id } from './_generated/dataModel';
 
 export const addCollection = mutation({
   args: {
@@ -65,5 +66,27 @@ export const getAllCollections = query({
       .order('desc')
       .paginate(args.paginationOpts);
     return verses;
+  },
+});
+
+export const deleteCollections = mutation({
+  args: {
+    ids: v.array(v.id('collections')),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUserOrThrow(ctx);
+
+    const collections = await Promise.all(
+      args.ids.map(async (id) => {
+        const collection = await ctx.db.get(id);
+        return collection && collection.userId === user._id ? id : null;
+      })
+    );
+
+    const validIds = collections.filter(
+      (id): id is Id<'collections'> => id !== null
+    );
+
+    await Promise.all(validIds.map((id) => ctx.db.delete(id)));
   },
 });

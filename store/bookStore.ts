@@ -15,11 +15,13 @@ interface BookStore {
   bookName: string;
   chapter: number;
   chapterLength: number;
+  versesLength: number;
   verses: string[];
   collectionVerses: CollectionVerses[];
   setBookName: (name: string) => void;
   setChapter: (chapter: number) => void;
   setChapterLength: (length: number) => void;
+  setVersesLength: (length: number) => void;
   setVerses: (verses: string[]) => void;
   setCollectionName: (name: string) => void;
   setCollectionVerses: (collectionVerses: CollectionVerses) => void;
@@ -31,11 +33,13 @@ export const useBookStore = create<BookStore>((set) => ({
   bookName: '',
   chapter: 0,
   chapterLength: 0,
-  verses: [],
+  versesLength: 0,
+  verses: [], // selected verses
   collectionVerses: [],
   setBookName: (name) => set({ bookName: name }),
   setChapter: (chapter) => set({ chapter }),
   setChapterLength: (length) => set({ chapterLength: length }),
+  setVersesLength: (length) => set({ versesLength: length }),
   setVerses: (verses) => set({ verses }),
   setCollectionName: (name) => set({ collectionName: name }),
   setCollectionVerses: (collectionVerses) =>
@@ -50,5 +54,6 @@ export const useBookStore = create<BookStore>((set) => ({
       verses: [],
       collectionName: '',
       collectionVerses: [],
+      versesLength: 0,
     }),
 }));

@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import React, { useCallback } from 'react';
 import ThemedText from '~/components/ThemedText';
 import BackHeader from '~/components/BackHeader';
@@ -11,14 +11,31 @@ import { useBookStore } from '~/store/bookStore';
 
 export default function SelectVerses() {
   const router = useRouter();
-  // const [verses, setVerses] = React.useState<string[]>([]);
-  const { bookName, chapter, chapterLength, verses, setVerses } =
-    useBookStore();
+  const {
+    book: bookURL,
+    chapter: chapterURL,
+    versesLength: versesLengthURL,
+  } = useLocalSearchParams();
 
-  // console.log(verses, 'verses');
+  let {
+    bookName: bookName1,
+    chapter: chapter1,
+    versesLength: versesLength1,
+    verses,
+    setVerses,
+  } = useBookStore();
+
+  console.log(verses);
+
+  const bookName = bookURL || bookName1;
+  const chapter = chapterURL || chapter1;
+  const versesLength = versesLengthURL || versesLength1;
+
+  // const [value, setValue] = React.useState<string[]>([]);
 
   const handleValueChange = (newValue: string[]) => {
     setVerses(newValue);
+    // setValue(newValue);
   };
 
   const handlePress = useCallback(() => {
@@ -38,7 +55,7 @@ export default function SelectVerses() {
       />
 
       <View className='flex-1 justify-between px-[18px]'>
-        <View>
+        <ScrollView className='flex-1'>
           <ThemedText variant='medium' className=' text-lg font-semibold mb-4'>
             {bookName} {chapter}
           </ThemedText>
@@ -49,7 +66,7 @@ export default function SelectVerses() {
             type='multiple'
             className=' w-full flex-wrap gap-2 justify-start'
           >
-            {new Array(chapterLength).fill(0).map((_, index) => {
+            {new Array(versesLength).fill(0).map((_, index) => {
               const verseValue = `${index + 1}`;
               const isActive = verses.includes(verseValue);
 
@@ -67,7 +84,7 @@ export default function SelectVerses() {
               );
             })}
           </ToggleGroup>
-        </View>
+        </ScrollView>
 
         <View className='my-5'>
           <CustomButton
