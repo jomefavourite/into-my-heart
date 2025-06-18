@@ -2,6 +2,7 @@ import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
 import { getCurrentUserOrThrow } from './users';
 import { paginationOptsValidator } from 'convex/server';
+import { Id } from './_generated/dataModel';
 
 export const addVerse = mutation({
   args: {
@@ -63,5 +64,25 @@ export const getAllVerses = query({
       .filter((q) => q.eq(q.field('userId'), user._id))
       .paginate(args.paginationOpts);
     return verses;
+  },
+});
+
+export const deleteVerses = mutation({
+  args: {
+    ids: v.array(v.id('verses')),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUserOrThrow(ctx);
+
+    const verses = await Promise.all(
+      args.ids.map(async (id) => {
+        const verse = await ctx.db.get(id);
+        return verse && verse.userId === user._id ? id : null;
+      })
+    );
+
+    const validIds = verses.filter((id): id is Id<'verses'> => id !== null);
+
+    await Promise.all(validIds.map((id) => ctx.db.delete(id)));
   },
 });

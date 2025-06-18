@@ -132,16 +132,6 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: {
-            backgroundColor: isDarkMode
-              ? 'hsl(240 10% 3.9%)'
-              : 'hsl(0 0% 100%)',
-          },
-          headerStyle: {
-            backgroundColor: isDarkMode
-              ? 'hsl(240 10% 3.9%)'
-              : 'hsl(0 0% 100%)',
-          },
         }}
       />
 

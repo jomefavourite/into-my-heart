@@ -5,6 +5,8 @@ import ThemedText from '../ThemedText';
 import { Skeleton } from '../ui/skeleton';
 import { Link, useRouter } from 'expo-router';
 import { Id } from '~/convex/_generated/dataModel';
+import CircleIcon from '../icons/CircleIcon';
+import CheckmarkCircleIcon from '../icons/CheckmarkCircleIcon';
 
 interface VerseCardProps {
   _id: Id<'verses'>;
@@ -12,9 +14,12 @@ interface VerseCardProps {
   chapter: number;
   verses?: string[];
   onAddPress?: () => void;
+  onDeletePress?: () => void;
   containerClassName?: string;
   verseTexts: { verse: string; text: string }[];
   canCheck?: boolean;
+  canDelete?: boolean;
+  isSelectedForDelete?: boolean;
 }
 
 const VerseCard: React.FC<VerseCardProps> = ({
@@ -26,12 +31,17 @@ const VerseCard: React.FC<VerseCardProps> = ({
   containerClassName = '',
   verseTexts = [],
   canCheck = true,
+  canDelete = false,
+  onDeletePress,
+  isSelectedForDelete,
 }) => {
   const router = useRouter();
 
   return (
     <Pressable
-      onPress={() => (canCheck ? null : router.push(`/verses/${_id}`))}
+      onPress={() =>
+        canCheck || canDelete ? null : router.push(`/verses/${_id}`)
+      }
       className={`flex-row bg-container rounded-xl items-center py-[18px] px-4 ${containerClassName}`}
     >
       <View className='flex-1 gap-2'>
@@ -44,9 +54,16 @@ const VerseCard: React.FC<VerseCardProps> = ({
           >
             {bookName} {chapter}:{verses.length > 0 ? verses.join(', ') : '1'}
           </ThemedText>
-          {/* <TouchableOpacity className='p-2' onPress={onAddPress}>
-            <AddCircleIcon color={'#000'} />
-          </TouchableOpacity> */}
+
+          {canDelete && (
+            <TouchableOpacity className='' onPress={onDeletePress}>
+              {isSelectedForDelete ? (
+                <CheckmarkCircleIcon />
+              ) : (
+                <CircleIcon color={'#000'} />
+              )}
+            </TouchableOpacity>
+          )}
         </View>
 
         <ThemedText
