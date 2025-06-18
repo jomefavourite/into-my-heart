@@ -25,6 +25,26 @@ export const Verse = {
   reviewFreq: v.string(),
 };
 
+export const Collection = {
+  userId: v.id('users'), // Reference to the user who created the collection
+  collectionName: v.string(),
+  versesLength: v.number(),
+  collectionVerses: v.array(
+    v.object({
+      bookName: v.string(),
+      chapter: v.number(),
+      verses: v.array(v.string()),
+      reviewFreq: v.string(),
+      verseTexts: v.array(
+        v.object({
+          verse: v.string(),
+          text: v.string(),
+        })
+      ),
+    })
+  ),
+};
+
 export const VerseSuggestion = {
   userId: v.id('users'),
   bookName: v.string(),
@@ -50,26 +70,6 @@ export const CollectionSuggestion = {
     })
   ),
   reviewFreq: v.string(),
-};
-
-export const Collection = {
-  collectionName: v.string(),
-  versesLength: v.number(), // Total number of verses in the collection
-  collectionVerses: v.array(
-    v.object({
-      bookName: v.string(),
-      chapter: v.number(),
-      verses: v.array(v.string()),
-      verseTexts: v.array(
-        v.object({
-          verse: v.string(),
-          text: v.string(),
-        })
-      ),
-      reviewFreq: v.string(),
-    })
-  ),
-  userId: v.id('users'), // Reference to the user who created the collection
 };
 
 export default defineSchema({

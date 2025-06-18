@@ -12,8 +12,8 @@ export const addCollection = mutation({
         bookName: v.string(),
         chapter: v.number(),
         verses: v.array(v.string()),
-        reviewFreq: v.string(), // e.g., "daily", "weekly", "monthly"
-        versesTexts: v.array(
+        reviewFreq: v.string(),
+        verseTexts: v.array(
           v.object({
             verse: v.string(),
             text: v.string(),

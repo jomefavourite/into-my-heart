@@ -7,6 +7,7 @@ import {
   ThemeProvider,
   DefaultTheme,
   DarkTheme,
+  NavigationContainer,
 } from '@react-navigation/native';
 import {
   Redirect,
@@ -38,6 +39,7 @@ import AllBottomSheet from '~/components/AllBottomSheet';
 import TabBarSidebar from '~/components/TabBarSidebar';
 import { PortalHost } from '@rn-primitives/portal';
 import { ConvexQueryCacheProvider } from 'convex-helpers/react/cache';
+import * as SystemUI from 'expo-system-ui';
 
 // import * as Sentry from '@sentry/react-native';
 // import { isRunningInExpoGo } from 'expo';
@@ -79,10 +81,15 @@ export {
   ErrorBoundary,
 } from 'expo-router';
 
-function InitialLayout() {
+function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
   const { isLoaded, isSignedIn } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+
+  // This prevent flash of white on navigation
+  SystemUI.setBackgroundColorAsync(
+    isDarkMode ? NAV_THEME.dark.background : NAV_THEME.light.background
+  );
 
   useFrameworkReady();
 
@@ -125,6 +132,16 @@ function InitialLayout() {
       <Stack
         screenOptions={{
           headerShown: false,
+          contentStyle: {
+            backgroundColor: isDarkMode
+              ? 'hsl(240 10% 3.9%)'
+              : 'hsl(0 0% 100%)',
+          },
+          headerStyle: {
+            backgroundColor: isDarkMode
+              ? 'hsl(240 10% 3.9%)'
+              : 'hsl(0 0% 100%)',
+          },
         }}
       />
 
@@ -179,7 +196,7 @@ function RootLayout() {
         <ConvexQueryCacheProvider>
           <ThemeProvider value={isDarkMode ? DARK_THEME : LIGHT_THEME}>
             <GestureHandlerRootView style={{ flex: 1 }}>
-              <InitialLayout />
+              <InitialLayout isDarkMode={isDarkMode} />
               <PortalHost />
               <StatusBar style='auto' />
             </GestureHandlerRootView>

@@ -4,9 +4,11 @@ import ThemedText from '../ThemedText';
 import CustomButton from '../CustomButton';
 import ArrowRightIcon from '../icons/ArrowRightIcon';
 import { useRouter } from 'expo-router';
+import { useIsCollOrVerse } from '~/store/tab-store';
 
 export default function AddVersesEmpty({ collection = false }) {
   const router = useRouter();
+  const { setIsCollOrVerse } = useIsCollOrVerse();
 
   return (
     <View className='bg-container p-7 rounded-2xl '>
@@ -21,11 +23,14 @@ export default function AddVersesEmpty({ collection = false }) {
         rightIcon
         Icon={ArrowRightIcon}
         className='mt-3'
-        onPress={() =>
-          collection
-            ? router.push('/verses/create-collection')
-            : router.push('/verses/select-book')
-        }
+        onPress={() => {
+          setIsCollOrVerse(collection ? 'collections' : 'verses');
+          if (collection) {
+            router.push('/verses/create-collection');
+          } else {
+            router.push('/verses/select-book');
+          }
+        }}
       >
         {collection ? 'Create Collection' : 'Add verse'}
       </CustomButton>
