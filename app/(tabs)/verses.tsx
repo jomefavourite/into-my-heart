@@ -13,7 +13,11 @@ import GridViewIcon from '~/components/icons/GridViewIcon';
 import { Button } from '~/components/ui/button';
 import { useRouter } from 'expo-router';
 import ListViewIcon from '~/components/icons/ListViewIcon';
-import { useIsCollOrVerse, useVersesTabStore } from '~/store/tab-store';
+import {
+  useGridListView,
+  useIsCollOrVerse,
+  useVersesTabStore,
+} from '~/store/tab-store';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   DropdownMenu,
@@ -26,7 +30,8 @@ export default function VersesHomeScreen() {
   const { activeTab, setActiveTab } = useVersesTabStore();
 
   const { setIsCollOrVerse } = useIsCollOrVerse();
-  const [gridView, setGridView] = useState<boolean>(false);
+  const { gridView, setGridView } = useGridListView();
+
   const router = useRouter();
 
   // console.log(activeTab, 'activeTab in verses home screen');

@@ -17,6 +17,7 @@ import ArrowRightIcon from '~/components/icons/ArrowRightIcon';
 import AddVersesEmpty from '~/components/EmptyScreen/AddVersesEmpty';
 import { useMutation } from 'convex/react';
 import { api } from '~/convex/_generated/api';
+import { useIsCollOrVerse } from '~/store/tab-store';
 
 const CreateCollection = () => {
   const router = useRouter();
@@ -25,6 +26,7 @@ const CreateCollection = () => {
     useBookStore();
 
   const addCollection = useMutation(api.collections.addCollection);
+  const { setIsCollOrVerse } = useIsCollOrVerse();
 
   const [hasInputError, setHasInputError] = useState(false);
 
@@ -91,7 +93,10 @@ const CreateCollection = () => {
           <Button
             size={'icon'}
             variant={'ghost'}
-            onPress={() => router.push('/verses/select-book')}
+            onPress={() => {
+              setIsCollOrVerse('collections');
+              router.push('/verses/select-book');
+            }}
           >
             <AddIcon stroke='white' />
           </Button>
@@ -105,6 +110,7 @@ const CreateCollection = () => {
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item }) => (
               <VerseCard
+                // _id={item._id}
                 bookName={item.bookName}
                 chapter={item.chapter}
                 verses={item.verses}

@@ -18,3 +18,13 @@ export const useIsCollOrVerse = create<IsCollOrVerseStore>((set) => ({
   isCollOrVerse: null,
   setIsCollOrVerse: (value) => set({ isCollOrVerse: value }),
 }));
+
+type GridListView = {
+  gridView: boolean;
+  setGridView: (value: boolean) => void;
+};
+
+export const useGridListView = create<GridListView>((set) => ({
+  gridView: false,
+  setGridView: (value) => set({ gridView: value }),
+}));
