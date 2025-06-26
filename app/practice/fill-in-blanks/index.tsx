@@ -105,7 +105,9 @@ export default function FillInBlanks() {
                 />
               </View>
 
-              <CustomButton onPress={() => console.log('Practice started')}>
+              <CustomButton
+                onPress={() => router.push('/practice/fill-in-blanks/pratice')}
+              >
                 Start Practice
               </CustomButton>
             </View>
