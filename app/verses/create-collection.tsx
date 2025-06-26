@@ -103,7 +103,7 @@ const CreateCollection = () => {
         </View>
 
         <View className='flex-1 justify-between'>
-          {collectionVerses.length < 1 && <AddVersesEmpty />}
+          {collectionVerses.length < 1 && <AddVersesEmpty collection />}
 
           <FlatList
             data={collectionVerses}
@@ -114,6 +114,7 @@ const CreateCollection = () => {
                 bookName={item.bookName}
                 chapter={item.chapter}
                 verses={item.verses}
+                verseTexts={item.verseTexts}
                 onAddPress={() => console.log(`${item} pressed`)}
                 canCheck={false}
                 // containerClassName={gridView ? 'w-[50%]' : 'w-full'}

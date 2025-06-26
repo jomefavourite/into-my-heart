@@ -135,7 +135,7 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
         }}
       />
 
-      <AllBottomSheet />
+      {/* <AllBottomSheet /> */}
     </>
   );
 }

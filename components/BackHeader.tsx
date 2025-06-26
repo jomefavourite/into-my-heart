@@ -4,6 +4,8 @@ import { Href, useRouter } from 'expo-router';
 import { Button } from './ui/button';
 import { Platform, View } from 'react-native';
 import Breadcrumb from './ui/Breadcrumb';
+import { memo } from 'react';
+import { Id } from '~/convex/_generated/dataModel';
 
 type BreadcrumbItem = {
   label: string;
@@ -16,21 +18,26 @@ type BackHeaderProps = {
   TitleComponent?: React.ReactNode;
   title?: string;
   items: BreadcrumbItem[];
-  canDelete?: boolean;
+  BreadcrumbRightComponent?: React.ReactNode;
 };
 
-export default function BackHeader({
+function BackHeader({
   RightComponent,
   LiftComponent,
   TitleComponent,
   title,
   items,
-  canDelete,
+  BreadcrumbRightComponent,
 }: BackHeaderProps) {
   const router = useRouter();
 
   if (Platform.OS === 'web') {
-    return <Breadcrumb items={items} canDelete={canDelete} />;
+    return (
+      <Breadcrumb
+        items={items}
+        BreadcrumbRightComponent={BreadcrumbRightComponent}
+      />
+    );
   }
 
   return (
@@ -65,3 +72,5 @@ export default function BackHeader({
     </View>
   );
 }
+
+export default memo(BackHeader);

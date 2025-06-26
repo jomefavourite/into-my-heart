@@ -7,6 +7,8 @@ import ThemedText from '../ThemedText';
 import { cn } from '~/lib/utils';
 import { Button } from './button';
 import RemoveCircleIcon from '../icons/RemoveCircleIcon';
+import DeleteIcon from '../icons/DeleteIcon';
+import { Id } from '~/convex/_generated/dataModel';
 
 type BreadcrumbItem = {
   label: string;
@@ -15,10 +17,10 @@ type BreadcrumbItem = {
 
 type BreadcrumbProps = {
   items: BreadcrumbItem[];
-  canDelete?: boolean;
+  BreadcrumbRightComponent?: React.ReactNode;
 };
 
-function Breadcrumb({ items, canDelete }: BreadcrumbProps) {
+function Breadcrumb({ items, BreadcrumbRightComponent }: BreadcrumbProps) {
   const { isDarkMode } = useColorScheme();
 
   // const textColor = isDark ? colors.dark.text.primary : colors.light.text.primary;
@@ -49,15 +51,7 @@ function Breadcrumb({ items, canDelete }: BreadcrumbProps) {
         ))}
       </View>
 
-      {canDelete && (
-        <Button
-          size={'icon'}
-          variant={'ghost'}
-          // onPress={() => setShouldDelete(true)}
-        >
-          <RemoveCircleIcon />
-        </Button>
-      )}
+      {BreadcrumbRightComponent}
     </View>
   );
 }

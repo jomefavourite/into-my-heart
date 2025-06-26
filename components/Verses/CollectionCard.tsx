@@ -27,7 +27,9 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
 
   return (
     <Pressable
-      onPress={() => (canCheck ? null : router.push(`/verses/${_id}`))}
+      onPress={() =>
+        canCheck ? null : router.push(`/verses/collection/${_id}`)
+      }
       className={`flex-row bg-container rounded-xl items-center py-[18px] px-4 ${containerClassName}`}
     >
       <View className='flex-1 gap-2'>

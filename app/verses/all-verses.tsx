@@ -1,7 +1,6 @@
 import { View, Text, ScrollView } from 'react-native';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Button } from '~/components/ui/button';
-import { useRouter } from 'expo-router';
 import RemoveCircleIcon from '~/components/icons/RemoveCircleIcon';
 import BackHeader from '~/components/BackHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -27,6 +26,7 @@ const AllVersesScreen = () => {
   const [selectedToDelete, setSelectedToDelete] = useState<Id<'verses'>[]>([]);
   const [bottomSheetIndex, setBottomSheetIndex] = useState(-1);
   const { isDarkMode } = useColorScheme();
+  const bottomSheetRef = useRef<BottomSheet>(null);
 
   const { results, status, loadMore } = usePaginatedQuery(
     api.verses.getAllVerses,
@@ -45,14 +45,43 @@ const AllVersesScreen = () => {
   const handleDeleteVerses: () => Promise<void> = async () => {
     await deleteVerses({ ids: selectedToDelete });
     // toast is needed here
+
+    setSelectedToDelete([]);
     setBottomSheetIndex(-1);
+    setShouldDelete(false);
+    bottomSheetRef.current?.close();
   };
+
+  const RightComponent = (
+    <>
+      {!shouldDelete && (
+        <Button
+          size={'icon'}
+          variant={'ghost'}
+          onPress={() => setShouldDelete(true)}
+        >
+          <RemoveCircleIcon />
+        </Button>
+      )}
+
+      {shouldDelete && (
+        <Button
+          size={'icon'}
+          variant={'ghost'}
+          disabled={selectedToDelete?.length === 0}
+          onPress={() => setBottomSheetIndex(1)}
+        >
+          <DeleteIcon />
+        </Button>
+      )}
+    </>
+  );
 
   return (
     <SafeAreaView className='flex-1'>
       <BackHeader
         title={shouldDelete ? 'Delete Verses' : 'My Verses'}
-        canDelete
+        BreadcrumbRightComponent={RightComponent}
         LiftComponent={
           shouldDelete ? (
             <Button
@@ -64,30 +93,7 @@ const AllVersesScreen = () => {
             </Button>
           ) : null
         }
-        RightComponent={
-          <>
-            {shouldDelete && (
-              <Button
-                size={'icon'}
-                variant={'ghost'}
-                onPress={() => setBottomSheetIndex(1)}
-              >
-                <DeleteIcon />
-              </Button>
-            )}
-
-            {!shouldDelete && (
-              <Button
-                size={'icon'}
-                variant={'ghost'}
-                disabled={results.length === 0}
-                onPress={() => setShouldDelete(true)}
-              >
-                <RemoveCircleIcon />
-              </Button>
-            )}
-          </>
-        }
+        RightComponent={RightComponent}
         items={[
           { label: 'Verses', href: '/verses' },
           { label: 'All My Verses', href: '/verses/all-verses' },
@@ -130,6 +136,7 @@ const AllVersesScreen = () => {
       </View>
 
       <BottomSheet
+        ref={bottomSheetRef}
         index={bottomSheetIndex}
         snapPoints={['25%']}
         enablePanDownToClose={true}
