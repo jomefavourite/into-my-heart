@@ -1,10 +1,9 @@
 import React, { memo } from 'react';
-import { View, Text, TouchableOpacity, Pressable } from 'react-native';
+import { View, TouchableOpacity, Pressable } from 'react-native';
 import AddCircleIcon from '~/components/icons/AddCircleIcon';
 import ThemedText from '../ThemedText';
 import { useRouter } from 'expo-router';
 import { Id } from '~/convex/_generated/dataModel';
-import { Link } from 'expo-router';
 
 interface CollectionCardProps {
   _id: Id<'collections'>;

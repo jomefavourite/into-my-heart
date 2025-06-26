@@ -92,6 +92,8 @@ export const getVerseById = query({
     id: v.id('verses'),
   },
   handler: async (ctx, args) => {
+    await getCurrentUserOrThrow(ctx);
+
     const verse = await ctx.db.get(args.id);
     return verse;
   },

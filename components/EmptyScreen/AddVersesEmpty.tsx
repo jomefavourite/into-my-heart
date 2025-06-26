@@ -28,7 +28,7 @@ export default function AddVersesEmpty({ collection = false }) {
           router.push('/verses/select-book');
         }}
       >
-        {collection ? 'Create Collection' : 'Add Verse'}
+        Add Verse
       </CustomButton>
     </View>
   );

@@ -25,8 +25,8 @@ const AllVersesScreen = () => {
   const [shouldDelete, setShouldDelete] = useState(false);
   const [selectedToDelete, setSelectedToDelete] = useState<Id<'verses'>[]>([]);
   const [bottomSheetIndex, setBottomSheetIndex] = useState(-1);
-  const { isDarkMode } = useColorScheme();
   const bottomSheetRef = useRef<BottomSheet>(null);
+  const { isDarkMode } = useColorScheme();
 
   const { results, status, loadMore } = usePaginatedQuery(
     api.verses.getAllVerses,
@@ -154,14 +154,14 @@ const AllVersesScreen = () => {
         <BottomSheetView className='flex-1 p-4'>
           <View className='mx-auto mt-6 mb-6'>
             <ThemedText className='text-black text-center font-medium dark:text-white mb-6'>
-              This verse will be removed
+              These verses will be removed
             </ThemedText>
             <ThemedText className='text-black text-center font-medium dark:text-white mb-6'>
-              This verse will be removed and all progress. This action cannot be
-              undone.
+              These verses will be removed and all progress. This action cannot
+              be undone.
             </ThemedText>
             <CustomButton onPress={handleDeleteVerses}>
-              Remove verse
+              Remove verses
             </CustomButton>
           </View>
         </BottomSheetView>
