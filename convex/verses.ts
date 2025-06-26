@@ -86,3 +86,15 @@ export const deleteVerses = mutation({
     await Promise.all(validIds.map((id) => ctx.db.delete(id)));
   },
 });
+
+export const getVerseById = query({
+  args: {
+    id: v.id('verses'),
+  },
+  handler: async (ctx, args) => {
+    await getCurrentUserOrThrow(ctx);
+
+    const verse = await ctx.db.get(args.id);
+    return verse;
+  },
+});

@@ -47,7 +47,7 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
       <View>
         <View className='flex-row items-center justify-between'>
           <ThemedText size={18} variant='semibold' className='py-2'>
-            My Verse
+            My Verses ({getVerses?.length ?? 0})
           </ThemedText>
 
           <Button

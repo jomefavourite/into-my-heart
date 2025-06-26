@@ -1,10 +1,9 @@
 import React, { memo } from 'react';
-import { View, Text, TouchableOpacity, Pressable } from 'react-native';
+import { View, TouchableOpacity, Pressable } from 'react-native';
 import AddCircleIcon from '~/components/icons/AddCircleIcon';
 import ThemedText from '../ThemedText';
 import { useRouter } from 'expo-router';
 import { Id } from '~/convex/_generated/dataModel';
-import { Link } from 'expo-router';
 
 interface CollectionCardProps {
   _id: Id<'collections'>;
@@ -27,7 +26,9 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
 
   return (
     <Pressable
-      onPress={() => (canCheck ? null : router.push(`/verses/${_id}`))}
+      onPress={() =>
+        canCheck ? null : router.push(`/verses/collection/${_id}`)
+      }
       className={`flex-row bg-container rounded-xl items-center py-[18px] px-4 ${containerClassName}`}
     >
       <View className='flex-1 gap-2'>

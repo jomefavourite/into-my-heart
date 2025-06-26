@@ -243,6 +243,19 @@ export default function VerseSummary() {
           </View>
         </View>
 
+        <View>
+          {/* <ThemedText
+          numberOfLines={2}
+          ellipsizeMode='tail'
+          size={13}
+          className='w-fit text-[#707070] dark:text-[#909090] !overflow-hidden !text-ellipsis'
+        >
+          {verseTexts.length > 0
+            ? verseTexts.map((text, index) => `${text.verse}. ${text.text} `)
+            : '...'}
+        </ThemedText> */}
+        </View>
+
         <CustomButton
           isLoading={isLoading}
           className='my-5'

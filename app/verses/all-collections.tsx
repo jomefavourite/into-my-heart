@@ -53,7 +53,7 @@ const AllCollectionScreen = () => {
   return (
     <SafeAreaView className='flex-1'>
       <BackHeader
-        title={shouldDelete ? 'Delete Collections' : 'My Collections'}
+        title={shouldDelete ? 'Delete Collections' : 'All Collections'}
         canDelete
         LiftComponent={
           shouldDelete ? (

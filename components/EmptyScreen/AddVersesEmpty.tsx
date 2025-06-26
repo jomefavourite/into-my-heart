@@ -25,14 +25,10 @@ export default function AddVersesEmpty({ collection = false }) {
         className='mt-3'
         onPress={() => {
           setIsCollOrVerse(collection ? 'collections' : 'verses');
-          if (collection) {
-            router.push('/verses/create-collection');
-          } else {
-            router.push('/verses/select-book');
-          }
+          router.push('/verses/select-book');
         }}
       >
-        {collection ? 'Create Collection' : 'Add verse'}
+        Add Verse
       </CustomButton>
     </View>
   );

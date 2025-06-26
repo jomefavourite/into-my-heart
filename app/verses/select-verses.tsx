@@ -25,7 +25,7 @@ export default function SelectVerses() {
     setVerses,
   } = useBookStore();
 
-  console.log(verses);
+  // console.log(verses);
 
   const bookName = bookURL || bookName1;
   const chapter = chapterURL || chapter1;
@@ -42,6 +42,14 @@ export default function SelectVerses() {
     // console.log(verses, verses.join(','));
     router.push(`/verses/verse-summary`);
   }, [bookName, chapter, verses]);
+
+  const handleAddAllVerse = useCallback(() => {
+    const newVerses = Array.from(
+      { length: Number(versesLength) },
+      (_, index) => `${index + 1}`
+    );
+    setVerses(newVerses);
+  }, [versesLength]);
 
   return (
     <SafeAreaView className='flex-1'>
@@ -86,7 +94,10 @@ export default function SelectVerses() {
           </ToggleGroup>
         </ScrollView>
 
-        <View className='my-5'>
+        <View className='my-5 gap-3'>
+          <CustomButton variant='outline' onPress={handleAddAllVerse}>
+            Add entire chapter
+          </CustomButton>
           <CustomButton
             onPress={() => handlePress()}
             disabled={verses.length === 0}

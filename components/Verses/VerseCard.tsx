@@ -9,7 +9,7 @@ import CircleIcon from '../icons/CircleIcon';
 import CheckmarkCircleIcon from '../icons/CheckmarkCircleIcon';
 
 interface VerseCardProps {
-  _id: Id<'verses'>;
+  _id?: Id<'verses'>;
   bookName: string;
   chapter: number;
   verses?: string[];
@@ -20,6 +20,7 @@ interface VerseCardProps {
   canCheck?: boolean;
   canDelete?: boolean;
   isSelectedForDelete?: boolean;
+  noRoute?: boolean;
 }
 
 const VerseCard: React.FC<VerseCardProps> = ({
@@ -34,13 +35,14 @@ const VerseCard: React.FC<VerseCardProps> = ({
   canDelete = false,
   onDeletePress,
   isSelectedForDelete,
+  noRoute = false,
 }) => {
   const router = useRouter();
 
   return (
     <Pressable
       onPress={() =>
-        canCheck || canDelete ? null : router.push(`/verses/${_id}`)
+        canCheck || canDelete || noRoute ? null : router.push(`/verses/${_id}`)
       }
       className={`flex-row bg-container rounded-xl items-center py-[18px] px-4 ${containerClassName}`}
     >

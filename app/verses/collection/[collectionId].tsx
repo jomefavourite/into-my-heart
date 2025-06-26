@@ -1,55 +1,91 @@
-import { View, Text, ScrollView } from 'react-native';
+import { View } from 'react-native';
 import React, { useRef, useState } from 'react';
+import { router, useLocalSearchParams, useRouter } from 'expo-router';
+import { useQuery } from 'convex-helpers/react/cache';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import ThemedText from '~/components/ThemedText';
+import BackHeader from '~/components/BackHeader';
 import { Button } from '~/components/ui/button';
 import RemoveCircleIcon from '~/components/icons/RemoveCircleIcon';
-import BackHeader from '~/components/BackHeader';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Id } from '~/convex/_generated/dataModel';
 import { api } from '~/convex/_generated/api';
-import { usePaginatedQuery } from 'convex-helpers/react/cache';
-import { FlatList } from 'react-native-gesture-handler';
+import { FlatList } from 'react-native';
 import AddVersesEmpty from '~/components/EmptyScreen/AddVersesEmpty';
 import VerseCard from '~/components/Verses/VerseCard';
 import ItemSeparator from '~/components/ItemSeparator';
-import ThemedText from '~/components/ThemedText';
+import { useGridListView } from '~/store/tab-store';
+import CustomButton from '~/components/CustomButton';
+import CancelIcon from '~/components/icons/CancelIcon';
 import DeleteIcon from '~/components/icons/DeleteIcon';
-import { Id } from '~/convex/_generated/dataModel';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { useColorScheme } from '~/hooks/useColorScheme';
-import CustomButton from '~/components/CustomButton';
 import { useMutation } from 'convex/react';
-import CancelIcon from '~/components/icons/CancelIcon';
-import { useGridListView } from '~/store/tab-store';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '~/components/ui/dropdown-menu';
+import MoreVerticalIcon from '~/components/icons/MoreVerticalIcon';
+import { useBookStore } from '~/store/bookStore';
 
-const AllVersesScreen = () => {
+export default function CollectionPage() {
+  const { collectionId } = useLocalSearchParams();
   const { gridView } = useGridListView();
   const [shouldDelete, setShouldDelete] = useState(false);
-  const [selectedToDelete, setSelectedToDelete] = useState<Id<'verses'>[]>([]);
+  const [selectedToDelete, setSelectedToDelete] = useState<number[]>([]);
   const [bottomSheetIndex, setBottomSheetIndex] = useState(-1);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const { isDarkMode } = useColorScheme();
+  const router = useRouter();
+  const { setCollectionName, setCollectionVerses, setIsCollectionUpdate } =
+    useBookStore();
 
-  const { results, status, loadMore } = usePaginatedQuery(
-    api.verses.getAllVerses,
-    {},
-    { initialNumItems: 20 }
+  const collection = useQuery(api.collections.getCollectionById, {
+    id: collectionId as Id<'collections'>,
+  });
+
+  const updateCollectionVerses = useMutation(
+    api.collections.updateCollectionVerses
   );
 
-  const deleteVerses = useMutation(api.verses.deleteVerses);
-
-  const toggleSelectedVerse = (_id: Id<'verses'>) => {
+  const toggleSelectedVerse = (index: number) => {
     setSelectedToDelete((prev) =>
-      prev.includes(_id) ? prev.filter((id) => id !== _id) : [...prev, _id]
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
     );
   };
 
-  const handleDeleteVerses: () => Promise<void> = async () => {
-    await deleteVerses({ ids: selectedToDelete });
+  const handleDeleteCollections: () => Promise<void> = async () => {
+    await updateCollectionVerses({
+      id: collectionId as Id<'collections'>,
+      collectionVerses:
+        collection?.collectionVerses?.filter(
+          (_, index) => !selectedToDelete.includes(index)
+        ) ?? [],
+    });
     // toast is needed here
 
     setSelectedToDelete([]);
     setBottomSheetIndex(-1);
     setShouldDelete(false);
     bottomSheetRef.current?.close();
+  };
+
+  const handleAddVerses = () => {
+    setCollectionName(collection?.collectionName ?? '');
+
+    collection?.collectionVerses.forEach((verse) => {
+      setCollectionVerses({
+        bookName: verse.bookName,
+        chapter: verse.chapter,
+        verses: verse.verses,
+        reviewFreq: verse.reviewFreq,
+        verseTexts: verse.verseTexts,
+      });
+    });
+
+    setIsCollectionUpdate(true);
+    router.push(`/verses/create-collection?id=${collectionId}`);
   };
 
   const RightComponent = (
@@ -80,7 +116,7 @@ const AllVersesScreen = () => {
   return (
     <SafeAreaView className='flex-1'>
       <BackHeader
-        title={shouldDelete ? 'Delete Verses' : 'My Verses'}
+        title={shouldDelete ? 'Delete Verses' : collection?.collectionName}
         BreadcrumbRightComponent={RightComponent}
         LiftComponent={
           shouldDelete ? (
@@ -93,17 +129,47 @@ const AllVersesScreen = () => {
             </Button>
           ) : null
         }
-        RightComponent={RightComponent}
+        RightComponent={
+          <>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size={'icon'} variant={'ghost'}>
+                  <MoreVerticalIcon stroke='white' />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className='mr-4'>
+                <DropdownMenuItem onPress={handleAddVerses}>
+                  <ThemedText size={14} variant='medium'>
+                    Edit collection
+                  </ThemedText>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onPress={() => {
+                    // setIsCollOrVerse('collections');
+                  }}
+                >
+                  <ThemedText size={14} variant='medium'>
+                    Delete Verses
+                  </ThemedText>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
+        }
         items={[
           { label: 'Verses', href: '/verses' },
-          { label: 'All My Verses', href: '/verses/all-verses' },
+          { label: 'All collections', href: '/verses/all-collections' },
+          { label: 'Collection Page', href: `/verses/${collectionId}` },
         ]}
       />
+      <View className='flex-1 justify-between px-[18px] pb-[18px]'>
+        <ThemedText className='text-lg font-bold hidden md:block'>
+          {collection?.collectionName}
+        </ThemedText>
 
-      <View className='flex-1 px-[18px]'>
         <FlatList
           key={gridView ? 'grid-myverses' : 'list-myverses'}
-          data={results}
+          data={collection?.collectionVerses}
           keyExtractor={(item, index) => index.toString()}
           numColumns={gridView ? 2 : 1}
           ListEmptyComponent={() => (
@@ -113,9 +179,8 @@ const AllVersesScreen = () => {
               <AddVersesEmpty />
             </>
           )}
-          renderItem={({ item }) => (
+          renderItem={({ item, index }) => (
             <VerseCard
-              _id={item._id}
               bookName={item.bookName}
               chapter={item.chapter}
               verses={item.verses}
@@ -123,16 +188,19 @@ const AllVersesScreen = () => {
               containerClassName={gridView ? 'w-[50%]' : 'w-full'}
               canCheck={false}
               canDelete={shouldDelete}
-              onDeletePress={() => toggleSelectedVerse(item._id)}
-              isSelectedForDelete={selectedToDelete.includes(item._id)}
+              onDeletePress={() => toggleSelectedVerse(index)}
+              isSelectedForDelete={selectedToDelete.includes(index)}
+              noRoute={true}
             />
           )}
           columnWrapperStyle={
             gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
           }
           ItemSeparatorComponent={ItemSeparator}
-          scrollEnabled={false}
+          // scrollEnabled={false}
         />
+
+        <CustomButton>Start practice</CustomButton>
       </View>
 
       <BottomSheet
@@ -160,7 +228,7 @@ const AllVersesScreen = () => {
               These verses will be removed and all progress. This action cannot
               be undone.
             </ThemedText>
-            <CustomButton onPress={handleDeleteVerses}>
+            <CustomButton onPress={handleDeleteCollections}>
               Remove verses
             </CustomButton>
           </View>
@@ -168,6 +236,4 @@ const AllVersesScreen = () => {
       </BottomSheet>
     </SafeAreaView>
   );
-};
-
-export default AllVersesScreen;
+}

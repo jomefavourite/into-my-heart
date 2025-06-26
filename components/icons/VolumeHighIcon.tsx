@@ -8,7 +8,7 @@ const VolumeHighIcon = (props: SvgProps) => {
   return (
     <Svg width={24} height={24} fill='none' {...props}>
       <Path
-        stroke={isDarkMode ? '#fff' : '#303030'}
+        stroke={isDarkMode ? '#303030' : '#fff'}
         strokeLinecap='round'
         strokeLinejoin='round'
         strokeWidth={1.5}

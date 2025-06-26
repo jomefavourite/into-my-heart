@@ -18,14 +18,24 @@ import AddVersesEmpty from '~/components/EmptyScreen/AddVersesEmpty';
 import { useMutation } from 'convex/react';
 import { api } from '~/convex/_generated/api';
 import { useIsCollOrVerse } from '~/store/tab-store';
+import { Id } from '~/convex/_generated/dataModel';
+import { useLocalSearchParams } from 'expo-router';
 
 const CreateCollection = () => {
   const router = useRouter();
+  const { collectionId } = useLocalSearchParams();
 
-  const { collectionName, collectionVerses, setCollectionName, resetAll } =
-    useBookStore();
+  const {
+    collectionName,
+    collectionVerses,
+    setCollectionName,
+    resetAll,
+    isCollectionUpdate,
+  } = useBookStore();
 
   const addCollection = useMutation(api.collections.addCollection);
+  const updateCollection = useMutation(api.collections.updateCollection);
+
   const { setIsCollOrVerse } = useIsCollOrVerse();
 
   const [hasInputError, setHasInputError] = useState(false);
@@ -50,7 +60,14 @@ const CreateCollection = () => {
     };
 
     try {
-      await addCollection(payload);
+      if (isCollectionUpdate) {
+        await updateCollection({
+          id: collectionId as Id<'collections'>,
+          ...payload,
+        });
+      } else {
+        await addCollection(payload);
+      }
       resetAll();
       router.push('/verses#collections');
     } catch (error) {
@@ -103,7 +120,7 @@ const CreateCollection = () => {
         </View>
 
         <View className='flex-1 justify-between'>
-          {collectionVerses.length < 1 && <AddVersesEmpty />}
+          {collectionVerses.length < 1 && <AddVersesEmpty collection />}
 
           <FlatList
             data={collectionVerses}
@@ -114,6 +131,7 @@ const CreateCollection = () => {
                 bookName={item.bookName}
                 chapter={item.chapter}
                 verses={item.verses}
+                verseTexts={item.verseTexts}
                 onAddPress={() => console.log(`${item} pressed`)}
                 canCheck={false}
                 // containerClassName={gridView ? 'w-[50%]' : 'w-full'}
