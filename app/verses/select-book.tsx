@@ -70,6 +70,7 @@ const ChapterItem = React.memo(
 export default function AddBookScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [ready, setReady] = useState(false);
+  const { setVerses } = useBookStore();
 
   // Defer rendering to after transition
   useEffect(() => {
@@ -79,11 +80,16 @@ export default function AddBookScreen() {
     return () => task.cancel();
   }, []);
 
+  // Reset verses when the screen is loaded
+  useEffect(() => {
+    setVerses([]);
+  }, []);
+
   const filteredBooks = useMemo(() => {
     if (!searchQuery.trim()) return BOOKS;
     const lower = searchQuery.trim().toLowerCase();
     return BOOKS.filter(
-      (book) =>
+      book =>
         book.name.toLowerCase().includes(lower) ||
         book.abbreviation.toLowerCase().includes(lower)
     );
@@ -125,7 +131,7 @@ export default function AddBookScreen() {
         contentContainerStyle={{ paddingBottom: 24 }}
       >
         <Accordion type='single' collapsible>
-          {filteredBooks.map((book) => (
+          {filteredBooks.map(book => (
             <AccordionItem key={book.id} value={book.id}>
               <AccordionTrigger className='hover:no-underline'>
                 <View className='flex-row items-center justify-between w-full'>
@@ -140,7 +146,7 @@ export default function AddBookScreen() {
                     { length: book.chaptersLength },
                     (_, i) => i + 1
                   )}
-                  keyExtractor={(item) => item.toString()}
+                  keyExtractor={item => item.toString()}
                   numColumns={numColumns}
                   scrollEnabled={false}
                   contentContainerStyle={{ paddingBottom: 10 }}

@@ -40,6 +40,8 @@ import TabBarSidebar from '~/components/TabBarSidebar';
 import { PortalHost } from '@rn-primitives/portal';
 import { ConvexQueryCacheProvider } from 'convex-helpers/react/cache';
 import * as SystemUI from 'expo-system-ui';
+import { ConvexQueryClient } from '@convex-dev/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // import * as Sentry from '@sentry/react-native';
 // import { isRunningInExpoGo } from 'expo';
@@ -59,6 +61,21 @@ const DARK_THEME: Theme = {
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
   unsavedChangesWarning: false,
 });
+
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: 2 } },
+});
+
+// const convexQueryClient = new ConvexQueryClient(convex);
+// const queryClient = new QueryClient({
+//   defaultOptions: {
+//     queries: {
+//       queryKeyHashFn: convexQueryClient.hashFn(),
+//       queryFn: convexQueryClient.queryFn(),
+//     },
+//   },
+// });
+// convexQueryClient.connect(queryClient);
 
 // const navigationIntegration = Sentry.reactNavigationIntegration({
 //   enableTimeToInitialDisplay: !isRunningInExpoGo(),
@@ -184,13 +201,15 @@ function RootLayout() {
       {/* <ClerkLoaded> */}
       <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
         <ConvexQueryCacheProvider>
-          <ThemeProvider value={isDarkMode ? DARK_THEME : LIGHT_THEME}>
-            <GestureHandlerRootView style={{ flex: 1 }}>
-              <InitialLayout isDarkMode={isDarkMode} />
-              <PortalHost />
-              <StatusBar style='auto' />
-            </GestureHandlerRootView>
-          </ThemeProvider>
+          <QueryClientProvider client={queryClient}>
+            <ThemeProvider value={isDarkMode ? DARK_THEME : LIGHT_THEME}>
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <InitialLayout isDarkMode={isDarkMode} />
+                <PortalHost />
+                <StatusBar style='auto' />
+              </GestureHandlerRootView>
+            </ThemeProvider>
+          </QueryClientProvider>
         </ConvexQueryCacheProvider>
       </ConvexProviderWithClerk>
       {/* </ClerkLoaded> */}

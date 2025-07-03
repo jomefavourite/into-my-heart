@@ -1,5 +1,5 @@
-import { View } from 'react-native';
-import React, { useCallback } from 'react';
+import { ScrollView, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import ThemedText from '~/components/ThemedText';
 import BackHeader from '~/components/BackHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,6 +18,7 @@ import { useMutation } from 'convex/react';
 import { api } from '~/convex/_generated/api';
 import { useIsCollOrVerse } from '~/store/tab-store';
 import { ActivityIndicator } from 'react-native';
+import { useQueries, useQuery } from '@tanstack/react-query';
 
 type GetVerseTextsParams = {
   bookName: string;
@@ -44,7 +45,7 @@ const getVerseTexts = async ({
     }
     const verseJson = await verseData.json();
 
-    console.log(`Fetched ${bookName} ${chapter}:${verse}:`, verseJson);
+    // console.log(`Fetched ${bookName} ${chapter}:${verse}:`, verseJson);
     return verseJson; // Return the fetched data if you need it
   } catch (error) {
     console.error(
@@ -73,10 +74,28 @@ export default function VerseSummary() {
 
   const addVerse = useMutation(api.verses.addVerse);
 
-  const versesList = verses ? verses.map(Number) : [];
+  const versesList = useMemo(() => {
+    return verses ? verses.map(Number) : [];
+  }, [verses]);
 
-  const minVerse = Math.min(...versesList);
-  const maxVerse = Math.max(...versesList);
+  const verseTextsList = useQueries({
+    queries: versesList
+      ? versesList.map(verse => ({
+          queryKey: ['verse', bookName, chapter, verse],
+          queryFn: () => getVerseTexts({ bookName, chapter, verse }),
+          enabled: !!bookName && !!chapter && !!verses,
+        }))
+      : [],
+  });
+
+  const verseTexts = verseTextsList.map(query => query.data).filter(Boolean);
+  const isVerseTextsListLoading = verseTextsList.some(query => query.isLoading);
+
+  // const verseTexts = [];
+  // const isVerseTextsListLoading = false;
+
+  const minVerse = useMemo(() => Math.min(...versesList), [versesList]);
+  const maxVerse = useMemo(() => Math.max(...versesList), [versesList]);
 
   const handleBookChange = useCallback(() => {
     router.push('/verses/select-book');
@@ -92,25 +111,12 @@ export default function VerseSummary() {
       return;
     }
 
-    const fetchVersesSequentially = async () => {
-      const allVerseResults = [];
-      for (const verse of versesList) {
-        const result = await getVerseTexts({ bookName, chapter, verse });
-        if (result) {
-          allVerseResults.push(result);
-        }
-      }
-      return allVerseResults;
-    };
-
-    const verseTexts = await fetchVersesSequentially();
-
     if (isCollOrVerse === 'collections') {
       setCollectionVerses({
         bookName,
         chapter,
         reviewFreq: reviewFreqValue,
-        verses: versesList.map((v) => v.toString()),
+        verses: versesList.map(v => v.toString()),
         verseTexts: verseTexts.map((text, index) => ({
           verse: text.verse,
           text: text.text,
@@ -126,7 +132,7 @@ export default function VerseSummary() {
       const payload = {
         bookName: bookName,
         chapter: chapter,
-        verses: versesList.map((v) => v.toString()),
+        verses: versesList.map(v => v.toString()),
         reviewFreq: reviewFreqValue,
         verseTexts: verseTexts.map((text, index) => ({
           verse: text.verse,
@@ -155,108 +161,120 @@ export default function VerseSummary() {
       />
 
       <View className='flex-1 justify-between px-[18px]'>
-        <View className='gap-3'>
-          {isCollOrVerse === 'collections' && (
-            <View className='flex-row items-center justify-between w-full'>
-              <ThemedText size={14}>Collection name</ThemedText>
-              <Button
-                size={'sm'}
-                variant={'ghost'}
-                className='flex-row items-center text-sm'
-                // onPress={handleBookChange}
-              >
-                <ThemedText size={14}>{collectionName}</ThemedText>
-                <ArrowRightIcon />
-              </Button>
-            </View>
-          )}
-          <View className='flex-row items-center justify-between w-full'>
-            <ThemedText size={14}>Book</ThemedText>
-            <Button
-              size={'sm'}
-              variant={'ghost'}
-              className='flex-row items-center text-sm'
-              onPress={handleBookChange}
-            >
-              <ThemedText size={14}>
-                {bookName} {chapter}
-              </ThemedText>
-              <ArrowRightIcon />
-            </Button>
-          </View>
-          <View className='flex-row items-center justify-between w-full'>
-            <ThemedText size={14}>Verses</ThemedText>
-            <Button
-              size={'sm'}
-              variant={'ghost'}
-              className='flex-row items-center text-sm'
-              onPress={() =>
-                router.push(
-                  `/verses/select-verses?book=${bookName}&chapter=${chapter}`
-                )
-              }
-            >
-              <ThemedText size={14}>
-                {versesList.length > 5
-                  ? `${minVerse}...${maxVerse}`
-                  : versesList.sort((a, b) => a - b).join(', ')}
-              </ThemedText>
-              <ArrowRightIcon />
-            </Button>
-          </View>
-          <View className='flex-row items-center justify-between w-full'>
-            <ThemedText size={14}>Bible translation</ThemedText>
-            <Button
-              size={'sm'}
-              variant={'ghost'}
-              className='flex-row items-center text-sm'
-              disabled
-            >
-              <ThemedText size={14}>KJV</ThemedText>
-            </Button>
-          </View>
-          <View className='flex-row items-center justify-between w-full'>
-            <ThemedText size={14}>Review Frequency</ThemedText>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+        <View className='gap-5'>
+          <View className='gap-3'>
+            {isCollOrVerse === 'collections' && (
+              <View className='flex-row items-center justify-between w-full'>
+                <ThemedText size={14}>Collection name</ThemedText>
                 <Button
                   size={'sm'}
                   variant={'ghost'}
                   className='flex-row items-center text-sm'
+                  // onPress={handleBookChange}
                 >
-                  <ThemedText size={14}>{reviewFreqValue}</ThemedText>
+                  <ThemedText size={14}>{collectionName}</ThemedText>
+                  <ArrowRightIcon />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className='w-48 native:w-52 px-0'>
-                <DropdownMenuItem onPress={() => setReviewFreqValue('Daily')}>
-                  <ThemedText>Daily</ThemedText>
-                </DropdownMenuItem>
-                <DropdownMenuItem onPress={() => setReviewFreqValue('Weekly')}>
-                  <ThemedText>Weekly</ThemedText>
-                </DropdownMenuItem>
-                <DropdownMenuItem onPress={() => setReviewFreqValue('Monthly')}>
-                  <ThemedText>Monthly</ThemedText>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </View>
-        </View>
+              </View>
+            )}
+            <View className='flex-row items-center justify-between w-full'>
+              <ThemedText size={14}>Book</ThemedText>
+              <Button
+                size={'sm'}
+                variant={'ghost'}
+                className='flex-row items-center text-sm'
+                onPress={handleBookChange}
+              >
+                <ThemedText size={14}>
+                  {bookName} {chapter}
+                </ThemedText>
+                <ArrowRightIcon />
+              </Button>
+            </View>
+            <View className='flex-row items-center justify-between w-full'>
+              <ThemedText size={14}>Verses</ThemedText>
+              <Button
+                size={'sm'}
+                variant={'ghost'}
+                className='flex-row items-center text-sm'
+                onPress={() =>
+                  router.push(
+                    `/verses/select-verses?book=${bookName}&chapter=${chapter}`
+                  )
+                }
+              >
+                <ThemedText size={14}>
+                  {versesList.length > 5
+                    ? `${minVerse}...${maxVerse}`
+                    : versesList.sort((a, b) => a - b).join(', ')}
+                </ThemedText>
+                <ArrowRightIcon />
+              </Button>
+            </View>
+            <View className='flex-row items-center justify-between w-full'>
+              <ThemedText size={14}>Bible translation</ThemedText>
+              <Button
+                size={'sm'}
+                variant={'ghost'}
+                className='flex-row items-center text-sm'
+                disabled
+              >
+                <ThemedText size={14}>KJV</ThemedText>
+              </Button>
+            </View>
+            <View className='flex-row items-center justify-between w-full'>
+              <ThemedText size={14}>Review Frequency</ThemedText>
 
-        <View>
-          {/* <ThemedText
-          numberOfLines={2}
-          ellipsizeMode='tail'
-          size={13}
-          className='w-fit text-[#707070] dark:text-[#909090] !overflow-hidden !text-ellipsis'
-        >
-          {verseTexts.length > 0
-            ? verseTexts.map((text, index) => `${text.verse}. ${text.text} `)
-            : '...'}
-        </ThemedText> */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    size={'sm'}
+                    variant={'ghost'}
+                    className='flex-row items-center text-sm'
+                  >
+                    <ThemedText size={14}>{reviewFreqValue}</ThemedText>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className='w-48 native:w-52 px-0'>
+                  <DropdownMenuItem onPress={() => setReviewFreqValue('Daily')}>
+                    <ThemedText>Daily</ThemedText>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onPress={() => setReviewFreqValue('Weekly')}
+                  >
+                    <ThemedText>Weekly</ThemedText>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onPress={() => setReviewFreqValue('Monthly')}
+                  >
+                    <ThemedText>Monthly</ThemedText>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </View>
+          </View>
+
+          <ScrollView className='border border-black dark:border-white rounded-md p-3 max-h-[200px] overflow-y-auto'>
+            {isVerseTextsListLoading ? (
+              <View className='flex-1 items-center justify-center'>
+                <ActivityIndicator />
+              </View>
+            ) : (
+              verseTexts.map((text, index) => (
+                <ThemedText
+                  key={index}
+                  size={13}
+                  className='w-full text-[#707070] dark:text-[#909090] !overflow-hidden !text-ellipsis block'
+                >
+                  {text.verse}. {text.text}
+                </ThemedText>
+              ))
+            )}
+          </ScrollView>
         </View>
 
         <CustomButton
+          disabled={isVerseTextsListLoading}
           isLoading={isLoading}
           className='my-5'
           onPress={handleAddVerse}
