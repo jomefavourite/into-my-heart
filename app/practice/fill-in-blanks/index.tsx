@@ -11,10 +11,17 @@ import VerseCard from '~/components/Verses/VerseCard';
 import SettingsIcon from '~/components/icons/SettingsIcon';
 import { Button } from '~/components/ui/button';
 import { useRouter } from 'expo-router';
+import ItemSeparator from '~/components/ItemSeparator';
+import { useQuery } from 'convex-helpers/react/cache';
+import { api } from '~/convex/_generated/api';
+import { useGridListView } from '~/store/tab-store';
+import AddVersesEmpty from '~/components/EmptyScreen/AddVersesEmpty';
 
 export default function FillInBlanks() {
+  const getVerses = useQuery(api.verses.getVerses, { take: 5 });
   const [value, setValue] = useState('verses');
   const router = useRouter();
+  const { gridView, setGridView } = useGridListView();
 
   return (
     <SafeAreaView className='flex-1'>
@@ -44,7 +51,12 @@ export default function FillInBlanks() {
           className='w-full mx-auto flex-col gap-4'
         >
           <TabsList className='flex-row w-full'>
-            <TabsTrigger value='verses' className={cn('!bg-none rounded-none')}>
+            <TabsTrigger
+              value='verses'
+              className={cn(
+                "flex-1 px-3 py-2 border-b-2 border-[#313131] [font-family:'Inter',Helvetica] font-medium text-[#313131] text-base data-[state=active]:text-[#313131] data-[state=active]:!bg-red-500 data-[state=inactive]:text-[#707070] data-[state=inactive]:border-b-0"
+              )}
+            >
               <ThemedText
                 size={13}
                 variant='medium'
@@ -57,7 +69,10 @@ export default function FillInBlanks() {
                 Verses
               </ThemedText>
             </TabsTrigger>
-            <TabsTrigger value='collection' className=''>
+            <TabsTrigger
+              value='collections'
+              className="flex-1 px-3 py-2 [font-family:'Inter',Helvetica] font-medium text-[#707070] text-base data-[state=active]:text-[#313131] data-[state=active]:border-b-2 data-[state=active]:border-[#313131]"
+            >
               <ThemedText
                 size={13}
                 variant='medium'
@@ -67,10 +82,13 @@ export default function FillInBlanks() {
                     'text-white dark:text-primary-foreground'
                 )}
               >
-                Completed
+                Collections
               </ThemedText>
             </TabsTrigger>
-            <TabsTrigger value='goals' className=''>
+            <TabsTrigger
+              value='goals'
+              className="flex-1 px-3 py-2 [font-family:'Inter',Helvetica] font-medium text-[#707070] text-base data-[state=active]:text-[#313131] data-[state=active]:border-b-2 data-[state=active]:border-[#313131]"
+            >
               <ThemedText
                 size={13}
                 variant='medium'
@@ -87,23 +105,39 @@ export default function FillInBlanks() {
 
           <TabsContent value='verses'>
             <View className='gap-3 '>
-              <ThemedText size={13}>10 verses</ThemedText>
+              <ThemedText size={13}>{getVerses?.length ?? 0} verses</ThemedText>
 
-              <View>
-                <FlatList
-                  data={verses}
-                  // style={{flex: 1}}
-
-                  keyExtractor={(item, index) => index.toString()}
-                  renderItem={({ item }) => (
-                    <VerseCard
-                      reference={item.reference}
-                      text={item.text}
-                      onAddPress={() => console.log(`${item.text} pressed`)}
-                    />
-                  )}
-                />
-              </View>
+              <FlatList
+                key={gridView ? 'grid-myverses' : 'list-myverses'}
+                data={getVerses}
+                keyExtractor={(item, index) => index.toString()}
+                numColumns={gridView ? 2 : 1}
+                ListEmptyComponent={() => (
+                  <>
+                    {/* Loading */}
+                    {/* <VerseCardSkeleton /> */}
+                    <AddVersesEmpty />
+                  </>
+                )}
+                renderItem={({ item }) => (
+                  <VerseCard
+                    _id={item._id}
+                    bookName={item.bookName}
+                    chapter={item.chapter}
+                    verses={item.verses}
+                    verseTexts={item.verseTexts}
+                    containerClassName={gridView ? 'w-[50%]' : 'w-full'}
+                    canCheck={false}
+                  />
+                )}
+                columnWrapperStyle={
+                  gridView
+                    ? { justifyContent: 'space-between', gap: 8 }
+                    : undefined
+                }
+                ItemSeparatorComponent={ItemSeparator}
+                scrollEnabled={false}
+              />
 
               <CustomButton
                 onPress={() => router.push('/practice/fill-in-blanks/pratice')}

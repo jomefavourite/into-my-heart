@@ -45,21 +45,21 @@ export default function PracticeScreen() {
 
           <View className='gap-3 mt-2'>
             <Link href='/practice/fill-in-blanks'>
-              <View className='flex-row justify-between items-center w-full px-4 py-2 web:p-6 border border-[#E8E8E8] dark:border-[#E8E8E8] rounded-lg my-2'>
+              <View className='flex-row justify-between items-center w-full px-4 py-2 web:p-6 border border-[#E8E8E8] dark:border-[#E8E8E8] rounded-lg '>
                 <ThemedText variant='medium'>Fill-in-the-blanks</ThemedText>
                 <FillInBlanksIcon className='web:absolute right-0 bottom-0' />
               </View>
             </Link>
 
             <Link href='/practice/recitation'>
-              <View className='flex-row justify-between items-center w-full px-4 py-2 web:p-6 border border-[#E8E8E8] dark:border-[#E8E8E8] rounded-lg my-2'>
+              <View className='flex-row justify-between items-center w-full px-4 py-2 web:p-6 border border-[#E8E8E8] dark:border-[#E8E8E8] rounded-lg '>
                 <ThemedText variant='medium'>Recitation</ThemedText>
                 <FillInBlanksIcon className='web:absolute right-0 bottom-0' />
               </View>
             </Link>
 
             <Link href='/practice/flashcards'>
-              <View className='flex-row justify-between items-center w-full px-4 py-2 web:p-6 border border-[#E8E8E8] dark:border-[#E8E8E8] rounded-lg my-2'>
+              <View className='flex-row justify-between items-center w-full px-4 py-2 web:p-6 border border-[#E8E8E8] dark:border-[#E8E8E8] rounded-lg '>
                 <ThemedText variant='medium'>Flashcards</ThemedText>
                 <FillInBlanksIcon className='web:absolute right-0 bottom-0' />
               </View>

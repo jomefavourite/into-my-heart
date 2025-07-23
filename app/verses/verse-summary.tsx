@@ -98,7 +98,7 @@ export default function VerseSummary() {
   const maxVerse = useMemo(() => Math.max(...versesList), [versesList]);
 
   const handleBookChange = useCallback(() => {
-    router.push('/verses/select-book');
+    router.replace('/verses/select-book');
     setVerses([]);
   }, [router]);
 
@@ -198,7 +198,7 @@ export default function VerseSummary() {
                 variant={'ghost'}
                 className='flex-row items-center text-sm'
                 onPress={() =>
-                  router.push(
+                  router.replace(
                     `/verses/select-verses?book=${bookName}&chapter=${chapter}`
                   )
                 }
