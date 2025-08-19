@@ -1,168 +1,250 @@
-import {
-  View,
-  Text,
-  Animated,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
-import React, { useRef, useState } from 'react';
+import { View, Text, ScrollView, FlatList } from 'react-native';
+import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BackHeader from '~/components/BackHeader';
 import ThemedText from '~/components/ThemedText';
-import OpenBookIcon from '~/components/icons/OpenBook';
+import { TabsContent, TabsList, TabsTrigger, Tabs } from '~/components/ui/tabs';
+import { cn } from '~/lib/utils';
+import CustomButton from '~/components/CustomButton';
+import { verses } from '~/lib/constants';
+import VerseCard from '~/components/Verses/VerseCard';
+import CollectionCard from '~/components/Verses/CollectionCard';
+import SettingsIcon from '~/components/icons/SettingsIcon';
+import ArrowRightIcon from '~/components/icons/ArrowRightIcon';
+import { Button } from '~/components/ui/button';
+import { useRouter } from 'expo-router';
+import ItemSeparator from '~/components/ItemSeparator';
+import { usePaginatedQuery, useQuery } from 'convex-helpers/react/cache';
+import { api } from '~/convex/_generated/api';
+import { useGridListView } from '~/store/tab-store';
+import AddVersesEmpty from '~/components/EmptyScreen/AddVersesEmpty';
+import SuggestionEmpty from '~/components/EmptyScreen/SuggestionEmpty';
+import { Platform } from 'react-native';
+import { ActivityIndicator } from 'react-native';
+import FlashCardIcon from '~/components/icons/practice/FlashCardIcon';
 
 export default function Flashcards() {
-  const flashcards = [
-    {
-      id: 1,
-      front: 'What is React Native?',
-      back: 'A framework for building native mobile apps using React and JavaScript',
-    },
-    {
-      id: 2,
-      front: 'What does JSX stand for?',
-      back: 'JavaScript XML - a syntax extension for JavaScript',
-    },
-    {
-      id: 3,
-      front: 'What is a component?',
-      back: 'A reusable piece of code that returns JSX elements to be rendered',
-    },
-  ];
+  const {
+    results: verses,
+    isLoading,
+    loadMore,
+  } = usePaginatedQuery(api.verses.getAllVerses, {}, { initialNumItems: 10 });
+  const collections = useQuery(api.collections.getCollections);
+  const [value, setValue] = useState('verses');
+  const router = useRouter();
+  const { gridView, setGridView } = useGridListView();
+
+  const handleLoadMore = () => {
+    if (!isLoading) {
+      loadMore(2);
+    }
+  };
+
   return (
-    <SafeAreaView>
-      <BackHeader items={[{ label: 'Verses', href: '/verses' }]} />
+    <SafeAreaView className='flex-1'>
+      <BackHeader
+        RightComponent={
+          <Button
+            size={'icon'}
+            variant='ghost'
+            onPress={() => router.push('/practice/flashcards')}
+          >
+            <SettingsIcon />
+          </Button>
+        }
+        items={[
+          { label: 'Practice', href: '/practice' },
+          { label: 'Flashcards', href: '/practice/flashcards' },
+        ]}
+      />
 
-      <View className='p-[18px]'>
-        <ThemedText>Flashcards</ThemedText>
+      <View className='flex-1 p-[18]'>
+        <View className='flex-row items-center justify-between'>
+          <ThemedText>
+            Practice verses using the Flashcards technique
+          </ThemedText>
 
-        <View className='flex-1 mt-[18px]'>
-          <FlashCard front={flashcards[0].front} back={flashcards[0].back} />
+          <FlashCardIcon />
         </View>
+
+        <Tabs
+          value={value}
+          onValueChange={setValue}
+          className='w-full mx-auto flex-col gap-4 flex-1'
+        >
+          <TabsList className='flex-row w-full'>
+            <TabsTrigger
+              value='verses'
+              className={cn(
+                "flex-1 px-3 py-2 border-b-2 border-[#313131] [font-family:'Inter',Helvetica] font-medium text-[#313131] text-base data-[state=active]:text-[#313131] data-[state=active]:!bg-red-500 data-[state=inactive]:text-[#707070] data-[state=inactive]:border-b-0"
+              )}
+            >
+              <ThemedText
+                size={13}
+                variant='medium'
+                className={cn(
+                  'text-muted-foreground',
+                  value === 'verses' &&
+                    'text-white dark:text-primary-foreground'
+                )}
+              >
+                Verses
+              </ThemedText>
+            </TabsTrigger>
+            <TabsTrigger
+              value='collections'
+              className="flex-1 px-3 py-2 [font-family:'Inter',Helvetica] font-medium text-[#707070] text-base data-[state=active]:text-[#313131] data-[state=active]:border-b-2 data-[state=active]:border-[#313131]"
+            >
+              <ThemedText
+                size={13}
+                variant='medium'
+                className={cn(
+                  'text-muted-foreground',
+                  value === 'completed' &&
+                    'text-white dark:text-primary-foreground'
+                )}
+              >
+                Collections
+              </ThemedText>
+            </TabsTrigger>
+            <TabsTrigger
+              value='goals'
+              className="flex-1 px-3 py-2 [font-family:'Inter',Helvetica] font-medium text-[#707070] text-base data-[state=active]:text-[#313131] data-[state=active]:border-b-2 data-[state=active]:border-[#313131]"
+            >
+              <ThemedText
+                size={13}
+                variant='medium'
+                className={cn(
+                  'text-muted-foreground',
+                  value === 'completed' &&
+                    'text-white dark:text-primary-foreground'
+                )}
+              >
+                Completed
+              </ThemedText>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value='verses' className='flex-1'>
+            <View className='gap-3 flex-1'>
+              <ThemedText size={13}>{verses?.length ?? 0} verses</ThemedText>
+
+              <View
+                className='flex-1'
+                style={{ minHeight: Platform.OS === 'web' ? 400 : undefined }}
+              >
+                <FlatList
+                  key={gridView ? 'grid-myverses' : 'list-myverses'}
+                  data={verses}
+                  keyExtractor={(item, index) => index.toString()}
+                  numColumns={gridView ? 2 : 1}
+                  ListEmptyComponent={() => (
+                    <>
+                      {/* Loading */}
+                      {/* <VerseCardSkeleton /> */}
+                      <AddVersesEmpty />
+                    </>
+                  )}
+                  renderItem={({ item }) => (
+                    <VerseCard
+                      _id={item._id}
+                      bookName={item.bookName}
+                      chapter={item.chapter}
+                      verses={item.verses}
+                      verseTexts={item.verseTexts}
+                      containerClassName={gridView ? 'w-[50%]' : 'w-full'}
+                      canCheck={false}
+                    />
+                  )}
+                  columnWrapperStyle={
+                    gridView
+                      ? { justifyContent: 'space-between', gap: 8 }
+                      : undefined
+                  }
+                  ItemSeparatorComponent={ItemSeparator}
+                  scrollEnabled={true}
+                  onEndReached={handleLoadMore}
+                  onEndReachedThreshold={0.1}
+                  ListFooterComponent={() =>
+                    isLoading ? <ActivityIndicator /> : null
+                  }
+                  style={{ flex: 1 }}
+                  contentContainerStyle={{ flexGrow: 1 }}
+                />
+              </View>
+
+              <CustomButton
+                onPress={() => router.push('/practice/flashcards/practice')}
+              >
+                Start Practice
+              </CustomButton>
+            </View>
+          </TabsContent>
+          <TabsContent value='collections' className='flex-1'>
+            <View className='gap-3 flex-1'>
+              <View>
+                <View className='flex-row items-center justify-between'>
+                  <ThemedText size={18} variant='semibold' className='py-2'>
+                    My Collections
+                  </ThemedText>
+
+                  <Button
+                    size={'icon'}
+                    variant={'ghost'}
+                    onPress={() => router.push('/verses/all-collections')}
+                    className='flex-row '
+                  >
+                    <ThemedText size={12} className='pl-2'>
+                      View all
+                    </ThemedText>
+                    <ArrowRightIcon />
+                  </Button>
+                </View>
+
+                <FlatList
+                  key={gridView ? 'grid-collections' : 'list-collections'}
+                  data={collections || []}
+                  keyExtractor={(item, index) => index.toString()}
+                  numColumns={gridView ? 2 : 1}
+                  ListEmptyComponent={() => (
+                    <>
+                      {/* Loading */}
+                      {/* <CollectionCardSkeleton /> */}
+                      <AddVersesEmpty collection />
+                    </>
+                  )}
+                  renderItem={({ item }) => (
+                    <CollectionCard
+                      _id={item._id}
+                      collectionName={item.collectionName}
+                      versesLength={item.versesLength}
+                      onAddPress={() => console.log(`${item} pressed`)}
+                      containerClassName={gridView ? 'w-[50%]' : 'w-full'}
+                      canCheck={false}
+                    />
+                  )}
+                  columnWrapperStyle={
+                    gridView
+                      ? { justifyContent: 'space-between', gap: 8 }
+                      : undefined
+                  }
+                  ItemSeparatorComponent={ItemSeparator}
+                  scrollEnabled={false}
+                />
+              </View>
+
+              <CustomButton
+                onPress={() => router.push('/practice/flashcards/practice')}
+              >
+                Start Practice
+              </CustomButton>
+            </View>
+          </TabsContent>
+          <TabsContent value='goals'>
+            {/* <GoalCard view={view} goalCompleted /> */}
+          </TabsContent>
+        </Tabs>
       </View>
     </SafeAreaView>
   );
 }
-
-const FlashCard = ({ front, back }: { front: string; back: string }) => {
-  const [isFlipped, setIsFlipped] = useState(false);
-  const flipAnimation = useRef(new Animated.Value(0)).current;
-
-  const flipCard = () => {
-    if (isFlipped) {
-      Animated.spring(flipAnimation, {
-        toValue: 0,
-        friction: 8,
-        tension: 10,
-        useNativeDriver: true,
-      }).start();
-    } else {
-      Animated.spring(flipAnimation, {
-        toValue: 1,
-        friction: 8,
-        tension: 10,
-        useNativeDriver: true,
-      }).start();
-    }
-    setIsFlipped(!isFlipped);
-  };
-
-  const frontInterpolate = flipAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '180deg'],
-  });
-
-  const backInterpolate = flipAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['180deg', '360deg'],
-  });
-
-  const frontAnimatedStyle = {
-    transform: [{ rotateY: frontInterpolate }],
-  };
-
-  const backAnimatedStyle = {
-    transform: [{ rotateY: backInterpolate }],
-  };
-
-  return (
-    <TouchableOpacity onPress={flipCard} activeOpacity={0.8}>
-      <View className='h-[395px] w-full'>
-        <Animated.View
-          style={[styles.card, styles.cardFront, frontAnimatedStyle]}
-          className='bg-[#3D3D3D]'
-        >
-          <ThemedText className=' text-center text-white'>{front}</ThemedText>
-          <Text className='text-center text-white italic'>Tap to reveal</Text>
-        </Animated.View>
-        <Animated.View
-          style={[styles.card, styles.cardBack, backAnimatedStyle]}
-          className='bg-[#FAFAFA] dark:bg-[#3D3D3D]'
-        >
-          <ThemedText className='text-center text-black'>{back}</ThemedText>
-          <Text className='text-center text-black italic'>
-            Tap to flip back
-          </Text>
-        </Animated.View>
-
-        <View className='absolute bottom-0 left-1/2 -translate-x-1/2'>
-          <OpenBookIcon />
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  header: {
-    alignItems: 'center',
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 5,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-  },
-  cardsContainer: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  cardContainer: {
-    marginBottom: 20,
-    height: 395,
-  },
-  card: {
-    position: 'absolute',
-    width: '100%',
-    height: 395,
-    borderRadius: 15,
-    padding: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
-    backfaceVisibility: 'hidden',
-  },
-  cardFront: {
-    backgroundColor: '#3D3D3D',
-  },
-  cardBack: {
-    backgroundColor: '#FAFAFA',
-  },
-});

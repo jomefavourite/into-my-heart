@@ -7,6 +7,7 @@ import { Link } from 'expo-router';
 import FillInBlanksIcon from '~/components/icons/practice/FillInBlanksIcon';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import FlashCardIcon from '~/components/icons/practice/FlashCardIcon';
 
 export default function PracticeScreen() {
   return (
@@ -61,7 +62,11 @@ export default function PracticeScreen() {
             <Link href='/practice/flashcards'>
               <View className='flex-row justify-between items-center w-full px-4 py-2 web:p-6 border border-[#E8E8E8] dark:border-[#E8E8E8] rounded-lg '>
                 <ThemedText variant='medium'>Flashcards</ThemedText>
-                <FillInBlanksIcon className='web:absolute right-0 bottom-0' />
+                <FlashCardIcon
+                  // width={24}
+                  // height={24}
+                  className='web:absolute right-0 bottom-0'
+                />
               </View>
             </Link>
           </View>

@@ -46,7 +46,7 @@ export const getVerses = query({
     const verses = await ctx.db
       .query('verses')
       .order('desc')
-      .filter((q) => q.eq(q.field('userId'), user._id))
+      .filter(q => q.eq(q.field('userId'), user._id))
       .take(args.take ?? 50);
 
     return verses;
@@ -61,9 +61,20 @@ export const getAllVerses = query({
     const verses = await ctx.db
       .query('verses')
       .order('desc')
-      .filter((q) => q.eq(q.field('userId'), user._id))
+      .filter(q => q.eq(q.field('userId'), user._id))
       .paginate(args.paginationOpts);
     return verses;
+  },
+});
+
+export const getTotalVersesCount = query({
+  handler: async ctx => {
+    const user = await getCurrentUserOrThrow(ctx);
+    const verses = await ctx.db
+      .query('verses')
+      .filter(q => q.eq(q.field('userId'), user._id))
+      .collect();
+    return verses.length;
   },
 });
 
@@ -75,7 +86,7 @@ export const deleteVerses = mutation({
     const user = await getCurrentUserOrThrow(ctx);
 
     const verses = await Promise.all(
-      args.ids.map(async (id) => {
+      args.ids.map(async id => {
         const verse = await ctx.db.get(id);
         return verse && verse.userId === user._id ? id : null;
       })
@@ -83,7 +94,7 @@ export const deleteVerses = mutation({
 
     const validIds = verses.filter((id): id is Id<'verses'> => id !== null);
 
-    await Promise.all(validIds.map((id) => ctx.db.delete(id)));
+    await Promise.all(validIds.map(id => ctx.db.delete(id)));
   },
 });
 

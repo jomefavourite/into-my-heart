@@ -5,6 +5,7 @@ import { Button } from '~/components/ui/button';
 import { View } from 'react-native';
 import ThemedText from '~/components/ThemedText';
 import { ScrollView } from 'react-native-gesture-handler';
+import CustomButton from '~/components/CustomButton';
 
 interface BlankData {
   id: number;
@@ -53,8 +54,8 @@ export default function FillInTheBlanks() {
     if (selectedBlankId === null || option.used || showResults) return;
 
     // Update blanks
-    setBlanks((prev) =>
-      prev.map((blank) =>
+    setBlanks(prev =>
+      prev.map(blank =>
         blank.id === selectedBlankId
           ? { ...blank, selectedAnswer: option.text }
           : blank
@@ -62,15 +63,15 @@ export default function FillInTheBlanks() {
     );
 
     // Mark option as used
-    setOptions((prev) =>
-      prev.map((opt) => (opt.id === option.id ? { ...opt, used: true } : opt))
+    setOptions(prev =>
+      prev.map(opt => (opt.id === option.id ? { ...opt, used: true } : opt))
     );
 
     // If there was a previous answer for this blank, mark that option as unused
-    const currentBlank = blanks.find((b) => b.id === selectedBlankId);
+    const currentBlank = blanks.find(b => b.id === selectedBlankId);
     if (currentBlank?.selectedAnswer) {
-      setOptions((prev) =>
-        prev.map((opt) =>
+      setOptions(prev =>
+        prev.map(opt =>
           opt.text === currentBlank.selectedAnswer
             ? { ...opt, used: false }
             : opt
@@ -82,10 +83,8 @@ export default function FillInTheBlanks() {
   };
 
   const handleReset = () => {
-    setBlanks((prev) =>
-      prev.map((blank) => ({ ...blank, selectedAnswer: null }))
-    );
-    setOptions((prev) => prev.map((opt) => ({ ...opt, used: false })));
+    setBlanks(prev => prev.map(blank => ({ ...blank, selectedAnswer: null })));
+    setOptions(prev => prev.map(opt => ({ ...opt, used: false })));
     setSelectedBlankId(null);
     setShowResults(false);
   };
@@ -101,7 +100,7 @@ export default function FillInTheBlanks() {
 
     for (let i = 0; i < parts.length; i++) {
       result.push(
-        <ThemedText key={`text-${i}`} className='text-lg'>
+        <ThemedText key={`text-${i}`} className='text-base'>
           {parts[i]}
         </ThemedText>
       );
@@ -122,7 +121,7 @@ export default function FillInTheBlanks() {
             size={'sm'}
             onPress={() => handleBlankClick(blank.id)}
             className={`
-              inline-flex items-center justify-center min-w-[100px] h-8 mx-1 px-3 rounded-md border-2 border-dashed
+              inline-flex items-center justify-center min-w-[100px] h-6 mx-1 px-3 rounded-md border-2 border-dashed
               transition-all duration-200 text-sm font-medium
               ${isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}
               ${isCorrect ? 'border-green-500 bg-green-50 text-green-700' : ''}
@@ -141,27 +140,29 @@ export default function FillInTheBlanks() {
   };
 
   const allBlanksCompleted = blanks.every(
-    (blank) => blank.selectedAnswer !== null
+    blank => blank.selectedAnswer !== null
   );
   const correctAnswers = blanks.filter(
-    (blank) => blank.selectedAnswer === blank.correctAnswer
+    blank => blank.selectedAnswer === blank.correctAnswer
   ).length;
   const totalBlanks = blanks.length;
 
   return (
     <ScrollView className='flex-1'>
-      <View className='max-w-4xl mx-auto p-6 space-y-6'>
-        <Card>
-          <CardHeader>
-            <CardTitle className='text-2xl font-bold text-center'>
-              Fill in the Blanks
-            </CardTitle>
-            <ThemedText className='text-center text-muted-foreground'>
+      <View className='p-[18] flex-col justify-between flex-1'>
+        <View>
+          <ThemedText className='text-lg font-bold'>
+            Fill in the Blanks
+          </ThemedText>
+
+          <Card className='bg-gray-50 border-gray-200 border-0 p-2'>
+            <ThemedText size={14} className='text-muted-foreground'>
               Click on a blank space, then select the correct word from the
               options below
             </ThemedText>
-          </CardHeader>
-          <CardContent className='space-y-6'>
+          </Card>
+
+          <View className='space-y-6 mt-4'>
             {/* Sentence with blanks */}
             <View className='p-6 bg-gray-50 rounded-lg flex-row flex-wrap w-full leading-relaxed'>
               {renderSentenceWithBlanks()}
@@ -175,76 +176,78 @@ export default function FillInTheBlanks() {
                 </Badge>
               </View>
             )}
+          </View>
+        </View>
 
-            {/* Options */}
-            <View className='space-y-3'>
-              <ThemedText className='text-lg font-semibold'>
-                Choose the correct words:
-              </ThemedText>
-              <View className='flex-row flex-wrap gap-3'>
-                {options.map((option) => (
-                  <Button
-                    key={option.id}
-                    variant={option.used ? 'secondary' : 'outline'}
-                    onPress={() => handleOptionClick(option)}
-                    disabled={option.used || showResults}
-                    className={`
-                    h-12  transition-all duration-200
+        <View className=''>
+          {/* Options */}
+          <View className='space-y-3'>
+            <ThemedText className=' font-semibold'>
+              Choose the correct words:
+            </ThemedText>
+            <View className='justify-center flex-row flex-wrap gap-3'>
+              {options.map(option => (
+                <Button
+                  key={option.id}
+                  variant={option.used ? 'secondary' : 'outline'}
+                  onPress={() => handleOptionClick(option)}
+                  disabled={option.used || showResults}
+                  className={`
+                    h-10  transition-all duration-200 rounded-full text-sm !py-2 !px-4
                     ${option.used ? 'opacity-50 cursor-not-allowed' : ''}
                     ${!option.used && !showResults ? 'hover:bg-blue-50 hover:border-blue-300' : ''}
                   `}
-                  >
-                    <ThemedText>{option.text}</ThemedText>
-                  </Button>
-                ))}
-              </View>
+                >
+                  <ThemedText>{option.text}</ThemedText>
+                </Button>
+              ))}
             </View>
+          </View>
 
-            {/* Results */}
-            {showResults && (
-              <Card className='bg-blue-50 border-blue-200'>
-                <CardContent className='pt-6'>
-                  <View className='text-center space-y-2'>
-                    <View className='flex items-center justify-center gap-2'>
-                      {/* <Check className='h-5 w-5 text-green-600' /> */}
-                      <ThemedText className='text-lg font-semibold'>
-                        Results: {correctAnswers}/{totalBlanks} correct
-                      </ThemedText>
-                    </View>
-                    <ThemedText className='text-muted-foreground'>
-                      {correctAnswers === totalBlanks
-                        ? 'Perfect! You got all answers correct!'
-                        : 'Good try! Review the incorrect answers and try again.'}
+          {/* Results */}
+          {showResults && (
+            <Card className='bg-blue-50 border-blue-200'>
+              <CardContent className='pt-6'>
+                <View className='text-center space-y-2'>
+                  <View className='flex items-center justify-center gap-2'>
+                    {/* <Check className='h-5 w-5 text-green-600' /> */}
+                    <ThemedText className='text-lg font-semibold'>
+                      Results: {correctAnswers}/{totalBlanks} correct
                     </ThemedText>
                   </View>
-                </CardContent>
-              </Card>
+                  <ThemedText className='text-muted-foreground'>
+                    {correctAnswers === totalBlanks
+                      ? 'Perfect! You got all answers correct!'
+                      : 'Good try! Review the incorrect answers and try again.'}
+                  </ThemedText>
+                </View>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Action buttons */}
+          <View className='flex justify-center gap-4'>
+            {!showResults && (
+              <CustomButton
+                onPress={handleCheckAnswers}
+                disabled={!allBlanksCompleted}
+                className='px-8'
+              >
+                {/* <Check className="h-4 w-4 mr-2" /> */}
+                Check Answers
+              </CustomButton>
             )}
 
-            {/* Action buttons */}
-            <View className='flex justify-center gap-4'>
-              {!showResults && (
-                <Button
-                  onPress={handleCheckAnswers}
-                  disabled={!allBlanksCompleted}
-                  className='px-8'
-                >
-                  {/* <Check className="h-4 w-4 mr-2" /> */}
-                  <ThemedText>Check Answers</ThemedText>
-                </Button>
-              )}
-
-              <Button
-                variant='outline'
-                onPress={handleReset}
-                className='px-8 bg-transparent'
-              >
-                {/* <RotateCcw className="h-4 w-4 mr-2" /> */}
-                <ThemedText>Reset</ThemedText>
-              </Button>
-            </View>
-          </CardContent>
-        </Card>
+            <CustomButton
+              variant='outline'
+              onPress={handleReset}
+              className='px-8 bg-transparent'
+            >
+              {/* <RotateCcw className="h-4 w-4 mr-2" /> */}
+              Reset
+            </CustomButton>
+          </View>
+        </View>
       </View>
     </ScrollView>
   );
