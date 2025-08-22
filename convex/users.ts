@@ -13,7 +13,7 @@ export const getUserByClerkId = query({
   handler: async (ctx, { clerkId }) => {
     const user = await ctx.db
       .query('users')
-      .filter((q) => q.eq(q.field('clerkId'), clerkId))
+      .filter(q => q.eq(q.field('clerkId'), clerkId))
       .unique();
 
     return user;
@@ -59,16 +59,37 @@ export async function getCurrentUserOrThrow(ctx: QueryCtx) {
 }
 
 export async function getCurrentUser(ctx: QueryCtx) {
-  const identity = await ctx.auth.getUserIdentity();
-  if (identity === null) {
-    throw new Error('Unauthorized');
+  try {
+    const identity = await ctx.auth.getUserIdentity();
+    if (identity === null) {
+      console.error('getCurrentUser: No user identity found');
+      throw new Error('Unauthorized - No user identity');
+    }
+
+    console.log(
+      'getCurrentUser: Identity found for subject:',
+      identity.subject
+    );
+    const user = await userByExternalId(ctx, identity.subject);
+
+    if (!user) {
+      console.error(
+        'getCurrentUser: User not found in database for subject:',
+        identity.subject
+      );
+      throw new Error('User not found in database');
+    }
+
+    return user;
+  } catch (error) {
+    console.error('getCurrentUser error:', error);
+    throw error;
   }
-  return await userByExternalId(ctx, identity.subject);
 }
 
 async function userByExternalId(ctx: QueryCtx, externalId: string) {
   return await ctx.db
     .query('users')
-    .withIndex('byClerkId', (q) => q.eq('clerkId', externalId))
+    .withIndex('byClerkId', q => q.eq('clerkId', externalId))
     .unique();
 }

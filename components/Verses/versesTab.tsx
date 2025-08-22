@@ -14,12 +14,14 @@ import { useMutation } from 'convex/react';
 import { addVerseSuggestion } from '~/convex/verseSuggestions';
 import AddVersesEmpty from '../EmptyScreen/AddVersesEmpty';
 import SuggestionEmpty from '../EmptyScreen/SuggestionEmpty';
+import { useConvexAuth } from 'convex/react';
 
 type VersesTabProps = {
   gridView: boolean;
 };
 
 const VersesTab = ({ gridView }: VersesTabProps) => {
+  const { isAuthenticated, isLoading } = useConvexAuth();
   const getVerses = useQuery(api.verses.getVerses, { take: 5 });
   const getVerseSuggestions = useQuery(
     api.verseSuggestions.getVersesSuggestion
@@ -33,7 +35,7 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
 
   // console.log(getVerses, 'getVerses');
 
-  const handleAddVerseSuggestion = (verseData) => {
+  const handleAddVerseSuggestion = (verseData: any) => {
     // addVerse({
     //   bookName: verseData.bookName,
     //   chapter: verseData.chapter,
@@ -41,6 +43,34 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
     //   reviewFreq: '',
     // });
   };
+
+  // Don't render if not authenticated or still loading
+  if (isLoading) {
+    return (
+      <View>
+        <ThemedText>Loading...</ThemedText>
+      </View>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <View>
+        <ThemedText>Please sign in to view your verses.</ThemedText>
+      </View>
+    );
+  }
+
+  // Handle authentication errors
+  if (getVerses === undefined && !isLoading) {
+    return (
+      <View>
+        <ThemedText>
+          Authentication error. Please try refreshing the page.
+        </ThemedText>
+      </View>
+    );
+  }
 
   return (
     <View>
@@ -111,10 +141,11 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
           )}
           renderItem={({ item }) => (
             <VerseCard
-              _id={item._id}
+              _id={item._id as any} // Type assertion to handle ID mismatch
               bookName={item.bookName}
               chapter={item.chapter}
               verses={item.verses}
+              verseTexts={item.verseTexts || []} // Provide default empty array
               onAddPress={() => handleAddVerseSuggestion(item)}
               containerClassName={gridView ? 'w-[50%]' : 'w-full'} // Keep this for card sizing
             />

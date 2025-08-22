@@ -104,6 +104,7 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
   const router = useRouter();
   const navigationAttempted = React.useRef(false);
   const currentRoute = React.useRef<string>('');
+  const authCheckAttempted = React.useRef(false);
 
   // This prevent flash of white on navigation
   SystemUI.setBackgroundColorAsync(
@@ -127,28 +128,39 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
     const inAuthGroup = segments[0] === '(onboarding)';
     const inTabsGroup = segments[0] === '(tabs)';
 
-    // Only redirect if necessary and safe to do so
-    if (isSignedIn && inAuthGroup) {
-      // Only redirect if we're actually in the onboarding group
-      try {
-        navigationAttempted.current = true;
-        console.log('InitialLayout - Redirecting to tabs');
-        router.replace('/(tabs)');
-      } catch (error) {
-        console.warn('Navigation error:', error);
-        navigationAttempted.current = false;
+    // Add delay to ensure authentication state is stable
+    const authCheck = async () => {
+      if (authCheckAttempted.current) return;
+      authCheckAttempted.current = true;
+
+      // Wait a bit for authentication state to stabilize
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Only redirect if necessary and safe to do so
+      if (isSignedIn && inAuthGroup) {
+        // Only redirect if we're actually in the onboarding group
+        try {
+          navigationAttempted.current = true;
+          console.log('InitialLayout - Redirecting to tabs');
+          router.replace('/(tabs)');
+        } catch (error) {
+          console.warn('Navigation error:', error);
+          navigationAttempted.current = false;
+        }
+      } else if (!isSignedIn && !inAuthGroup) {
+        // Only redirect if we're not already in the onboarding group
+        try {
+          navigationAttempted.current = true;
+          console.log('InitialLayout - Redirecting to onboarding');
+          router.replace('/(onboarding)/onboard');
+        } catch (error) {
+          console.warn('Navigation error:', error);
+          navigationAttempted.current = false;
+        }
       }
-    } else if (!isSignedIn && !inAuthGroup) {
-      // Only redirect if we're not already in the onboarding group
-      try {
-        navigationAttempted.current = true;
-        console.log('InitialLayout - Redirecting to onboarding');
-        router.replace('/(onboarding)/onboard');
-      } catch (error) {
-        console.warn('Navigation error:', error);
-        navigationAttempted.current = false;
-      }
-    }
+    };
+
+    authCheck();
   }, [isLoaded, isSignedIn, segments, router]);
 
   const { width } = useWindowDimensions();

@@ -41,15 +41,27 @@ export const getVerses = query({
     take: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const user = await getCurrentUserOrThrow(ctx);
+    try {
+      const user = await getCurrentUserOrThrow(ctx);
 
-    const verses = await ctx.db
-      .query('verses')
-      .order('desc')
-      .filter(q => q.eq(q.field('userId'), user._id))
-      .take(args.take ?? 50);
+      if (!user) {
+        throw new Error('User not found');
+      }
 
-    return verses;
+      const verses = await ctx.db
+        .query('verses')
+        .order('desc')
+        .filter(q => q.eq(q.field('userId'), user._id))
+        .take(args.take ?? 50);
+
+      return verses;
+    } catch (error) {
+      console.error('getVerses error:', error);
+      if (error instanceof Error && error.message === 'Unauthorized') {
+        throw new Error('Authentication required. Please sign in again.');
+      }
+      throw error;
+    }
   },
 });
 
