@@ -102,6 +102,8 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
   const { isLoaded, isSignedIn } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+  const navigationAttempted = React.useRef(false);
+  const currentRoute = React.useRef<string>('');
 
   // This prevent flash of white on navigation
   SystemUI.setBackgroundColorAsync(
@@ -111,24 +113,43 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
   useFrameworkReady();
 
   useEffect(() => {
-    if (!isLoaded) return;
+    if (!isLoaded || navigationAttempted.current) return;
+
+    const currentPath = segments.join('/');
+
+    // Prevent navigation loops
+    if (currentRoute.current === currentPath) {
+      return;
+    }
+
+    currentRoute.current = currentPath;
 
     const inAuthGroup = segments[0] === '(onboarding)';
+    const inTabsGroup = segments[0] === '(tabs)';
 
+    // Only redirect if necessary and safe to do so
     if (isSignedIn && inAuthGroup) {
-      router.replace('/(tabs)');
+      // Only redirect if we're actually in the onboarding group
+      try {
+        navigationAttempted.current = true;
+        console.log('InitialLayout - Redirecting to tabs');
+        router.replace('/(tabs)');
+      } catch (error) {
+        console.warn('Navigation error:', error);
+        navigationAttempted.current = false;
+      }
     } else if (!isSignedIn && !inAuthGroup) {
-      router.replace('/(onboarding)/onboard');
+      // Only redirect if we're not already in the onboarding group
+      try {
+        navigationAttempted.current = true;
+        console.log('InitialLayout - Redirecting to onboarding');
+        router.replace('/(onboarding)/onboard');
+      } catch (error) {
+        console.warn('Navigation error:', error);
+        navigationAttempted.current = false;
+      }
     }
-  }, [isSignedIn]);
-
-  // const ref = useNavigationContainerRef();
-
-  // useEffect(() => {
-  //   if (ref?.current) {
-  //     navigationIntegration.registerNavigationContainer(ref);
-  //   }
-  // }, [ref]);
+  }, [isLoaded, isSignedIn, segments, router]);
 
   const { width } = useWindowDimensions();
 

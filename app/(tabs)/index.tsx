@@ -39,7 +39,7 @@ export default function HomeScreen() {
       <FlatList
         className='flex-1 px-[18]'
         data={[{ id: 'accordion' }]}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         renderItem={() => (
           <View className='web:grid gap-8 web:lg:grid-cols-2 '>
             <View className='gap-4'>
@@ -92,7 +92,12 @@ export default function HomeScreen() {
 
               {/* My Verses */}
               <View className='gap-2'>
-                <ThemedText variant='medium'>My Verses</ThemedText>
+                <View className='flex-row items-center justify-between'>
+                  <ThemedText variant='medium'>My Verses</ThemedText>
+                  <Link href={'/verses/all-verses'}>
+                    <ThemedText size={12}>View all -{'>'}</ThemedText>
+                  </Link>
+                </View>
 
                 <AddVersesEmpty />
               </View>

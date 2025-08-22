@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  useColorScheme,
   ScrollView,
   Platform,
 } from 'react-native';
@@ -18,7 +17,7 @@ import GoalsIcon from '~/components/icons/tabs/GoalsIcon';
 import ThemedText from './ThemedText';
 import HomeHeader from './Home/Header';
 import Logo from './icons/logo/Logo';
-import { Stack } from 'expo-router';
+import { useColorScheme } from '~/hooks/useColorScheme';
 
 type Tab = {
   name: string;
@@ -27,7 +26,7 @@ type Tab = {
 }[];
 
 const tabs: Tab = [
-  { name: 'Home', href: '/', icon: HomeIcon },
+  { name: 'Home', href: '/(tabs)', icon: HomeIcon },
   { name: 'Verses', href: '/verses', icon: VersesIcon },
   { name: 'Practice', href: '/practice', icon: PracticeIcon },
   { name: 'Goals', href: '/goals', icon: GoalsIcon },
@@ -36,9 +35,8 @@ const tabs: Tab = [
 
 export default function TabBarSidebar() {
   const pathname = usePathname();
-  const colorScheme = useColorScheme();
+  const { isDarkMode } = useColorScheme();
   const insets = useSafeAreaInsets();
-  const isDark = colorScheme === 'dark';
 
   return (
     <View className='flex-1 flex-row max-w-7xl justify-center'>
@@ -54,7 +52,7 @@ export default function TabBarSidebar() {
           {tabs.map((tab, index) => {
             const isActive =
               pathname === tab.href ||
-              (pathname.startsWith(`${tab.href}`) && tab.href !== '/');
+              (pathname.startsWith(`${tab.href}`) && tab.href !== '/(tabs)');
             const Icon = tab.icon;
 
             return (
@@ -80,12 +78,7 @@ export default function TabBarSidebar() {
       {/* Content area */}
       <View className='flex-1' style={{ width: 'auto' }}>
         {Platform.OS === 'web' && <HomeHeader />}
-        {/* <Slot /> */}
-        <Stack
-          screenOptions={{
-            headerShown: false,
-          }}
-        />
+        <Slot />
       </View>
     </View>
   );
