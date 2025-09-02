@@ -19,13 +19,13 @@ const CustomBottomSheet = forwardRef<
   };
 
   const defaultStyle = {
-    shadowColor: isDarkMode ? 'rgba(0,0,0, 0.5)' : 'rgba(0,0,0, 0.1)',
-    shadowOffset: {
-      width: 0,
-      height: -4,
-    },
-    shadowOpacity: 1,
-    shadowRadius: 26,
+    // shadowColor: isDarkMode ? 'rgba(0,0,0, 0.5)' : 'rgba(0,0,0, 0.1)',
+    // shadowOffset: {
+    //   width: 0,
+    //   height: -4,
+    // },
+    // shadowOpacity: 1,
+    // shadowRadius: 26,
     elevation: 5, // for Android shadow
     borderRadius: 30,
   };

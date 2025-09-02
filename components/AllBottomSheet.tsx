@@ -97,9 +97,9 @@ export const ReviewFreqContent = memo(() => {
 
   const { expand, close } = useBottomSheet();
 
-  const reviewFreqValue = useBottomSheetStore((state) => state.reviewFreqValue);
+  const reviewFreqValue = useBottomSheetStore(state => state.reviewFreqValue);
   const setReviewFreqValue = useBottomSheetStore(
-    (state) => state.setReviewFreqValue
+    state => state.setReviewFreqValue
   );
 
   const handleValueChange = useCallback(
@@ -209,25 +209,25 @@ export default function AllBottomSheet() {
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   const streakBottomSheetIndex = useBottomSheetStore(
-    (state) => state.streakBottomSheetIndex
+    state => state.streakBottomSheetIndex
   );
   const startDateBottomSheetIndex = useBottomSheetStore(
-    (state) => state.startDateBottomSheetIndex
+    state => state.startDateBottomSheetIndex
   );
-  const reviewFreqIndex = useBottomSheetStore((state) => state.reviewFreqIndex);
-  const removeGoalIndex = useBottomSheetStore((state) => state.removeGoalIndex);
+  const reviewFreqIndex = useBottomSheetStore(state => state.reviewFreqIndex);
+  const removeGoalIndex = useBottomSheetStore(state => state.removeGoalIndex);
   const setRemoveGoalIndex = useBottomSheetStore(
-    (state) => state.setRemoveGoalIndex
+    state => state.setRemoveGoalIndex
   );
 
   const setStreakBottomSheetIndex = useBottomSheetStore(
-    (state) => state.setStreakBottomSheetIndex
+    state => state.setStreakBottomSheetIndex
   );
   const setStartDateBottomSheetIndex = useBottomSheetStore(
-    (state) => state.setStartDateBottomSheetIndex
+    state => state.setStartDateBottomSheetIndex
   );
   const setReviewFreqIndex = useBottomSheetStore(
-    (state) => state.setReviewFreqIndex
+    state => state.setReviewFreqIndex
   );
 
   const handleStreakBottomSheetChange = useCallback(
@@ -253,7 +253,7 @@ export default function AllBottomSheet() {
     (index: number) => {
       setRemoveGoalIndex(index);
     },
-    [removeGoalIndex]
+    [setRemoveGoalIndex]
   );
 
   return (

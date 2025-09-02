@@ -3,7 +3,7 @@ import { FlatList, ScrollView, Text, View } from 'react-native';
 import Container from '~/components/Container';
 import Title from '~/components/Title';
 import ThemedText from '~/components/ThemedText';
-import VersesTab from '~/components/Verses/VersesTab';
+import VersesTab from '~/components/Verses/versesTab';
 import CollectionsTab from '~/components/Verses/CollectionsTab';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { cn } from '~/lib/utils';
@@ -131,7 +131,7 @@ export default function VersesHomeScreen() {
           <FlatList
             className='px-[18px]'
             data={[{ id: 'page' }]} // single item to render accordion
-            keyExtractor={(item) => item.id}
+            keyExtractor={item => item.id}
             renderItem={() => (
               <>
                 <Animated.View

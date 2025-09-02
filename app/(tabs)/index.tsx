@@ -24,10 +24,20 @@ import VerseCard from '~/components/Verses/VerseCard';
 import ItemSeparator from '~/components/ItemSeparator';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AddVersesEmpty from '~/components/EmptyScreen/AddVersesEmpty';
+import { useQuery } from 'convex/react';
+import { api } from '~/convex/_generated/api';
+import { useAuth } from '@clerk/clerk-expo';
 
 export default function HomeScreen() {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const router = useRouter();
+  const { isSignedIn } = useAuth();
+
+  // Fetch user's verses - only when user is signed in
+  const userVerses = useQuery(
+    api.verses.getVerses,
+    isSignedIn ? { take: 5 } : 'skip'
+  );
 
   return (
     <>
@@ -99,7 +109,40 @@ export default function HomeScreen() {
                   </Link>
                 </View>
 
-                <AddVersesEmpty />
+                {!isSignedIn ? (
+                  <AddVersesEmpty />
+                ) : userVerses === undefined ? (
+                  <View className='py-8'>
+                    <ThemedText className='text-center text-[#707070] dark:text-[#909090]'>
+                      Loading your verses...
+                    </ThemedText>
+                  </View>
+                ) : userVerses && userVerses.length > 0 ? (
+                  <FlatList
+                    data={userVerses}
+                    style={{ height: 300 }}
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={({ item }) => (
+                      <VerseCard
+                        _id={item._id}
+                        bookName={item.bookName}
+                        chapter={item.chapter}
+                        verses={item.verses}
+                        verseTexts={item.verseTexts}
+                        onAddPress={() =>
+                          console.log(
+                            `${item.bookName} ${item.chapter} pressed`
+                          )
+                        }
+                        canCheck={false}
+                        noRoute={true}
+                      />
+                    )}
+                    ItemSeparatorComponent={ItemSeparator}
+                  />
+                ) : (
+                  <AddVersesEmpty />
+                )}
               </View>
             </View>
 
@@ -118,9 +161,15 @@ export default function HomeScreen() {
                   keyExtractor={(item, index) => index.toString()}
                   renderItem={({ item }) => (
                     <VerseCard
-                      reference={item.reference}
-                      text={item.text}
-                      onAddPress={() => console.log(`${item.text} pressed`)}
+                      bookName={item.bookName}
+                      chapter={item.chapter}
+                      verses={item.verses}
+                      verseTexts={[
+                        { verse: item.verses[0], text: item.reference },
+                      ]}
+                      onAddPress={() =>
+                        console.log(`${item.reference} pressed`)
+                      }
                     />
                   )}
                   ItemSeparatorComponent={ItemSeparator}
