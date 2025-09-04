@@ -26,17 +26,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AddVersesEmpty from '~/components/EmptyScreen/AddVersesEmpty';
 import { useQuery } from 'convex/react';
 import { api } from '~/convex/_generated/api';
-import { useAuth } from '@clerk/clerk-expo';
+import { useAuth, useUser } from '@clerk/clerk-expo';
 
 export default function HomeScreen() {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const router = useRouter();
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, isLoaded } = useAuth();
+  const { user } = useUser();
 
-  // Fetch user's verses - only when user is signed in
-  const userVerses = useQuery(
+  // Fetch user's verses - only when user is fully authenticated and loaded
+  const getVerses = useQuery(
     api.verses.getVerses,
-    isSignedIn ? { take: 5 } : 'skip'
+    isSignedIn && isLoaded && user ? { take: 5 } : 'skip'
   );
 
   return (
@@ -109,17 +110,17 @@ export default function HomeScreen() {
                   </Link>
                 </View>
 
-                {!isSignedIn ? (
+                {!isSignedIn || !isLoaded || !user ? (
                   <AddVersesEmpty />
-                ) : userVerses === undefined ? (
+                ) : getVerses === undefined ? (
                   <View className='py-8'>
                     <ThemedText className='text-center text-[#707070] dark:text-[#909090]'>
                       Loading your verses...
                     </ThemedText>
                   </View>
-                ) : userVerses && userVerses.length > 0 ? (
+                ) : getVerses && getVerses.length > 0 ? (
                   <FlatList
-                    data={userVerses}
+                    data={getVerses}
                     style={{ height: 300 }}
                     keyExtractor={(item, index) => index.toString()}
                     renderItem={({ item }) => (

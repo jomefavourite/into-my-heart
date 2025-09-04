@@ -14,7 +14,7 @@ export default function SelectVerses() {
   const {
     book: bookURL,
     chapter: chapterURL,
-    versesLength: versesLengthURL,
+    verseLength: verseLengthURL,
   } = useLocalSearchParams();
 
   let {
@@ -29,7 +29,7 @@ export default function SelectVerses() {
 
   const bookName = bookURL || bookName1;
   const chapter = chapterURL || chapter1;
-  const versesLength = versesLengthURL || versesLength1;
+  const versesLength = Number(verseLengthURL) || versesLength1;
 
   // const [value, setValue] = React.useState<string[]>([]);
 
@@ -40,7 +40,9 @@ export default function SelectVerses() {
 
   const handlePress = useCallback(() => {
     // console.log(verses, verses.join(','));
-    router.push(`/verses/verse-summary`);
+    router.push(
+      `/verses/verse-summary?book=${bookName}&chapter=${chapter}&verseLength=${versesLength}&verses=${verses.join(',')}`
+    );
   }, [bookName, chapter, verses]);
 
   const handleAddAllVerse = useCallback(() => {
@@ -50,6 +52,8 @@ export default function SelectVerses() {
     );
     setVerses(newVerses);
   }, [versesLength]);
+
+  console.log(versesLength, verseLengthURL, bookURL, 'versesLength');
 
   return (
     <SafeAreaView className='flex-1'>

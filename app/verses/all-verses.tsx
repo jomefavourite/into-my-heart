@@ -6,7 +6,6 @@ import BackHeader from '~/components/BackHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { api } from '~/convex/_generated/api';
 import { usePaginatedQuery } from 'convex-helpers/react/cache';
-import { FlatList } from 'react-native-gesture-handler';
 import AddVersesEmpty from '~/components/EmptyScreen/AddVersesEmpty';
 import VerseCard from '~/components/Verses/VerseCard';
 import ItemSeparator from '~/components/ItemSeparator';
@@ -19,6 +18,7 @@ import CustomButton from '~/components/CustomButton';
 import { useMutation } from 'convex/react';
 import CancelIcon from '~/components/icons/CancelIcon';
 import { useGridListView } from '~/store/tab-store';
+import { FlashList } from '@shopify/flash-list';
 
 const AllVersesScreen = () => {
   const { gridView } = useGridListView();
@@ -37,8 +37,8 @@ const AllVersesScreen = () => {
   const deleteVerses = useMutation(api.verses.deleteVerses);
 
   const toggleSelectedVerse = (_id: Id<'verses'>) => {
-    setSelectedToDelete((prev) =>
-      prev.includes(_id) ? prev.filter((id) => id !== _id) : [...prev, _id]
+    setSelectedToDelete(prev =>
+      prev.includes(_id) ? prev.filter(id => id !== _id) : [...prev, _id]
     );
   };
 
@@ -63,6 +63,15 @@ const AllVersesScreen = () => {
           <RemoveCircleIcon />
         </Button>
       )}
+
+      <Button
+        size={'icon'}
+        variant={'ghost'}
+        // disabled={selectedToDelete?.length === 0}
+        // onPress={() => setBottomSheetIndex(1)}
+      >
+        Move to collection
+      </Button>
 
       {shouldDelete && (
         <Button
@@ -101,7 +110,7 @@ const AllVersesScreen = () => {
       />
 
       <View className='flex-1 px-[18px]'>
-        <FlatList
+        <FlashList
           key={gridView ? 'grid-myverses' : 'list-myverses'}
           data={results}
           keyExtractor={(item, index) => index.toString()}
@@ -131,7 +140,6 @@ const AllVersesScreen = () => {
             gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
           }
           ItemSeparatorComponent={ItemSeparator}
-          scrollEnabled={false}
         />
       </View>
 
@@ -140,7 +148,7 @@ const AllVersesScreen = () => {
         index={bottomSheetIndex}
         snapPoints={['25%']}
         enablePanDownToClose={true}
-        onChange={(index) => setBottomSheetIndex(index)}
+        onChange={index => setBottomSheetIndex(index)}
         backgroundStyle={{
           backgroundColor: isDarkMode ? '#313131' : '#fff',
         }}
