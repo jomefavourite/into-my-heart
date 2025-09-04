@@ -2,7 +2,7 @@ import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
 import { getCurrentUserOrThrow } from './users';
 
-export const adCollectionSuggestion = mutation({
+export const addCollectionSuggestion = mutation({
   args: {
     bookName: v.string(),
     chapter: v.number(),
@@ -16,12 +16,14 @@ export const adCollectionSuggestion = mutation({
     reviewFreq: v.string(), // e.g., "daily", "weekly", "monthly"
   },
   handler: async (ctx, args) => {
-    // const identity = await ctx.auth.getUserIdentity();
     const user = await getCurrentUserOrThrow(ctx);
 
-    // if (!identity) {
-    //   throw new Error('Unauthorized');
-    // }
+    // Check if user has admin role
+    if (user.role !== 'admin') {
+      throw new Error(
+        'Unauthorized - Admin access required to add collection suggestions'
+      );
+    }
 
     await ctx.db.insert('collectionSuggestions', {
       bookName: args.bookName,
@@ -35,19 +37,24 @@ export const adCollectionSuggestion = mutation({
 });
 
 export const getCollectionsSuggestion = query({
-  handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Unauthorized');
+  handler: async ctx => {
+    try {
+      // Just check if user is authenticated, no admin role required
+      await getCurrentUserOrThrow(ctx);
+
+      const verses = await ctx.db
+        .query('collectionSuggestions')
+        .order('desc')
+        .take(50);
+
+      return verses;
+    } catch (error) {
+      console.error('getCollectionsSuggestion error:', error);
+      if (error instanceof Error && error.message.includes('Unauthorized')) {
+        throw new Error('Authentication required. Please sign in again.');
+      }
+      throw error;
     }
-
-    const verses = await ctx.db
-      .query('collectionSuggestions')
-      .order('desc')
-      // .filter((q) => q.eq(q.field('authorId'), identity.subject)) // makes sure I always get the verses from the current user
-      .take(50);
-
-    return verses;
   },
 });
 
@@ -57,14 +64,18 @@ export const deleteCollectionSuggestion = mutation({
   },
   handler: async (ctx, { _id }) => {
     const user = await getCurrentUserOrThrow(ctx);
-    const verseSuggestion = await ctx.db.get(_id);
 
-    if (!verseSuggestion) {
-      throw new Error('Verse suggestion not found');
+    // Check if user has admin role
+    if (user.role !== 'admin') {
+      throw new Error(
+        'Unauthorized - Admin access required to delete collection suggestions'
+      );
     }
 
-    if (verseSuggestion.userId !== user._id) {
-      throw new Error('Unauthorized to delete this verse suggestion');
+    const collectionSuggestion = await ctx.db.get(_id);
+
+    if (!collectionSuggestion) {
+      throw new Error('Collection suggestion not found');
     }
 
     await ctx.db.delete(_id);

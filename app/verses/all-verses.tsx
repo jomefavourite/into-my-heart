@@ -70,7 +70,7 @@ const AllVersesScreen = () => {
         // disabled={selectedToDelete?.length === 0}
         // onPress={() => setBottomSheetIndex(1)}
       >
-        Move to collection
+        <Text>Move to collection</Text>
       </Button>
 
       {shouldDelete && (

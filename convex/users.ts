@@ -31,6 +31,7 @@ export const createUser = internalMutation({
   handler: async (ctx, args) => {
     const userId = await ctx.db.insert('users', {
       ...args,
+      role: 'user', // Default role for new users
     });
     return userId;
   },
@@ -83,6 +84,15 @@ export async function getCurrentUser(ctx: QueryCtx) {
     return user;
   } catch (error) {
     console.error('getCurrentUser error:', error);
+    // Re-throw with more specific error message
+    if (error instanceof Error) {
+      if (error.message.includes('No user identity')) {
+        throw new Error('Authentication required. Please sign in.');
+      }
+      if (error.message.includes('User not found')) {
+        throw new Error('User account not found. Please contact support.');
+      }
+    }
     throw error;
   }
 }
@@ -93,3 +103,186 @@ async function userByExternalId(ctx: QueryCtx, externalId: string) {
     .withIndex('byClerkId', q => q.eq('clerkId', externalId))
     .unique();
 }
+
+// Admin management functions
+export const getAllUsers = query({
+  args: {},
+  handler: async ctx => {
+    const currentUser = await getCurrentUserOrThrow(ctx);
+    if (currentUser.role !== 'admin') {
+      throw new Error('Unauthorized - Admin access required');
+    }
+
+    return await ctx.db.query('users').collect();
+  },
+});
+
+export const promoteToAdmin = mutation({
+  args: {
+    userId: v.id('users'),
+  },
+  handler: async (ctx, { userId }) => {
+    const currentUser = await getCurrentUserOrThrow(ctx);
+    if (currentUser.role !== 'admin') {
+      throw new Error('Unauthorized - Admin access required');
+    }
+
+    await ctx.db.patch(userId, { role: 'admin' });
+    return { success: true };
+  },
+});
+
+export const demoteFromAdmin = mutation({
+  args: {
+    userId: v.id('users'),
+  },
+  handler: async (ctx, { userId }) => {
+    const currentUser = await getCurrentUserOrThrow(ctx);
+    if (currentUser.role !== 'admin') {
+      throw new Error('Unauthorized - Admin access required');
+    }
+
+    // Prevent demoting yourself
+    if (currentUser._id === userId) {
+      throw new Error('Cannot demote yourself from admin');
+    }
+
+    await ctx.db.patch(userId, { role: 'user' });
+    return { success: true };
+  },
+});
+
+export const setUserRole = mutation({
+  args: {
+    userId: v.id('users'),
+    role: v.union(v.literal('admin'), v.literal('user')),
+  },
+  handler: async (ctx, { userId, role }) => {
+    const currentUser = await getCurrentUserOrThrow(ctx);
+    if (currentUser.role !== 'admin') {
+      throw new Error('Unauthorized - Admin access required');
+    }
+
+    // Prevent changing your own role
+    if (currentUser._id === userId && role === 'user') {
+      throw new Error('Cannot demote yourself from admin');
+    }
+
+    await ctx.db.patch(userId, { role });
+    return { success: true };
+  },
+});
+
+// Helper function to check if current user is admin
+export const isCurrentUserAdmin = query({
+  args: {},
+  handler: async ctx => {
+    try {
+      const currentUser = await getCurrentUser(ctx);
+      return currentUser.role === 'admin';
+    } catch {
+      return false;
+    }
+  },
+});
+
+// Helper function to get current user's role
+export const getCurrentUserRole = query({
+  args: {},
+  handler: async ctx => {
+    try {
+      const currentUser = await getCurrentUser(ctx);
+      return currentUser.role || 'user';
+    } catch {
+      return 'user';
+    }
+  },
+});
+
+// Admin setup functions - accessible from Convex dashboard
+export const setupFirstAdmin = mutation({
+  args: {
+    adminEmail: v.string(),
+  },
+  handler: async (ctx, { adminEmail }) => {
+    // Find user by email
+    const user = await ctx.db
+      .query('users')
+      .filter(q => q.eq(q.field('email'), adminEmail))
+      .unique();
+
+    if (!user) {
+      throw new Error(`User with email ${adminEmail} not found`);
+    }
+
+    // Check if there are already any admins
+    const existingAdmins = await ctx.db
+      .query('users')
+      .filter(q => q.eq(q.field('role'), 'admin'))
+      .collect();
+
+    if (existingAdmins.length > 0) {
+      console.log(
+        'Admin users already exist. Use the admin panel to manage roles.'
+      );
+      return {
+        message: 'Admin users already exist',
+        adminCount: existingAdmins.length,
+      };
+    }
+
+    // Promote the user to admin
+    await ctx.db.patch(user._id, { role: 'admin' });
+
+    console.log(`Successfully promoted ${adminEmail} to admin`);
+    return {
+      success: true,
+      message: `User ${adminEmail} has been promoted to admin`,
+      userId: user._id,
+    };
+  },
+});
+
+// Alternative: Promote by Clerk ID
+export const setupAdminByClerkId = mutation({
+  args: {
+    clerkId: v.string(),
+  },
+  handler: async (ctx, { clerkId }) => {
+    // Find user by Clerk ID
+    const user = await ctx.db
+      .query('users')
+      .withIndex('byClerkId', q => q.eq('clerkId', clerkId))
+      .unique();
+
+    if (!user) {
+      throw new Error(`User with Clerk ID ${clerkId} not found`);
+    }
+
+    // Check if there are already any admins
+    const existingAdmins = await ctx.db
+      .query('users')
+      .filter(q => q.eq(q.field('role'), 'admin'))
+      .collect();
+
+    if (existingAdmins.length > 0) {
+      console.log(
+        'Admin users already exist. Use the admin panel to manage roles.'
+      );
+      return {
+        message: 'Admin users already exist',
+        adminCount: existingAdmins.length,
+      };
+    }
+
+    // Promote the user to admin
+    await ctx.db.patch(user._id, { role: 'admin' });
+
+    console.log(`Successfully promoted user ${user.email} to admin`);
+    return {
+      success: true,
+      message: `User ${user.email} has been promoted to admin`,
+      userId: user._id,
+    };
+  },
+});

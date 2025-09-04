@@ -53,8 +53,6 @@ export default function SelectVerses() {
     setVerses(newVerses);
   }, [versesLength]);
 
-  console.log(versesLength, verseLengthURL, bookURL, 'versesLength');
-
   return (
     <SafeAreaView className='flex-1'>
       <BackHeader

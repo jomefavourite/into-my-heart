@@ -1,5 +1,5 @@
 import { ScrollView, View } from 'react-native';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import ThemedText from '~/components/ThemedText';
 import BackHeader from '~/components/BackHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -20,6 +20,10 @@ import { useIsCollOrVerse } from '~/store/tab-store';
 import { ActivityIndicator } from 'react-native';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { BOOKS } from '~/lib/books';
+import SplitVersesBottomSheet, {
+  SplitVersesBottomSheetRef,
+} from '~/components/SplitVersesBottomSheet';
+import { useErrorAlert } from '~/components/ErrorAlert';
 
 type GetVerseTextsParams = {
   bookName: string;
@@ -36,7 +40,7 @@ function getVerseText(
   const verse = chapterData.content.find(
     i => i.type === 'verse' && i.number === verseNumber
   );
-  console.log(verse, 'Verse---');
+
   return verse
     ? { text: verse.content[0], verse: verseNumber }
     : // .join('')
@@ -65,7 +69,6 @@ const getVerseTexts = async ({
 
     // console.log(`Fetched ${bookName} ${chapter}:${verse}:`, verseJson);
 
-    console.log(getVerseText(chapterDataJson.chapter, verse), 'Chapter Data');
     return getVerseText(chapterDataJson.chapter, verse); // Return the fetched data if you need it
   } catch (error) {
     console.error(`Error fetching ${bookName} ${chapter}:${verse}:`, error);
@@ -89,14 +92,14 @@ export default function VerseSummary() {
 
   const { isCollOrVerse } = useIsCollOrVerse();
   const [isLoading, setIsLoading] = React.useState(false);
+  const splitVersesBottomSheetRef = useRef<SplitVersesBottomSheetRef>(null);
+  const { showError, ErrorAlertComponent } = useErrorAlert();
 
   const addVerse = useMutation(api.verses.addVerse);
 
   const versesList = useMemo(() => {
     return verses ? verses.map(Number) : [];
   }, [verses]);
-
-  console.log(verses, 'Verses');
 
   const queries = useMemo(() => {
     return versesList
@@ -112,13 +115,9 @@ export default function VerseSummary() {
     queries,
   });
 
-  console.log(verseTextsList, 'Verse Texts List');
-
   const verseTexts = useMemo(() => {
     return verseTextsList.map(query => query.data).filter(Boolean);
   }, [verseTextsList]);
-
-  console.log(verseTexts, 'Verse Texts');
 
   const isVerseTextsListLoading = useMemo(() => {
     return verseTextsList.some(query => query.isLoading);
@@ -137,66 +136,140 @@ export default function VerseSummary() {
 
   const handleAddVerse = useCallback(async () => {
     if (versesList.length === 0) return;
-    setIsLoading(true);
 
     if (!bookName || !chapter) {
       console.error('Book name or chapter is not set');
       return;
     }
 
-    if (isCollOrVerse === 'collections') {
-      setCollectionVerses({
-        bookName,
-        chapter,
-        reviewFreq: reviewFreqValue,
-        verses: versesList.map(v => v.toString()),
-        verseTexts: verseTexts.map((text, index) => ({
-          verse: text.verse,
-          text: text.text,
-        })),
-      });
-      setVerses([]);
-      setIsLoading(false);
-      router.push('/verses/create-collection');
+    // Show bottom sheet if there are multiple verses
+    if (versesList.length > 1) {
+      splitVersesBottomSheetRef.current?.open();
       return;
     }
 
-    try {
-      const payload = {
-        bookName: bookName,
-        chapter: chapter,
-        verses: versesList.map(v => v.toString()),
-        reviewFreq: reviewFreqValue,
-        verseTexts: verseTexts.map((text, index) => ({
-          verse: `${text.verse}`,
-          text: text.text,
-        })),
-      };
+    // If only one verse, proceed directly
+    await processAddVerse();
+  }, [versesList, bookName, chapter]);
 
-      console.log(payload, 'payload');
+  const processAddVerse = useCallback(
+    async (splitIntoIndividual = false) => {
+      setIsLoading(true);
 
-      // return;
+      if (isCollOrVerse === 'collections') {
+        setCollectionVerses({
+          bookName,
+          chapter,
+          reviewFreq: reviewFreqValue,
+          verses: versesList.map(v => v.toString()),
+          verseTexts: verseTexts.map((text, index) => ({
+            verse: text?.verse?.toString() || '',
+            text: text?.text || '',
+          })),
+        });
+        setVerses([]);
+        setIsLoading(false);
+        router.push('/verses/create-collection');
+        return;
+      }
 
-      await addVerse(payload);
-      setIsLoading(false);
-      resetAll();
-      router.push('/verses');
-    } catch (error) {
-      console.error('Error adding verse:', error);
-    }
-  }, [
-    addVerse,
-    bookName,
-    chapter,
-    versesList,
-    reviewFreqValue,
-    router,
-    isCollOrVerse,
-    setCollectionVerses,
-    setVerses,
-    resetAll,
-    verseTexts,
-  ]);
+      try {
+        if (splitIntoIndividual) {
+          // Add each verse individually
+          for (const verse of versesList) {
+            const verseText = verseTexts.find(vt => vt?.verse === verse);
+            if (verseText) {
+              const payload = {
+                bookName: bookName,
+                chapter: chapter,
+                verses: [verse.toString()],
+                reviewFreq: reviewFreqValue,
+                verseTexts: [
+                  {
+                    verse: `${verseText.verse}`,
+                    text: verseText.text || '',
+                  },
+                ],
+                isGroup: false, // Single verse - check for duplicates
+              };
+              await addVerse(payload);
+            }
+          }
+        } else {
+          // Add as a group - isGroup determined by number of verses
+          const isGroup = versesList.length > 1;
+          const payload = {
+            bookName: bookName,
+            chapter: chapter,
+            verses: versesList.map(v => v.toString()),
+            reviewFreq: reviewFreqValue,
+            verseTexts: verseTexts.map((text, index) => ({
+              verse: `${text?.verse || ''}`,
+              text: text?.text || '',
+            })),
+            isGroup: isGroup, // Multiple verses = group (allow duplicates), single verse = individual (check duplicates)
+          };
+          await addVerse(payload);
+        }
+
+        setIsLoading(false);
+        resetAll();
+        router.push('/verses');
+      } catch (error) {
+        console.error('Error adding verse:', error);
+        setIsLoading(false);
+
+        // Extract clean error message from Convex error
+        let errorMessage = 'An unexpected error occurred. Please try again.';
+        let errorTitle = 'Error';
+
+        if (error instanceof Error) {
+          // Check if it's a Convex error with wrapped message
+          const convexErrorMatch = error.message.match(
+            /Uncaught Error: (.+?)(?:\s+at handler|$)/
+          );
+          if (convexErrorMatch) {
+            errorMessage = convexErrorMatch[1].trim();
+          } else {
+            errorMessage = error.message;
+          }
+
+          // Determine error type and title
+          if (errorMessage.includes('already exist')) {
+            errorTitle = 'Duplicate Verses';
+          } else {
+            errorTitle = 'Error';
+            if (!errorMessage.includes('Failed to add verses')) {
+              errorMessage = 'Failed to add verses. Please try again.';
+            }
+          }
+        }
+
+        showError(errorTitle, errorMessage);
+      }
+    },
+    [
+      addVerse,
+      bookName,
+      chapter,
+      versesList,
+      reviewFreqValue,
+      router,
+      isCollOrVerse,
+      setCollectionVerses,
+      setVerses,
+      resetAll,
+      verseTexts,
+    ]
+  );
+
+  const handleSplitIntoIndividual = useCallback(() => {
+    processAddVerse(true);
+  }, [processAddVerse]);
+
+  const handleKeepAsGroup = useCallback(() => {
+    processAddVerse(false);
+  }, [processAddVerse]);
 
   return (
     <SafeAreaView className='flex-1'>
@@ -325,22 +398,36 @@ export default function VerseSummary() {
                   size={13}
                   className='w-full text-[#707070] dark:text-[#909090] !overflow-hidden !text-ellipsis block'
                 >
-                  {text.verse}. {text.text}
+                  {text?.verse}. {text?.text}
                 </ThemedText>
               ))
             )}
           </ScrollView>
         </View>
 
-        <CustomButton
-          disabled={isVerseTextsListLoading}
-          isLoading={isLoading}
-          className='my-5'
-          onPress={handleAddVerse}
-        >
-          Add Verse
-        </CustomButton>
+        <View className='flex-row gap-3'>
+          <CustomButton
+            disabled={isVerseTextsListLoading}
+            isLoading={isLoading}
+            className='my-5 flex-1'
+            onPress={handleAddVerse}
+          >
+            Add Verse
+          </CustomButton>
+        </View>
       </View>
+
+      <SplitVersesBottomSheet
+        ref={splitVersesBottomSheetRef}
+        onSplitIntoIndividual={handleSplitIntoIndividual}
+        onKeepAsGroup={handleKeepAsGroup}
+        verseCount={versesList.length}
+        bookName={bookName}
+        chapter={chapter}
+        verses={versesList}
+      />
+
+      <ErrorAlertComponent />
     </SafeAreaView>
   );
 }

@@ -9,6 +9,7 @@ export const User = {
   last_name: v.optional(v.string()),
   location: v.optional(v.string()),
   pushToken: v.optional(v.string()),
+  role: v.optional(v.union(v.literal('admin'), v.literal('user'))),
 };
 
 export const Verse = {
@@ -78,10 +79,4 @@ export default defineSchema({
   versesSuggestions: defineTable(VerseSuggestion),
   collectionSuggestions: defineTable(CollectionSuggestion),
   collections: defineTable(Collection),
-  messages: defineTable({
-    content: v.string(),
-    authorId: v.string(),
-    authorEmail: v.string(),
-    createdAt: v.number(),
-  }),
 });

@@ -18,6 +18,7 @@ import ThemedText from './ThemedText';
 import HomeHeader from './Home/Header';
 import Logo from './icons/logo/Logo';
 import { useColorScheme } from '~/hooks/useColorScheme';
+import { AdminOnly } from './AdminOnly';
 
 type Tab = {
   name: string;
@@ -72,6 +73,17 @@ export default function TabBarSidebar() {
               </Link>
             );
           })}
+
+          {/* Add a link that goes to the admin panel, this should only be visible to admins */}
+          <AdminOnly>
+            <Link href='/admin' asChild>
+              <View>
+                <TouchableOpacity>
+                  <ThemedText>Admin</ThemedText>
+                </TouchableOpacity>
+              </View>
+            </Link>
+          </AdminOnly>
         </ScrollView>
       </View>
 

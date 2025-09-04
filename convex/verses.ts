@@ -16,14 +16,40 @@ export const addVerse = mutation({
         text: v.string(),
       })
     ),
+    isGroup: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    // const identity = await ctx.auth.getUserIdentity();
     const user = await getCurrentUserOrThrow(ctx);
 
-    // if (!identity) {
-    //   throw new Error('Unauthorized');
-    // }
+    // Only check for duplicates when adding individually (not as a group)
+    if (!args.isGroup) {
+      const existingVerses = await ctx.db
+        .query('verses')
+        .filter(q => q.eq(q.field('userId'), user._id))
+        .collect();
+
+      // Check for duplicates
+      for (const existingVerse of existingVerses) {
+        if (
+          existingVerse.bookName === args.bookName &&
+          existingVerse.chapter === args.chapter
+        ) {
+          // Check if any of the verses we're trying to add already exist
+          const existingVerseNumbers = existingVerse.verses;
+          const newVerseNumbers = args.verses;
+
+          const duplicateVerses = newVerseNumbers.filter(verse =>
+            existingVerseNumbers.includes(verse)
+          );
+
+          if (duplicateVerses.length > 0) {
+            throw new Error(
+              `The following verses already exist: ${duplicateVerses.join(', ')}. Please remove duplicates and try again.`
+            );
+          }
+        }
+      }
+    }
 
     await ctx.db.insert('verses', {
       bookName: args.bookName,
@@ -44,10 +70,6 @@ export const getVerses = query({
     try {
       const user = await getCurrentUserOrThrow(ctx);
 
-      if (!user) {
-        throw new Error('User not found');
-      }
-
       const verses = await ctx.db
         .query('verses')
         .order('desc')
@@ -57,8 +79,13 @@ export const getVerses = query({
       return verses;
     } catch (error) {
       console.error('getVerses error:', error);
-      if (error instanceof Error && error.message === 'Unauthorized') {
-        throw new Error('Authentication required. Please sign in again.');
+      if (error instanceof Error) {
+        if (error.message.includes('Authentication required')) {
+          throw new Error('Authentication required. Please sign in.');
+        }
+        if (error.message.includes('User account not found')) {
+          throw new Error('User account not found. Please contact support.');
+        }
       }
       throw error;
     }
@@ -68,25 +95,51 @@ export const getVerses = query({
 export const getAllVerses = query({
   args: { paginationOpts: paginationOptsValidator },
   handler: async (ctx, args) => {
-    const user = await getCurrentUserOrThrow(ctx);
+    try {
+      const user = await getCurrentUserOrThrow(ctx);
 
-    const verses = await ctx.db
-      .query('verses')
-      .order('desc')
-      .filter(q => q.eq(q.field('userId'), user._id))
-      .paginate(args.paginationOpts);
-    return verses;
+      const verses = await ctx.db
+        .query('verses')
+        .order('desc')
+        .filter(q => q.eq(q.field('userId'), user._id))
+        .paginate(args.paginationOpts);
+      return verses;
+    } catch (error) {
+      console.error('getAllVerses error:', error);
+      if (error instanceof Error) {
+        if (error.message.includes('Authentication required')) {
+          throw new Error('Authentication required. Please sign in.');
+        }
+        if (error.message.includes('User account not found')) {
+          throw new Error('User account not found. Please contact support.');
+        }
+      }
+      throw error;
+    }
   },
 });
 
 export const getTotalVersesCount = query({
   handler: async ctx => {
-    const user = await getCurrentUserOrThrow(ctx);
-    const verses = await ctx.db
-      .query('verses')
-      .filter(q => q.eq(q.field('userId'), user._id))
-      .collect();
-    return verses.length;
+    try {
+      const user = await getCurrentUserOrThrow(ctx);
+      const verses = await ctx.db
+        .query('verses')
+        .filter(q => q.eq(q.field('userId'), user._id))
+        .collect();
+      return verses.length;
+    } catch (error) {
+      console.error('getTotalVersesCount error:', error);
+      if (error instanceof Error) {
+        if (error.message.includes('Authentication required')) {
+          throw new Error('Authentication required. Please sign in.');
+        }
+        if (error.message.includes('User account not found')) {
+          throw new Error('User account not found. Please contact support.');
+        }
+      }
+      throw error;
+    }
   },
 });
 

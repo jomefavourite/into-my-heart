@@ -16,12 +16,14 @@ export const addVerseSuggestion = mutation({
     reviewFreq: v.string(), // e.g., "daily", "weekly", "monthly"
   },
   handler: async (ctx, args) => {
-    // const identity = await ctx.auth.getUserIdentity();
     const user = await getCurrentUserOrThrow(ctx);
 
-    // if (!identity) {
-    //   throw new Error('Unauthorized');
-    // }
+    // Check if user has admin role
+    if (user.role !== 'admin') {
+      throw new Error(
+        'Unauthorized - Admin access required to add verse suggestions'
+      );
+    }
 
     await ctx.db.insert('versesSuggestions', {
       bookName: args.bookName,
@@ -35,19 +37,24 @@ export const addVerseSuggestion = mutation({
 });
 
 export const getVersesSuggestion = query({
-  handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error('Unauthorized');
+  handler: async ctx => {
+    try {
+      const user = await getCurrentUserOrThrow(ctx);
+
+      const verses = await ctx.db
+        .query('versesSuggestions')
+        .order('desc')
+        .filter(q => q.eq(q.field('userId'), user._id)) // Filter by current user
+        .take(50);
+
+      return verses;
+    } catch (error) {
+      console.error('getVersesSuggestion error:', error);
+      if (error instanceof Error && error.message.includes('Unauthorized')) {
+        throw new Error('Authentication required. Please sign in again.');
+      }
+      throw error;
     }
-
-    const verses = await ctx.db
-      .query('versesSuggestions')
-      .order('desc')
-      // .filter((q) => q.eq(q.field('authorId'), identity.subject)) // makes sure I always get the verses from the current user
-      .take(50);
-
-    return verses;
   },
 });
 
@@ -57,14 +64,18 @@ export const deleteVerseSuggestion = mutation({
   },
   handler: async (ctx, { _id }) => {
     const user = await getCurrentUserOrThrow(ctx);
+
+    // Check if user has admin role
+    if (user.role !== 'admin') {
+      throw new Error(
+        'Unauthorized - Admin access required to delete verse suggestions'
+      );
+    }
+
     const verseSuggestion = await ctx.db.get(_id);
 
     if (!verseSuggestion) {
       throw new Error('Verse suggestion not found');
-    }
-
-    if (verseSuggestion.userId !== user._id) {
-      throw new Error('Unauthorized to delete this verse suggestion');
     }
 
     await ctx.db.delete(_id);
