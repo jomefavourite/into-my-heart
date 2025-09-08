@@ -6,7 +6,7 @@ export function useColorScheme() {
 
   return {
     colorScheme: colorScheme ?? 'dark',
-    isDarkColorScheme: colorScheme === 'dark',
+    isDarkMode: colorScheme === 'dark',
     setColorScheme,
     toggleColorScheme,
   };

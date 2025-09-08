@@ -1,26 +1,14 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
+import { View } from 'react-native';
+import Container from '~/components/Container';
+import Onboarding from '~/components/Onboarding';
 
-export default function OnboardingStep1() {
-  const router = useRouter();
-
+export default function OnboardingStep3() {
   return (
-    <View style={styles.container}>
-      <Text>Welcome to the App!</Text>
-      <Text>Step 3: Learn about our amazing features.</Text>
-      <Button
-        title='Next'
-        onPress={() => router.navigate('/(onboarding)/create-account')}
-      />
-    </View>
+    <Container>
+      <View className='flex-1 justify-between'>
+        <Onboarding stepNumber={3} />
+      </View>
+    </Container>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

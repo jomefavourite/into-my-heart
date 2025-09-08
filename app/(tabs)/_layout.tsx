@@ -1,64 +1,79 @@
-import { Tabs } from 'expo-router';
+import { Slot, Tabs } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
-import GoalsIcon from '~/assets/icons/tabs/GoalsIcon';
-import HomeIcon from '~/assets/icons/tabs/HomeIcon';
-import PracticeIcon from '~/assets/icons/tabs/PracticeIcon';
-import VersesIcon from '~/assets/icons/tabs/VersesIcon';
-
-// import { HapticTab } from '~/components/HapticTab';
-// import { IconSymbol } from '~/components/ui/IconSymbol';
-// import TabBarBackground from '~/components/ui/TabBarBackground';
-// import { Colors } from '~/constants/Colors';
-import { useColorScheme } from '~/hooks/useColorScheme';
+import { Platform, useWindowDimensions } from 'react-native';
+import GoalsIcon from '~/components/icons/tabs/GoalsIcon';
+import HomeIcon from '~/components/icons/tabs/HomeIcon';
+import PracticeIcon from '~/components/icons/tabs/PracticeIcon';
+import ProfileIcon from '~/components/icons/tabs/ProfileIcon';
+import VersesIcon from '~/components/icons/tabs/VersesIcon';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const { width } = useWindowDimensions();
+
+  if (Platform.OS === 'web' && width > 720) {
+    return <Slot />;
+  }
 
   return (
-    <Tabs
-      screenOptions={{
-        // tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        // tabBarButton: HapticTab,
-        // tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
+    <>
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarStyle: {
+            paddingTop: 15,
+            paddingBottom: 15,
+            height: 82,
           },
-          default: {},
-        }),
-      }}
-    >
-      <Tabs.Screen
-        name='index'
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <HomeIcon color={color} />,
+          tabBarLabelStyle: {
+            fontSize: 12,
+            fontWeight: 500,
+            fontFamily: 'Inter',
+          },
+          tabBarItemStyle:
+            Platform.OS === 'web'
+              ? {
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                }
+              : undefined,
         }}
-      />
-      <Tabs.Screen
-        name='verses'
-        options={{
-          title: 'Verses',
-          tabBarIcon: ({ color }) => <VersesIcon color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name='practice'
-        options={{
-          title: 'Practice',
-          tabBarIcon: ({ color }) => <PracticeIcon color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name='goals'
-        options={{
-          title: 'Goals',
-          tabBarIcon: ({ color }) => <GoalsIcon color={color} />,
-        }}
-      />
-    </Tabs>
+      >
+        <Tabs.Screen
+          name='index'
+          options={{
+            title: 'Home',
+            tabBarIcon: ({ focused }) => <HomeIcon focused={focused} />,
+          }}
+        />
+        <Tabs.Screen
+          name='verses'
+          options={{
+            title: 'Verses',
+            tabBarIcon: ({ focused }) => <VersesIcon focused={focused} />,
+          }}
+        />
+        <Tabs.Screen
+          name='practice'
+          options={{
+            title: 'Practice',
+            tabBarIcon: ({ focused }) => <PracticeIcon focused={focused} />,
+          }}
+        />
+        <Tabs.Screen
+          name='goals'
+          options={{
+            title: 'Goals',
+            tabBarIcon: ({ focused }) => <GoalsIcon focused={focused} />,
+          }}
+        />
+        <Tabs.Screen
+          name='profile'
+          options={{
+            title: 'Profile',
+            tabBarIcon: ({ focused }) => <ProfileIcon focused={focused} />,
+          }}
+        />
+      </Tabs>
+    </>
   );
 }

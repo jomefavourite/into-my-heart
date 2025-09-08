@@ -1,57 +1,59 @@
-import { type TextProps, StyleSheet } from 'react-native';
-
+import React from 'react';
+import { StyleSheet, TextProps } from 'react-native';
+import { cn } from '~/lib/utils';
 import { Text } from './ui/text';
 
-export type ThemedTextProps = TextProps & {
-  type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link';
+type FontVariant = 'regular' | 'medium' | 'semibold' | 'bold';
+type FontSize = 12 | 13 | 14 | 15 | 16 | 18 | 22 | 27 | 44;
+
+const fontMap: { [key in FontVariant]: string } = {
+  regular: 'Inter_400Regular',
+  medium: 'Inter_500Medium',
+  semibold: 'Inter_600SemiBold',
+  bold: 'Inter_700Bold',
 };
 
-export function ThemedText({
-  style,
-  type = 'default',
-  ...rest
-}: ThemedTextProps) {
-  return (
-    <Text
-      style={[
-        type === 'title' ? styles.title : undefined,
-        type === 'defaultSemiBold' ? styles.defaultSemiBold : undefined,
-        type === 'subtitle' ? styles.subtitle : undefined,
-        type === 'link' ? styles.link : undefined,
-        style,
-      ]}
-      {...rest}
-    />
-  );
+const sizeMap: { [key in FontSize]: number } = {
+  12: 12,
+  13: 13,
+  14: 14,
+  15: 15,
+  16: 16,
+  18: 18,
+  22: 22,
+  27: 27,
+  44: 44,
+};
+
+interface ThemedTextProps extends TextProps {
+  variant?: FontVariant;
+  size?: FontSize;
+  className?: string;
+  children: React.ReactNode;
 }
 
-const styles = StyleSheet.create({
-  default: {
-    fontSize: 14,
-    lineHeight: 24,
-    fontFamily: 'Inter',
-  },
-  defaultSemiBold: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: '600',
-    fontFamily: 'Inter',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    lineHeight: 32,
-    fontFamily: 'Inter',
-  },
-  subtitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    fontFamily: 'Inter',
-  },
-  link: {
-    lineHeight: 30,
-    fontSize: 16,
-    color: '#0a7ea4',
-    fontFamily: 'Inter',
-  },
-});
+const ThemedText: React.FC<ThemedTextProps> = ({
+  variant = 'regular',
+  size = 16,
+  className = '',
+  children,
+  ...props
+}) => {
+  const fontFamily = fontMap[variant] || fontMap.regular;
+  const fontSize = sizeMap[size] || sizeMap[16];
+
+  const styles = StyleSheet.create({
+    text: {
+      fontFamily: fontFamily,
+      fontSize: fontSize,
+    },
+  });
+
+  return (
+    <Text style={[styles.text]} className={cn(className)} {...props}>
+      {children}
+    </Text>
+  );
+};
+
+export default ThemedText;

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://unpkg.com/knip@latest/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": [
+        "app/**/*.tsx",
+        "components/**/*.tsx",
+        "convex/**/*.ts",
+        "lib/**/*.js",
+        "hooks/**/*.ts",
+        "utils/**/*.tsx",
+        "store/**/*.ts"
+      ]
+    }
+  }
+}

@@ -9,13 +9,18 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.favouritejome.intomyheart",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.favouritejome.intomyheart"
     },
     "web": {
       "bundler": "metro",
@@ -32,10 +37,32 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "node_modules/@expo-google-fonts/inter/Inter_900Black.ttf"
+          ]
+        }
+      ],
+      "expo-secure-store",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "679de2a0-3e97-498c-b7ae-322f00b43f36"
+      }
+    },
+    "runtimeVersion": "1.0.0", 
+    "updates": {
+      "url": "https://u.expo.dev/679de2a0-3e97-498c-b7ae-322f00b43f36"
     }
   }
 }

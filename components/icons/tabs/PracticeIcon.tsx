@@ -1,0 +1,46 @@
+import * as React from 'react';
+import Svg, { SvgProps, Path } from 'react-native-svg';
+import { useColorScheme } from '~/hooks/useColorScheme';
+interface PracticeIconProps extends SvgProps {
+  focused: boolean;
+}
+
+const PracticeIcon: React.FC<PracticeIconProps> = ({ focused, ...rest }) => {
+  const { isDarkMode } = useColorScheme();
+
+  const fillColor = focused
+    ? isDarkMode
+      ? '#FFFFFF' // Dark mode focused color
+      : '#303030' // Light mode focused color
+    : 'none';
+
+  const strokeColor = focused ? (isDarkMode ? '#fff' : '#303030') : '#707070';
+
+  return (
+    <Svg width={24} height={24} fill='none' {...rest}>
+      <Path
+        stroke={strokeColor}
+        strokeLinejoin='round'
+        strokeWidth={1.5}
+        d='M16 8a2.624 2.624 0 0 1-1.455 1.608c-2.28 1.01-3.927 2.656-4.937 4.937A2.624 2.624 0 0 1 8 16'
+      />
+      <Path
+        stroke={strokeColor}
+        fill={fillColor}
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        strokeWidth={1.5}
+        d='M3.2 20.8 2 22M20.8 3.2 22 2M17.788 2.422l-1.512 1.453 3.84 3.877 1.478-1.435c.444-.522.58-.916.027-1.64l-1.105-1.164-1.121-1.106c-.717-.642-1.281-.296-1.607.015Z'
+      />
+      <Path
+        stroke={strokeColor}
+        fill={fillColor}
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        strokeWidth={1.5}
+        d='M14.011 3.758c1.111-1.174 1.872-.339 2.262.126l3.808 3.823c.474.38 1.34 1.11.195 2.244-.185.183-.366.375-.567.54-.742.61-1.454.105-1.831-.36l-3.876-3.876c-.408-.366-1.113-1.03-.518-1.918.16-.205.349-.39.527-.58ZM4.587 21.62l-1.14-1.128-1.085-1.142c-.643-.643-.272-1.287.046-1.606L3.89 16.26l3.856 3.874-1.518 1.49c-.53.434-.895.567-1.608 0m1.603-7.7c-.39-.465-1.15-1.3-2.262-.126-.178.189-.366.374-.527.579-.595.888.11 1.552.518 1.918l3.876 3.876c.377.465 1.089.97 1.83.36.202-.165.383-.357.568-.54 1.146-1.135.279-1.864-.195-2.244l-3.808-3.823Z'
+      />
+    </Svg>
+  );
+};
+export default PracticeIcon;

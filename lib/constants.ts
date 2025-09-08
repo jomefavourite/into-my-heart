@@ -16,3 +16,13 @@ export const NAV_THEME = {
     text: 'hsl(0 0% 98%)', // foreground
   },
 };
+
+export const verses = [
+  {
+    bookName: 'Genesis',
+    chapter: 1,
+    verses: ['1'],
+    reviewFreq: 'Daily',
+    reference: 'In the beginning, God created the heavens and the earth.',
+  },
+];
