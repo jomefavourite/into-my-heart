@@ -1,5 +1,5 @@
 import { FlatList, StyleSheet, View } from 'react-native';
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 import VerseCard, { VerseCardSkeleton } from '~/components/Verses/VerseCard';
 import { verses } from '~/lib/constants';
 import ThemedText from '../ThemedText';
@@ -22,11 +22,17 @@ type VersesTabProps = {
 
 const VersesTab = ({ gridView }: VersesTabProps) => {
   const { isAuthenticated, isLoading } = useConvexAuth();
-  const getVerses = useQuery(api.verses.getVerses, { take: 5 });
-  const getVerseSuggestions = useQuery(
-    api.verseSuggestions.getVersesSuggestion
-  );
   const router = useRouter();
+
+  const getVerses = useQuery(
+    api.verses.getVerses,
+    isAuthenticated ? { take: 5 } : 'skip'
+  );
+
+  const getVerseSuggestions = useQuery(
+    api.verseSuggestions.getVersesSuggestion,
+    isAuthenticated ? {} : 'skip'
+  );
 
   const addVerse = useMutation(api.verses.addVerse);
   const addVerseSuggestion = useMutation(

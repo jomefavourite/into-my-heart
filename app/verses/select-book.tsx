@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 
 import BackHeader from '~/components/BackHeader';
 import { BOOKS } from '~/lib/books';
@@ -84,6 +85,13 @@ export default function AddBookScreen() {
   useEffect(() => {
     setVerses([]);
   }, []);
+
+  // Clear verses whenever the page comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      setVerses([]);
+    }, [setVerses])
+  );
 
   const filteredBooks = useMemo(() => {
     if (!searchQuery.trim()) return BOOKS;

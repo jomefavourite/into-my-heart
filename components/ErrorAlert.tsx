@@ -1,5 +1,12 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Modal } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Modal,
+  Platform,
+  Alert,
+} from 'react-native';
 import { AlertCircle, X } from 'lucide-react-native';
 
 interface ErrorAlertProps {
@@ -21,15 +28,51 @@ export function ErrorAlert({
 }: ErrorAlertProps) {
   if (!visible) return null;
 
+  // Use native Alert on mobile
+  if (Platform.OS !== 'web') {
+    React.useEffect(() => {
+      if (!visible) return;
+
+      const buttons = [{ text: 'Close', onPress: onClose }];
+
+      if (showRetry && onRetry) {
+        buttons.unshift({ text: 'Try Again', onPress: onRetry });
+      }
+
+      Alert.alert(title, message, buttons);
+    }, [visible, title, message, onClose, onRetry, showRetry]);
+
+    return null;
+  }
+
+  // Use custom Modal on web
   return (
     <Modal
       transparent
       visible={visible}
       animationType='fade'
       onRequestClose={onClose}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 9999,
+      }}
     >
-      <View className='flex-1 bg-black/50 items-center justify-center p-4'>
-        <View className='bg-white rounded-lg p-6 shadow-lg max-w-sm w-full'>
+      <View
+        className='flex-1 bg-black/50 items-center justify-center p-4'
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 10000,
+        }}
+      >
+        <View className='bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl max-w-md w-full'>
           {/* Header */}
           <View className='flex-row items-center justify-between mb-4'>
             <View className='flex-row items-center'>
@@ -91,6 +134,14 @@ export function useErrorAlert() {
   });
 
   const showError = (title: string, message: string) => {
+    // On mobile, show native alert immediately
+    if (Platform.OS !== 'web') {
+      const buttons = [{ text: 'Close', style: 'default' as const }];
+      Alert.alert(title, message, buttons);
+      return;
+    }
+
+    // On web, use custom modal
     setError({
       visible: true,
       title,
@@ -108,16 +159,24 @@ export function useErrorAlert() {
   }: {
     onRetry?: () => void;
     showRetry?: boolean;
-  }) => (
-    <ErrorAlert
-      visible={error.visible}
-      title={error.title}
-      message={error.message}
-      onClose={hideError}
-      onRetry={onRetry}
-      showRetry={showRetry}
-    />
-  );
+  }) => {
+    // On mobile, return null since we use native Alert
+    if (Platform.OS !== 'web') {
+      return null;
+    }
+
+    // On web, return custom modal
+    return (
+      <ErrorAlert
+        visible={error.visible}
+        title={error.title}
+        message={error.message}
+        onClose={hideError}
+        onRetry={onRetry}
+        showRetry={showRetry}
+      />
+    );
+  };
 
   return {
     showError,

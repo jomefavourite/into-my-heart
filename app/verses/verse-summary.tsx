@@ -1,12 +1,12 @@
 import { ScrollView, View } from 'react-native';
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef, useEffect } from 'react';
 import ThemedText from '~/components/ThemedText';
 import BackHeader from '~/components/BackHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '~/components/ui/button';
 import ArrowRightIcon from '~/components/icons/ArrowRightIcon';
 import CustomButton from '~/components/CustomButton';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useBookStore } from '~/store/bookStore';
 import {
   DropdownMenu,
@@ -78,17 +78,33 @@ const getVerseTexts = async ({
 
 export default function VerseSummary() {
   const router = useRouter();
+  const {
+    book: bookURL,
+    chapter: chapterURL,
+    verses: versesURL,
+    verseLength: verseLengthURL,
+  } = useLocalSearchParams();
   const [reviewFreqValue, setReviewFreqValue] = React.useState('Daily');
   const {
-    bookName,
-    chapter,
-    verses,
+    bookName: storeBookName,
+    chapter: storeChapter,
+    verses: storeVerses,
     collectionName,
+    setBookName,
+    setChapter,
     setVerses,
     setCollectionVerses,
     resetAll,
-    versesLength,
+    versesLength: storeVersesLength,
   } = useBookStore();
+
+  // Extract values from URL or fallback to store
+  const bookName = String(bookURL || storeBookName || '');
+  const chapter = chapterURL ? Number(chapterURL) : storeChapter;
+  const verses = versesURL
+    ? String(versesURL).split(',').filter(Boolean)
+    : storeVerses;
+  const versesLength = Number(verseLengthURL) || storeVersesLength;
 
   const { isCollOrVerse } = useIsCollOrVerse();
   const [isLoading, setIsLoading] = React.useState(false);
@@ -96,6 +112,36 @@ export default function VerseSummary() {
   const { showError, ErrorAlertComponent } = useErrorAlert();
 
   const addVerse = useMutation(api.verses.addVerse);
+
+  // Restore store state from URL parameters on mount
+  useEffect(() => {
+    if (bookURL && chapterURL && versesURL) {
+      // Only update store if URL parameters are different from current store values
+      if (bookURL !== storeBookName) {
+        setBookName(String(bookURL));
+      }
+      if (Number(chapterURL) !== storeChapter) {
+        setChapter(Number(chapterURL));
+      }
+      const urlVerses = String(versesURL).split(',').filter(Boolean);
+      if (JSON.stringify(urlVerses) !== JSON.stringify(storeVerses)) {
+        setVerses(urlVerses);
+      }
+    }
+  }, [
+    bookURL,
+    chapterURL,
+    versesURL,
+    storeBookName,
+    storeChapter,
+    storeVerses,
+    setBookName,
+    setChapter,
+    setVerses,
+  ]);
+
+  // Validate that we have the required data
+  const hasValidData = bookName && chapter && verses && verses.length > 0;
 
   const versesList = useMemo(() => {
     return verses ? verses.map(Number) : [];
@@ -116,8 +162,9 @@ export default function VerseSummary() {
   });
 
   const verseTexts = useMemo(() => {
-    return verseTextsList.map(query => query.data).filter(Boolean);
-  }, [verseTextsList]);
+    const texts = verseTextsList.map(query => query.data).filter(Boolean);
+    return texts;
+  }, [verseTextsList, versesList.length]);
 
   const isVerseTextsListLoading = useMemo(() => {
     return verseTextsList.some(query => query.isLoading);
@@ -142,6 +189,19 @@ export default function VerseSummary() {
       return;
     }
 
+    // Check if verse texts are still loading
+    if (isVerseTextsListLoading) {
+      console.log('⏳ Verse texts are still loading, please wait...');
+      return;
+    }
+
+    // Check if we have verse texts for all verses
+    if (verseTexts.length !== versesList.length) {
+      console.log('⚠️ Verse texts not fully loaded yet');
+      console.log('Expected:', versesList.length, 'Got:', verseTexts.length);
+      return;
+    }
+
     // Show bottom sheet if there are multiple verses
     if (versesList.length > 1) {
       splitVersesBottomSheetRef.current?.open();
@@ -150,7 +210,13 @@ export default function VerseSummary() {
 
     // If only one verse, proceed directly
     await processAddVerse();
-  }, [versesList, bookName, chapter]);
+  }, [
+    versesList,
+    bookName,
+    chapter,
+    isVerseTextsListLoading,
+    verseTexts.length,
+  ]);
 
   const processAddVerse = useCallback(
     async (splitIntoIndividual = false) => {
@@ -178,6 +244,7 @@ export default function VerseSummary() {
           // Add each verse individually
           for (const verse of versesList) {
             const verseText = verseTexts.find(vt => vt?.verse === verse);
+            console.log(`🔍 Found verse text:`, verseText);
             if (verseText) {
               const payload = {
                 bookName: bookName,
@@ -192,12 +259,18 @@ export default function VerseSummary() {
                 ],
                 isGroup: false, // Single verse - check for duplicates
               };
+              console.log('📝 Adding individual verse:', payload);
               await addVerse(payload);
+            } else {
+              console.error(`❌ No verse text found for verse ${verse}`);
             }
           }
         } else {
           // Add as a group - isGroup determined by number of verses
           const isGroup = versesList.length > 1;
+          console.log('🔍 Group addition - verseTexts:', verseTexts);
+          console.log('🔍 Group addition - versesList:', versesList);
+
           const payload = {
             bookName: bookName,
             chapter: chapter,
@@ -209,10 +282,12 @@ export default function VerseSummary() {
             })),
             isGroup: isGroup, // Multiple verses = group (allow duplicates), single verse = individual (check duplicates)
           };
+          console.log('📝 Adding verse group:', payload);
           await addVerse(payload);
         }
 
         setIsLoading(false);
+
         resetAll();
         router.push('/verses');
       } catch (error) {
@@ -270,6 +345,35 @@ export default function VerseSummary() {
   const handleKeepAsGroup = useCallback(() => {
     processAddVerse(false);
   }, [processAddVerse]);
+
+  // // Show loading or redirect if data is not valid
+  // if (!hasValidData) {
+  //   return (
+  //     <SafeAreaView className='flex-1'>
+  //       <BackHeader
+  //         title='Add Verse'
+  //         items={[
+  //           { label: 'Verses', href: '/verses' },
+  //           {
+  //             label: 'Select Book',
+  //             href: `/verses/select-book`,
+  //           },
+  //         ]}
+  //       />
+  //       <View className='flex-1 justify-center items-center px-[18px]'>
+  //         <ThemedText className='text-center mb-4'>
+  //           No verse data found. Please select verses first.
+  //         </ThemedText>
+  //         <CustomButton
+  //           onPress={() => router.push('/verses/select-book')}
+  //           className='w-full'
+  //         >
+  //           Select Book
+  //         </CustomButton>
+  //       </View>
+  //     </SafeAreaView>
+  //   );
+  // }
 
   return (
     <SafeAreaView className='flex-1'>

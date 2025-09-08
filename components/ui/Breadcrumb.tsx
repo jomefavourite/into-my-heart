@@ -1,15 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Href, router } from 'expo-router';
+import { View, TouchableOpacity } from 'react-native';
+import { Href, router, useLocalSearchParams } from 'expo-router';
 import { ChevronRight } from 'lucide-react-native';
-import { useColorScheme } from '~/hooks/useColorScheme';
 import ThemedText from '../ThemedText';
 import { cn } from '~/lib/utils';
-import { Button } from './button';
-import RemoveCircleIcon from '../icons/RemoveCircleIcon';
-import DeleteIcon from '../icons/DeleteIcon';
-import { Id } from '~/convex/_generated/dataModel';
-
 type BreadcrumbItem = {
   label: string;
   href?: Href;
@@ -21,10 +15,14 @@ type BreadcrumbProps = {
 };
 
 function Breadcrumb({ items, BreadcrumbRightComponent }: BreadcrumbProps) {
-  const { isDarkMode } = useColorScheme();
+  const { book: bookURL, chapter: chapterURL } = useLocalSearchParams();
 
-  // const textColor = isDark ? colors.dark.text.primary : colors.light.text.primary;
-  // const secondaryTextColor = isDark ? colors.dark.text.secondary : colors.light.text.secondary;
+  const bookName = String(bookURL || '');
+  const chapter = Number(chapterURL || '');
+
+  const handlePress = (href: Href) => {
+    router.replace(`${href}?book=${bookName}&chapter=${chapter}` as Href);
+  };
 
   return (
     <View className='flex-row justify-between items-center p-[18px]'>
@@ -33,7 +31,7 @@ function Breadcrumb({ items, BreadcrumbRightComponent }: BreadcrumbProps) {
           <React.Fragment key={item.label}>
             {index > 0 && <ChevronRight size={16} />}
             {item.href ? (
-              <TouchableOpacity onPress={() => router.push(item.href!)}>
+              <TouchableOpacity onPress={() => handlePress(item.href!)}>
                 <ThemedText
                   size={14}
                   className={cn(

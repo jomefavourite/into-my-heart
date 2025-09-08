@@ -1,5 +1,5 @@
 import { ScrollView, View } from 'react-native';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import ThemedText from '~/components/ThemedText';
 import BackHeader from '~/components/BackHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -15,27 +15,38 @@ export default function SelectVerses() {
     book: bookURL,
     chapter: chapterURL,
     verseLength: verseLengthURL,
+    verses: versesURL,
   } = useLocalSearchParams();
 
   let {
     bookName: bookName1,
     chapter: chapter1,
     versesLength: versesLength1,
-    verses,
+    verses: storeVerses,
     setVerses,
   } = useBookStore();
 
-  // console.log(verses);
-
+  // Extract values from URL or fallback to store
   const bookName = bookURL || bookName1;
   const chapter = chapterURL || chapter1;
   const versesLength = Number(verseLengthURL) || versesLength1;
+  const verses = versesURL
+    ? String(versesURL).split(',').filter(Boolean)
+    : storeVerses;
 
-  // const [value, setValue] = React.useState<string[]>([]);
+  // Restore verses from URL parameters on mount
+  useEffect(() => {
+    if (versesURL) {
+      const urlVerses = String(versesURL).split(',').filter(Boolean);
+      if (JSON.stringify(urlVerses) !== JSON.stringify(storeVerses)) {
+        setVerses(urlVerses);
+      }
+    }
+  }, [versesURL, storeVerses, setVerses]);
 
   const handleValueChange = (newValue: string[]) => {
+    console.log(newValue);
     setVerses(newValue);
-    // setValue(newValue);
   };
 
   const handlePress = useCallback(() => {

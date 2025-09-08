@@ -13,13 +13,18 @@ import SuggestionEmpty from '../EmptyScreen/SuggestionEmpty';
 import { Button } from '../ui/button';
 import { useRouter } from 'expo-router';
 import ArrowRightIcon from '../icons/ArrowRightIcon';
+import { useConvexAuth } from 'convex/react';
 
 type CollectionsTabProps = {
   gridView: boolean;
 };
 
 const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
-  const getCollections = useQuery(api.collections.getCollections);
+  const { isAuthenticated } = useConvexAuth();
+  const getCollections = useQuery(
+    api.collections.getCollections,
+    isAuthenticated ? {} : 'skip'
+  );
   const router = useRouter();
 
   // console.log(getVerses, 'getVerses');
