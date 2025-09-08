@@ -26,6 +26,8 @@ export default function SelectVerses() {
     setVerses,
   } = useBookStore();
 
+  console.log(bookName1, chapter1, versesLength1, storeVerses, 'storeVerses');
+
   // Extract values from URL or fallback to store
   const bookName = bookURL || bookName1;
   const chapter = chapterURL || chapter1;

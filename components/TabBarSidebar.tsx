@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
@@ -13,7 +12,7 @@ import HomeIcon from '~/components/icons/tabs/HomeIcon';
 import PracticeIcon from '~/components/icons/tabs/PracticeIcon';
 import ProfileIcon from '~/components/icons/tabs/ProfileIcon';
 import VersesIcon from '~/components/icons/tabs/VersesIcon';
-import GoalsIcon from '~/components/icons/tabs/GoalsIcon';
+// import GoalsIcon from '~/components/icons/tabs/GoalsIcon';
 import ThemedText from './ThemedText';
 import HomeHeader from './Home/Header';
 import Logo from './icons/logo/Logo';
@@ -30,7 +29,7 @@ const tabs: Tab = [
   { name: 'Home', href: '/(tabs)', icon: HomeIcon },
   { name: 'Verses', href: '/verses', icon: VersesIcon },
   { name: 'Practice', href: '/practice', icon: PracticeIcon },
-  { name: 'Goals', href: '/goals', icon: GoalsIcon },
+  // { name: 'Goals', href: '/goals', icon: GoalsIcon },
   { name: 'Profile', href: '/profile', icon: ProfileIcon },
 ];
 
