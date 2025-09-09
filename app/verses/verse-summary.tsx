@@ -149,11 +149,13 @@ export default function VerseSummary() {
 
   const queries = useMemo(() => {
     return versesList
-      ? versesList.map(verse => ({
-          queryKey: ['verse', bookName, chapter, verse],
-          queryFn: () => getVerseTexts({ bookName, chapter, verse }),
-          enabled: !!bookName && !!chapter && !!verses,
-        }))
+      ? versesList
+          .sort((a, b) => a - b)
+          .map(verse => ({
+            queryKey: ['verse', bookName, chapter, verse],
+            queryFn: () => getVerseTexts({ bookName, chapter, verse }),
+            enabled: !!bookName && !!chapter && !!verses,
+          }))
       : [];
   }, [versesList, bookName, chapter, verses]);
 
@@ -268,8 +270,8 @@ export default function VerseSummary() {
         } else {
           // Add as a group - isGroup determined by number of verses
           const isGroup = versesList.length > 1;
-          console.log('🔍 Group addition - verseTexts:', verseTexts);
-          console.log('🔍 Group addition - versesList:', versesList);
+          // console.log('🔍 Group addition - verseTexts:', verseTexts);
+          // console.log('🔍 Group addition - versesList:', versesList);
 
           const payload = {
             bookName: bookName,
@@ -282,7 +284,7 @@ export default function VerseSummary() {
             })),
             isGroup: isGroup, // Multiple verses = group (allow duplicates), single verse = individual (check duplicates)
           };
-          console.log('📝 Adding verse group:', payload);
+          // console.log('📝 Adding verse group:', payload);
           await addVerse(payload);
         }
 
