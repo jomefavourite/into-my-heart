@@ -29,8 +29,6 @@ export default function SelectVerses() {
   const { isCollOrVerse } = useIsCollOrVerse();
   const hasInitialized = useRef(false);
 
-  console.log(bookName1, chapter1, versesLength1, storeVerses, 'storeVerses');
-
   // Extract values from URL or fallback to store
   const bookName = bookURL || bookName1;
   const chapter = chapterURL || chapter1;
@@ -58,27 +56,31 @@ export default function SelectVerses() {
   // Use local verses for display and interaction
   const verses = localVerses;
 
-  const handleValueChange = (newValue: string[]) => {
-    console.log(newValue);
-    setVerses(newValue);
-    setLocalVerses(newValue);
-  };
+  const handleValueChange = useCallback(
+    (newValue: string[]) => {
+      // console.log(newValue);
+      setVerses(newValue);
+      setLocalVerses(newValue);
+    },
+    [setVerses]
+  );
 
   const handlePress = useCallback(() => {
-    // console.log(verses, verses.join(','));
+    // Use localVerses directly instead of verses to avoid dependency loop
     router.push(
-      `/verses/verse-summary?book=${bookName}&chapter=${chapter}&verseLength=${versesLength}&verses=${verses.join(',')}`
+      `/verses/verse-summary?book=${bookName}&chapter=${chapter}&verseLength=${versesLength}&verses=${localVerses.join(',')}`
     );
-  }, [bookName, chapter, verses]);
+  }, [bookName, chapter, versesLength, localVerses]);
 
   const handleAddAllVerse = useCallback(() => {
     const newVerses = Array.from(
       { length: Number(versesLength) },
       (_, index) => `${index + 1}`
     );
-    setVerses(newVerses);
+    // Update both states directly to avoid callback loops
     setLocalVerses(newVerses);
-  }, [versesLength]);
+    setVerses(newVerses);
+  }, [versesLength, setVerses]);
 
   return (
     <SafeAreaView className='flex-1'>

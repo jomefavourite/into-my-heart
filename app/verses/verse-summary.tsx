@@ -601,7 +601,9 @@ export default function VerseSummary() {
             className='my-5 flex-1'
             onPress={handleAddVerse}
           >
-            Add Verse
+            {isCollOrVerse === 'collections'
+              ? 'Add Verse(s) To Collection'
+              : 'Add Verse(s)'}
           </CustomButton>
         </View>
       </View>
