@@ -1,5 +1,5 @@
 import { ScrollView, View } from 'react-native';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import ThemedText from '~/components/ThemedText';
 import BackHeader from '~/components/BackHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,6 +8,7 @@ import CustomButton from '~/components/CustomButton';
 import { useRouter } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
 import { useBookStore } from '~/store/bookStore';
+import { useIsCollOrVerse } from '~/store/tab-store';
 
 export default function SelectVerses() {
   const router = useRouter();
@@ -25,6 +26,8 @@ export default function SelectVerses() {
     verses: storeVerses,
     setVerses,
   } = useBookStore();
+  const { isCollOrVerse } = useIsCollOrVerse();
+  const hasInitialized = useRef(false);
 
   console.log(bookName1, chapter1, versesLength1, storeVerses, 'storeVerses');
 
@@ -32,23 +35,33 @@ export default function SelectVerses() {
   const bookName = bookURL || bookName1;
   const chapter = chapterURL || chapter1;
   const versesLength = Number(verseLengthURL) || versesLength1;
-  const verses = versesURL
-    ? String(versesURL).split(',').filter(Boolean)
-    : storeVerses;
 
-  // Restore verses from URL parameters on mount
+  // Use store verses as the source of truth, but initialize from URL if present
+  const [localVerses, setLocalVerses] = React.useState<string[]>([]);
+
+  // Restore verses from URL parameters on mount or clear for fresh start
   useEffect(() => {
-    if (versesURL) {
-      const urlVerses = String(versesURL).split(',').filter(Boolean);
-      if (JSON.stringify(urlVerses) !== JSON.stringify(storeVerses)) {
+    if (!hasInitialized.current) {
+      if (versesURL) {
+        const urlVerses = String(versesURL).split(',').filter(Boolean);
         setVerses(urlVerses);
+        setLocalVerses(urlVerses);
+      } else {
+        // If no versesURL parameter, clear verses for fresh selection
+        setVerses([]);
+        setLocalVerses([]);
       }
+      hasInitialized.current = true;
     }
-  }, [versesURL, storeVerses, setVerses]);
+  }, [versesURL, setVerses]);
+
+  // Use local verses for display and interaction
+  const verses = localVerses;
 
   const handleValueChange = (newValue: string[]) => {
     console.log(newValue);
     setVerses(newValue);
+    setLocalVerses(newValue);
   };
 
   const handlePress = useCallback(() => {
@@ -64,17 +77,30 @@ export default function SelectVerses() {
       (_, index) => `${index + 1}`
     );
     setVerses(newVerses);
+    setLocalVerses(newVerses);
   }, [versesLength]);
 
   return (
     <SafeAreaView className='flex-1'>
       <BackHeader
         title='Select Verses'
-        items={[
-          { label: 'Verses', href: '/verses' },
-          { label: 'Select Book', href: '/verses/select-book' },
-          { label: 'Select Verses', href: '/verses/select-verses' },
-        ]}
+        items={
+          isCollOrVerse === 'collections'
+            ? [
+                { label: 'Verses', href: '/verses' },
+                {
+                  label: 'Create Collection',
+                  href: '/verses/create-collection',
+                },
+                { label: 'Select Book', href: '/verses/select-book' },
+                { label: 'Select Verses', href: '/verses/select-verses' },
+              ]
+            : [
+                { label: 'Verses', href: '/verses' },
+                { label: 'Select Book', href: '/verses/select-book' },
+                { label: 'Select Verses', href: '/verses/select-verses' },
+              ]
+        }
       />
 
       <View className='flex-1 justify-between px-[18px]'>

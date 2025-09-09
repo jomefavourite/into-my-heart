@@ -24,6 +24,7 @@ import SplitVersesBottomSheet, {
   SplitVersesBottomSheetRef,
 } from '~/components/SplitVersesBottomSheet';
 import { useErrorAlert } from '~/components/ErrorAlert';
+import { useDuplicateVersesAlert } from '~/components/DuplicateVersesAlert';
 
 type GetVerseTextsParams = {
   bookName: string;
@@ -110,6 +111,8 @@ export default function VerseSummary() {
   const [isLoading, setIsLoading] = React.useState(false);
   const splitVersesBottomSheetRef = useRef<SplitVersesBottomSheetRef>(null);
   const { showError, ErrorAlertComponent } = useErrorAlert();
+  const { showDuplicateAlert, DuplicateVersesAlertComponent } =
+    useDuplicateVersesAlert();
 
   const addVerse = useMutation(api.verses.addVerse);
 
@@ -124,9 +127,7 @@ export default function VerseSummary() {
         setChapter(Number(chapterURL));
       }
       const urlVerses = String(versesURL).split(',').filter(Boolean);
-      if (JSON.stringify(urlVerses) !== JSON.stringify(storeVerses)) {
-        setVerses(urlVerses);
-      }
+      setVerses(urlVerses);
     }
   }, [
     bookURL,
@@ -134,7 +135,6 @@ export default function VerseSummary() {
     versesURL,
     storeBookName,
     storeChapter,
-    storeVerses,
     setBookName,
     setChapter,
     setVerses,
@@ -204,7 +204,13 @@ export default function VerseSummary() {
       return;
     }
 
-    // Show bottom sheet if there are multiple verses
+    // For collections, always split individually and handle duplicates
+    if (isCollOrVerse === 'collections') {
+      await processAddVerse(true); // Force individual splitting for collections
+      return;
+    }
+
+    // For regular verses, show bottom sheet if there are multiple verses
     if (versesList.length > 1) {
       splitVersesBottomSheetRef.current?.open();
       return;
@@ -218,6 +224,7 @@ export default function VerseSummary() {
     chapter,
     isVerseTextsListLoading,
     verseTexts.length,
+    isCollOrVerse,
   ]);
 
   const processAddVerse = useCallback(
@@ -225,16 +232,60 @@ export default function VerseSummary() {
       setIsLoading(true);
 
       if (isCollOrVerse === 'collections') {
-        setCollectionVerses({
-          bookName,
-          chapter,
-          reviewFreq: reviewFreqValue,
-          verses: versesList.map(v => v.toString()),
-          verseTexts: verseTexts.map((text, index) => ({
-            verse: text?.verse?.toString() || '',
-            text: text?.text || '',
-          })),
-        });
+        // Always split verses into individual entries and check for duplicates
+        const { collectionVerses } = useBookStore.getState();
+        const duplicateVerses: number[] = [];
+        const versesToAdd: typeof collectionVerses = [];
+
+        for (const verse of versesList) {
+          const verseText = verseTexts.find(vt => vt?.verse === verse);
+
+          if (verseText) {
+            const newVerse = {
+              bookName,
+              chapter,
+              reviewFreq: reviewFreqValue,
+              verses: [verse.toString()],
+              verseTexts: [
+                {
+                  verse: verseText.verse?.toString() || '',
+                  text: verseText.text || '',
+                },
+              ],
+            };
+
+            // Check for duplicates in existing collection verses
+            const isDuplicate = collectionVerses.some(
+              existingVerse =>
+                existingVerse.bookName === newVerse.bookName &&
+                existingVerse.chapter === newVerse.chapter &&
+                existingVerse.verses.includes(verse.toString())
+            );
+
+            if (!isDuplicate) {
+              versesToAdd.push(newVerse);
+            } else {
+              duplicateVerses.push(verse);
+              console.log(
+                `⚠️ Verse ${verse} already exists in collection, skipping...`
+              );
+            }
+          } else {
+            console.error(`❌ No verse text found for verse ${verse}`);
+          }
+        }
+
+        // If there are duplicates, show alert and let user decide
+        if (duplicateVerses.length > 0) {
+          showDuplicateAlert(duplicateVerses, bookName, chapter);
+          // Store the verses to add for when user confirms
+          (window as any).pendingVersesToAdd = versesToAdd;
+          setIsLoading(false);
+          return;
+        }
+
+        // No duplicates, add all verses directly
+        versesToAdd.forEach(verse => setCollectionVerses(verse));
         setVerses([]);
         setIsLoading(false);
         router.push('/verses/create-collection');
@@ -348,6 +399,16 @@ export default function VerseSummary() {
     processAddVerse(false);
   }, [processAddVerse]);
 
+  const handleContinueWithDuplicates = useCallback(() => {
+    const pendingVerses = (window as any).pendingVersesToAdd;
+    if (pendingVerses && pendingVerses.length > 0) {
+      pendingVerses.forEach((verse: any) => setCollectionVerses(verse));
+      (window as any).pendingVersesToAdd = null;
+      setVerses([]);
+      router.push('/verses/create-collection');
+    }
+  }, [setCollectionVerses, setVerses, router]);
+
   // // Show loading or redirect if data is not valid
   // if (!hasValidData) {
   //   return (
@@ -381,21 +442,43 @@ export default function VerseSummary() {
     <SafeAreaView className='flex-1'>
       <BackHeader
         title='Add Verse'
-        items={[
-          { label: 'Verses', href: '/verses' },
-          {
-            label: 'Select Book',
-            href: `/verses/select-book`,
-          },
-          {
-            label: 'Select Verse',
-            href: `/verses/select-verses?book=${bookName}&chapter=${chapter}&verseLength=${versesLength}`,
-          },
-          {
-            label: 'Verse Summary',
-            href: `/verses/verse-summary?book=${bookName}&chapter=${chapter}&verses=${verses.join(',')}`,
-          },
-        ]}
+        items={
+          isCollOrVerse === 'collections'
+            ? [
+                { label: 'Verses', href: '/verses' },
+                {
+                  label: 'Create Collection',
+                  href: '/verses/create-collection',
+                },
+                {
+                  label: 'Select Book',
+                  href: `/verses/select-book`,
+                },
+                {
+                  label: 'Select Verse',
+                  href: `/verses/select-verses?book=${bookName}&chapter=${chapter}&verseLength=${versesLength}`,
+                },
+                {
+                  label: 'Verse Summary',
+                  href: `/verses/verse-summary?book=${bookName}&chapter=${chapter}&verses=${verses.join(',')}`,
+                },
+              ]
+            : [
+                { label: 'Verses', href: '/verses' },
+                {
+                  label: 'Select Book',
+                  href: `/verses/select-book`,
+                },
+                {
+                  label: 'Select Verse',
+                  href: `/verses/select-verses?book=${bookName}&chapter=${chapter}&verseLength=${versesLength}`,
+                },
+                {
+                  label: 'Verse Summary',
+                  href: `/verses/verse-summary?book=${bookName}&chapter=${chapter}&verses=${verses.join(',')}`,
+                },
+              ]
+        }
       />
 
       <View className='flex-1 justify-between px-[18px]'>
@@ -534,6 +617,9 @@ export default function VerseSummary() {
       />
 
       <ErrorAlertComponent />
+      <DuplicateVersesAlertComponent
+        onContinue={handleContinueWithDuplicates}
+      />
     </SafeAreaView>
   );
 }

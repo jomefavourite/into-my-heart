@@ -29,6 +29,7 @@ const CreateCollection = () => {
     collectionName,
     collectionVerses,
     setCollectionName,
+    setVerses,
     resetAll,
     isCollectionUpdate,
   } = useBookStore();
@@ -48,7 +49,7 @@ const CreateCollection = () => {
 
     setHasInputError(false);
 
-    const mappedCollectionVerses = collectionVerses.map((verse) => ({
+    const mappedCollectionVerses = collectionVerses.map(verse => ({
       ...verse,
       reviewFreq: verse.reviewFreq ?? '',
     }));
@@ -92,7 +93,7 @@ const CreateCollection = () => {
             defaultValue={collectionName}
             placeholder='Enter goal name'
             className={`dark:text-white ${hasInputError ? 'border border-red-500' : ''}`}
-            onChangeText={(text) => {
+            onChangeText={text => {
               setCollectionName(text);
               if (hasInputError && text.trim()) setHasInputError(false);
             }}
@@ -112,6 +113,7 @@ const CreateCollection = () => {
             variant={'ghost'}
             onPress={() => {
               setIsCollOrVerse('collections');
+              setVerses([]); // Clear any existing verses before starting new selection
               router.push('/verses/select-book');
             }}
           >

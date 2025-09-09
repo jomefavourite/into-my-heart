@@ -91,7 +91,9 @@ export default function VersesHomeScreen() {
                     size={'icon'}
                     variant={'ghost'}
                     // onPress={() => router.push('/verses/select-book')}
+                    className='flex-row items-center gap-2'
                   >
+                    <ThemedText className='md:block hidden'>Add</ThemedText>
                     <AddIcon stroke='white' />
                   </Button>
                 </DropdownMenuTrigger>

@@ -38,8 +38,12 @@ export default function CollectionPage() {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const { isDarkMode } = useColorScheme();
   const router = useRouter();
-  const { setCollectionName, setCollectionVerses, setIsCollectionUpdate } =
-    useBookStore();
+  const {
+    setCollectionName,
+    setCollectionVerses,
+    setVerses,
+    setIsCollectionUpdate,
+  } = useBookStore();
 
   const collection = useQuery(api.collections.getCollectionById, {
     id: collectionId as Id<'collections'>,
@@ -50,8 +54,8 @@ export default function CollectionPage() {
   );
 
   const toggleSelectedVerse = (index: number) => {
-    setSelectedToDelete((prev) =>
-      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+    setSelectedToDelete(prev =>
+      prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index]
     );
   };
 
@@ -73,8 +77,9 @@ export default function CollectionPage() {
 
   const handleAddVerses = () => {
     setCollectionName(collection?.collectionName ?? '');
+    setVerses([]); // Clear any existing verses before loading collection verses
 
-    collection?.collectionVerses.forEach((verse) => {
+    collection?.collectionVerses.forEach(verse => {
       setCollectionVerses({
         bookName: verse.bookName,
         chapter: verse.chapter,
@@ -208,7 +213,7 @@ export default function CollectionPage() {
         index={bottomSheetIndex}
         snapPoints={['25%']}
         enablePanDownToClose={true}
-        onChange={(index) => setBottomSheetIndex(index)}
+        onChange={index => setBottomSheetIndex(index)}
         backgroundStyle={{
           backgroundColor: isDarkMode ? '#313131' : '#fff',
         }}
