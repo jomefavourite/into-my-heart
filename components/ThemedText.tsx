@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, TextProps } from 'react-native';
-import { cn } from '~/lib/utils';
+import { cn } from '@/lib/utils';
 import { Text } from './ui/text';
 
 type FontVariant = 'regular' | 'medium' | 'semibold' | 'bold';

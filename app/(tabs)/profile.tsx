@@ -1,20 +1,20 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { cn, useBottomSheetStore } from '~/lib/utils';
-import { useColorScheme } from '~/hooks/useColorScheme';
-import ThemedText from '~/components/ThemedText';
-import CustomButton from '~/components/CustomButton';
+import { cn, useBottomSheetStore } from '@/lib/utils';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import ThemedText from '@/components/ThemedText';
+import CustomButton from '@/components/CustomButton';
 import { useAuth, useClerk, useUser } from '@clerk/clerk-react';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
-import { Switch } from '~/components/ui/switch';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Switch } from '@/components/ui/switch';
 import { Href, Link } from 'expo-router';
-import ArrowRightIcon from '~/components/icons/ArrowRightIcon';
+import ArrowRightIcon from '@/components/icons/ArrowRightIcon';
 import Svg, { Path } from 'react-native-svg';
 import { useConvexAuth, useQuery } from 'convex/react';
-import { api } from '~/convex/_generated/api';
+import { api } from '@/convex/_generated/api';
 
 interface ProfileLinkItem {
   title: string;
@@ -92,7 +92,7 @@ const CheckboxItem = ({ title }: { title: string }) => {
       setColorScheme(newTheme);
       // AsyncStorage.setItem('theme', newTheme);
     }
-    setIsEnabled((previousState) => !previousState);
+    setIsEnabled(previousState => !previousState);
   };
 
   return (
@@ -112,7 +112,7 @@ export default function ProfileScreen() {
   // console.log(data);
 
   const setStreakBottomSheetIndex = useBottomSheetStore(
-    (state) => state.setStreakBottomSheetIndex
+    state => state.setStreakBottomSheetIndex
   );
 
   return (

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Badge } from '~/components/ui/badge';
-import { Card, CardContent, CardFooter } from '~/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import OpenBookSVG from '../icons/onboarding/open-book.svg';
 
 // Feature cards data

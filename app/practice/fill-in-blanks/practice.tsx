@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
-import { Badge } from '~/components/ui/badge';
-import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { View } from 'react-native';
-import ThemedText from '~/components/ThemedText';
+import ThemedText from '@/components/ThemedText';
 import { ScrollView } from 'react-native-gesture-handler';
-import CustomButton from '~/components/CustomButton';
+import CustomButton from '@/components/CustomButton';
 
 interface BlankData {
   id: number;

@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { AdminPanel } from '../../components/AdminPanel';
 import { useAuthState } from '../../hooks/useAuthState';
-import { AdminSuggestions } from '~/components/AdminSuggestions';
+import { AdminSuggestions } from '@/components/AdminSuggestions';
 
 export default function AdminPage() {
   const { userRole, isAdmin, isLoading } = useAuthState();

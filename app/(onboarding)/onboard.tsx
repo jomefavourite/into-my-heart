@@ -1,11 +1,11 @@
 import { View, Platform } from 'react-native';
 import React, { useCallback, useEffect } from 'react';
-import ThemedText from '~/components/ThemedText';
-import CustomButton from '~/components/CustomButton';
+import ThemedText from '@/components/ThemedText';
+import CustomButton from '@/components/CustomButton';
 import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
 import { useSSO } from '@clerk/clerk-expo';
-import Logo from '~/components/icons/logo/Logo';
+import Logo from '@/components/icons/logo/Logo';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
 

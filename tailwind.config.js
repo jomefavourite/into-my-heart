@@ -17,7 +17,6 @@ module.exports = {
         ring: 'hsl(var(--ring))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
-        container: 'hsl(var(--container))',
         primary: {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
@@ -25,7 +24,6 @@ module.exports = {
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',
           foreground: 'hsl(var(--secondary-foreground))',
-          text: '#707070',
         },
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',
@@ -48,6 +46,11 @@ module.exports = {
           foreground: 'hsl(var(--card-foreground))',
         },
       },
+      borderRadius: {
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
+        sm: 'calc(var(--radius) - 4px)',
+      },
       borderWidth: {
         hairline: hairlineWidth(),
       },
@@ -66,6 +69,9 @@ module.exports = {
         'accordion-up': 'accordion-up 0.2s ease-out',
       },
     },
+  },
+  future: {
+    hoverOnlyWhenSupported: true,
   },
   plugins: [require('tailwindcss-animate')],
 };

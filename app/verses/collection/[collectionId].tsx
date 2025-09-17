@@ -3,31 +3,31 @@ import React, { useRef, useState } from 'react';
 import { router, useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from 'convex-helpers/react/cache';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import ThemedText from '~/components/ThemedText';
-import BackHeader from '~/components/BackHeader';
-import { Button } from '~/components/ui/button';
-import RemoveCircleIcon from '~/components/icons/RemoveCircleIcon';
-import { Id } from '~/convex/_generated/dataModel';
-import { api } from '~/convex/_generated/api';
+import ThemedText from '@/components/ThemedText';
+import BackHeader from '@/components/BackHeader';
+import { Button } from '@/components/ui/button';
+import RemoveCircleIcon from '@/components/icons/RemoveCircleIcon';
+import { Id } from '@/convex/_generated/dataModel';
+import { api } from '@/convex/_generated/api';
 import { FlatList } from 'react-native';
-import AddVersesEmpty from '~/components/EmptyScreen/AddVersesEmpty';
-import VerseCard from '~/components/Verses/VerseCard';
-import ItemSeparator from '~/components/ItemSeparator';
-import { useGridListView } from '~/store/tab-store';
-import CustomButton from '~/components/CustomButton';
-import CancelIcon from '~/components/icons/CancelIcon';
-import DeleteIcon from '~/components/icons/DeleteIcon';
+import AddVersesEmpty from '@/components/EmptyScreen/AddVersesEmpty';
+import VerseCard from '@/components/Verses/VerseCard';
+import ItemSeparator from '@/components/ItemSeparator';
+import { useGridListView } from '@/store/tab-store';
+import CustomButton from '@/components/CustomButton';
+import CancelIcon from '@/components/icons/CancelIcon';
+import DeleteIcon from '@/components/icons/DeleteIcon';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import { useColorScheme } from '~/hooks/useColorScheme';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { useMutation } from 'convex/react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
-import MoreVerticalIcon from '~/components/icons/MoreVerticalIcon';
-import { useBookStore } from '~/store/bookStore';
+} from '@/components/ui/dropdown-menu';
+import MoreVerticalIcon from '@/components/icons/MoreVerticalIcon';
+import { useBookStore } from '@/store/bookStore';
 
 export default function CollectionPage() {
   const { collectionId } = useLocalSearchParams();

@@ -1,9 +1,9 @@
 import { View, Text, StyleSheet } from 'react-native';
 import React, { useState } from 'react';
-import Container from '~/components/Container';
-import ThemedText from '~/components/ThemedText';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
-import { Button } from '~/components/ui/button';
+import Container from '@/components/Container';
+import ThemedText from '@/components/ThemedText';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -11,18 +11,18 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '~/components/ui/card';
-import { Input } from '~/components/ui/input';
-import { Label } from '~/components/ui/label';
-import CustomButton from '~/components/CustomButton';
-import { cn } from '~/lib/utils';
-import AddIcon from '~/components/icons/AddIcon';
-import ListViewIcon from '~/components/icons/ListViewIcon';
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import CustomButton from '@/components/CustomButton';
+import { cn } from '@/lib/utils';
+import AddIcon from '@/components/icons/AddIcon';
+import ListViewIcon from '@/components/icons/ListViewIcon';
 import { useRouter } from 'expo-router';
 import { ScrollView } from 'react-native';
-import ArrowRightIcon from '~/components/icons/ArrowRightIcon';
-import GridViewIcon from '~/components/icons/GridViewIcon';
-import GoalCard from '~/components/GoalCard';
+import ArrowRightIcon from '@/components/icons/ArrowRightIcon';
+import GridViewIcon from '@/components/icons/GridViewIcon';
+import GoalCard from '@/components/GoalCard';
 
 export default function GoalsScreen() {
   const [value, setValue] = useState('goals');

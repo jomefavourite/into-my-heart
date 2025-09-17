@@ -1,6 +1,6 @@
 import React from 'react';
-import { Badge } from '~/components/ui/badge';
-import { Card } from '~/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
 import OpenBookSVG from '../icons/onboarding/open-book.svg';
 import { Image } from 'react-native';
 // import PhoneMockupSVG from '../icons/onboarding/phone-mock.svg';

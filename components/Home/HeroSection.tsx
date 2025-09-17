@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Button } from '~/components/ui/button';
+import { Button } from '@/components/ui/button';
 import Logo from '../icons/logo/Logo';
 import { Onest_400Regular } from '@expo-google-fonts/onest';
 import { Href, Link, useRouter } from 'expo-router';
-import { Sheet, SheetContent, SheetTrigger } from '~/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react-native';
 import CustomButton from '../CustomButton';
 import { Card } from '../ui/card';

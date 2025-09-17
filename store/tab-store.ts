@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { PlatformStorage } from '~/utils/PlatformStorage';
+import { PlatformStorage } from '@/utils/PlatformStorage';
 interface VersesTabStore {
   activeTab: string;
   setActiveTab: (value: string) => void;

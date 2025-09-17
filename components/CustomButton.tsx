@@ -1,12 +1,11 @@
 import React, { Children, ReactNode } from 'react';
 import { SvgProps } from 'react-native-svg';
-import { Button } from './ui/button';
-import { Text } from './ui/text';
+import { Button } from '@/components/ui/button';
 import { Pressable } from 'react-native';
-import { cn } from '~/lib/utils';
+import { cn } from '@/lib/utils';
 import ThemedText from './ThemedText';
 import { ActivityIndicator } from 'react-native';
-import { useColorScheme } from '~/hooks/useColorScheme';
+import { useColorScheme } from '@/hooks/useColorScheme';
 
 type Props = React.ComponentPropsWithoutRef<typeof Pressable> & {
   variant?:

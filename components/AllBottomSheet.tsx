@@ -4,12 +4,12 @@ import BottomSheet, {
   BottomSheetView,
   useBottomSheet,
 } from '@gorhom/bottom-sheet';
-import { useColorScheme } from '~/hooks/useColorScheme';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import Svg, { Path } from 'react-native-svg';
 import ThemedText from './ThemedText';
-import { cn, useBottomSheetStore } from '~/lib/utils';
+import { cn, useBottomSheetStore } from '@/lib/utils';
 // import { Calendar } from 'react-native-calendars';
-import { RadioGroup } from '~/components/ui/radio-group';
+import { RadioGroup } from '@/components/ui/radio-group';
 import { Label } from './ui/label';
 import CustomButton from './CustomButton';
 import { Calendar, toDateId } from '@marceloterreiro/flash-calendar';

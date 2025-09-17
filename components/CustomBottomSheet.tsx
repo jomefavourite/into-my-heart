@@ -1,6 +1,6 @@
 import React, { forwardRef, memo } from 'react';
 import BottomSheet, { BottomSheetProps } from '@gorhom/bottom-sheet';
-import { useColorScheme } from '~/hooks/useColorScheme';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { BottomSheetMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 
 type CustomBottomSheetProps = Omit<

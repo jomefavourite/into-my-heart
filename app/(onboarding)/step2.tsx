@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
-import Container from '~/components/Container';
-import Onboarding from '~/components/Onboarding';
+import Container from '@/components/Container';
+import Onboarding from '@/components/Onboarding';
 
 export default function OnboardingStep2() {
   return (

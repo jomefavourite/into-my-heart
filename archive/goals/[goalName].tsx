@@ -1,21 +1,21 @@
 import { View, Text } from 'react-native';
 import React from 'react';
-import ThemedText from '~/components/ThemedText';
-import { Button } from '~/components/ui/button';
-import ArrowLeftIcon from '~/components/icons/ArrowLeftIcon';
+import ThemedText from '@/components/ThemedText';
+import { Button } from '@/components/ui/button';
+import ArrowLeftIcon from '@/components/icons/ArrowLeftIcon';
 import { useRouter } from 'expo-router';
-import MoreVerticalIcon from '~/components/icons/MoreVerticalIcon';
+import MoreVerticalIcon from '@/components/icons/MoreVerticalIcon';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
-import Container from '~/components/Container';
-import { Progress } from '~/components/ui/progress';
-import BackHeader from '~/components/BackHeader';
+} from '@/components/ui/dropdown-menu';
+import Container from '@/components/Container';
+import { Progress } from '@/components/ui/progress';
+import BackHeader from '@/components/BackHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import DumbbellIcon from '~/components/icons/DumbbellIcon';
+import DumbbellIcon from '@/components/icons/DumbbellIcon';
 
 export default function GoalName() {
   const router = useRouter();

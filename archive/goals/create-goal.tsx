@@ -1,31 +1,31 @@
 import { View, Text } from 'react-native';
 import React, { memo, useCallback, useRef, useState } from 'react';
-import { Label } from '~/components/ui/label';
-import { Input } from '~/components/ui/input';
-import Container from '~/components/Container';
-import ThemedText from '~/components/ThemedText';
-import { Button } from '~/components/ui/button';
-import AddIcon from '~/components/icons/AddIcon';
-import { cn, useBottomSheetStore } from '~/lib/utils';
-import UnfoldMoreIcon from '~/components/icons/UnfoldMoreIcon';
-import { useColorScheme } from '~/hooks/useColorScheme';
-import ArrowLeftIcon from '~/components/icons/ArrowLeftIcon';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import Container from '@/components/Container';
+import ThemedText from '@/components/ThemedText';
+import { Button } from '@/components/ui/button';
+import AddIcon from '@/components/icons/AddIcon';
+import { cn, useBottomSheetStore } from '@/lib/utils';
+import UnfoldMoreIcon from '@/components/icons/UnfoldMoreIcon';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import ArrowLeftIcon from '@/components/icons/ArrowLeftIcon';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import BackHeader from '~/components/BackHeader';
-import CustomButton from '~/components/CustomButton';
-import CustomBottomSheet from '~/components/CustomBottomSheet';
+import BackHeader from '@/components/BackHeader';
+import CustomButton from '@/components/CustomButton';
+import CustomBottomSheet from '@/components/CustomBottomSheet';
 import {
   CustomRadioButton,
   ReviewFreqContent,
   StartDateBottomSheetContent,
-} from '~/components/AllBottomSheet';
+} from '@/components/AllBottomSheet';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { RadioGroup } from '@rn-primitives/dropdown-menu';
 import { Calendar } from 'react-native-calendars';
 
-import ArrowRightIcon from '~/components/icons/ArrowRightIcon';
-import CustomCalendar from '~/components/CustomCalendar';
+import ArrowRightIcon from '@/components/icons/ArrowRightIcon';
+import CustomCalendar from '@/components/CustomCalendar';
 
 export default function CreateGoal() {
   const router = useRouter();

@@ -1,13 +1,13 @@
 import { View, Text } from 'react-native';
 import React from 'react';
-import Container from '~/components/Container';
-import ThemedText from '~/components/ThemedText';
-import CustomButton from '~/components/CustomButton';
+import Container from '@/components/Container';
+import ThemedText from '@/components/ThemedText';
+import CustomButton from '@/components/CustomButton';
 import { Link } from 'expo-router';
-import FillInBlanksIcon from '~/components/icons/practice/FillInBlanksIcon';
+import FillInBlanksIcon from '@/components/icons/practice/FillInBlanksIcon';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import FlashCardIcon from '~/components/icons/practice/FlashCardIcon';
+import FlashCardIcon from '@/components/icons/practice/FlashCardIcon';
 
 export default function PracticeScreen() {
   return (

@@ -1,21 +1,21 @@
 import { View, Text, ScrollView } from 'react-native';
 import React from 'react';
-import Container from '~/components/Container';
-import ThemedText from '~/components/ThemedText';
-import GoalCard from '~/components/GoalCard';
-import { Button } from '~/components/ui/button';
-import ArrowLeftIcon from '~/components/icons/ArrowLeftIcon';
+import Container from '@/components/Container';
+import ThemedText from '@/components/ThemedText';
+import GoalCard from '@/components/GoalCard';
+import { Button } from '@/components/ui/button';
+import ArrowLeftIcon from '@/components/icons/ArrowLeftIcon';
 import { useRouter } from 'expo-router';
-import RemoveCircleIcon from '~/components/icons/RemoveCircleIcon';
-import CancelIcon from '~/components/icons/CancelIcon';
-import DeleteIcon from '~/components/icons/DeleteIcon';
-import { useBottomSheetStore } from '~/lib/utils';
+import RemoveCircleIcon from '@/components/icons/RemoveCircleIcon';
+import CancelIcon from '@/components/icons/CancelIcon';
+import DeleteIcon from '@/components/icons/DeleteIcon';
+import { useBottomSheetStore } from '@/lib/utils';
 
 const RemoveGoalsScreen = () => {
   const router = useRouter();
 
   const setRemoveGoalIndex = useBottomSheetStore(
-    (state) => state.setRemoveGoalIndex
+    state => state.setRemoveGoalIndex
   );
 
   return (

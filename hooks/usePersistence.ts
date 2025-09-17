@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useBookStore } from '~/store/bookStore';
-import { useVersesTabStore } from '~/store/tab-store';
-import { useIsCollOrVerse } from '~/store/tab-store';
-import { useGridListView } from '~/store/tab-store';
+import { useBookStore } from '@/store/bookStore';
+import { useVersesTabStore } from '@/store/tab-store';
+import { useIsCollOrVerse } from '@/store/tab-store';
+import { useGridListView } from '@/store/tab-store';
 
 /**
  * Hook to manage persistence loading states across all stores
@@ -50,7 +50,7 @@ export function usePersistence() {
         gridListViewStore.setGridView(false);
 
         // Clear AsyncStorage
-        const { StorageUtils } = await import('~/utils/Storage');
+        const { StorageUtils } = await import('@/utils/Storage');
         await StorageUtils.clearAll();
 
         return true;
@@ -74,7 +74,7 @@ export function useStorageInfo() {
   useEffect(() => {
     const getInfo = async () => {
       try {
-        const { StorageUtils } = await import('~/utils/Storage');
+        const { StorageUtils } = await import('@/utils/Storage');
         const info = await StorageUtils.getStorageInfo();
         setStorageInfo(info);
       } catch (err) {
