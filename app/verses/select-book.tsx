@@ -11,19 +11,19 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 
-import BackHeader from '~/components/BackHeader';
-import { BOOKS } from '~/lib/books';
-import ThemedText from '~/components/ThemedText';
-import { Button } from '~/components/ui/button';
-import { Input } from '~/components/ui/input';
+import BackHeader from '@/components/BackHeader';
+import { BOOKS } from '@/lib/books';
+import ThemedText from '@/components/ThemedText';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '~/components/ui/accordion'; // from react-native-reusables
-import { useBookStore } from '~/store/bookStore';
-import { useIsCollOrVerse } from '~/store/tab-store';
+} from '@/components/ui/accordion'; // from react-native-reusables
+import { useBookStore } from '@/store/bookStore';
+import { useIsCollOrVerse } from '@/store/tab-store';
 import { ScrollView } from 'react-native';
 
 const screenWidth = Dimensions.get('window').width;

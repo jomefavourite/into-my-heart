@@ -2,7 +2,7 @@ import * as Slot from '@rn-primitives/slot';
 import type { SlottableTextProps, TextRef } from '@rn-primitives/types';
 import * as React from 'react';
 import { Platform, Text as RNText } from 'react-native';
-import { cn } from '~/lib/utils';
+import { cn } from '@/lib/utils';
 
 const H1 = React.forwardRef<TextRef, SlottableTextProps>(
   ({ className, asChild = false, ...props }, ref) => {
@@ -144,7 +144,10 @@ const Lead = React.forwardRef<TextRef, SlottableTextProps>(
     const Component = asChild ? Slot.Text : RNText;
     return (
       <Component
-        className={cn('text-xl text-muted-foreground web:select-text', className)}
+        className={cn(
+          'text-xl text-muted-foreground web:select-text',
+          className
+        )}
         ref={ref}
         {...props}
       />
@@ -159,7 +162,10 @@ const Large = React.forwardRef<TextRef, SlottableTextProps>(
     const Component = asChild ? Slot.Text : RNText;
     return (
       <Component
-        className={cn('text-xl text-foreground font-semibold web:select-text', className)}
+        className={cn(
+          'text-xl text-foreground font-semibold web:select-text',
+          className
+        )}
         ref={ref}
         {...props}
       />
@@ -192,7 +198,10 @@ const Muted = React.forwardRef<TextRef, SlottableTextProps>(
     const Component = asChild ? Slot.Text : RNText;
     return (
       <Component
-        className={cn('text-sm text-muted-foreground web:select-text', className)}
+        className={cn(
+          'text-sm text-muted-foreground web:select-text',
+          className
+        )}
         ref={ref}
         {...props}
       />

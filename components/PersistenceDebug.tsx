@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { usePersistence, useStorageInfo } from '~/hooks/usePersistence';
-import { useBookStore } from '~/store/bookStore';
-import { useVersesTabStore } from '~/store/tab-store';
-import { useIsCollOrVerse } from '~/store/tab-store';
-import { useGridListView } from '~/store/tab-store';
+import { usePersistence, useStorageInfo } from '@/hooks/usePersistence';
+import { useBookStore } from '@/store/bookStore';
+import { useVersesTabStore } from '@/store/tab-store';
+import { useIsCollOrVerse } from '@/store/tab-store';
+import { useGridListView } from '@/store/tab-store';
 import ThemedText from './ThemedText';
 import CustomButton from './CustomButton';
 

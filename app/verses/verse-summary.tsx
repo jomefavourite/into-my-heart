@@ -1,30 +1,30 @@
 import { ScrollView, View } from 'react-native';
 import React, { useCallback, useMemo, useRef, useEffect } from 'react';
-import ThemedText from '~/components/ThemedText';
-import BackHeader from '~/components/BackHeader';
+import ThemedText from '@/components/ThemedText';
+import BackHeader from '@/components/BackHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button } from '~/components/ui/button';
-import ArrowRightIcon from '~/components/icons/ArrowRightIcon';
-import CustomButton from '~/components/CustomButton';
+import { Button } from '@/components/ui/button';
+import ArrowRightIcon from '@/components/icons/ArrowRightIcon';
+import CustomButton from '@/components/CustomButton';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useBookStore } from '~/store/bookStore';
+import { useBookStore } from '@/store/bookStore';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu';
 import { useMutation } from 'convex/react';
-import { api } from '~/convex/_generated/api';
-import { useIsCollOrVerse } from '~/store/tab-store';
+import { api } from '@/convex/_generated/api';
+import { useIsCollOrVerse } from '@/store/tab-store';
 import { ActivityIndicator } from 'react-native';
 import { useQueries, useQuery } from '@tanstack/react-query';
-import { BOOKS } from '~/lib/books';
+import { BOOKS } from '@/lib/books';
 import SplitVersesBottomSheet, {
   SplitVersesBottomSheetRef,
-} from '~/components/SplitVersesBottomSheet';
-import { useErrorAlert } from '~/components/ErrorAlert';
-import { useDuplicateVersesAlert } from '~/components/DuplicateVersesAlert';
+} from '@/components/SplitVersesBottomSheet';
+import { useErrorAlert } from '@/components/ErrorAlert';
+import { useDuplicateVersesAlert } from '@/components/DuplicateVersesAlert';
 
 type GetVerseTextsParams = {
   bookName: string;

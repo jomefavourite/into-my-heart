@@ -1,11 +1,24 @@
 import { clsx, type ClassValue } from 'clsx';
-import { Href } from 'expo-router';
 import { twMerge } from 'tailwind-merge';
-import OnboardIcon1 from '~/components/icons/onboarding/onboarding-1.svg';
+import { Href } from 'expo-router';
+import OnboardIcon1 from '@/components/icons/onboarding/onboarding-1.svg';
+import React from "react"
+import { create } from 'zustand';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+export const verses = [
+  {
+    bookName: 'Genesis',
+    chapter: 1,
+    verses: ['1'],
+    reviewFreq: 'Daily',
+    reference: 'In the beginning, God created the heavens and the earth.',
+  },
+];
+
 
 export interface OnboardingStep {
   title: string;
@@ -15,7 +28,6 @@ export interface OnboardingStep {
   btnText: string;
 }
 
-import { create } from 'zustand';
 
 interface HeaderBottomSheet {
   streakBottomSheetIndex: number;
@@ -30,19 +42,18 @@ interface HeaderBottomSheet {
   setRemoveGoalIndex: (by: number) => void;
 }
 
-export const useBottomSheetStore = create<HeaderBottomSheet>()((set) => ({
+export const useBottomSheetStore = create<HeaderBottomSheet>()(set => ({
   streakBottomSheetIndex: -1,
   startDateBottomSheetIndex: -1,
   reviewFreqIndex: -1,
   reviewFreqValue: 'Daily',
   removeGoalIndex: -1,
-  setStreakBottomSheetIndex: (by) =>
-    set(() => ({ streakBottomSheetIndex: by })),
-  setStartDateBottomSheetIndex: (by) =>
+  setStreakBottomSheetIndex: by => set(() => ({ streakBottomSheetIndex: by })),
+  setStartDateBottomSheetIndex: by =>
     set(() => ({ startDateBottomSheetIndex: by })),
-  setReviewFreqIndex: (by) => set(() => ({ reviewFreqIndex: by })),
-  setReviewFreqValue: (by) => set(() => ({ reviewFreqValue: by })),
-  setRemoveGoalIndex: (by) => set(() => ({ removeGoalIndex: by })),
+  setReviewFreqIndex: by => set(() => ({ reviewFreqIndex: by })),
+  setReviewFreqValue: by => set(() => ({ reviewFreqValue: by })),
+  setRemoveGoalIndex: by => set(() => ({ removeGoalIndex: by })),
 }));
 
 export interface OnboardingData {

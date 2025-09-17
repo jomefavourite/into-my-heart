@@ -8,15 +8,15 @@ import {
 } from 'react-native';
 import { Link, usePathname, Slot, Href } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import HomeIcon from '~/components/icons/tabs/HomeIcon';
-import PracticeIcon from '~/components/icons/tabs/PracticeIcon';
-import ProfileIcon from '~/components/icons/tabs/ProfileIcon';
-import VersesIcon from '~/components/icons/tabs/VersesIcon';
-// import GoalsIcon from '~/components/icons/tabs/GoalsIcon';
+import HomeIcon from '@/components/icons/tabs/HomeIcon';
+import PracticeIcon from '@/components/icons/tabs/PracticeIcon';
+import ProfileIcon from '@/components/icons/tabs/ProfileIcon';
+import VersesIcon from '@/components/icons/tabs/VersesIcon';
+// import GoalsIcon from '@/components/icons/tabs/GoalsIcon';
 import ThemedText from './ThemedText';
 import HomeHeader from './Home/Header';
 import Logo from './icons/logo/Logo';
-import { useColorScheme } from '~/hooks/useColorScheme';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { AdminOnly } from './AdminOnly';
 
 type Tab = {

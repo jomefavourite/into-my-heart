@@ -1,14 +1,14 @@
 import { ScrollView, View } from 'react-native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import ThemedText from '~/components/ThemedText';
-import BackHeader from '~/components/BackHeader';
+import ThemedText from '@/components/ThemedText';
+import BackHeader from '@/components/BackHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ToggleGroup, ToggleGroupItem } from '~/components/ui/toggle-group';
-import CustomButton from '~/components/CustomButton';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import CustomButton from '@/components/CustomButton';
 import { useRouter } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
-import { useBookStore } from '~/store/bookStore';
-import { useIsCollOrVerse } from '~/store/tab-store';
+import { useBookStore } from '@/store/bookStore';
+import { useIsCollOrVerse } from '@/store/tab-store';
 
 export default function SelectVerses() {
   const router = useRouter();

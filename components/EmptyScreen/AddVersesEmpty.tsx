@@ -4,8 +4,8 @@ import ThemedText from '../ThemedText';
 import CustomButton from '../CustomButton';
 import ArrowRightIcon from '../icons/ArrowRightIcon';
 import { useRouter } from 'expo-router';
-import { useIsCollOrVerse } from '~/store/tab-store';
-import { useBookStore } from '~/store/bookStore';
+import { useIsCollOrVerse } from '@/store/tab-store';
+import { useBookStore } from '@/store/bookStore';
 
 export default function AddVersesEmpty({ collection = false }) {
   const router = useRouter();

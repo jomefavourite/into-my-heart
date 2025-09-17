@@ -7,14 +7,14 @@ import {
 } from 'react-native';
 import React, { useRef, useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import BackHeader from '~/components/BackHeader';
-import ThemedText from '~/components/ThemedText';
-import OpenBookIcon from '~/components/icons/OpenBook';
+import BackHeader from '@/components/BackHeader';
+import ThemedText from '@/components/ThemedText';
+import OpenBookIcon from '@/components/icons/OpenBook';
 import { usePaginatedQuery } from 'convex-helpers/react/cache';
-import { api } from '~/convex/_generated/api';
-import CustomButton from '~/components/CustomButton';
+import { api } from '@/convex/_generated/api';
+import CustomButton from '@/components/CustomButton';
 import { useRouter } from 'expo-router';
-import ArrowRightIcon from '~/components/icons/ArrowRightIcon';
+import ArrowRightIcon from '@/components/icons/ArrowRightIcon';
 
 export default function Flashcards() {
   const [currentIndex, setCurrentIndex] = useState(0);

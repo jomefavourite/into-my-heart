@@ -6,27 +6,28 @@ import {
   Text,
   Image,
 } from 'react-native';
-import CustomButton from '~/components/CustomButton';
-import ThemedText from '~/components/ThemedText';
+import CustomButton from '@/components/CustomButton';
+import ThemedText from '@/components/ThemedText';
 import { useCallback, useRef } from 'react';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import HomeHeader from '~/components/Home/Header';
-import { Button } from '~/components/ui/button';
-import FavouriteIcon from '~/components/icons/FavouriteIcon';
-import ShareIcon from '~/components/icons/ShareIcon';
+import HomeHeader from '@/components/Home/Header';
+import { Button } from '@/components/ui/button';
+import FavouriteIcon from '@/components/icons/FavouriteIcon';
+import ShareIcon from '@/components/icons/ShareIcon';
 import { Link, useRouter } from 'expo-router';
-import ArrowRightIcon from '~/components/icons/ArrowRightIcon';
-import { H3 } from '~/components/ui/typography';
-import AddCircleIcon from '~/components/icons/AddCircleIcon';
+import ArrowRightIcon from '@/components/icons/ArrowRightIcon';
+import { H3 } from '@/components/ui/typography';
+import AddCircleIcon from '@/components/icons/AddCircleIcon';
 import { FlatList } from 'react-native';
-import { verses } from '~/lib/constants';
-import VerseCard from '~/components/Verses/VerseCard';
-import ItemSeparator from '~/components/ItemSeparator';
+import { verses } from '@/lib/utils';
+import VerseCard from '@/components/Verses/VerseCard';
+import ItemSeparator from '@/components/ItemSeparator';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AddVersesEmpty from '~/components/EmptyScreen/AddVersesEmpty';
+import AddVersesEmpty from '@/components/EmptyScreen/AddVersesEmpty';
 import { useQuery } from 'convex/react';
-import { api } from '~/convex/_generated/api';
+import { api } from '@/convex/_generated/api';
 import { useAuth, useUser } from '@clerk/clerk-expo';
+import '@/global.css';
 
 export default function HomeScreen() {
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -190,7 +191,7 @@ export default function HomeScreen() {
                 </ThemedText>
 
                 <Image
-                  source={require('~/assets/images/bible-tips.png')}
+                  source={require('@/assets/images/bible-tips.png')}
                   style={{ width: '100%', height: 300 }}
                   className='w-full rounded-xl my-2'
                 />

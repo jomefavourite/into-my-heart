@@ -1,12 +1,12 @@
 import { FlatList, StyleSheet, View } from 'react-native';
 import React, { memo } from 'react';
-import VerseCard from '~/components/Verses/VerseCard';
-import { verses } from '~/lib/constants';
+import VerseCard from '@/components/Verses/VerseCard';
+import { verses } from '@/lib/utils';
 import ThemedText from '../ThemedText';
 import ItemSeparator from '../ItemSeparator';
 // import { useQuery } from 'convex/react';
 import { useQuery } from 'convex-helpers/react/cache';
-import { api } from '~/convex/_generated/api';
+import { api } from '@/convex/_generated/api';
 import CollectionCard from './CollectionCard';
 import AddVersesEmpty from '../EmptyScreen/AddVersesEmpty';
 import SuggestionEmpty from '../EmptyScreen/SuggestionEmpty';

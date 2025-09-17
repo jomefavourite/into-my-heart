@@ -1,11 +1,11 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Link, useRouter } from 'expo-router';
-import CustomButton from '~/components/CustomButton';
-import ThemedText from '~/components/ThemedText';
-import { Button } from '~/components/ui/button';
-import { cn, ONBOARDING_DATA } from '~/lib/utils';
-import CancelIcon from '~/components/icons/CancelIcon';
+import CustomButton from '@/components/CustomButton';
+import ThemedText from '@/components/ThemedText';
+import { Button } from '@/components/ui/button';
+import { cn, ONBOARDING_DATA } from '@/lib/utils';
+import CancelIcon from '@/components/icons/CancelIcon';
 
 export default function Onboarding({ stepNumber }: { stepNumber: number }) {
   const router = useRouter();

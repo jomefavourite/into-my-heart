@@ -1,23 +1,23 @@
 import { View, Text, ScrollView } from 'react-native';
 import React, { useRef, useState } from 'react';
-import { Button } from '~/components/ui/button';
-import RemoveCircleIcon from '~/components/icons/RemoveCircleIcon';
-import BackHeader from '~/components/BackHeader';
+import { Button } from '@/components/ui/button';
+import RemoveCircleIcon from '@/components/icons/RemoveCircleIcon';
+import BackHeader from '@/components/BackHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { api } from '~/convex/_generated/api';
+import { api } from '@/convex/_generated/api';
 import { usePaginatedQuery } from 'convex-helpers/react/cache';
-import AddVersesEmpty from '~/components/EmptyScreen/AddVersesEmpty';
-import VerseCard from '~/components/Verses/VerseCard';
-import ItemSeparator from '~/components/ItemSeparator';
-import ThemedText from '~/components/ThemedText';
-import DeleteIcon from '~/components/icons/DeleteIcon';
-import { Id } from '~/convex/_generated/dataModel';
+import AddVersesEmpty from '@/components/EmptyScreen/AddVersesEmpty';
+import VerseCard from '@/components/Verses/VerseCard';
+import ItemSeparator from '@/components/ItemSeparator';
+import ThemedText from '@/components/ThemedText';
+import DeleteIcon from '@/components/icons/DeleteIcon';
+import { Id } from '@/convex/_generated/dataModel';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import { useColorScheme } from '~/hooks/useColorScheme';
-import CustomButton from '~/components/CustomButton';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import CustomButton from '@/components/CustomButton';
 import { useMutation } from 'convex/react';
-import CancelIcon from '~/components/icons/CancelIcon';
-import { useGridListView } from '~/store/tab-store';
+import CancelIcon from '@/components/icons/CancelIcon';
+import { useGridListView } from '@/store/tab-store';
 import { FlashList } from '@shopify/flash-list';
 
 const AllVersesScreen = () => {

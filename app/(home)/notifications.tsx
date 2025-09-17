@@ -7,8 +7,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import BackHeader from '~/components/BackHeader';
-import ThemedText from '~/components/ThemedText';
+import BackHeader from '@/components/BackHeader';
+import ThemedText from '@/components/ThemedText';
 
 type Notification = {
   id: string;
@@ -56,7 +56,7 @@ export default function NotificationsScreen() {
 
       <ScrollView style={styles.container}>
         <ThemedText>Hello Notification</ThemedText>
-        {notifications.map((notification) => (
+        {notifications.map(notification => (
           <TouchableOpacity
             key={notification.id}
             style={[

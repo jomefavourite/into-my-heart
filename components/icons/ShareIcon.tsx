@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ColorValue } from 'react-native';
 import Svg, { SvgProps, Path } from 'react-native-svg';
-import { useColorScheme } from '~/hooks/useColorScheme';
+import { useColorScheme } from '@/hooks/useColorScheme';
 
 interface ShareIconProps extends SvgProps {
   stroke?: ColorValue;

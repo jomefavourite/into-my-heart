@@ -1,9 +1,9 @@
 import { View, Text } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { cn } from '~/lib/utils';
+import { cn } from '@/lib/utils';
 import ThemedText from './ThemedText';
-import CheckmarkCircleIcon from '~/components/icons/CheckmarkCircleIcon';
-import { useColorScheme } from '~/hooks/useColorScheme';
+import CheckmarkCircleIcon from '@/components/icons/CheckmarkCircleIcon';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import Svg, { SvgProps, Path } from 'react-native-svg';
 import { Button } from './ui/button';
 import { Link } from 'expo-router';
