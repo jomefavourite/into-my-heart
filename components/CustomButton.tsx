@@ -45,7 +45,7 @@ const CustomButton = ({
       variant={variant}
       size={size}
       className={cn(
-        'rounded-full flex flex-row justify-center items-center space-x-2 ',
+        'rounded-full flex flex-row justify-center items-center gap-2',
         className
       )}
       {...props}

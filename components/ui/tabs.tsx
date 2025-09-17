@@ -7,7 +7,12 @@ function Tabs({
   className,
   ...props
 }: TabsPrimitive.RootProps & React.RefAttributes<TabsPrimitive.RootRef>) {
-  return <TabsPrimitive.Root className={cn('flex flex-col gap-2', className)} {...props} />;
+  return (
+    <TabsPrimitive.Root
+      className={cn('flex flex-col gap-2', className)}
+      {...props}
+    />
+  );
 }
 
 function TabsList({
@@ -17,7 +22,7 @@ function TabsList({
   return (
     <TabsPrimitive.List
       className={cn(
-        'bg-muted flex h-9 flex-row items-center justify-center rounded-lg p-[3px]',
+        'flex  h-10 native:h-12 flex-row items-center justify-center rounded-lg p-[3px]',
         Platform.select({ web: 'inline-flex w-fit', native: 'mr-auto' }),
         className
       )}
@@ -36,15 +41,24 @@ function TabsTrigger({
       value={cn(
         'text-foreground dark:text-muted-foreground text-sm font-medium',
         value === props.value && 'dark:text-foreground'
-      )}>
+      )}
+    >
       <TabsPrimitive.Trigger
+        // className={cn(
+        //   'flex h-[calc(100%-1px)] flex-row items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 shadow-none shadow-black/5',
+        //   Platform.select({
+        //     web: 'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring inline-flex cursor-default whitespace-nowrap transition-[color,box-shadow] focus-visible:outline-1 focus-visible:ring-[3px] disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0',
+        //   }),
+        //   props.disabled && 'opacity-50',
+        //   props.value === value &&
+        //     'bg-background dark:border-foreground/10 dark:bg-input/30',
+        //   className
+        // )}
         className={cn(
-          'flex h-[calc(100%-1px)] flex-row items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 shadow-none shadow-black/5',
-          Platform.select({
-            web: 'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring inline-flex cursor-default whitespace-nowrap transition-[color,box-shadow] focus-visible:outline-1 focus-visible:ring-[3px] disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0',
-          }),
-          props.disabled && 'opacity-50',
-          props.value === value && 'bg-background dark:border-foreground/10 dark:bg-input/30',
+          'inline-flex items-center justify-center shadow-none web:whitespace-nowrap  px-3 py-2.5 text-sm font-medium web:ring-offset-background web:transition-all web:focus-visible:outline-none web:focus-visible:ring-2 web:focus-visible:ring-ring web:focus-visible:ring-offset-2',
+          props.disabled && 'web:pointer-events-none opacity-50',
+          props.value === value &&
+            'bg-primary rounded-full shadow-lg shadow-foreground/10',
           className
         )}
         {...props}

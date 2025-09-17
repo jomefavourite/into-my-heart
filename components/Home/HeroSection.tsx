@@ -91,8 +91,8 @@ const HeroSection = (): JSX.Element => {
       </header>
 
       <div className=' grid gap-6 lg:grid-cols-2 max-w-screen-2xl mx-auto  px-6 py-[50px] lg:px-[107px]'>
-        <div className=' flex flex-col items-start gap-7'>
-          <div className='flex flex-col w-full items-start text-center md:text-left gap-3'>
+        <div className=' flex flex-col justify-center gap-7'>
+          <div className='flex flex-col w-full text-center md:text-left gap-3'>
             <h1 className='font-onest text-[44px] leading-[53px] tracking-[-0.44px] font-semibold text-[#313131]'>
               The Engaging Way To Keep{' '}
               <span className='text-[#1c1c1c]'>God&apos;s Word</span> In Your
@@ -107,7 +107,7 @@ const HeroSection = (): JSX.Element => {
           </div>
 
           {/* CTA Buttons */}
-          <div className='flex gap-3 mx-auto md:mx-left'>
+          <div className='flex gap-3 mx-auto md:ml-0'>
             <CustomButton
               onPress={() => router.push('/onboard')}
               className='w-full flex-1'
@@ -118,10 +118,10 @@ const HeroSection = (): JSX.Element => {
             <CustomButton
               variant='outline'
               innerElement={
-                <span className='text-secondary-text text-sm'>Coming soon</span>
+                <span className='text-secondary-text text-xs'>Coming soon</span>
               }
               disabled
-              className='w-full flex-1 flex-col'
+              className='flex-col gap-0'
             >
               Download the App
             </CustomButton>

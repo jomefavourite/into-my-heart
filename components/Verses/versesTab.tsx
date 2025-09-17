@@ -90,7 +90,7 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
             size={'icon'}
             variant={'ghost'}
             onPress={() => router.push('/verses/all-verses')}
-            className='flex-row '
+            className='flex-row'
           >
             <ThemedText size={12} className='pl-2'>
               View all
