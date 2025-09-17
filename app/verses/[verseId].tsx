@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import React from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from 'convex-helpers/react/cache';
@@ -36,26 +36,32 @@ export default function VersePage() {
 
       <View className='flex-1 justify-between px-[18px] pb-[18px]'>
         <View>
-          <Card className='p-2 h-60 justify-center items-center flex-row'>
-            <ThemedText className='text-center'>
+          <Card className='py-2 px-8 h-60'>
+            <ScrollView
+              className='flex-1'
+              showsVerticalScrollIndicator={true}
+              contentContainerStyle={{ justifyContent: 'center', flexGrow: 1 }}
+            >
               {verse && verse?.verseTexts?.length > 0
-                ? verse?.verseTexts.map(
-                    (text, index) => `${text.verse}. ${text.text} `
-                  )
+                ? verse?.verseTexts.map((text, index) => (
+                    <ThemedText key={index} className=''>
+                      {text.verse}. {text.text}
+                    </ThemedText>
+                  ))
                 : '...'}
-            </ThemedText>
+            </ScrollView>
           </Card>
 
           <View className='flex-row gap-3 justify-center my-4'>
-            <Button size={'icon'}>
+            {/* <Button size={'icon'}>
               <VolumeHighIcon />
-            </Button>
+            </Button> */}
             <Button size={'icon'}>
               <NoteIcon />
             </Button>
-            <Button size={'icon'}>
+            {/* <Button size={'icon'}>
               <TimeScheduleIcon />
-            </Button>
+            </Button> */}
             <Button size={'icon'}>
               <ImageIcon />
             </Button>
@@ -64,14 +70,14 @@ export default function VersePage() {
           <View className='p-3 bg-container rounded-md'>
             <View className='flex-row items-center gap-2'>
               <IdeaIcon fontSize={13} />
-              <ThemedText size={12} variant='medium'>
+              <ThemedText variant='medium' className='text-md'>
                 Study Tip
               </ThemedText>
             </View>
 
-            <ThemedText size={12} className='text-secondary-text'>
-              Listen and read the verse aloud repeatedly and try to understand
-              the context and meaning.
+            <ThemedText className='text-secondary-text text-sm'>
+              Read the verse aloud repeatedly and try to understand the context
+              and meaning.
             </ThemedText>
           </View>
         </View>

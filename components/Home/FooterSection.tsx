@@ -20,9 +20,14 @@ const secondNavLinks = [
 
 // Define social media icons data
 const socialIcons = [
-  { name: 'Mail', src: '/mail-01.svg', bgColor: 'bg-[#313131]' },
-  { name: 'New twitter', src: '/new-twitter.svg', bgColor: 'bg-[#1c1b1a]' },
-  { name: 'Instagram', src: '/instagram.svg', bgColor: 'bg-[#1c1b1a]' },
+  {
+    name: 'Instagram',
+    src: '/instagram.svg',
+    bgColor: 'bg-[#1c1b1a]',
+    href: 'https://www.instagram.com/intomyheart.life/',
+  },
+  // { name: 'Mail', src: '/mail-01.svg', bgColor: 'bg-[#313131]' },
+  // { name: 'New twitter', src: '/new-twitter.svg', bgColor: 'bg-[#1c1b1a]' },
   { name: 'Youtube', src: '/youtube.svg', bgColor: 'bg-[#1c1b1a]' },
   { name: 'Facebook', src: '/facebook-02.svg', bgColor: 'bg-[#1c1b1a]' },
 ];

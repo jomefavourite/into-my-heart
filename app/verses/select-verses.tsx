@@ -1,5 +1,5 @@
 import { ScrollView, View } from 'react-native';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ThemedText from '~/components/ThemedText';
 import BackHeader from '~/components/BackHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -34,52 +34,59 @@ export default function SelectVerses() {
   const chapter = chapterURL || chapter1;
   const versesLength = Number(verseLengthURL) || versesLength1;
 
-  // Use store verses as the source of truth, but initialize from URL if present
-  const [localVerses, setLocalVerses] = React.useState<string[]>([]);
+  // Use local state as the single source of truth for UI
+  const [localVerses, setLocalVerses] = useState<string[]>([]);
+  const [isUpdatingProgrammatically, setIsUpdatingProgrammatically] =
+    useState(false);
 
   // Restore verses from URL parameters on mount or clear for fresh start
   useEffect(() => {
     if (!hasInitialized.current) {
       if (versesURL) {
         const urlVerses = String(versesURL).split(',').filter(Boolean);
-        setVerses(urlVerses);
         setLocalVerses(urlVerses);
+        setVerses(urlVerses);
       } else {
         // If no versesURL parameter, clear verses for fresh selection
-        setVerses([]);
         setLocalVerses([]);
+        setVerses([]);
       }
       hasInitialized.current = true;
     }
   }, [versesURL, setVerses]);
 
-  // Use local verses for display and interaction
-  const verses = localVerses;
+  // Sync local state to store when it changes (but not during programmatic updates)
+  useEffect(() => {
+    if (!isUpdatingProgrammatically) {
+      setVerses(localVerses);
+    }
+  }, [localVerses, setVerses, isUpdatingProgrammatically]);
 
-  const handleValueChange = useCallback(
-    (newValue: string[]) => {
-      // console.log(newValue);
-      setVerses(newValue);
-      setLocalVerses(newValue);
-    },
-    [setVerses]
-  );
+  const handleValueChange = useCallback((newValue: string[]) => {
+    setLocalVerses(newValue);
+  }, []);
 
   const handlePress = useCallback(() => {
-    // Use localVerses directly instead of verses to avoid dependency loop
     router.push(
       `/verses/verse-summary?book=${bookName}&chapter=${chapter}&verseLength=${versesLength}&verses=${localVerses.join(',')}`
     );
-  }, [bookName, chapter, versesLength, localVerses]);
+  }, [bookName, chapter, versesLength, localVerses, router]);
 
   const handleAddAllVerse = useCallback(() => {
     const newVerses = Array.from(
       { length: Number(versesLength) },
       (_, index) => `${index + 1}`
     );
-    // Update both states directly to avoid callback loops
+
+    // Set flag to prevent sync loop
+    setIsUpdatingProgrammatically(true);
     setLocalVerses(newVerses);
     setVerses(newVerses);
+
+    // Reset flag after state updates
+    setTimeout(() => {
+      setIsUpdatingProgrammatically(false);
+    }, 0);
   }, [versesLength, setVerses]);
 
   return (
@@ -112,14 +119,14 @@ export default function SelectVerses() {
           </ThemedText>
 
           <ToggleGroup
-            value={verses}
+            value={localVerses}
             onValueChange={handleValueChange}
             type='multiple'
             className=' w-full flex-wrap gap-2 justify-start'
           >
             {new Array(versesLength).fill(0).map((_, index) => {
               const verseValue = `${index + 1}`;
-              const isActive = verses.includes(verseValue);
+              const isActive = localVerses.includes(verseValue);
 
               return (
                 <ToggleGroupItem
@@ -143,7 +150,7 @@ export default function SelectVerses() {
           </CustomButton>
           <CustomButton
             onPress={() => handlePress()}
-            disabled={verses.length === 0}
+            disabled={localVerses.length === 0}
           >
             Continue
           </CustomButton>

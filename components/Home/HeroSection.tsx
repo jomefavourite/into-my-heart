@@ -2,17 +2,19 @@ import React, { useState } from 'react';
 import { Button } from '~/components/ui/button';
 import Logo from '../icons/logo/Logo';
 import { Onest_400Regular } from '@expo-google-fonts/onest';
-import { Link, useRouter } from 'expo-router';
+import { Href, Link, useRouter } from 'expo-router';
 import { Sheet, SheetContent, SheetTrigger } from '~/components/ui/sheet';
 import { Menu } from 'lucide-react-native';
+import CustomButton from '../CustomButton';
+import { Card } from '../ui/card';
+import { Image } from 'react-native';
 
 // Navigation links data
-const navigationLinks = [
-  { name: 'Home', href: '/' },
-  { name: 'Our Approach', href: '/approach' },
-  { name: 'About Us', href: '/about' },
-  { name: 'FAQs', href: '/faqs' },
-  { name: 'Donate', href: '/donate' },
+const navigationLinks: { name: string; href: Href }[] = [
+  // { name: 'Home', href: '/' },
+  { name: 'Our Approach', href: '/#approach' },
+  { name: 'Key Features', href: '/#key-features' },
+  // { name: 'Donate', href: '/donate' },
 ];
 
 const HeroSection = (): JSX.Element => {
@@ -20,19 +22,18 @@ const HeroSection = (): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <section className='relative w-full'>
+    <div className='relative w-full'>
       {/* Navigation Bar */}
 
       <header className='w-full border-b bg-white'>
-        <div className='container mx-auto flex h-16 items-center justify-between px-4 md:px-6'>
-          {/* Logo */}
+        <div className='container mx-auto flex items-center justify-between px-4 py-3 md:px-6'>
           <Link href='/' className='flex items-center'>
             <Logo />
           </Link>
 
           {/* Desktop Navigation */}
           <nav className='hidden md:flex items-center space-x-8'>
-            {navigationLinks.map((link) => (
+            {navigationLinks.map(link => (
               <Link
                 key={link.name}
                 href={link.href}
@@ -45,23 +46,9 @@ const HeroSection = (): JSX.Element => {
 
           {/* Desktop Action Buttons */}
           <div className='hidden md:flex items-center space-x-3'>
-            <Button
-              className='bg-[#656565] hover:bg-[#555555] text-white rounded-[999px] px-6 py-3.5'
-              variant='default'
-            >
-              <span className='font-label-medium-medium text-[length:var(--label-medium-medium-font-size)] tracking-[var(--label-medium-medium-letter-spacing)] leading-[var(--label-medium-medium-line-height)]'>
-                Sign In
-              </span>
-            </Button>
-
-            <Button
-              className='bg-[#3d3d3d] hover:bg-[#2d2d2d] text-white rounded-[999px] px-6 py-3.5'
-              variant='default'
-            >
-              <span className='font-label-medium-medium text-[length:var(--label-medium-medium-font-size)] tracking-[var(--label-medium-medium-letter-spacing)] leading-[var(--label-medium-medium-line-height)]'>
-                Get Started
-              </span>
-            </Button>
+            <CustomButton onPress={() => router.push('/onboard')}>
+              Get Started
+            </CustomButton>
           </div>
 
           {/* Mobile Menu */}
@@ -76,12 +63,12 @@ const HeroSection = (): JSX.Element => {
               <div className='flex flex-col space-y-4 mt-6'>
                 {/* Mobile Navigation Links */}
                 <nav className='flex flex-col space-y-4'>
-                  {navigationLinks.map((link) => (
+                  {navigationLinks.map(link => (
                     <Link
                       key={link.name}
                       href={link.href}
                       className='text-lg font-medium text-gray-700 hover:text-gray-900 transition-colors py-2'
-                      onClick={() => setIsOpen(false)}
+                      // onClick={() => setIsOpen(false)}
                     >
                       {link.name}
                     </Link>
@@ -103,7 +90,7 @@ const HeroSection = (): JSX.Element => {
         </div>
       </header>
 
-      <div className='grid md:grid-cols-2 max-w-screen-2xl mx-auto  px-20 py-40'>
+      <div className=' grid gap-6 lg:grid-cols-2 max-w-screen-2xl mx-auto  px-6 py-[50px] lg:px-[107px]'>
         <div className=' flex flex-col items-start gap-7'>
           <div className='flex flex-col w-full items-start text-center md:text-left gap-3'>
             <h1 className='font-onest text-[44px] leading-[53px] tracking-[-0.44px] font-semibold text-[#313131]'>
@@ -120,31 +107,42 @@ const HeroSection = (): JSX.Element => {
           </div>
 
           {/* CTA Buttons */}
-          <div className='flex-col md:flex-row items-start gap-3'>
-            <Button
+          <div className='flex gap-3 mx-auto md:mx-left'>
+            <CustomButton
               onPress={() => router.push('/onboard')}
-              className='!w-full md:w-[172px] bg-[#3d3d3d] hover:bg-[#2d2d2d] text-white rounded-[999px] px-6 py-3.5'
-              variant='default'
+              className='w-full flex-1'
             >
-              <span className='font-label-medium-medium text-[length:var(--label-medium-medium-font-size)] tracking-[var(--label-medium-medium-letter-spacing)] leading-[var(--label-medium-medium-line-height)]'>
-                Get Started
-              </span>
-            </Button>
+              Get Started
+            </CustomButton>
 
-            <Button
-              className='w-full md:w-[172px] bg-[#656565] hover:bg-[#555555] text-white rounded-[999px] px-6 py-3.5'
-              variant='default'
+            <CustomButton
+              variant='outline'
+              innerElement={
+                <span className='text-secondary-text text-sm'>Coming soon</span>
+              }
+              disabled
+              className='w-full flex-1 flex-col'
             >
-              <span className='font-label-medium-medium text-[length:var(--label-medium-medium-font-size)] tracking-[var(--label-medium-medium-letter-spacing)] leading-[var(--label-medium-medium-line-height)]'>
-                Download the App
-              </span>
-            </Button>
+              Download the App
+            </CustomButton>
           </div>
         </div>
 
-        <div></div>
+        <div>
+          {/* Phone mockup card */}
+          <Card className='w-full md:w-[460px] h-[470px] bg-neutral-50 rounded-[20px] overflow-hidden border-none'>
+            <div className='relative w-full h-[427px] top-[43px]'>
+              <Image
+                className='object-center w-full mx-auto'
+                alt='iPhone showing app interface'
+                source={require('/assets/images/hero-phone.png')}
+              />
+              <div className='absolute w-full h-[61px] bottom-0 left-0 backdrop-blur-[5px] [background:linear-gradient(0deg, #F0F0F0 37.23%, rgba(255, 255, 255, 0.00) 109.02%)]' />
+            </div>
+          </Card>
+        </div>
       </div>
-    </section>
+    </div>
   );
 };
 

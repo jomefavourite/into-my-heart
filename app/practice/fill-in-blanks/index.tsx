@@ -104,22 +104,6 @@ export default function FillInBlanks() {
                 Collections
               </ThemedText>
             </TabsTrigger>
-            <TabsTrigger
-              value='goals'
-              className="flex-1 px-3 py-2 [font-family:'Inter',Helvetica] font-medium text-[#707070] text-base data-[state=active]:text-[#313131] data-[state=active]:border-b-2 data-[state=active]:border-[#313131]"
-            >
-              <ThemedText
-                size={13}
-                variant='medium'
-                className={cn(
-                  'text-muted-foreground',
-                  value === 'completed' &&
-                    'text-white dark:text-primary-foreground'
-                )}
-              >
-                Completed
-              </ThemedText>
-            </TabsTrigger>
           </TabsList>
 
           <TabsContent value='verses' className='flex-1'>
@@ -236,9 +220,6 @@ export default function FillInBlanks() {
                 Start Practice
               </CustomButton>
             </View>
-          </TabsContent>
-          <TabsContent value='goals'>
-            {/* <GoalCard view={view} goalCompleted /> */}
           </TabsContent>
         </Tabs>
       </View>

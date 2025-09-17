@@ -24,6 +24,7 @@ type Props = React.ComponentPropsWithoutRef<typeof Pressable> & {
   textClassName?: string;
   children?: string;
   isLoading?: boolean;
+  innerElement?: ReactNode;
 };
 
 const CustomButton = ({
@@ -36,6 +37,7 @@ const CustomButton = ({
   className,
   textClassName,
   children = '',
+  innerElement,
   ...props
 }: Props): React.ReactNode => {
   const { isDarkMode } = useColorScheme();
@@ -50,6 +52,7 @@ const CustomButton = ({
       {...props}
     >
       {leftIcon && <Icon />}
+      {innerElement && innerElement}
       {isLoading ? (
         <ActivityIndicator color={isDarkMode ? '#000' : '#fff'} />
       ) : (

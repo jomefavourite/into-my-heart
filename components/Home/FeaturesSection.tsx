@@ -189,7 +189,10 @@ const featureCards = [
 
 const FeaturesSection = (): JSX.Element => {
   return (
-    <section className='flex flex-col items-center gap-[50px] px-6 py-[50px] md:px-[107px] w-full'>
+    <section
+      id='key-features'
+      className='flex flex-col items-center gap-[50px] px-6 py-[50px] md:px-[107px] w-full'
+    >
       <div className='flex flex-col items-center gap-3'>
         <Badge
           variant='outline'
@@ -213,7 +216,7 @@ const FeaturesSection = (): JSX.Element => {
       </div>
 
       <div className='grid grid-cols-1 md:grid-cols-2 gap-5 w-full'>
-        {featureCards.map((card) => (
+        {featureCards.map(card => (
           <Card
             key={card.id}
             className='bg-neutral-50 rounded-[20px] overflow-hidden border border-solid border-[#e8e8e8]'

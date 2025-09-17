@@ -1,9 +1,6 @@
 import { View } from 'react-native';
-import React, { PropsWithChildren, ReactNode } from 'react';
-import ThemedText from '~/components/ThemedText';
-import CustomButton from '~/components/CustomButton';
+import React, { ReactNode } from 'react';
 import { cn } from '~/lib/utils';
-import { Link, useRouter } from 'expo-router';
 import FooterSection from '~/components/Home/FooterSection';
 import HowItWorksSection from '~/components/Home/HowItWorksSection';
 import HeroSection from '~/components/Home/HeroSection';
@@ -16,7 +13,6 @@ const Container = (props: { className?: string; children: ReactNode }) => (
 );
 
 const LandingPage = () => {
-  const router = useRouter();
   return (
     <div className='flex-1 overflow-auto  '>
       <HeroSection />
