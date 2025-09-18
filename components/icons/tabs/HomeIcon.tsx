@@ -18,12 +18,20 @@ const HomeIcon = ({ focused, inverse, ...rest }: HomeIconProps) => {
   }
 
   const strokeColor = inverse
-    ? isDarkMode
-      ? '#303030'
-      : '#FFFFFF'
-    : isDarkMode
-      ? '#FFFFFF'
-      : '#303030';
+    ? focused
+      ? isDarkMode
+        ? '#303030'
+        : '#FFFFFF'
+      : isDarkMode
+        ? '#303030'
+        : '#FFFFFF'
+    : focused
+      ? isDarkMode
+        ? '#303030'
+        : '#303030'
+      : isDarkMode
+        ? '#303030'
+        : '#FFFFFF';
 
   const smallDashColor = inverse
     ? focused

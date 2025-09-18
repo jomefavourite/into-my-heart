@@ -22,7 +22,7 @@ function TabsList({
   return (
     <TabsPrimitive.List
       className={cn(
-        'flex  h-10 native:h-12 flex-row items-center justify-center rounded-lg p-[3px]',
+        'native:h-12 flex h-10 flex-row items-center justify-center rounded-lg p-[3px]',
         Platform.select({ web: 'inline-flex w-fit', native: 'mr-auto' }),
         className
       )}
@@ -55,10 +55,10 @@ function TabsTrigger({
         //   className
         // )}
         className={cn(
-          'inline-flex items-center justify-center shadow-none web:whitespace-nowrap  px-3 py-2.5 text-sm font-medium web:ring-offset-background web:transition-all web:focus-visible:outline-none web:focus-visible:ring-2 web:focus-visible:ring-ring web:focus-visible:ring-offset-2',
-          props.disabled && 'web:pointer-events-none opacity-50',
+          'inline-flex items-center justify-center px-3 py-2.5 text-sm font-medium shadow-none web:whitespace-nowrap web:ring-offset-background web:transition-all web:focus-visible:outline-none web:focus-visible:ring-2 web:focus-visible:ring-ring web:focus-visible:ring-offset-2',
+          props.disabled && 'opacity-50 web:pointer-events-none',
           props.value === value &&
-            'bg-primary rounded-full shadow-lg shadow-foreground/10',
+            'rounded-full bg-primary shadow-lg shadow-foreground/10',
           className
         )}
         {...props}

@@ -4,6 +4,7 @@ import { useQuery, useMutation } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import { Id } from '../convex/_generated/dataModel';
 import { AdminOnly } from './AdminOnly';
+import { useAuth } from '@clerk/clerk-expo';
 
 interface User {
   _id: Id<'users'>;
@@ -15,12 +16,14 @@ interface User {
 }
 
 export function AdminPanel() {
+  const { isSignedIn, isLoaded } = useAuth();
   const [selectedUserId, setSelectedUserId] = useState<Id<'users'> | null>(
     null
   );
   const [newRole, setNewRole] = useState<'admin' | 'user'>('user');
 
-  const users = useQuery(api.users.getAllUsers) ?? [];
+  const users =
+    useQuery(api.users.getAllUsers, isSignedIn && isLoaded ? {} : 'skip') ?? [];
   const promoteToAdmin = useMutation(api.users.promoteToAdmin);
   const demoteFromAdmin = useMutation(api.users.demoteFromAdmin);
   const setUserRole = useMutation(api.users.setUserRole);
@@ -61,12 +64,12 @@ export function AdminPanel() {
     >
       <ScrollView className='flex-1 bg-gray-50'>
         <View className='p-6'>
-          <Text className='text-3xl font-bold mb-6 text-gray-900'>
+          <Text className='mb-6 text-3xl font-bold text-gray-900'>
             Admin Panel
           </Text>
 
-          <View className='bg-white rounded-lg shadow-md overflow-hidden mb-4'>
-            <View className='px-6 py-4 border-b border-gray-200'>
+          <View className='mb-4 overflow-hidden rounded-lg bg-white shadow-md'>
+            <View className='border-b border-gray-200 px-6 py-4'>
               <Text className='text-xl font-semibold text-gray-900'>
                 User Management
               </Text>
@@ -77,8 +80,8 @@ export function AdminPanel() {
                 {users.map((user: User) => (
                   <View key={user._id} className='border-b border-gray-200 p-4'>
                     <View className='flex-row items-center justify-between'>
-                      <View className='flex-row items-center flex-1'>
-                        <View className='w-10 h-10 rounded-full bg-gray-300 items-center justify-center mr-4'>
+                      <View className='flex-1 flex-row items-center'>
+                        <View className='mr-4 h-10 w-10 items-center justify-center rounded-full bg-gray-300'>
                           <Text className='text-sm font-medium text-gray-700'>
                             {user.first_name?.[0] ||
                               user.email[0].toUpperCase()}
@@ -98,7 +101,7 @@ export function AdminPanel() {
 
                       <View className='flex-row items-center space-x-2'>
                         <View
-                          className={`px-2 py-1 rounded-full ${
+                          className={`rounded-full px-2 py-1 ${
                             user.role === 'admin'
                               ? 'bg-red-100'
                               : 'bg-green-100'
@@ -118,18 +121,18 @@ export function AdminPanel() {
                         {user.role === 'admin' ? (
                           <TouchableOpacity
                             onPress={() => handleDemoteFromAdmin(user._id)}
-                            className='bg-yellow-100 px-3 py-1 rounded-md'
+                            className='rounded-md bg-yellow-100 px-3 py-1'
                           >
-                            <Text className='text-yellow-600 text-sm font-medium'>
+                            <Text className='text-sm font-medium text-yellow-600'>
                               Demote
                             </Text>
                           </TouchableOpacity>
                         ) : (
                           <TouchableOpacity
                             onPress={() => handlePromoteToAdmin(user._id)}
-                            className='bg-blue-100 px-3 py-1 rounded-md'
+                            className='rounded-md bg-blue-100 px-3 py-1'
                           >
-                            <Text className='text-blue-600 text-sm font-medium'>
+                            <Text className='text-sm font-medium text-blue-600'>
                               Promote
                             </Text>
                           </TouchableOpacity>

@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 import React, { useRef, useState } from 'react';
-import { router, useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from 'convex-helpers/react/cache';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ThemedText from '@/components/ThemedText';
@@ -20,6 +20,7 @@ import DeleteIcon from '@/components/icons/DeleteIcon';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useMutation } from 'convex/react';
+import { useAuth } from '@clerk/clerk-expo';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,6 +31,7 @@ import MoreVerticalIcon from '@/components/icons/MoreVerticalIcon';
 import { useBookStore } from '@/store/bookStore';
 
 export default function CollectionPage() {
+  const { isSignedIn, isLoaded } = useAuth();
   const { collectionId } = useLocalSearchParams();
   const { gridView } = useGridListView();
   const [shouldDelete, setShouldDelete] = useState(false);
@@ -45,9 +47,14 @@ export default function CollectionPage() {
     setIsCollectionUpdate,
   } = useBookStore();
 
-  const collection = useQuery(api.collections.getCollectionById, {
-    id: collectionId as Id<'collections'>,
-  });
+  const collection = useQuery(
+    api.collections.getCollectionById,
+    isSignedIn && isLoaded
+      ? {
+          id: collectionId as Id<'collections'>,
+        }
+      : 'skip'
+  );
 
   const updateCollectionVerses = useMutation(
     api.collections.updateCollectionVerses
@@ -168,7 +175,7 @@ export default function CollectionPage() {
         ]}
       />
       <View className='flex-1 justify-between px-[18px] pb-[18px]'>
-        <ThemedText className='text-lg font-bold hidden md:block'>
+        <ThemedText className='hidden text-lg font-bold md:block'>
           {collection?.collectionName}
         </ThemedText>
 
@@ -225,11 +232,11 @@ export default function CollectionPage() {
         }}
       >
         <BottomSheetView className='flex-1 p-4'>
-          <View className='mx-auto mt-6 mb-6'>
-            <ThemedText className='text-black text-center font-medium dark:text-white mb-6'>
+          <View className='mx-auto mb-6 mt-6'>
+            <ThemedText className='mb-6 text-center font-medium text-black dark:text-white'>
               These verses will be removed
             </ThemedText>
-            <ThemedText className='text-black text-center font-medium dark:text-white mb-6'>
+            <ThemedText className='mb-6 text-center font-medium text-black dark:text-white'>
               These verses will be removed and all progress. This action cannot
               be undone.
             </ThemedText>

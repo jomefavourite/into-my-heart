@@ -19,8 +19,10 @@ import { useMutation } from 'convex/react';
 import CancelIcon from '@/components/icons/CancelIcon';
 import DeleteIcon from '@/components/icons/DeleteIcon';
 import CollectionCard from '@/components/Verses/CollectionCard';
+import { useAuth } from '@clerk/clerk-expo';
 
 const AllCollectionScreen = () => {
+  const { isSignedIn, isLoaded } = useAuth();
   const router = useRouter();
   const { gridView } = useGridListView();
   const [shouldDelete, setShouldDelete] = useState(false);
@@ -32,7 +34,7 @@ const AllCollectionScreen = () => {
 
   const { results, status, loadMore } = usePaginatedQuery(
     api.collections.getAllCollections,
-    {},
+    isSignedIn && isLoaded ? {} : 'skip',
     { initialNumItems: 20 }
   );
 

@@ -127,6 +127,10 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
 
     currentRoute.current = currentPath;
 
+    // Reset navigation attempt flag when auth state changes
+    navigationAttempted.current = false;
+    authCheckAttempted.current = false;
+
     const inAuthGroup = segments[0] === '(onboarding)';
     const inTabsGroup = segments[0] === '(tabs)';
 
@@ -163,7 +167,7 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
     };
 
     authCheck();
-  }, [isLoaded, isSignedIn, segments, router]);
+  }, [isLoaded, isSignedIn, segments]);
 
   const { width } = useWindowDimensions();
 
@@ -172,7 +176,7 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
 
     if (!inOnboardingGroup) {
       return (
-        <View className='flex-1 '>
+        <View className='flex-1'>
           <TabBarSidebar />
         </View>
       );

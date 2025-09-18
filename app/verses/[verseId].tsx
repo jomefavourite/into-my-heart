@@ -1,27 +1,31 @@
 import { View, ScrollView } from 'react-native';
 import React from 'react';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useQuery } from 'convex-helpers/react/cache';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ThemedText from '@/components/ThemedText';
 import BackHeader from '@/components/BackHeader';
 import { Button } from '@/components/ui/button';
-import RemoveCircleIcon from '@/components/icons/RemoveCircleIcon';
 import { Id } from '@/convex/_generated/dataModel';
 import { api } from '@/convex/_generated/api';
 import { Card } from '@/components/ui/card';
-import VolumeHighIcon from '@/components/icons/VolumeHighIcon';
 import NoteIcon from '@/components/icons/NoteIcon';
-import TimeScheduleIcon from '@/components/icons/TimeScheduleIcon';
 import ImageIcon from '@/components/icons/ImageIcon';
 import IdeaIcon from '@/components/icons/IdeaIcon';
 import CustomButton from '@/components/CustomButton';
+import { useAuth } from '@clerk/clerk-expo';
 
 export default function VersePage() {
+  const { isSignedIn, isLoaded } = useAuth();
   const { verseId } = useLocalSearchParams();
-  const verse = useQuery(api.verses.getVerseById, {
-    id: verseId as Id<'verses'>,
-  });
+  const verse = useQuery(
+    api.verses.getVerseById,
+    isSignedIn && isLoaded
+      ? {
+          id: verseId as Id<'verses'>,
+        }
+      : 'skip'
+  );
 
   console.log(verse);
   return (
@@ -36,7 +40,7 @@ export default function VersePage() {
 
       <View className='flex-1 justify-between px-[18px] pb-[18px]'>
         <View>
-          <Card className='py-2 px-8 h-60'>
+          <Card className='h-60 px-8 py-2'>
             <ScrollView
               className='flex-1'
               showsVerticalScrollIndicator={true}
@@ -52,7 +56,7 @@ export default function VersePage() {
             </ScrollView>
           </Card>
 
-          <View className='flex-row gap-3 justify-center my-4'>
+          <View className='my-4 flex-row justify-center gap-3'>
             {/* <Button size={'icon'}>
               <VolumeHighIcon />
             </Button> */}
@@ -67,7 +71,7 @@ export default function VersePage() {
             </Button>
           </View>
 
-          <View className='p-3 bg-container rounded-md'>
+          <View className='rounded-md bg-container p-3'>
             <View className='flex-row items-center gap-2'>
               <IdeaIcon fontSize={13} />
               <ThemedText variant='medium' className='text-md'>

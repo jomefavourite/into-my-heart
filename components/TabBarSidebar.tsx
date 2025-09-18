@@ -39,20 +39,25 @@ export default function TabBarSidebar() {
   const insets = useSafeAreaInsets();
 
   return (
-    <View className='flex-1 flex-row max-w-7xl justify-center'>
+    <View className='max-w-7xl flex-1 flex-row justify-center'>
       {/* Sidebar */}
       <View
-        className='w-[240px] h-full flex-col border-r border-[#E8E8E8]'
+        className='h-full w-[240px] flex-col border-r border-[#E8E8E8]'
         style={[{ paddingTop: insets.top || 24 }]}
       >
-        <Logo />
+        <View className='px-4'>
+          <Logo />
+        </View>
 
         {/* Navigation links */}
-        <ScrollView className='flex-1 px-4'>
+        <ScrollView className='mt-10 flex-1 px-4'>
           {tabs.map((tab, index) => {
             const isActive =
-              pathname === tab.href ||
-              (pathname.startsWith(`${tab.href}`) && tab.href !== '/(tabs)');
+              tab.href === '/(tabs)'
+                ? pathname === '/' ||
+                  pathname === '/(tabs)' ||
+                  pathname.startsWith('/(tabs)/')
+                : pathname === tab.href || pathname.startsWith(`${tab.href}/`);
             const Icon = tab.icon;
 
             return (

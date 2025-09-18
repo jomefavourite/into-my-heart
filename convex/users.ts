@@ -67,10 +67,10 @@ export async function getCurrentUser(ctx: QueryCtx) {
       throw new Error('Unauthorized - No user identity');
     }
 
-    console.log(
-      'getCurrentUser: Identity found for subject:',
-      identity.subject
-    );
+    // console.log(
+    //   'getCurrentUser: Identity found for subject:',
+    //   identity.subject
+    // );
     const user = await userByExternalId(ctx, identity.subject);
 
     if (!user) {

@@ -11,6 +11,7 @@ import { useQuery, useMutation } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import { Id } from '../convex/_generated/dataModel';
 import { AdminOnly } from './AdminOnly';
+import { useAuth } from '@clerk/clerk-expo';
 
 interface VerseSuggestion {
   _id: Id<'versesSuggestions'>;
@@ -39,14 +40,21 @@ interface CollectionSuggestion {
 }
 
 export function AdminSuggestions() {
+  const { isSignedIn, isLoaded } = useAuth();
   const [activeTab, setActiveTab] = useState<'verses' | 'collections'>(
     'verses'
   );
 
   const verseSuggestions =
-    useQuery(api.verseSuggestions.getVersesSuggestion) ?? [];
+    useQuery(
+      api.verseSuggestions.getVersesSuggestion,
+      isSignedIn && isLoaded ? {} : 'skip'
+    ) ?? [];
   const collectionSuggestions =
-    useQuery(api.collectionSuggestions.getCollectionsSuggestion) ?? [];
+    useQuery(
+      api.collectionSuggestions.getCollectionsSuggestion,
+      isSignedIn && isLoaded ? {} : 'skip'
+    ) ?? [];
 
   const deleteVerseSuggestion = useMutation(
     api.verseSuggestions.deleteVerseSuggestion
@@ -113,30 +121,30 @@ export function AdminSuggestions() {
   const renderVerseSuggestion = (suggestion: VerseSuggestion) => (
     <View
       key={suggestion._id}
-      className='bg-white rounded-lg p-4 mb-3 shadow-sm'
+      className='mb-3 rounded-lg bg-white p-4 shadow-sm'
     >
-      <View className='flex-row justify-between items-start mb-2'>
+      <View className='mb-2 flex-row items-start justify-between'>
         <View className='flex-1'>
           <Text className='text-lg font-semibold text-gray-900'>
             {suggestion.bookName} {suggestion.chapter}:
             {suggestion.verses.join(', ')}
           </Text>
-          <Text className='text-sm text-gray-500 mb-2'>
+          <Text className='mb-2 text-sm text-gray-500'>
             Review Frequency: {suggestion.reviewFreq}
           </Text>
         </View>
         <TouchableOpacity
           onPress={() => handleDeleteVerseSuggestion(suggestion._id)}
-          className='bg-red-100 px-3 py-1 rounded-md'
+          className='rounded-md bg-red-100 px-3 py-1'
         >
-          <Text className='text-red-600 text-sm font-medium'>Delete</Text>
+          <Text className='text-sm font-medium text-red-600'>Delete</Text>
         </TouchableOpacity>
       </View>
 
       <View className='space-y-2'>
         {suggestion.verseTexts.map((verse, index) => (
-          <View key={index} className='bg-gray-50 p-3 rounded-md'>
-            <Text className='text-sm font-medium text-gray-700 mb-1'>
+          <View key={index} className='rounded-md bg-gray-50 p-3'>
+            <Text className='mb-1 text-sm font-medium text-gray-700'>
               Verse {verse.verse}:
             </Text>
             <Text className='text-sm text-gray-600'>{verse.text}</Text>
@@ -149,30 +157,30 @@ export function AdminSuggestions() {
   const renderCollectionSuggestion = (suggestion: CollectionSuggestion) => (
     <View
       key={suggestion._id}
-      className='bg-white rounded-lg p-4 mb-3 shadow-sm'
+      className='mb-3 rounded-lg bg-white p-4 shadow-sm'
     >
-      <View className='flex-row justify-between items-start mb-2'>
+      <View className='mb-2 flex-row items-start justify-between'>
         <View className='flex-1'>
           <Text className='text-lg font-semibold text-gray-900'>
             {suggestion.bookName} {suggestion.chapter}:
             {suggestion.verses.join(', ')}
           </Text>
-          <Text className='text-sm text-gray-500 mb-2'>
+          <Text className='mb-2 text-sm text-gray-500'>
             Review Frequency: {suggestion.reviewFreq}
           </Text>
         </View>
         <TouchableOpacity
           onPress={() => handleDeleteCollectionSuggestion(suggestion._id)}
-          className='bg-red-100 px-3 py-1 rounded-md'
+          className='rounded-md bg-red-100 px-3 py-1'
         >
-          <Text className='text-red-600 text-sm font-medium'>Delete</Text>
+          <Text className='text-sm font-medium text-red-600'>Delete</Text>
         </TouchableOpacity>
       </View>
 
       <View className='space-y-2'>
         {suggestion.verseTexts.map((verse, index) => (
-          <View key={index} className='bg-gray-50 p-3 rounded-md'>
-            <Text className='text-sm font-medium text-gray-700 mb-1'>
+          <View key={index} className='rounded-md bg-gray-50 p-3'>
+            <Text className='mb-1 text-sm font-medium text-gray-700'>
               Verse {verse.verse}:
             </Text>
             <Text className='text-sm text-gray-600'>{verse.text}</Text>
@@ -188,19 +196,19 @@ export function AdminSuggestions() {
     >
       <View className='flex-1 bg-gray-50'>
         <View className='p-4'>
-          <Text className='text-2xl font-bold text-gray-900 mb-4'>
+          <Text className='mb-4 text-2xl font-bold text-gray-900'>
             Suggestions Management
           </Text>
-          <Text className='text-sm text-gray-600 mb-4'>
+          <Text className='mb-4 text-sm text-gray-600'>
             Collection suggestions are visible to all users, but only admins can
             add or delete them.
           </Text>
 
           {/* Tab Navigation */}
-          <View className='flex-row bg-white rounded-lg p-1 mb-4'>
+          <View className='mb-4 flex-row rounded-lg bg-white p-1'>
             <TouchableOpacity
               onPress={() => setActiveTab('verses')}
-              className={`flex-1 py-2 px-4 rounded-md ${
+              className={`flex-1 rounded-md px-4 py-2 ${
                 activeTab === 'verses' ? 'bg-blue-600' : 'bg-transparent'
               }`}
             >
@@ -214,7 +222,7 @@ export function AdminSuggestions() {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setActiveTab('collections')}
-              className={`flex-1 py-2 px-4 rounded-md ${
+              className={`flex-1 rounded-md px-4 py-2 ${
                 activeTab === 'collections' ? 'bg-blue-600' : 'bg-transparent'
               }`}
             >
@@ -234,8 +242,8 @@ export function AdminSuggestions() {
               verseSuggestions.length > 0 ? (
                 verseSuggestions.map(renderVerseSuggestion)
               ) : (
-                <View className='bg-white rounded-lg p-6 items-center'>
-                  <Text className='text-gray-500 text-center'>
+                <View className='items-center rounded-lg bg-white p-6'>
+                  <Text className='text-center text-gray-500'>
                     No verse suggestions found
                   </Text>
                 </View>
@@ -243,8 +251,8 @@ export function AdminSuggestions() {
             ) : collectionSuggestions.length > 0 ? (
               collectionSuggestions.map(renderCollectionSuggestion)
             ) : (
-              <View className='bg-white rounded-lg p-6 items-center'>
-                <Text className='text-gray-500 text-center'>
+              <View className='items-center rounded-lg bg-white p-6'>
+                <Text className='text-center text-gray-500'>
                   No collection suggestions found
                 </Text>
               </View>
