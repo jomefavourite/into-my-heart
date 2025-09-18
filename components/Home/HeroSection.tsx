@@ -121,7 +121,7 @@ const HeroSection = (): JSX.Element => {
                 <span className='text-secondary-text text-xs'>Coming soon</span>
               }
               disabled
-              className='flex-col gap-0'
+              className='cursor-not-allowed flex-col gap-0'
             >
               Download the App
             </CustomButton>

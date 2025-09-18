@@ -1,4 +1,4 @@
-import React, { Children, ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import { SvgProps } from 'react-native-svg';
 import { Button } from '@/components/ui/button';
 import { Pressable } from 'react-native';
@@ -45,7 +45,7 @@ const CustomButton = ({
       variant={variant}
       size={size}
       className={cn(
-        'rounded-full flex flex-row justify-center items-center gap-2',
+        'flex flex-row items-center justify-center gap-2 rounded-full',
         className
       )}
       {...props}
