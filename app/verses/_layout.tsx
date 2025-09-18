@@ -1,6 +1,6 @@
 import { Redirect, Stack } from 'expo-router';
 import { useConvexAuth } from 'convex/react';
-import { useColorScheme } from '~/hooks/useColorScheme';
+import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function VersesLayout() {
   const { isAuthenticated } = useConvexAuth();

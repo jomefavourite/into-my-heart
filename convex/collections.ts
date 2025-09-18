@@ -36,12 +36,40 @@ export const addCollection = mutation({
 });
 
 export const getCollections = query({
-  handler: async (ctx) => {
-    await getCurrentUserOrThrow(ctx);
+  handler: async ctx => {
+    const user = await getCurrentUserOrThrow(ctx);
 
-    const verses = await ctx.db.query('collections').order('desc').take(50);
+    const collections = await ctx.db
+      .query('collections')
+      .filter(q => q.eq(q.field('userId'), user._id))
+      .order('desc')
+      .take(50);
 
-    return verses;
+    return collections;
+  },
+});
+
+export const getTotalCollectionsCount = query({
+  handler: async ctx => {
+    try {
+      const user = await getCurrentUserOrThrow(ctx);
+      const collections = await ctx.db
+        .query('collections')
+        .filter(q => q.eq(q.field('userId'), user._id))
+        .collect();
+      return collections.length;
+    } catch (error) {
+      console.error('getTotalCollectionsCount error:', error);
+      if (error instanceof Error) {
+        if (error.message.includes('Authentication required')) {
+          throw new Error('Authentication required. Please sign in.');
+        }
+        if (error.message.includes('User account not found')) {
+          throw new Error('User account not found. Please contact support.');
+        }
+      }
+      throw error;
+    }
   },
 });
 
@@ -66,7 +94,7 @@ export const deleteCollections = mutation({
     const user = await getCurrentUserOrThrow(ctx);
 
     const collections = await Promise.all(
-      args.ids.map(async (id) => {
+      args.ids.map(async id => {
         const collection = await ctx.db.get(id);
         return collection && collection.userId === user._id ? id : null;
       })
@@ -76,7 +104,7 @@ export const deleteCollections = mutation({
       (id): id is Id<'collections'> => id !== null
     );
 
-    await Promise.all(validIds.map((id) => ctx.db.delete(id)));
+    await Promise.all(validIds.map(id => ctx.db.delete(id)));
   },
 });
 
@@ -154,7 +182,7 @@ export const updateCollection = mutation({
     const collection = await ctx.db.patch(args.id, {
       collectionName: args.collectionName,
       versesLength: args.versesLength,
-      collectionVerses: args.collectionVerses.map((verse) => ({
+      collectionVerses: args.collectionVerses.map(verse => ({
         ...verse,
         reviewFreq: verse.reviewFreq ?? '',
       })),

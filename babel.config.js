@@ -9,7 +9,6 @@ module.exports = function (api) {
       'nativewind/babel',
     ],
     plugins: [
-      'react-native-reanimated/plugin',
       [
         'module-resolver',
         {
@@ -21,6 +20,8 @@ module.exports = function (api) {
           },
         },
       ],
+      '@babel/plugin-proposal-export-namespace-from',
+      'react-native-worklets/plugin',
     ],
   };
 };

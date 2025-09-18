@@ -1,14 +1,7 @@
 import React from 'react';
-import { Redirect, Stack } from 'expo-router';
-import { useAuth } from '@clerk/clerk-expo';
+import { Stack } from 'expo-router';
 
 const PracticeLayout = () => {
-  // const { isSignedIn } = useAuth();
-
-  // if (!isSignedIn) {
-  //   return <Redirect href='/(onboarding)/onboard' />;
-  // }
-
   return (
     <>
       <Stack>
@@ -24,12 +17,12 @@ const PracticeLayout = () => {
             headerShown: false,
           }}
         />
-        <Stack.Screen
+        {/* <Stack.Screen
           name='recitation'
           options={{
             headerShown: false,
           }}
-        />
+        /> */}
       </Stack>
     </>
   );

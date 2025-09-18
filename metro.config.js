@@ -15,11 +15,12 @@ module.exports = (() => {
   };
   config.resolver = {
     ...resolver,
-    assetExts: resolver.assetExts.filter((ext) => ext !== 'svg'),
+    assetExts: resolver.assetExts.filter(ext => ext !== 'svg'),
     sourceExts: [...resolver.sourceExts, 'svg'],
   };
 
   return withNativeWind(wrapWithReanimatedMetroConfig(config), {
     input: './global.css',
+    inlineRem: 16,
   });
 })();

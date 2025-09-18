@@ -1,7 +1,7 @@
 import React from 'react';
-import { Button } from '~/components/ui/button';
-import { Input } from '~/components/ui/input';
-// import { Separator } from "~/components/ui/separator";
+import { Separator } from '@/components/ui/separator';
+import { Icon } from '../ui/icon';
+import { Instagram } from 'lucide-react-native';
 
 // Define navigation links data for reusability
 const firstNavLinks = [
@@ -20,9 +20,14 @@ const secondNavLinks = [
 
 // Define social media icons data
 const socialIcons = [
-  { name: 'Mail', src: '/mail-01.svg', bgColor: 'bg-[#313131]' },
-  { name: 'New twitter', src: '/new-twitter.svg', bgColor: 'bg-[#1c1b1a]' },
-  { name: 'Instagram', src: '/instagram.svg', bgColor: 'bg-[#1c1b1a]' },
+  {
+    name: 'Instagram',
+    src: '/instagram.svg',
+    bgColor: 'bg-[#1c1b1a]',
+    href: 'https://www.instagram.com/intomyheart.life/',
+  },
+  // { name: 'Mail', src: '/mail-01.svg', bgColor: 'bg-[#313131]' },
+  // { name: 'New twitter', src: '/new-twitter.svg', bgColor: 'bg-[#1c1b1a]' },
   { name: 'Youtube', src: '/youtube.svg', bgColor: 'bg-[#1c1b1a]' },
   { name: 'Facebook', src: '/facebook-02.svg', bgColor: 'bg-[#1c1b1a]' },
 ];
@@ -36,15 +41,15 @@ const policyLinks = [
 
 const FooterSection = (): JSX.Element => {
   return (
-    <footer className='flex flex-col py-9 px-6 md:px-[107px] gap-6 w-full'>
-      <div className='flex flex-col md:flex-row items-start justify-between w-full gap-8'>
+    <footer className='flex w-full flex-col gap-6 px-6 py-9 md:px-[107px]'>
+      <div className='flex w-full flex-col items-start justify-between gap-8 md:flex-row'>
         {/* Brand and Social Media Section */}
         <div className='flex flex-col items-start gap-3.5'>
           <div className='flex flex-col items-start gap-2'>
-            <h2 className="font-['Pacifico',Helvetica] font-normal text-[#313131] text-2xl">
+            <h2 className="font-['Pacifico',Helvetica] text-2xl font-normal text-[#313131]">
               Into my heart
             </h2>
-            <p className='text-[#707070] font-medium text-sm leading-5 max-w-[291px]'>
+            <p className='max-w-[291px] text-sm font-medium leading-5 text-[#707070]'>
               Helping believers memorize Scripture and transform their lives
               through the power of God&#39;s Word.
             </p>
@@ -54,23 +59,24 @@ const FooterSection = (): JSX.Element => {
             {socialIcons.map((icon, index) => (
               <div
                 key={index}
-                className={`relative w-10 h-10 ${icon.bgColor} rounded-[20px] flex items-center justify-center overflow-hidden`}
+                className={`relative h-10 w-10 ${icon.bgColor} flex items-center justify-center overflow-hidden rounded-[20px]`}
               >
-                <img className='w-5 h-5' alt={icon.name} src={icon.src} />
+                {/* <img className='h-5 w-5' alt={icon.name} src={icon.src} /> */}
+                <Icon as={Instagram} className='h-5 w-5' />
               </div>
             ))}
           </div>
         </div>
 
         {/* Navigation Links Section */}
-        <div className='flex items-start gap-8 md:gap-[88px]'>
+        <div className='flex w-full items-start justify-between gap-8 md:justify-end md:gap-[88px]'>
           {/* First Column */}
           <nav className='flex flex-col items-start gap-3.5'>
             {firstNavLinks.map((link, index) => (
               <a
                 key={index}
                 href={link.href}
-                className='text-[#707070] font-medium text-sm leading-5 hover:text-[#313131] transition-colors'
+                className='text-sm font-medium leading-5 text-[#707070] transition-colors hover:text-[#313131]'
               >
                 {link.text}
               </a>
@@ -83,7 +89,7 @@ const FooterSection = (): JSX.Element => {
               <a
                 key={index}
                 href={link.href}
-                className='text-[#707070] font-medium text-sm leading-5 hover:text-[#313131] transition-colors'
+                className='text-sm font-medium leading-5 text-[#707070] transition-colors hover:text-[#313131]'
               >
                 {link.text}
               </a>
@@ -91,7 +97,7 @@ const FooterSection = (): JSX.Element => {
           </nav>
 
           {/* Newsletter Section */}
-          <div className='flex flex-col w-full md:w-[302px] items-start gap-3.5'>
+          {/* <div className='flex flex-col w-full md:w-[302px] items-start gap-3.5'>
             <p className='text-[#707070] font-medium text-sm leading-5'>
               Subscribe to our newsletter for tips, new features, and updates.
             </p>
@@ -105,24 +111,24 @@ const FooterSection = (): JSX.Element => {
                 Subscribe
               </Button>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 
-      {/* <Separator className="bg-[#707070]/20 w-full" /> */}
+      <Separator className='w-full bg-[#707070]/20' />
 
       {/* Footer Bottom Section */}
-      <div className='flex flex-col md:flex-row items-start md:items-center justify-between gap-4 w-full'>
-        <p className='text-[#707070] font-medium text-sm'>
+      <div className='flex w-full flex-col items-center justify-between gap-4 md:flex-row md:items-center'>
+        <p className='text-sm font-medium text-[#707070]'>
           2025 Into My Heart. All rights reserved.
         </p>
 
-        <div className='flex items-center gap-3.5 flex-wrap'>
+        <div className='flex flex-wrap items-center gap-3.5'>
           {policyLinks.map((link, index) => (
             <a
               key={index}
               href={link.href}
-              className='text-[#707070] font-medium text-sm hover:text-[#313131] transition-colors'
+              className='text-sm font-medium text-[#707070] transition-colors hover:text-[#313131]'
             >
               {link.text}
             </a>

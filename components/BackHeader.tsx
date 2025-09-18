@@ -1,11 +1,11 @@
-import ThemedText from '~/components/ThemedText';
-import ArrowLeftIcon from '~/components/icons/ArrowLeftIcon';
+import ThemedText from '@/components/ThemedText';
+import ArrowLeftIcon from '@/components/icons/ArrowLeftIcon';
 import { Href, useRouter } from 'expo-router';
 import { Button } from './ui/button';
 import { Platform, View } from 'react-native';
 import Breadcrumb from './ui/Breadcrumb';
 import { memo } from 'react';
-import { Id } from '~/convex/_generated/dataModel';
+import { Id } from '@/convex/_generated/dataModel';
 
 type BreadcrumbItem = {
   label: string;

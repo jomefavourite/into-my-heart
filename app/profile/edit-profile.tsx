@@ -1,15 +1,15 @@
 import { SafeAreaView, View } from 'react-native';
 import React, { useState } from 'react';
-import BackHeader from '~/components/BackHeader';
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
-import ThemedText from '~/components/ThemedText';
+import BackHeader from '@/components/BackHeader';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import ThemedText from '@/components/ThemedText';
 import { useUser } from '@clerk/clerk-expo';
-import { Label } from '~/components/ui/label';
-import { Input } from '~/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import * as ImagePicker from 'expo-image-picker';
-import CustomButton from '~/components/CustomButton';
-import DeleteIcon, { DeleteLightIcon } from '~/components/icons/DeleteIcon';
-import CustomBottomSheet from '~/components/CustomBottomSheet';
+import CustomButton from '@/components/CustomButton';
+import DeleteIcon, { DeleteLightIcon } from '@/components/icons/DeleteIcon';
+import CustomBottomSheet from '@/components/CustomBottomSheet';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 
 export default function EditProfile() {

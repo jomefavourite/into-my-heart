@@ -1,4 +1,4 @@
-import '~/global.css';
+import '@/global.css';
 
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
@@ -20,12 +20,11 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { Platform, useWindowDimensions, View } from 'react-native';
-import { NAV_THEME } from '~/lib/constants';
-import { useColorScheme } from '~/hooks/useColorScheme';
-import { useFrameworkReady } from '~/hooks/useFrameworkReady';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { ConvexReactClient } from 'convex/react';
 import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
-import { tokenCache } from '~/cache';
+import { tokenCache } from '@/cache';
 import { ConvexProviderWithClerk } from 'convex/react-clerk';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {
@@ -35,14 +34,15 @@ import {
   Inter_700Bold,
   useFonts,
 } from '@expo-google-fonts/inter';
-import AllBottomSheet from '~/components/AllBottomSheet';
-import TabBarSidebar from '~/components/TabBarSidebar';
+import AllBottomSheet from '@/components/AllBottomSheet';
+import TabBarSidebar from '@/components/TabBarSidebar';
 import { PortalHost } from '@rn-primitives/portal';
 import { ConvexQueryCacheProvider } from 'convex-helpers/react/cache';
 import * as SystemUI from 'expo-system-ui';
 import { ConvexQueryClient } from '@convex-dev/react-query';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
+import '@/global.css';
+import { NAV_THEME } from '@/lib/theme';
 // import * as Sentry from '@sentry/react-native';
 // import { isRunningInExpoGo } from 'expo';
 
@@ -51,11 +51,11 @@ SplashScreen.preventAutoHideAsync();
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
-  colors: NAV_THEME.light,
+  colors: NAV_THEME.light.colors,
 };
 const DARK_THEME: Theme = {
   ...DarkTheme,
-  colors: NAV_THEME.dark,
+  colors: NAV_THEME.dark.colors,
 };
 
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
@@ -108,7 +108,9 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
 
   // This prevent flash of white on navigation
   SystemUI.setBackgroundColorAsync(
-    isDarkMode ? NAV_THEME.dark.background : NAV_THEME.light.background
+    isDarkMode
+      ? NAV_THEME.dark.colors.background
+      : NAV_THEME.light.colors.background
   );
 
   useFrameworkReady();
@@ -124,6 +126,10 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
     }
 
     currentRoute.current = currentPath;
+
+    // Reset navigation attempt flag when auth state changes
+    navigationAttempted.current = false;
+    authCheckAttempted.current = false;
 
     const inAuthGroup = segments[0] === '(onboarding)';
     const inTabsGroup = segments[0] === '(tabs)';
@@ -161,7 +167,7 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
     };
 
     authCheck();
-  }, [isLoaded, isSignedIn, segments, router]);
+  }, [isLoaded, isSignedIn, segments]);
 
   const { width } = useWindowDimensions();
 
@@ -170,7 +176,7 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
 
     if (!inOnboardingGroup) {
       return (
-        <View className='flex-1 '>
+        <View className='flex-1'>
           <TabBarSidebar />
         </View>
       );

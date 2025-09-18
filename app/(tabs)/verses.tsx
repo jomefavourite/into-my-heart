@@ -1,30 +1,30 @@
 import React, { useState } from 'react';
 import { FlatList, ScrollView, Text, View } from 'react-native';
-import Container from '~/components/Container';
-import Title from '~/components/Title';
-import ThemedText from '~/components/ThemedText';
-import VersesTab from '~/components/Verses/versesTab';
-import CollectionsTab from '~/components/Verses/CollectionsTab';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
-import { cn } from '~/lib/utils';
+import Container from '@/components/Container';
+import Title from '@/components/Title';
+import ThemedText from '@/components/ThemedText';
+import VersesTab from '@/components/Verses/versesTab';
+import CollectionsTab from '@/components/Verses/CollectionsTab';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 import { Animated } from 'react-native';
-import AddIcon from '~/components/icons/AddIcon';
-import GridViewIcon from '~/components/icons/GridViewIcon';
-import { Button } from '~/components/ui/button';
+import AddIcon from '@/components/icons/AddIcon';
+import GridViewIcon from '@/components/icons/GridViewIcon';
+import { Button } from '@/components/ui/button';
 import { useRouter } from 'expo-router';
-import ListViewIcon from '~/components/icons/ListViewIcon';
+import ListViewIcon from '@/components/icons/ListViewIcon';
 import {
   useGridListView,
   useIsCollOrVerse,
   useVersesTabStore,
-} from '~/store/tab-store';
+} from '@/store/tab-store';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu';
 
 export default function VersesHomeScreen() {
   const { activeTab, setActiveTab } = useVersesTabStore();
@@ -91,7 +91,9 @@ export default function VersesHomeScreen() {
                     size={'icon'}
                     variant={'ghost'}
                     // onPress={() => router.push('/verses/select-book')}
+                    className='flex-row items-center gap-2'
                   >
+                    <ThemedText className='md:block hidden'>Add</ThemedText>
                     <AddIcon stroke='white' />
                   </Button>
                 </DropdownMenuTrigger>

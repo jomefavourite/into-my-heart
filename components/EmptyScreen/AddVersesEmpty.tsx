@@ -4,11 +4,13 @@ import ThemedText from '../ThemedText';
 import CustomButton from '../CustomButton';
 import ArrowRightIcon from '../icons/ArrowRightIcon';
 import { useRouter } from 'expo-router';
-import { useIsCollOrVerse } from '~/store/tab-store';
+import { useIsCollOrVerse } from '@/store/tab-store';
+import { useBookStore } from '@/store/bookStore';
 
 export default function AddVersesEmpty({ collection = false }) {
   const router = useRouter();
   const { setIsCollOrVerse } = useIsCollOrVerse();
+  const { setVerses } = useBookStore();
 
   return (
     <View className='bg-container p-7 rounded-2xl '>
@@ -25,6 +27,7 @@ export default function AddVersesEmpty({ collection = false }) {
         className='mt-3'
         onPress={() => {
           setIsCollOrVerse(collection ? 'collections' : 'verses');
+          setVerses([]); // Clear any existing verses before starting new selection
           router.push('/verses/select-book');
         }}
       >

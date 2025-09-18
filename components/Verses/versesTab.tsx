@@ -1,17 +1,17 @@
 import { FlatList, StyleSheet, View } from 'react-native';
 import React, { memo, useEffect } from 'react';
-import VerseCard, { VerseCardSkeleton } from '~/components/Verses/VerseCard';
-import { verses } from '~/lib/constants';
+import VerseCard, { VerseCardSkeleton } from '@/components/Verses/VerseCard';
+import { verses } from '@/lib/utils';
 import ThemedText from '../ThemedText';
 import ItemSeparator from '../ItemSeparator';
 // import { useQuery } from 'convex/react';
 import { useQuery } from 'convex-helpers/react/cache';
-import { api } from '~/convex/_generated/api';
+import { api } from '@/convex/_generated/api';
 import { Button } from '../ui/button';
 import { useRouter } from 'expo-router';
 import ArrowRightIcon from '../icons/ArrowRightIcon';
 import { useMutation } from 'convex/react';
-import { addVerseSuggestion } from '~/convex/verseSuggestions';
+import { addVerseSuggestion } from '@/convex/verseSuggestions';
 import AddVersesEmpty from '../EmptyScreen/AddVersesEmpty';
 import SuggestionEmpty from '../EmptyScreen/SuggestionEmpty';
 import { useConvexAuth } from 'convex/react';
@@ -90,7 +90,7 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
             size={'icon'}
             variant={'ghost'}
             onPress={() => router.push('/verses/all-verses')}
-            className='flex-row '
+            className='flex-row'
           >
             <ThemedText size={12} className='pl-2'>
               View all

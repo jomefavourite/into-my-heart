@@ -1,12 +1,12 @@
 import { View, Text, ScrollView, Image } from 'react-native';
 import React from 'react';
-import { H2, H3, H4, P, Small } from '~/components/ui/typography';
-import ThemedText from '~/components/ThemedText';
-import { Button } from '~/components/ui/button';
+import { H2, H3, H4, P, Small } from '@/components/ui/typography';
+import ThemedText from '@/components/ThemedText';
+import { Button } from '@/components/ui/button';
 import { useRouter } from 'expo-router';
-import ArrowLeftIcon from '~/components/icons/ArrowLeftIcon';
-import ShareIcon from '~/components/icons/ShareIcon';
-import Container from '~/components/Container';
+import ArrowLeftIcon from '@/components/icons/ArrowLeftIcon';
+import ShareIcon from '@/components/icons/ShareIcon';
+import Container from '@/components/Container';
 
 export default function MemorizationTips() {
   const router = useRouter();
@@ -30,7 +30,7 @@ export default function MemorizationTips() {
         <H3>Bible Study and Memorization Tips</H3>
         <View className='p-3' />
         <Image
-          source={require('~/assets/images/bible-tips.png')}
+          source={require('@/assets/images/bible-tips.png')}
           style={{ width: '100%', height: 200 }}
           className='w-full object-contain h-[170px] rounded-xl'
         />

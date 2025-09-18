@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
@@ -9,15 +8,15 @@ import {
 } from 'react-native';
 import { Link, usePathname, Slot, Href } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import HomeIcon from '~/components/icons/tabs/HomeIcon';
-import PracticeIcon from '~/components/icons/tabs/PracticeIcon';
-import ProfileIcon from '~/components/icons/tabs/ProfileIcon';
-import VersesIcon from '~/components/icons/tabs/VersesIcon';
-import GoalsIcon from '~/components/icons/tabs/GoalsIcon';
+import HomeIcon from '@/components/icons/tabs/HomeIcon';
+import PracticeIcon from '@/components/icons/tabs/PracticeIcon';
+import ProfileIcon from '@/components/icons/tabs/ProfileIcon';
+import VersesIcon from '@/components/icons/tabs/VersesIcon';
+// import GoalsIcon from '@/components/icons/tabs/GoalsIcon';
 import ThemedText from './ThemedText';
 import HomeHeader from './Home/Header';
 import Logo from './icons/logo/Logo';
-import { useColorScheme } from '~/hooks/useColorScheme';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { AdminOnly } from './AdminOnly';
 
 type Tab = {
@@ -30,7 +29,7 @@ const tabs: Tab = [
   { name: 'Home', href: '/(tabs)', icon: HomeIcon },
   { name: 'Verses', href: '/verses', icon: VersesIcon },
   { name: 'Practice', href: '/practice', icon: PracticeIcon },
-  { name: 'Goals', href: '/goals', icon: GoalsIcon },
+  // { name: 'Goals', href: '/goals', icon: GoalsIcon },
   { name: 'Profile', href: '/profile', icon: ProfileIcon },
 ];
 
@@ -40,20 +39,25 @@ export default function TabBarSidebar() {
   const insets = useSafeAreaInsets();
 
   return (
-    <View className='flex-1 flex-row max-w-7xl justify-center'>
+    <View className='max-w-7xl flex-1 flex-row justify-center'>
       {/* Sidebar */}
       <View
-        className='w-[240px] h-full flex-col border-r border-[#E8E8E8]'
+        className='h-full w-[240px] flex-col border-r border-[#E8E8E8]'
         style={[{ paddingTop: insets.top || 24 }]}
       >
-        <Logo />
+        <View className='px-4'>
+          <Logo />
+        </View>
 
         {/* Navigation links */}
-        <ScrollView className='flex-1 px-4'>
+        <ScrollView className='mt-10 flex-1 px-4'>
           {tabs.map((tab, index) => {
             const isActive =
-              pathname === tab.href ||
-              (pathname.startsWith(`${tab.href}`) && tab.href !== '/(tabs)');
+              tab.href === '/(tabs)'
+                ? pathname === '/' ||
+                  pathname === '/(tabs)' ||
+                  pathname.startsWith('/(tabs)/')
+                : pathname === tab.href || pathname.startsWith(`${tab.href}/`);
             const Icon = tab.icon;
 
             return (

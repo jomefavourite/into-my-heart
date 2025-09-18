@@ -4,27 +4,31 @@ import {
   Animated,
   TouchableOpacity,
   StyleSheet,
+  ScrollView,
 } from 'react-native';
 import React, { useRef, useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import BackHeader from '~/components/BackHeader';
-import ThemedText from '~/components/ThemedText';
-import OpenBookIcon from '~/components/icons/OpenBook';
+import BackHeader from '@/components/BackHeader';
+import ThemedText from '@/components/ThemedText';
+import OpenBookIcon from '@/components/icons/OpenBook';
 import { usePaginatedQuery } from 'convex-helpers/react/cache';
-import { api } from '~/convex/_generated/api';
-import CustomButton from '~/components/CustomButton';
+import { api } from '@/convex/_generated/api';
+import CustomButton from '@/components/CustomButton';
 import { useRouter } from 'expo-router';
-import ArrowRightIcon from '~/components/icons/ArrowRightIcon';
+import ArrowRightIcon from '@/components/icons/ArrowRightIcon';
+import { useAuth } from '@clerk/clerk-expo';
 
 export default function Flashcards() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+  const { isSignedIn, isLoaded } = useAuth();
+
   const router = useRouter();
 
   // Fetch all verses for flashcards
   const { results: verses, isLoading } = usePaginatedQuery(
     api.verses.getAllVerses,
-    {},
+    isSignedIn && isLoaded ? {} : 'skip',
     { initialNumItems: 100 }
   );
 
@@ -52,7 +56,7 @@ export default function Flashcards() {
 
   if (isLoading || !verses) {
     return (
-      <SafeAreaView className='flex-1 justify-center items-center'>
+      <SafeAreaView className='flex-1 items-center justify-center'>
         <ThemedText>Loading flashcards...</ThemedText>
       </SafeAreaView>
     );
@@ -60,7 +64,7 @@ export default function Flashcards() {
 
   if (verses.length === 0) {
     return (
-      <SafeAreaView className='flex-1 justify-center items-center'>
+      <SafeAreaView className='flex-1 items-center justify-center'>
         <ThemedText>No verses available for practice</ThemedText>
         <CustomButton onPress={() => router.back()}>Go Back</CustomButton>
       </SafeAreaView>
@@ -80,7 +84,7 @@ export default function Flashcards() {
       />
 
       <View className='flex-1 p-[18px]'>
-        <View className='flex-row items-center justify-between mb-4'>
+        <View className='mb-4 flex-row items-center justify-between'>
           <ThemedText size={18} variant='semibold'>
             Flashcard {currentIndex + 1} of {verses.length}
           </ThemedText>
@@ -93,21 +97,21 @@ export default function Flashcards() {
           <FlashCard
             key={currentIndex} // Force re-render when question changes
             front={`${currentVerse.bookName} ${currentVerse.chapter}:${currentVerse.verses.join(', ')}`}
-            back={currentVerse.verseTexts
-              .map(vt => `${vt.verse}: ${vt.text}`)
-              .join('\n\n')}
+            back={`${currentVerse.bookName} ${currentVerse.chapter}:${currentVerse.verses.join(', ')}\n\n${currentVerse.verseTexts
+              .map(vt => `${vt.verse}. ${vt.text}`)
+              .join('\n\n')}`}
             isFlipped={isFlipped}
             setIsFlipped={setIsFlipped}
           />
         </View>
 
         <View className='mt-4 items-center'>
-          <ThemedText size={14} className='text-muted-foreground text-center'>
+          <ThemedText size={14} className='text-center text-muted-foreground'>
             Tap the flashcard to reveal the answer before proceeding
           </ThemedText>
         </View>
 
-        <View className='flex-row justify-between items-center mt-6'>
+        <View className='mt-6 flex-row items-center justify-between'>
           <CustomButton
             onPress={handlePrevious}
             disabled={!canProceedToPrevious}
@@ -127,7 +131,7 @@ export default function Flashcards() {
             disabled={!canProceedToNext}
             className={!canProceedToNext ? 'opacity-50' : ''}
           >
-            Next
+            I got it - Next
           </CustomButton>
         </View>
       </View>
@@ -205,15 +209,15 @@ const FlashCard = ({
           style={[styles.card, styles.cardFront, frontAnimatedStyle]}
           className='bg-[#3D3D3D]'
         >
-          <View className='flex-1 justify-center items-center px-4'>
+          <View className='flex-1 items-center justify-center px-4'>
             <ThemedText
               size={22}
               variant='semibold'
-              className='text-center text-white mb-4'
+              className='mb-4 text-center text-white'
             >
               {front}
             </ThemedText>
-            <Text className='text-center text-white italic text-base'>
+            <Text className='text-center text-base italic text-white'>
               Tap to reveal verse
             </Text>
           </View>
@@ -224,19 +228,28 @@ const FlashCard = ({
 
         <Animated.View
           style={[styles.card, styles.cardBack, backAnimatedStyle]}
-          className='bg-[#FAFAFA] dark:bg-[#3D3D3D]'
+          className='bg-[#3D3D3D]'
         >
-          <View className='flex-1 justify-center items-center px-4'>
+          <ScrollView
+            className='flex-1'
+            contentContainerStyle={{
+              flexGrow: 1,
+              justifyContent: 'center',
+              paddingHorizontal: 16,
+              paddingVertical: 20,
+            }}
+            showsVerticalScrollIndicator={false}
+          >
             <ThemedText
               size={18}
-              className='text-center text-black dark:text-white leading-6'
+              className='text-center leading-6 text-black dark:text-white'
             >
               {back}
             </ThemedText>
-            <Text className='text-center text-black dark:text-white italic text-base mt-4'>
+            <Text className='mt-4 text-center text-base italic text-black dark:text-white'>
               Tap to flip back
             </Text>
-          </View>
+          </ScrollView>
           <View className='absolute bottom-4 left-1/2 -translate-x-1/2'>
             <OpenBookIcon />
           </View>

@@ -1,24 +1,24 @@
 import { View, Text } from 'react-native';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import BackHeader from '~/components/BackHeader';
-import { Label } from '~/components/ui/label';
-import { Input } from '~/components/ui/input';
-import ThemedText from '~/components/ThemedText';
-import { Button } from '~/components/ui/button';
+import BackHeader from '@/components/BackHeader';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import ThemedText from '@/components/ThemedText';
+import { Button } from '@/components/ui/button';
 import { useRouter } from 'expo-router';
-import AddIcon from '~/components/icons/AddIcon';
+import AddIcon from '@/components/icons/AddIcon';
 import { FlatList } from 'react-native';
-import { useBookStore } from '~/store/bookStore';
-import VerseCard from '~/components/Verses/VerseCard';
-import ItemSeparator from '~/components/ItemSeparator';
-import CustomButton from '~/components/CustomButton';
-import ArrowRightIcon from '~/components/icons/ArrowRightIcon';
-import AddVersesEmpty from '~/components/EmptyScreen/AddVersesEmpty';
+import { useBookStore } from '@/store/bookStore';
+import VerseCard from '@/components/Verses/VerseCard';
+import ItemSeparator from '@/components/ItemSeparator';
+import CustomButton from '@/components/CustomButton';
+import ArrowRightIcon from '@/components/icons/ArrowRightIcon';
+import AddVersesEmpty from '@/components/EmptyScreen/AddVersesEmpty';
 import { useMutation } from 'convex/react';
-import { api } from '~/convex/_generated/api';
-import { useIsCollOrVerse } from '~/store/tab-store';
-import { Id } from '~/convex/_generated/dataModel';
+import { api } from '@/convex/_generated/api';
+import { useIsCollOrVerse } from '@/store/tab-store';
+import { Id } from '@/convex/_generated/dataModel';
 import { useLocalSearchParams } from 'expo-router';
 
 const CreateCollection = () => {
@@ -29,6 +29,7 @@ const CreateCollection = () => {
     collectionName,
     collectionVerses,
     setCollectionName,
+    setVerses,
     resetAll,
     isCollectionUpdate,
   } = useBookStore();
@@ -48,7 +49,7 @@ const CreateCollection = () => {
 
     setHasInputError(false);
 
-    const mappedCollectionVerses = collectionVerses.map((verse) => ({
+    const mappedCollectionVerses = collectionVerses.map(verse => ({
       ...verse,
       reviewFreq: verse.reviewFreq ?? '',
     }));
@@ -92,7 +93,7 @@ const CreateCollection = () => {
             defaultValue={collectionName}
             placeholder='Enter goal name'
             className={`dark:text-white ${hasInputError ? 'border border-red-500' : ''}`}
-            onChangeText={(text) => {
+            onChangeText={text => {
               setCollectionName(text);
               if (hasInputError && text.trim()) setHasInputError(false);
             }}
@@ -112,6 +113,7 @@ const CreateCollection = () => {
             variant={'ghost'}
             onPress={() => {
               setIsCollOrVerse('collections');
+              setVerses([]); // Clear any existing verses before starting new selection
               router.push('/verses/select-book');
             }}
           >

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Svg, { SvgProps, G, Path } from 'react-native-svg';
-import { useColorScheme } from '~/hooks/useColorScheme';
+import { useColorScheme } from '@/hooks/useColorScheme';
 
 interface ProfileIconProps extends SvgProps {
   focused: boolean;

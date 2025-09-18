@@ -1,18 +1,18 @@
 import { View, Text, Pressable, Platform } from 'react-native';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useRouter } from 'expo-router';
-import NotificationIcon from '~/components/icons/NotificationIcon';
-import FireIcon from '~/components/icons/FireIcon';
+import NotificationIcon from '@/components/icons/NotificationIcon';
+import FireIcon from '@/components/icons/FireIcon';
 import Svg, { SvgProps, Path } from 'react-native-svg';
 import { useUser } from '@clerk/clerk-expo';
 import ThemedText from '../ThemedText';
 import CustomButton from '../CustomButton';
-import { useColorScheme } from '~/hooks/useColorScheme';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { useCallback, useRef } from 'react';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import { cn, useBottomSheetStore } from '~/lib/utils';
+import { cn, useBottomSheetStore } from '@/lib/utils';
 
 export default function HomeHeader({
   isWelcome = false,
@@ -28,7 +28,7 @@ export default function HomeHeader({
   const { isDarkMode } = useColorScheme();
 
   const setStreakBottomSheetIndex = useBottomSheetStore(
-    (state) => state.setStreakBottomSheetIndex
+    state => state.setStreakBottomSheetIndex
   );
 
   const handleOpenSheet = () => {

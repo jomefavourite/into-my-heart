@@ -11,18 +11,19 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 
-import BackHeader from '~/components/BackHeader';
-import { BOOKS } from '~/lib/books';
-import ThemedText from '~/components/ThemedText';
-import { Button } from '~/components/ui/button';
-import { Input } from '~/components/ui/input';
+import BackHeader from '@/components/BackHeader';
+import { BOOKS } from '@/lib/books';
+import ThemedText from '@/components/ThemedText';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '~/components/ui/accordion'; // from react-native-reusables
-import { useBookStore } from '~/store/bookStore';
+} from '@/components/ui/accordion'; // from react-native-reusables
+import { useBookStore } from '@/store/bookStore';
+import { useIsCollOrVerse } from '@/store/tab-store';
 import { ScrollView } from 'react-native';
 
 const screenWidth = Dimensions.get('window').width;
@@ -72,6 +73,7 @@ export default function AddBookScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [ready, setReady] = useState(false);
   const { setVerses } = useBookStore();
+  const { isCollOrVerse } = useIsCollOrVerse();
 
   // Defer rendering to after transition
   useEffect(() => {
@@ -120,10 +122,21 @@ export default function AddBookScreen() {
             <ThemedText>KJV</ThemedText>
           </Button>
         }
-        items={[
-          { label: 'Verses', href: '/verses' },
-          { label: 'Select Book', href: '/verses/select-book' },
-        ]}
+        items={
+          isCollOrVerse === 'collections'
+            ? [
+                { label: 'Verses', href: '/verses' },
+                {
+                  label: 'Create Collection',
+                  href: '/verses/create-collection',
+                },
+                { label: 'Select Book', href: '/verses/select-book' },
+              ]
+            : [
+                { label: 'Verses', href: '/verses' },
+                { label: 'Select Book', href: '/verses/select-book' },
+              ]
+        }
       />
 
       <View className='mb-4 gap-2 px-[18]'>

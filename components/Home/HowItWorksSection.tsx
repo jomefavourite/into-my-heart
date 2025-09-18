@@ -1,6 +1,6 @@
 import React from 'react';
-import { Badge } from '~/components/ui/badge';
-import { Card } from '~/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
 import OpenBookSVG from '../icons/onboarding/open-book.svg';
 import { Image } from 'react-native';
 // import PhoneMockupSVG from '../icons/onboarding/phone-mock.svg';
@@ -36,7 +36,10 @@ const steps = [
 const HowItWorksSection = (): JSX.Element => {
   return (
     <>
-      <section className='flex flex-col items-center gap-[50px] py-[50px] px-6 md:px-[107px] w-full'>
+      <section
+        id='approach'
+        className='flex flex-col items-center gap-[50px] py-[50px] px-6 md:px-[107px] w-full'
+      >
         {/* Header section */}
         <div className='flex flex-col items-center gap-3'>
           <Badge
@@ -61,7 +64,7 @@ const HowItWorksSection = (): JSX.Element => {
         </div>
 
         {/* Main content section */}
-        <div className='flex flex-col md:flex-row items-center justify-center gap-[50px]'>
+        <div className='flex flex-col lg:flex-row items-center justify-center gap-[50px]'>
           {/* Phone mockup card */}
           <Card className='w-full md:w-[460px] h-[470px] bg-neutral-50 rounded-[20px] overflow-hidden border-none'>
             <div className='relative w-full h-[427px] top-[43px]'>
@@ -85,7 +88,7 @@ const HowItWorksSection = (): JSX.Element => {
               /> */}
               <div className='absolute w-px h-[350px] bg-[#e8e8e8] top-[17px] left-5 object-cover -z-10'></div>
 
-              {steps.map((step) => (
+              {steps.map(step => (
                 <div
                   key={step.number}
                   className='flex w-[42px] items-center justify-center px-[7px] py-[9px] bg-neutral-50 rounded-[100px] overflow-hidden border-2 border-solid border-[#e8e8e8]'
@@ -99,7 +102,7 @@ const HowItWorksSection = (): JSX.Element => {
 
             {/* Steps content column */}
             <div className='flex flex-col items-start gap-[50px]'>
-              {steps.map((step) => (
+              {steps.map(step => (
                 <div key={step.number} className='flex items-start gap-2.5'>
                   <div className='flex flex-col items-start justify-center gap-1'>
                     <h3 className="[font-family:'Inter',Helvetica] font-medium text-[#313131] text-sm leading-5">

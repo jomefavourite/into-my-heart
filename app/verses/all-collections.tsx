@@ -1,26 +1,28 @@
 import { View, Text, ScrollView } from 'react-native';
 import React, { useState } from 'react';
-import { Button } from '~/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { useRouter } from 'expo-router';
-import RemoveCircleIcon from '~/components/icons/RemoveCircleIcon';
-import BackHeader from '~/components/BackHeader';
+import RemoveCircleIcon from '@/components/icons/RemoveCircleIcon';
+import BackHeader from '@/components/BackHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { api } from '~/convex/_generated/api';
+import { api } from '@/convex/_generated/api';
 import { usePaginatedQuery } from 'convex-helpers/react/cache';
 import { FlatList } from 'react-native-gesture-handler';
-import AddVersesEmpty from '~/components/EmptyScreen/AddVersesEmpty';
-import VerseCard from '~/components/Verses/VerseCard';
-import ItemSeparator from '~/components/ItemSeparator';
-import ThemedText from '~/components/ThemedText';
-import { useGridListView } from '~/store/tab-store';
-import { Id } from '~/convex/_generated/dataModel';
-import { useColorScheme } from '~/hooks/useColorScheme';
+import AddVersesEmpty from '@/components/EmptyScreen/AddVersesEmpty';
+import VerseCard from '@/components/Verses/VerseCard';
+import ItemSeparator from '@/components/ItemSeparator';
+import ThemedText from '@/components/ThemedText';
+import { useGridListView } from '@/store/tab-store';
+import { Id } from '@/convex/_generated/dataModel';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { useMutation } from 'convex/react';
-import CancelIcon from '~/components/icons/CancelIcon';
-import DeleteIcon from '~/components/icons/DeleteIcon';
-import CollectionCard from '~/components/Verses/CollectionCard';
+import CancelIcon from '@/components/icons/CancelIcon';
+import DeleteIcon from '@/components/icons/DeleteIcon';
+import CollectionCard from '@/components/Verses/CollectionCard';
+import { useAuth } from '@clerk/clerk-expo';
 
 const AllCollectionScreen = () => {
+  const { isSignedIn, isLoaded } = useAuth();
   const router = useRouter();
   const { gridView } = useGridListView();
   const [shouldDelete, setShouldDelete] = useState(false);
@@ -32,15 +34,15 @@ const AllCollectionScreen = () => {
 
   const { results, status, loadMore } = usePaginatedQuery(
     api.collections.getAllCollections,
-    {},
+    isSignedIn && isLoaded ? {} : 'skip',
     { initialNumItems: 20 }
   );
 
   const deleteCollections = useMutation(api.collections.deleteCollections);
 
   const toggleSelectedVerse = (_id: Id<'collections'>) => {
-    setSelectedToDelete((prev) =>
-      prev.includes(_id) ? prev.filter((id) => id !== _id) : [...prev, _id]
+    setSelectedToDelete(prev =>
+      prev.includes(_id) ? prev.filter(id => id !== _id) : [...prev, _id]
     );
   };
 

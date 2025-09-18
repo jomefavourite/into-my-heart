@@ -67,10 +67,10 @@ export async function getCurrentUser(ctx: QueryCtx) {
       throw new Error('Unauthorized - No user identity');
     }
 
-    console.log(
-      'getCurrentUser: Identity found for subject:',
-      identity.subject
-    );
+    // console.log(
+    //   'getCurrentUser: Identity found for subject:',
+    //   identity.subject
+    // );
     const user = await userByExternalId(ctx, identity.subject);
 
     if (!user) {
@@ -191,9 +191,17 @@ export const getCurrentUserRole = query({
   args: {},
   handler: async ctx => {
     try {
+      const identity = await ctx.auth.getUserIdentity();
+      if (!identity) {
+        return 'user';
+      }
+
       const currentUser = await getCurrentUser(ctx);
       return currentUser.role || 'user';
-    } catch {
+    } catch (error) {
+      // console.log(
+      //   'getCurrentUserRole: User not authenticated or not found, returning default role'
+      // );
       return 'user';
     }
   },

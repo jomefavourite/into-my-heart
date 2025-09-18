@@ -3,7 +3,7 @@ import { View, TouchableOpacity } from 'react-native';
 import { Href, router, useLocalSearchParams } from 'expo-router';
 import { ChevronRight } from 'lucide-react-native';
 import ThemedText from '../ThemedText';
-import { cn } from '~/lib/utils';
+import { cn } from '@/lib/utils';
 type BreadcrumbItem = {
   label: string;
   href?: Href;
