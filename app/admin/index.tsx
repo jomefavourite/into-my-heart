@@ -4,6 +4,24 @@ import { AdminPanel } from '../../components/AdminPanel';
 import { useAuthState } from '../../hooks/useAuthState';
 import { AdminSuggestions } from '@/components/AdminSuggestions';
 
+export const metadata = {
+  title: 'Admin Panel - Into My Heart',
+  description:
+    'Admin panel for managing users, suggestions, and system settings.',
+  openGraph: {
+    title: 'Admin Panel - Into My Heart',
+    description:
+      'Admin panel for managing users, suggestions, and system settings.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Admin Panel - Into My Heart',
+    description:
+      'Admin panel for managing users, suggestions, and system settings.',
+  },
+};
+
 export default function AdminPage() {
   const { userRole, isAdmin, isLoading } = useAuthState();
 
@@ -18,8 +36,8 @@ export default function AdminPage() {
   return (
     <ScrollView className='flex-1 bg-gray-50'>
       <View className='p-4'>
-        <View className='bg-white rounded-lg p-4 mb-4 shadow-sm'>
-          <Text className='text-lg font-semibold text-gray-900 mb-2'>
+        <View className='mb-4 rounded-lg bg-white p-4 shadow-sm'>
+          <Text className='mb-2 text-lg font-semibold text-gray-900'>
             Admin Dashboard
           </Text>
           <Text className='text-sm text-gray-600'>

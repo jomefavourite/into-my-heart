@@ -26,6 +26,24 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+export const metadata = {
+  title: 'My Verses - Into My Heart',
+  description:
+    'View and manage your memorized Bible verses. Add new verses, organize collections, and track your progress.',
+  openGraph: {
+    title: 'My Verses - Into My Heart',
+    description:
+      'View and manage your memorized Bible verses. Add new verses, organize collections, and track your progress.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'My Verses - Into My Heart',
+    description:
+      'View and manage your memorized Bible verses. Add new verses, organize collections, and track your progress.',
+  },
+};
+
 export default function VersesHomeScreen() {
   const { activeTab, setActiveTab } = useVersesTabStore();
 
@@ -38,7 +56,7 @@ export default function VersesHomeScreen() {
 
   return (
     <SafeAreaView className='flex-1'>
-      <View className='gap-5 flex-1'>
+      <View className='flex-1 gap-5'>
         <View className='p-[18px]'>
           <ThemedText size={22} variant='semibold'>
             Verses & Collections
@@ -48,7 +66,7 @@ export default function VersesHomeScreen() {
         <Tabs
           value={activeTab}
           onValueChange={setActiveTab}
-          className='w-full mx-auto flex-col gap-1.5 flex-1'
+          className='mx-auto w-full flex-1 flex-col gap-1.5'
         >
           <View className='flex-row justify-between px-[18px]'>
             <TabsList className='flex-row'>
@@ -93,7 +111,7 @@ export default function VersesHomeScreen() {
                     // onPress={() => router.push('/verses/select-book')}
                     className='flex-row items-center gap-2'
                   >
-                    <ThemedText className='md:block hidden'>Add</ThemedText>
+                    <ThemedText className='hidden md:block'>Add</ThemedText>
                     <AddIcon stroke='white' />
                   </Button>
                 </DropdownMenuTrigger>

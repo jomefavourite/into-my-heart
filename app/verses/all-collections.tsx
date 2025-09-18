@@ -21,6 +21,24 @@ import DeleteIcon from '@/components/icons/DeleteIcon';
 import CollectionCard from '@/components/Verses/CollectionCard';
 import { useAuth } from '@clerk/clerk-expo';
 
+export const metadata = {
+  title: 'All Collections - Into My Heart',
+  description:
+    'View and manage all your Bible verse collections. Organize verses by theme, topic, or study plan.',
+  openGraph: {
+    title: 'All Collections - Into My Heart',
+    description:
+      'View and manage all your Bible verse collections. Organize verses by theme, topic, or study plan.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'All Collections - Into My Heart',
+    description:
+      'View and manage all your Bible verse collections. Organize verses by theme, topic, or study plan.',
+  },
+};
+
 const AllCollectionScreen = () => {
   const { isSignedIn, isLoaded } = useAuth();
   const router = useRouter();

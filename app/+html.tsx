@@ -16,6 +16,31 @@ export default function Root({ children }: PropsWithChildren) {
           content='width=device-width, initial-scale=1, shrink-to-fit=no'
         />
 
+        {/* SEO Meta Tags */}
+        <meta
+          name='description'
+          content='Into My Heart - Memorize Bible verses with proven techniques. Practice with flashcards, fill-in-the-blanks, and recitation methods.'
+        />
+        <meta
+          name='keywords'
+          content='Bible, memorization, verses, flashcards, practice, Christian, faith, scripture'
+        />
+        <meta name='author' content='Into My Heart' />
+        <meta name='robots' content='index, follow' />
+
+        {/* Open Graph Meta Tags */}
+        <meta property='og:type' content='website' />
+        <meta property='og:site_name' content='Into My Heart' />
+        <meta property='og:locale' content='en_US' />
+
+        {/* Twitter Card Meta Tags */}
+        <meta name='twitter:card' content='summary_large_image' />
+        <meta name='twitter:site' content='@intomyheart' />
+
+        {/* Theme Color */}
+        <meta name='theme-color' content='#313131' />
+        <meta name='msapplication-TileColor' content='#313131' />
+
         {/*
           Disable body scrolling on web. This makes ScrollView components work closer to how they do on native.
           However, body scrolling is often nice to have for mobile web. If you want to enable it, remove this line.

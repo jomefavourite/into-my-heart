@@ -29,6 +29,24 @@ import { api } from '@/convex/_generated/api';
 import { useAuth, useUser } from '@clerk/clerk-expo';
 import '@/global.css';
 
+export const metadata = {
+  title: 'Into My Heart - Memorize Bible Verses',
+  description:
+    'Memorize Bible verses with proven techniques. Practice with flashcards, fill-in-the-blanks, and recitation methods.',
+  openGraph: {
+    title: 'Into My Heart - Memorize Bible Verses',
+    description:
+      'Memorize Bible verses with proven techniques. Practice with flashcards, fill-in-the-blanks, and recitation methods.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Into My Heart - Memorize Bible Verses',
+    description:
+      'Memorize Bible verses with proven techniques. Practice with flashcards, fill-in-the-blanks, and recitation methods.',
+  },
+};
+
 export default function HomeScreen() {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const router = useRouter();
@@ -53,7 +71,7 @@ export default function HomeScreen() {
         data={[{ id: 'accordion' }]}
         keyExtractor={item => item.id}
         renderItem={() => (
-          <View className='web:grid gap-8 web:lg:grid-cols-2 '>
+          <View className='gap-8 web:grid web:lg:grid-cols-2'>
             <View className='gap-4'>
               {/* Verse of the Day */}
               <View>
@@ -65,17 +83,17 @@ export default function HomeScreen() {
                   Verse of the Day
                 </ThemedText>
 
-                <View className='bg-[#313131] dark:bg-[#343434] border-none rounded-3xl py-6 px-5 mt-2'>
+                <View className='mt-2 rounded-3xl border-none bg-[#313131] px-5 py-6 dark:bg-[#343434]'>
                   <ThemedText
                     size={12}
                     variant='medium'
-                    className='text-white dark:text-primary '
+                    className='text-white dark:text-primary'
                   >
                     John 3:16 KJV
                   </ThemedText>
                   <ThemedText
                     variant='medium'
-                    className='text-white dark:text-primary text-base my-7'
+                    className='my-7 text-base text-white dark:text-primary'
                   >
                     For God so loved the world, that he gave his only Son, that
                     whoever believes in him should not perish but have eternal
@@ -150,7 +168,7 @@ export default function HomeScreen() {
 
             <View className='gap-3'>
               <View className='gap-2'>
-                <View className='flex-row items-center justify-between mb-2'>
+                <View className='mb-2 flex-row items-center justify-between'>
                   <ThemedText variant='medium'>Verse Suggestions</ThemedText>
                   <Link href={'/verses/verse-suggestions'}>
                     <ThemedText size={12}>View all -{'>'}</ThemedText>
@@ -193,14 +211,14 @@ export default function HomeScreen() {
                 <Image
                   source={require('@/assets/images/bible-tips.png')}
                   style={{ width: '100%', height: 300 }}
-                  className='w-full rounded-xl my-2'
+                  className='my-2 w-full rounded-xl'
                 />
 
                 <Pressable
                   onPress={() => router.push('/memorization-tips')}
                   className='flex-row items-center gap-1'
                 >
-                  <ThemedText size={13} className=' ml-auto'>
+                  <ThemedText size={13} className='ml-auto'>
                     Read here
                   </ThemedText>
                   <ArrowRightIcon />

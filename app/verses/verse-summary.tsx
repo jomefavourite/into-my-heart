@@ -77,6 +77,24 @@ const getVerseTexts = async ({
   }
 };
 
+export const metadata = {
+  title: 'Add Verse - Into My Heart',
+  description:
+    'Add a new Bible verse to your memorization collection. Select book, chapter, and verses to memorize.',
+  openGraph: {
+    title: 'Add Verse - Into My Heart',
+    description:
+      'Add a new Bible verse to your memorization collection. Select book, chapter, and verses to memorize.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Add Verse - Into My Heart',
+    description:
+      'Add a new Bible verse to your memorization collection. Select book, chapter, and verses to memorize.',
+  },
+};
+
 export default function VerseSummary() {
   const router = useRouter();
   const {
@@ -485,7 +503,7 @@ export default function VerseSummary() {
         <View className='gap-5'>
           <View className='gap-3'>
             {isCollOrVerse === 'collections' && (
-              <View className='flex-row items-center justify-between w-full'>
+              <View className='w-full flex-row items-center justify-between'>
                 <ThemedText size={14}>Collection name</ThemedText>
                 <Button
                   size={'sm'}
@@ -498,7 +516,7 @@ export default function VerseSummary() {
                 </Button>
               </View>
             )}
-            <View className='flex-row items-center justify-between w-full'>
+            <View className='w-full flex-row items-center justify-between'>
               <ThemedText size={14}>Book</ThemedText>
               <Button
                 size={'sm'}
@@ -512,7 +530,7 @@ export default function VerseSummary() {
                 <ArrowRightIcon />
               </Button>
             </View>
-            <View className='flex-row items-center justify-between w-full'>
+            <View className='w-full flex-row items-center justify-between'>
               <ThemedText size={14}>Verses</ThemedText>
               <Button
                 size={'sm'}
@@ -532,7 +550,7 @@ export default function VerseSummary() {
                 <ArrowRightIcon />
               </Button>
             </View>
-            <View className='flex-row items-center justify-between w-full'>
+            <View className='w-full flex-row items-center justify-between'>
               <ThemedText size={14}>Bible translation</ThemedText>
               <Button
                 size={'sm'}
@@ -543,7 +561,7 @@ export default function VerseSummary() {
                 <ThemedText size={14}>KJV</ThemedText>
               </Button>
             </View>
-            <View className='flex-row items-center justify-between w-full'>
+            <View className='w-full flex-row items-center justify-between'>
               <ThemedText size={14}>Review Frequency</ThemedText>
 
               <DropdownMenu>
@@ -556,7 +574,7 @@ export default function VerseSummary() {
                     <ThemedText size={14}>{reviewFreqValue}</ThemedText>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className='w-48 native:w-52 px-0'>
+                <DropdownMenuContent className='native:w-52 w-48 px-0'>
                   <DropdownMenuItem onPress={() => setReviewFreqValue('Daily')}>
                     <ThemedText>Daily</ThemedText>
                   </DropdownMenuItem>
@@ -575,7 +593,7 @@ export default function VerseSummary() {
             </View>
           </View>
 
-          <ScrollView className='border border-black dark:border-white rounded-md p-3 max-h-[200px] overflow-y-auto'>
+          <ScrollView className='max-h-[200px] overflow-y-auto rounded-md border border-black p-3 dark:border-white'>
             {isVerseTextsListLoading ? (
               <View className='flex-1 items-center justify-center'>
                 <ActivityIndicator />
@@ -585,7 +603,7 @@ export default function VerseSummary() {
                 <ThemedText
                   key={index}
                   size={13}
-                  className='w-full text-[#707070] dark:text-[#909090] !overflow-hidden !text-ellipsis block'
+                  className='block w-full !overflow-hidden !text-ellipsis text-[#707070] dark:text-[#909090]'
                 >
                   {text?.verse}. {text?.text}
                 </ThemedText>

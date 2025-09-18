@@ -6,6 +6,24 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'expo-router';
 import PracticeComp from '@/components/PracticeScreen/PracticeComp';
 
+export const metadata = {
+  title: 'Flashcards Practice - Into My Heart',
+  description:
+    'Practice memorizing Bible verses with interactive flashcards. Test your knowledge and improve retention.',
+  openGraph: {
+    title: 'Flashcards Practice - Into My Heart',
+    description:
+      'Practice memorizing Bible verses with interactive flashcards. Test your knowledge and improve retention.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Flashcards Practice - Into My Heart',
+    description:
+      'Practice memorizing Bible verses with interactive flashcards. Test your knowledge and improve retention.',
+  },
+};
+
 export default function Flashcards() {
   const router = useRouter();
 

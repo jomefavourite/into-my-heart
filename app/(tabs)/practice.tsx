@@ -9,6 +9,24 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import FlashCardIcon1 from '@/components/icons/practice/FlashCardIcon1';
 import RecitationIcon from '@/components/icons/practice/RecitationIcon';
 
+export const metadata = {
+  title: 'Practice - Into My Heart',
+  description:
+    'Practice memorizing Bible verses with flashcards, fill-in-the-blanks, and recitation techniques.',
+  openGraph: {
+    title: 'Practice - Into My Heart',
+    description:
+      'Practice memorizing Bible verses with flashcards, fill-in-the-blanks, and recitation techniques.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Practice - Into My Heart',
+    description:
+      'Practice memorizing Bible verses with flashcards, fill-in-the-blanks, and recitation techniques.',
+  },
+};
+
 export default function PracticeScreen() {
   return (
     <SafeAreaView className='flex-1'>

@@ -75,7 +75,7 @@ const ProfileLinks: ProfileLinks = {
 
 const LinkItem = ({ title, link }: { title: string; link: Href }) => (
   <Link href={link}>
-    <View className='py-3 px-2 flex flex-row items-center justify-between w-full'>
+    <View className='flex w-full flex-row items-center justify-between px-2 py-3'>
       <ThemedText>{title}</ThemedText>
       <ArrowRightIcon />
     </View>
@@ -96,11 +96,29 @@ const CheckboxItem = ({ title }: { title: string }) => {
   };
 
   return (
-    <View className='py-3 px-2 flex flex-row items-center justify-between w-full'>
+    <View className='flex w-full flex-row items-center justify-between px-2 py-3'>
       <ThemedText>{title}</ThemedText>
       <Switch onCheckedChange={toggleSwitch} checked={isEnabled} />
     </View>
   );
+};
+
+export const metadata = {
+  title: 'Profile - Into My Heart',
+  description:
+    'Manage your profile settings, preferences, and account information for your Bible memorization journey.',
+  openGraph: {
+    title: 'Profile - Into My Heart',
+    description:
+      'Manage your profile settings, preferences, and account information for your Bible memorization journey.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Profile - Into My Heart',
+    description:
+      'Manage your profile settings, preferences, and account information for your Bible memorization journey.',
+  },
 };
 
 export default function ProfileScreen() {
@@ -117,7 +135,7 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView className='flex-1'>
-      <View className='px-[18px] flex-row items-center justify-between'>
+      <View className='flex-row items-center justify-between px-[18px]'>
         <ThemedText size={22} variant='semibold'>
           Profile
         </ThemedText>
@@ -127,9 +145,9 @@ export default function ProfileScreen() {
       <ScrollView className='p-[18px]'>
         <View>
           <View className='web:lg:flex-row web:lg:items-center web:lg:justify-between'>
-            <View className='web:lg:flex-row lg:items-center'>
-              <View className='mx-auto my-6 lg:mx-0 '>
-                <Avatar alt={user?.firstName || ''} className='w-24 h-24'>
+            <View className='lg:items-center web:lg:flex-row'>
+              <View className='mx-auto my-6 lg:mx-0'>
+                <Avatar alt={user?.firstName || ''} className='h-24 w-24'>
                   <AvatarImage source={{ uri: user?.imageUrl }} />
                   <AvatarFallback>
                     <ThemedText>{user?.firstName?.charAt(0)}</ThemedText>
@@ -139,7 +157,7 @@ export default function ProfileScreen() {
                 <View>
                   <CustomButton
                     className={cn(
-                      'w-fit !py-2 !px-4 gap-1 self-end absolute -bottom-5 -right-5'
+                      'absolute -bottom-5 -right-5 w-fit gap-1 self-end !px-4 !py-2'
                     )}
                     onPress={() => {
                       setStreakBottomSheetIndex(1);
@@ -173,7 +191,7 @@ export default function ProfileScreen() {
               </ThemedText>
             </View>
 
-            <View className='flex-row items-center justify-between my-6'>
+            <View className='my-6 flex-row items-center justify-between'>
               <View className='flex-row items-center gap-2'>
                 <ThemedText
                   size={27}
