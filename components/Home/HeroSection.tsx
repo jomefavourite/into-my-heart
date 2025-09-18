@@ -128,10 +128,10 @@ const HeroSection = (): JSX.Element => {
           </div>
         </div>
 
-        <div>
+        <div className='hidden w-full md:block'>
           {/* Phone mockup card */}
           <Card className='h-[470px] w-full overflow-hidden rounded-[20px] border-none bg-neutral-50 md:w-[460px]'>
-            <div className='relative top-[43px] h-[427px] w-full'>
+            <div className='relative top-[30px] h-[427px] w-full'>
               <Image
                 className='mx-auto w-full object-center'
                 alt='iPhone showing app interface'
