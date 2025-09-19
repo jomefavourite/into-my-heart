@@ -15,6 +15,7 @@ import { addVerseSuggestion } from '@/convex/verseSuggestions';
 import AddVersesEmpty from '../EmptyScreen/AddVersesEmpty';
 import SuggestionEmpty from '../EmptyScreen/SuggestionEmpty';
 import { useConvexAuth } from 'convex/react';
+import Loader from '../Loader';
 
 type VersesTabProps = {
   gridView: boolean;
@@ -53,8 +54,8 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
   // Don't render if not authenticated or still loading
   if (isLoading) {
     return (
-      <View>
-        <ThemedText>Loading...</ThemedText>
+      <View className='flex-1 items-center justify-center'>
+        <Loader />
       </View>
     );
   }

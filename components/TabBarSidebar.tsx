@@ -17,7 +17,7 @@ import ThemedText from './ThemedText';
 import HomeHeader from './Home/Header';
 import Logo from './icons/logo/Logo';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { AdminOnly } from './AdminOnly';
+import { AdminOnly } from '@/components/Admin/AdminOnly';
 
 type Tab = {
   name: string;

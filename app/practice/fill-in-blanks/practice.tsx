@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -6,6 +6,10 @@ import { View } from 'react-native';
 import ThemedText from '@/components/ThemedText';
 import { ScrollView } from 'react-native-gesture-handler';
 import CustomButton from '@/components/CustomButton';
+import { usePracticeStore, PracticeVerse } from '@/store/practiceStore';
+import { useRouter } from 'expo-router';
+import BackHeader from '@/components/BackHeader';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface BlankData {
   id: number;
@@ -20,30 +24,111 @@ interface OptionData {
 }
 
 export default function FillInTheBlanks() {
-  // Sample sentence with blanks
-  const sentence =
-    'The quick ___ fox jumps over the lazy ___. Programming is ___ when you understand the ___.';
+  const { currentSession, clearPracticeSession } = usePracticeStore();
+  const router = useRouter();
 
-  // Initialize blanks data
-  const [blanks, setBlanks] = useState<BlankData[]>([
-    { id: 1, correctAnswer: 'brown', selectedAnswer: null },
-    { id: 2, correctAnswer: 'dog', selectedAnswer: null },
-    { id: 3, correctAnswer: 'fun', selectedAnswer: null },
-    { id: 4, correctAnswer: 'concepts', selectedAnswer: null },
-  ]);
-
-  // Available options
-  const [options, setOptions] = useState<OptionData[]>([
-    { id: 'opt1', text: 'brown', used: false },
-    { id: 'opt2', text: 'dog', used: false },
-    { id: 'opt3', text: 'fun', used: false },
-    { id: 'opt4', text: 'concepts', used: false },
-    { id: 'opt5', text: 'difficult', used: false },
-    { id: 'opt6', text: 'cat', used: false },
-  ]);
-
+  const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
+  const [sentence, setSentence] = useState('');
+  const [blanks, setBlanks] = useState<BlankData[]>([]);
+  const [options, setOptions] = useState<OptionData[]>([]);
   const [selectedBlankId, setSelectedBlankId] = useState<number | null>(null);
   const [showResults, setShowResults] = useState(false);
+
+  // Get current verse data
+  const verses = currentSession?.verses || [];
+  const currentVerse = verses[currentVerseIndex];
+  const isCollectionsPractice = currentSession?.practiceType === 'collections';
+
+  // Generate fill-in-blanks from verse text
+  const generateFillInBlanks = (verseText: string) => {
+    // Split verse text into words
+    const words = verseText.split(/\s+/).filter(word => word.length > 2);
+
+    // Select 3-5 random words to be blanks (but not too many)
+    const numBlanks = Math.min(Math.max(3, Math.floor(words.length * 0.2)), 5);
+    const blankIndices = new Set<number>();
+
+    while (blankIndices.size < numBlanks) {
+      const randomIndex = Math.floor(Math.random() * words.length);
+      blankIndices.add(randomIndex);
+    }
+
+    // Create blanks data
+    const blanksData: BlankData[] = [];
+    const optionsData: OptionData[] = [];
+    const sentenceParts: string[] = [];
+
+    words.forEach((word, index) => {
+      if (blankIndices.has(index)) {
+        const cleanWord = word.replace(/[^\w]/g, ''); // Remove punctuation
+        blanksData.push({
+          id: blanksData.length + 1,
+          correctAnswer: cleanWord,
+          selectedAnswer: null,
+        });
+        sentenceParts.push('___');
+
+        // Add correct answer to options
+        optionsData.push({
+          id: `opt-${cleanWord}-${index}`,
+          text: cleanWord,
+          used: false,
+        });
+      } else {
+        sentenceParts.push(word);
+      }
+    });
+
+    // Add some incorrect options
+    const incorrectWords = words
+      .filter((_, index) => !blankIndices.has(index))
+      .map(word => word.replace(/[^\w]/g, ''))
+      .filter(word => word.length > 2)
+      .slice(0, Math.min(3, blanksData.length));
+
+    incorrectWords.forEach((word, index) => {
+      optionsData.push({
+        id: `opt-incorrect-${word}-${index}`,
+        text: word,
+        used: false,
+      });
+    });
+
+    // Shuffle options
+    const shuffledOptions = optionsData.sort(() => Math.random() - 0.5);
+
+    return {
+      sentence: sentenceParts.join(' '),
+      blanks: blanksData,
+      options: shuffledOptions,
+    };
+  };
+
+  // Initialize fill-in-blanks when verse changes
+  useEffect(() => {
+    if (currentVerse) {
+      const verseText = currentVerse.verseTexts.map(vt => vt.text).join(' ');
+
+      const {
+        sentence: newSentence,
+        blanks: newBlanks,
+        options: newOptions,
+      } = generateFillInBlanks(verseText);
+
+      setSentence(newSentence);
+      setBlanks(newBlanks);
+      setOptions(newOptions);
+      setSelectedBlankId(null);
+      setShowResults(false);
+    }
+  }, [currentVerseIndex, currentVerse]);
+
+  // Handle navigation back if no practice session
+  useEffect(() => {
+    if (!currentSession) {
+      router.replace('/practice/fill-in-blanks');
+    }
+  }, [currentSession, router]);
 
   const handleBlankClick = (blankId: number) => {
     if (showResults) return;
@@ -94,6 +179,27 @@ export default function FillInTheBlanks() {
     setSelectedBlankId(null);
   };
 
+  const handleNextVerse = () => {
+    if (currentVerseIndex < verses.length - 1) {
+      setCurrentVerseIndex(prev => prev + 1);
+    } else {
+      // Practice session complete
+      clearPracticeSession();
+      router.replace('/practice/fill-in-blanks');
+    }
+  };
+
+  const handlePreviousVerse = () => {
+    if (currentVerseIndex > 0) {
+      setCurrentVerseIndex(prev => prev - 1);
+    }
+  };
+
+  const handleExitPractice = () => {
+    clearPracticeSession();
+    router.replace('/practice/fill-in-blanks');
+  };
+
   const renderSentenceWithBlanks = () => {
     const parts = sentence.split('___');
     const result = [];
@@ -120,14 +226,7 @@ export default function FillInTheBlanks() {
             key={`blank-${i}`}
             size={'sm'}
             onPress={() => handleBlankClick(blank.id)}
-            className={`
-              inline-flex items-center justify-center min-w-[100px] h-6 mx-1 px-3 rounded-md border-2 border-dashed
-              transition-all duration-200 text-sm font-medium
-              ${isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}
-              ${isCorrect ? 'border-green-500 bg-green-50 text-green-700' : ''}
-              ${isIncorrect ? 'border-red-500 bg-red-50 text-red-700' : ''}
-              ${!showResults ? 'hover:border-blue-400 hover:bg-blue-25' : ''}
-            `}
+            className={`mx-1 inline-flex h-6 min-w-[100px] items-center justify-center rounded-md border-2 border-dashed px-3 text-sm font-medium transition-all duration-200 ${isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-300'} ${isCorrect ? 'border-green-500 bg-green-50 text-green-700' : ''} ${isIncorrect ? 'border-red-500 bg-red-50 text-red-700' : ''} ${!showResults ? 'hover:bg-blue-25 hover:border-blue-400' : ''} `}
             disabled={showResults}
           >
             <ThemedText>{blank.selectedAnswer || '___'}</ThemedText>
@@ -147,108 +246,173 @@ export default function FillInTheBlanks() {
   ).length;
   const totalBlanks = blanks.length;
 
-  return (
-    <ScrollView className='flex-1'>
-      <View className='p-[18] flex-col justify-between flex-1'>
-        <View>
-          <ThemedText className='text-lg font-bold'>
-            Fill in the Blanks
-          </ThemedText>
-
-          <Card className='bg-gray-50 border-gray-200 border-0 p-2'>
-            <ThemedText size={14} className='text-muted-foreground'>
-              Click on a blank space, then select the correct word from the
-              options below
-            </ThemedText>
-          </Card>
-
-          <View className='space-y-6 mt-4'>
-            {/* Sentence with blanks */}
-            <View className='p-6 bg-gray-50 rounded-lg flex-row flex-wrap w-full leading-relaxed'>
-              {renderSentenceWithBlanks()}
-            </View>
-
-            {/* Selected blank indicator */}
-            {selectedBlankId && !showResults && (
-              <View className='text-center'>
-                <Badge variant='outline' className='bg-blue-50 text-blue-700'>
-                  <ThemedText>Filling blank #{selectedBlankId}</ThemedText>
-                </Badge>
-              </View>
-            )}
-          </View>
+  if (!currentSession || !currentVerse) {
+    return (
+      <SafeAreaView className='flex-1'>
+        <BackHeader items={[{ label: 'Practice', href: '/practice' }]} />
+        <View className='flex-1 items-center justify-center p-4'>
+          <ThemedText>No practice session found</ThemedText>
+          <CustomButton
+            onPress={() => router.replace('/practice/fill-in-blanks')}
+            className='mt-4'
+          >
+            Start Practice
+          </CustomButton>
         </View>
+      </SafeAreaView>
+    );
+  }
 
-        <View className=''>
-          {/* Options */}
-          <View className='space-y-3'>
-            <ThemedText className=' font-semibold'>
-              Choose the correct words:
-            </ThemedText>
-            <View className='justify-center flex-row flex-wrap gap-3'>
-              {options.map(option => (
-                <Button
-                  key={option.id}
-                  variant={option.used ? 'secondary' : 'outline'}
-                  onPress={() => handleOptionClick(option)}
-                  disabled={option.used || showResults}
-                  className={`
-                    h-10  transition-all duration-200 rounded-full text-sm !py-2 !px-4
-                    ${option.used ? 'opacity-50 cursor-not-allowed' : ''}
-                    ${!option.used && !showResults ? 'hover:bg-blue-50 hover:border-blue-300' : ''}
-                  `}
-                >
-                  <ThemedText>{option.text}</ThemedText>
-                </Button>
-              ))}
+  return (
+    <SafeAreaView className='flex-1'>
+      <BackHeader
+        items={[
+          { label: 'Practice', href: '/practice' },
+          { label: 'Fill in the blanks', href: '/practice/fill-in-blanks' },
+          {
+            label: isCollectionsPractice
+              ? 'Collections Practice'
+              : 'Practice Session',
+            href: '/practice/fill-in-blanks/practice',
+          },
+        ]}
+      />
+
+      <ScrollView className='flex-1'>
+        <View className='flex-1 flex-col justify-between p-[18]'>
+          <View>
+            <View className='mb-4 flex-row items-center justify-between'>
+              <ThemedText size={18} variant='semibold'>
+                Fill in the Blanks {currentVerseIndex + 1} of {verses.length}
+              </ThemedText>
+              <ThemedText size={14} className='text-muted-foreground'>
+                {currentVerse.bookName} {currentVerse.chapter}:
+                {currentVerse.verses.join(', ')}
+              </ThemedText>
+            </View>
+
+            <Card className='border-0 border-gray-200 bg-gray-50 p-2'>
+              <ThemedText size={14} className='text-muted-foreground'>
+                Click on a blank space, then select the correct word from the
+                options below
+              </ThemedText>
+            </Card>
+
+            <View className='mt-4 space-y-6'>
+              {/* Sentence with blanks */}
+              <View className='w-full flex-row flex-wrap rounded-lg bg-gray-50 p-6 leading-relaxed'>
+                {renderSentenceWithBlanks()}
+              </View>
+
+              {/* Selected blank indicator */}
+              {selectedBlankId && !showResults && (
+                <View className='text-center'>
+                  <Badge variant='outline' className='bg-blue-50 text-blue-700'>
+                    <ThemedText>Filling blank #{selectedBlankId}</ThemedText>
+                  </Badge>
+                </View>
+              )}
             </View>
           </View>
 
-          {/* Results */}
-          {showResults && (
-            <Card className='bg-blue-50 border-blue-200'>
-              <CardContent className='pt-6'>
-                <View className='text-center space-y-2'>
-                  <View className='flex items-center justify-center gap-2'>
-                    {/* <Check className='h-5 w-5 text-green-600' /> */}
-                    <ThemedText className='text-lg font-semibold'>
-                      Results: {correctAnswers}/{totalBlanks} correct
+          <View className=''>
+            {/* Options */}
+            <View className='space-y-3'>
+              <ThemedText className='font-semibold'>
+                Choose the correct words:
+              </ThemedText>
+              <View className='flex-row flex-wrap justify-center gap-3'>
+                {options.map(option => (
+                  <Button
+                    key={option.id}
+                    variant={option.used ? 'secondary' : 'outline'}
+                    onPress={() => handleOptionClick(option)}
+                    disabled={option.used || showResults}
+                    className={`h-10 rounded-full !px-4 !py-2 text-sm transition-all duration-200 ${option.used ? 'cursor-not-allowed opacity-50' : ''} ${!option.used && !showResults ? 'hover:border-blue-300 hover:bg-blue-50' : ''} `}
+                  >
+                    <ThemedText>{option.text}</ThemedText>
+                  </Button>
+                ))}
+              </View>
+            </View>
+
+            {/* Results */}
+            {showResults && (
+              <Card className='border-blue-200 bg-blue-50'>
+                <CardContent className='pt-6'>
+                  <View className='space-y-2 text-center'>
+                    <View className='flex items-center justify-center gap-2'>
+                      {/* <Check className='h-5 w-5 text-green-600' /> */}
+                      <ThemedText className='text-lg font-semibold'>
+                        Results: {correctAnswers}/{totalBlanks} correct
+                      </ThemedText>
+                    </View>
+                    <ThemedText className='text-muted-foreground'>
+                      {correctAnswers === totalBlanks
+                        ? 'Perfect! You got all answers correct!'
+                        : 'Good try! Review the incorrect answers and try again.'}
                     </ThemedText>
                   </View>
-                  <ThemedText className='text-muted-foreground'>
-                    {correctAnswers === totalBlanks
-                      ? 'Perfect! You got all answers correct!'
-                      : 'Good try! Review the incorrect answers and try again.'}
-                  </ThemedText>
-                </View>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Action buttons */}
-          <View className='flex justify-center gap-4'>
-            {!showResults && (
-              <CustomButton
-                onPress={handleCheckAnswers}
-                disabled={!allBlanksCompleted}
-                className='px-8'
-              >
-                {/* <Check className="h-4 w-4 mr-2" /> */}
-                Check Answers
-              </CustomButton>
+                </CardContent>
+              </Card>
             )}
 
-            <CustomButton
-              variant='outline'
-              onPress={handleReset}
-              className='px-8 bg-transparent'
-            >
-              {/* <RotateCcw className="h-4 w-4 mr-2" /> */}
-              Reset
-            </CustomButton>
+            {/* Action buttons */}
+            <View className='space-y-3'>
+              {!showResults && (
+                <View className='flex justify-center'>
+                  <CustomButton
+                    onPress={handleCheckAnswers}
+                    disabled={!allBlanksCompleted}
+                    className='px-8'
+                  >
+                    Check Answers
+                  </CustomButton>
+                </View>
+              )}
+
+              {showResults && (
+                <View className='flex-row justify-center gap-3'>
+                  {currentVerseIndex > 0 && (
+                    <CustomButton
+                      variant='outline'
+                      onPress={handlePreviousVerse}
+                      className='bg-transparent px-6'
+                    >
+                      Previous
+                    </CustomButton>
+                  )}
+
+                  <CustomButton onPress={handleNextVerse} className='px-6'>
+                    {currentVerseIndex < verses.length - 1
+                      ? 'Next Verse'
+                      : 'Finish Practice'}
+                  </CustomButton>
+                </View>
+              )}
+
+              <View className='flex-row justify-center gap-3'>
+                <CustomButton
+                  variant='outline'
+                  onPress={handleReset}
+                  className='bg-transparent px-6'
+                  disabled={showResults}
+                >
+                  Reset
+                </CustomButton>
+
+                <CustomButton
+                  variant='outline'
+                  onPress={handleExitPractice}
+                  className='bg-transparent px-6'
+                >
+                  Exit Practice
+                </CustomButton>
+              </View>
+            </View>
           </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }

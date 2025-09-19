@@ -1,14 +1,7 @@
-import {
-  View,
-  ScrollView,
-  Pressable,
-  Platform,
-  Text,
-  Image,
-} from 'react-native';
+import { View, Pressable, Image } from 'react-native';
 import CustomButton from '@/components/CustomButton';
 import ThemedText from '@/components/ThemedText';
-import { useCallback, useRef } from 'react';
+import { useRef } from 'react';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import HomeHeader from '@/components/Home/Header';
 import { Button } from '@/components/ui/button';
@@ -16,18 +9,16 @@ import FavouriteIcon from '@/components/icons/FavouriteIcon';
 import ShareIcon from '@/components/icons/ShareIcon';
 import { Link, useRouter } from 'expo-router';
 import ArrowRightIcon from '@/components/icons/ArrowRightIcon';
-import { H3 } from '@/components/ui/typography';
-import AddCircleIcon from '@/components/icons/AddCircleIcon';
 import { FlatList } from 'react-native';
 import { verses } from '@/lib/utils';
 import VerseCard from '@/components/Verses/VerseCard';
 import ItemSeparator from '@/components/ItemSeparator';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import AddVersesEmpty from '@/components/EmptyScreen/AddVersesEmpty';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { useAuth, useUser } from '@clerk/clerk-expo';
 import '@/global.css';
+import Loader from '@/components/Loader';
 
 export const metadata = {
   title: 'Into My Heart - Memorize Bible Verses',
@@ -48,7 +39,6 @@ export const metadata = {
 };
 
 export default function HomeScreen() {
-  const bottomSheetRef = useRef<BottomSheet>(null);
   const router = useRouter();
   const { isSignedIn, isLoaded } = useAuth();
   const { user } = useUser();
@@ -132,10 +122,8 @@ export default function HomeScreen() {
                 {!isSignedIn || !isLoaded || !user ? (
                   <AddVersesEmpty />
                 ) : getVerses === undefined ? (
-                  <View className='py-8'>
-                    <ThemedText className='text-center text-[#707070] dark:text-[#909090]'>
-                      Loading your verses...
-                    </ThemedText>
+                  <View className='flex-1 items-center justify-center py-8'>
+                    <Loader />
                   </View>
                 ) : getVerses && getVerses.length > 0 ? (
                   <FlatList

@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import ThemedText from './ThemedText';
 import { ActivityIndicator } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import Loader from './Loader';
 
 type Props = React.ComponentPropsWithoutRef<typeof Pressable> & {
   variant?:
@@ -53,7 +54,7 @@ const CustomButton = ({
       {leftIcon && <Icon />}
       {innerElement && innerElement}
       {isLoading ? (
-        <ActivityIndicator color={isDarkMode ? '#000' : '#fff'} />
+        <Loader />
       ) : (
         <ThemedText
           size={14}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { useIsAdmin } from '../lib/admin-utils';
+import { useIsAdmin } from '@/lib/admin-utils';
+import Loader from '../Loader';
 
 interface AdminOnlyProps {
   children: React.ReactNode;
@@ -34,11 +35,11 @@ export function withAdminAccess<P extends object>(
     if (isAdmin === false) {
       return (
         <View className='flex-1 items-center justify-center bg-gray-50'>
-          <View className='bg-white rounded-lg p-6 shadow-md max-w-sm mx-4'>
-            <Text className='text-2xl font-bold text-red-600 mb-2 text-center'>
+          <View className='mx-4 max-w-sm rounded-lg bg-white p-6 shadow-md'>
+            <Text className='mb-2 text-center text-2xl font-bold text-red-600'>
               Access Denied
             </Text>
-            <Text className='text-gray-600 text-center'>
+            <Text className='text-center text-gray-600'>
               You need admin privileges to access this page.
             </Text>
           </View>
@@ -49,8 +50,8 @@ export function withAdminAccess<P extends object>(
     if (isAdmin === undefined) {
       return (
         <View className='flex-1 items-center justify-center bg-gray-50'>
-          <View className='bg-white rounded-lg p-6 shadow-md max-w-sm mx-4'>
-            <Text className='text-gray-600 text-center'>Loading...</Text>
+          <View className='mx-4 max-w-sm rounded-lg bg-white p-6 shadow-md'>
+            <Loader />
           </View>
         </View>
       );

@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
-import { withAdminAccess } from '../../components/AdminOnly';
-import { AuthErrorBoundary } from '../../components/AuthErrorBoundary';
+import { withAdminAccess } from '@/components/Admin/AdminOnly';
+import { AuthErrorBoundary } from '@/components/AuthErrorBoundary';
 
 function AdminLayout() {
   return (

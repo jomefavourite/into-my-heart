@@ -20,6 +20,7 @@ import CancelIcon from '@/components/icons/CancelIcon';
 import DeleteIcon from '@/components/icons/DeleteIcon';
 import CollectionCard from '@/components/Verses/CollectionCard';
 import { useAuth } from '@clerk/clerk-expo';
+import FlashListSkeletonLoader from '@/components/FlashListSkeletonLoader';
 
 export const metadata = {
   title: 'All Collections - Into My Heart',
@@ -50,7 +51,7 @@ const AllCollectionScreen = () => {
   const [bottomSheetIndex, setBottomSheetIndex] = useState(-1);
   const { isDarkMode } = useColorScheme();
 
-  const { results, status, loadMore } = usePaginatedQuery(
+  const { results, status, loadMore, isLoading } = usePaginatedQuery(
     api.collections.getAllCollections,
     isSignedIn && isLoaded ? {} : 'skip',
     { initialNumItems: 20 }
@@ -117,34 +118,36 @@ const AllCollectionScreen = () => {
       />
 
       <View className='flex-1 px-[18px]'>
-        <FlatList
-          key={gridView ? 'grid-myverses' : 'list-myverses'}
-          data={results}
-          keyExtractor={(item, index) => index.toString()}
-          numColumns={gridView ? 2 : 1}
-          ListEmptyComponent={() => (
-            <>
-              {/* Loading */}
-              {/* <VerseCardSkeleton /> */}
-              <AddVersesEmpty />
-            </>
-          )}
-          renderItem={({ item }) => (
-            <CollectionCard
-              _id={item._id}
-              collectionName={item.collectionName}
-              versesLength={item.versesLength}
-              onAddPress={() => console.log(`${item} pressed`)}
-              containerClassName={gridView ? 'w-[50%]' : 'w-full'}
-              canCheck={false}
-            />
-          )}
-          columnWrapperStyle={
-            gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
-          }
-          ItemSeparatorComponent={ItemSeparator}
-          scrollEnabled={false}
-        />
+        {isLoading && results?.length === 0 ? (
+          <FlashListSkeletonLoader type='collections' gridView={gridView} />
+        ) : (
+          <FlatList
+            key={gridView ? 'grid-myverses' : 'list-myverses'}
+            data={results}
+            keyExtractor={(item, index) => index.toString()}
+            numColumns={gridView ? 2 : 1}
+            ListEmptyComponent={() => (
+              <>
+                <AddVersesEmpty />
+              </>
+            )}
+            renderItem={({ item }) => (
+              <CollectionCard
+                _id={item._id}
+                collectionName={item.collectionName}
+                versesLength={item.versesLength}
+                onAddPress={() => console.log(`${item} pressed`)}
+                containerClassName={gridView ? 'w-[50%]' : 'w-full'}
+                canCheck={false}
+              />
+            )}
+            columnWrapperStyle={
+              gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
+            }
+            ItemSeparatorComponent={ItemSeparator}
+            scrollEnabled={false}
+          />
+        )}
       </View>
     </SafeAreaView>
   );

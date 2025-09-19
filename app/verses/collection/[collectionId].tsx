@@ -21,6 +21,7 @@ import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useMutation } from 'convex/react';
 import { useAuth } from '@clerk/clerk-expo';
+import FlashListSkeletonLoader from '@/components/FlashListSkeletonLoader';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -179,38 +180,40 @@ export default function CollectionPage() {
           {collection?.collectionName}
         </ThemedText>
 
-        <FlatList
-          key={gridView ? 'grid-myverses' : 'list-myverses'}
-          data={collection?.collectionVerses}
-          keyExtractor={(item, index) => index.toString()}
-          numColumns={gridView ? 2 : 1}
-          ListEmptyComponent={() => (
-            <>
-              {/* Loading */}
-              {/* <VerseCardSkeleton /> */}
-              <AddVersesEmpty />
-            </>
-          )}
-          renderItem={({ item, index }) => (
-            <VerseCard
-              bookName={item.bookName}
-              chapter={item.chapter}
-              verses={item.verses}
-              verseTexts={item.verseTexts}
-              containerClassName={gridView ? 'w-[50%]' : 'w-full'}
-              canCheck={false}
-              canDelete={shouldDelete}
-              onDeletePress={() => toggleSelectedVerse(index)}
-              isSelectedForDelete={selectedToDelete.includes(index)}
-              noRoute={true}
-            />
-          )}
-          columnWrapperStyle={
-            gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
-          }
-          ItemSeparatorComponent={ItemSeparator}
-          // scrollEnabled={false}
-        />
+        {collection === undefined ? (
+          <FlashListSkeletonLoader type='verses' gridView={gridView} />
+        ) : (
+          <FlatList
+            key={gridView ? 'grid-myverses' : 'list-myverses'}
+            data={collection?.collectionVerses}
+            keyExtractor={(item, index) => index.toString()}
+            numColumns={gridView ? 2 : 1}
+            ListEmptyComponent={() => (
+              <>
+                <AddVersesEmpty />
+              </>
+            )}
+            renderItem={({ item, index }) => (
+              <VerseCard
+                bookName={item.bookName}
+                chapter={item.chapter}
+                verses={item.verses}
+                verseTexts={item.verseTexts}
+                containerClassName={gridView ? 'w-[50%]' : 'w-full'}
+                canCheck={false}
+                canDelete={shouldDelete}
+                onDeletePress={() => toggleSelectedVerse(index)}
+                isSelectedForDelete={selectedToDelete.includes(index)}
+                noRoute={true}
+              />
+            )}
+            columnWrapperStyle={
+              gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
+            }
+            ItemSeparatorComponent={ItemSeparator}
+            // scrollEnabled={false}
+          />
+        )}
 
         <CustomButton>Start practice</CustomButton>
       </View>

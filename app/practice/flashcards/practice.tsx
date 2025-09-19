@@ -15,31 +15,57 @@ import { usePaginatedQuery } from 'convex-helpers/react/cache';
 import { api } from '@/convex/_generated/api';
 import CustomButton from '@/components/CustomButton';
 import { useRouter } from 'expo-router';
-import ArrowRightIcon from '@/components/icons/ArrowRightIcon';
 import { useAuth } from '@clerk/clerk-expo';
+import { usePracticeStore } from '@/store/practiceStore';
+import Loader from '@/components/Loader';
 
 export default function Flashcards() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const { isSignedIn, isLoaded } = useAuth();
+  const { currentSession, clearPracticeSession } = usePracticeStore();
 
   const router = useRouter();
 
-  // Fetch all verses for flashcards
-  const { results: verses, isLoading } = usePaginatedQuery(
+  // Check if this is collections practice
+  const isCollectionsPractice = currentSession?.practiceType === 'collections';
+
+  // Fetch all verses for flashcards (only if no practice session is active)
+  const shouldFetchVerses = isSignedIn && isLoaded && !currentSession;
+  const { results: allVerses, isLoading } = usePaginatedQuery(
     api.verses.getAllVerses,
-    isSignedIn && isLoaded ? {} : 'skip',
+    shouldFetchVerses ? {} : 'skip',
     { initialNumItems: 100 }
   );
+
+  // Determine if we're actually loading
+  const isActuallyLoading = shouldFetchVerses && isLoading;
+
+  // Use practice session verses if available, otherwise use all verses
+  const verses = currentSession?.verses || allVerses;
 
   // Reset flip state when moving to next verse
   useEffect(() => {
     setIsFlipped(false);
   }, [currentIndex]);
 
+  // Clear practice session when component unmounts
+  useEffect(() => {
+    return () => {
+      // Only clear if we're at the end of the practice session
+      if (verses && currentIndex >= verses.length - 1) {
+        clearPracticeSession();
+      }
+    };
+  }, [verses, currentIndex, clearPracticeSession]);
+
   const handleNext = () => {
     if (verses && currentIndex < verses.length - 1) {
       setCurrentIndex(currentIndex + 1);
+    } else if (verses && currentIndex >= verses.length - 1) {
+      // Practice session completed
+      clearPracticeSession();
+      router.back();
     }
   };
 
@@ -54,19 +80,38 @@ export default function Flashcards() {
     isFlipped && currentIndex < (verses?.length || 0) - 1;
   const canProceedToPrevious = currentIndex > 0;
 
-  if (isLoading || !verses) {
+  console.log({
+    verses,
+    isLoading,
+    currentSession,
+    isActuallyLoading,
+    shouldFetchVerses,
+  });
+
+  if (isActuallyLoading || (shouldFetchVerses && !verses)) {
     return (
       <SafeAreaView className='flex-1 items-center justify-center'>
-        <ThemedText>Loading flashcards...</ThemedText>
+        <Loader />
       </SafeAreaView>
     );
   }
 
-  if (verses.length === 0) {
+  if (!verses || verses.length === 0) {
     return (
       <SafeAreaView className='flex-1 items-center justify-center'>
-        <ThemedText>No verses available for practice</ThemedText>
-        <CustomButton onPress={() => router.back()}>Go Back</CustomButton>
+        <ThemedText>
+          {isCollectionsPractice
+            ? 'No verses available in your collections'
+            : 'No verses available for practice'}
+        </ThemedText>
+        <CustomButton
+          onPress={() => {
+            clearPracticeSession();
+            router.back();
+          }}
+        >
+          Go Back
+        </CustomButton>
       </SafeAreaView>
     );
   }
@@ -79,7 +124,12 @@ export default function Flashcards() {
         items={[
           { label: 'Practice', href: '/practice' },
           { label: 'Flashcards', href: '/practice/flashcards' },
-          { label: 'Practice Session', href: '/practice/flashcards/practice' },
+          {
+            label: isCollectionsPractice
+              ? 'Collections Practice'
+              : 'Practice Session',
+            href: '/practice/flashcards/practice',
+          },
         ]}
       />
 
@@ -98,7 +148,10 @@ export default function Flashcards() {
             key={currentIndex} // Force re-render when question changes
             front={`${currentVerse.bookName} ${currentVerse.chapter}:${currentVerse.verses.join(', ')}`}
             back={`${currentVerse.bookName} ${currentVerse.chapter}:${currentVerse.verses.join(', ')}\n\n${currentVerse.verseTexts
-              .map(vt => `${vt.verse}. ${vt.text}`)
+              .map(
+                (vt: { verse: string; text: string }) =>
+                  `${vt.verse}. ${vt.text}`
+              )
               .join('\n\n')}`}
             isFlipped={isFlipped}
             setIsFlipped={setIsFlipped}
@@ -131,7 +184,9 @@ export default function Flashcards() {
             disabled={!canProceedToNext}
             className={!canProceedToNext ? 'opacity-50' : ''}
           >
-            I got it - Next
+            {currentIndex >= (verses?.length || 0) - 1
+              ? 'Finish Practice'
+              : 'I got it - Next'}
           </CustomButton>
         </View>
       </View>

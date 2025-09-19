@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, Text, ScrollView } from 'react-native';
-import { AdminPanel } from '../../components/AdminPanel';
+import { AdminPanel } from '../../components/Admin/AdminPanel';
 import { useAuthState } from '../../hooks/useAuthState';
-import { AdminSuggestions } from '@/components/AdminSuggestions';
+import { AdminSuggestions } from '@/components/Admin/AdminSuggestions';
+import Loader from '@/components/Loader';
 
 export const metadata = {
   title: 'Admin Panel - Into My Heart',
@@ -28,7 +29,7 @@ export default function AdminPage() {
   if (isLoading) {
     return (
       <View className='flex-1 items-center justify-center bg-gray-50'>
-        <Text className='text-lg text-gray-600'>Loading...</Text>
+        <Loader />
       </View>
     );
   }

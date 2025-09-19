@@ -44,7 +44,7 @@ const VerseCard: React.FC<VerseCardProps> = ({
       onPress={() =>
         canCheck || canDelete || noRoute ? null : router.push(`/verses/${_id}`)
       }
-      className={`flex-row bg-container rounded-xl items-center py-[18px] px-4 ${containerClassName}`}
+      className={`flex-row items-center rounded-xl bg-container px-4 py-[18px] ${containerClassName}`}
     >
       <View className='flex-1 gap-2'>
         <View className='flex-row items-center justify-between'>
@@ -72,7 +72,7 @@ const VerseCard: React.FC<VerseCardProps> = ({
           numberOfLines={2}
           ellipsizeMode='tail'
           size={13}
-          className='w-fit text-[#707070] dark:text-[#909090] !overflow-hidden !text-ellipsis'
+          className='w-fit !overflow-hidden !text-ellipsis text-[#707070] dark:text-[#909090]'
         >
           {verseTexts.length > 0
             ? verseTexts.map((text, index) => `${text.verse}. ${text.text} `)
@@ -93,7 +93,7 @@ export default memo(VerseCard);
 
 export const VerseCardSkeleton = () => {
   return (
-    <View className='flex-row bg-container rounded-xl items-center py-[18px] px-4'>
+    <View className='flex-row items-center rounded-xl bg-container px-4 py-[18px]'>
       <Skeleton />
     </View>
   );

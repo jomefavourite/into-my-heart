@@ -8,6 +8,7 @@ import { ActivityIndicator } from 'react-native';
 import CustomButton from '../CustomButton';
 import { useRouter } from 'expo-router';
 import { useGridListView } from '@/store/tab-store';
+import { usePracticeStore } from '@/store/practiceStore';
 import AddVersesEmpty from '../EmptyScreen/AddVersesEmpty';
 import CollectionCard from '../Verses/CollectionCard';
 import ItemSeparator from '../ItemSeparator';
@@ -18,17 +19,22 @@ import { usePaginatedQuery, useQuery } from 'convex-helpers/react/cache';
 import { useAuth } from '@clerk/clerk-expo';
 import FillInBlanksIcon from '../icons/practice/FillInBlanksIcon';
 import { SvgProps } from 'react-native-svg';
+import FlashListSkeletonLoader from '../FlashListSkeletonLoader';
 
 export default function PracticeComp({ name }: { name: string }) {
   const { isSignedIn, isLoaded } = useAuth();
-  const {
-    results: verses,
-    isLoading,
-    loadMore,
-  } = usePaginatedQuery(
-    api.verses.getAllVerses,
-    isSignedIn && isLoaded ? {} : 'skip',
-    { initialNumItems: 10 }
+  // const {
+  //   results: verses,
+  //   isLoading,
+  //   loadMore,
+  // } = usePaginatedQuery(
+  //   api.verses.getAllVerses,
+  //   isSignedIn && isLoaded ? {} : 'skip',
+  //   { initialNumItems: 10 }
+  // );
+  const verses = useQuery(
+    api.verses.getVerses,
+    isSignedIn && isLoaded ? {} : 'skip'
   );
   const collections = useQuery(
     api.collections.getCollections,
@@ -45,12 +51,13 @@ export default function PracticeComp({ name }: { name: string }) {
   const [value, setValue] = useState('verses');
   const router = useRouter();
   const { gridView, setGridView } = useGridListView();
+  const { setPracticeSession } = usePracticeStore();
 
-  const handleLoadMore = () => {
-    if (!isLoading) {
-      loadMore(2);
-    }
-  };
+  // const handleLoadMore = () => {
+  //   if (!isLoading) {
+  //     loadMore(2);
+  //   }
+  // };
 
   const practiceData: {
     [key: string]: { title: string; icon: React.ReactNode };
@@ -97,56 +104,62 @@ export default function PracticeComp({ name }: { name: string }) {
               className='flex-1'
               style={{ minHeight: Platform.OS === 'web' ? 400 : undefined }}
             >
-              <FlatList
-                key={gridView ? 'grid-myverses' : 'list-myverses'}
-                data={verses}
-                keyExtractor={(item, index) => index.toString()}
-                numColumns={gridView ? 2 : 1}
-                ListEmptyComponent={() => (
-                  <>
-                    {/* Loading */}
-                    {/* <VerseCardSkeleton /> */}
-                    <AddVersesEmpty />
-                  </>
-                )}
-                renderItem={({ item }) => (
-                  <VerseCard
-                    _id={item._id}
-                    bookName={item.bookName}
-                    chapter={item.chapter}
-                    verses={item.verses}
-                    verseTexts={item.verseTexts}
-                    containerClassName={gridView ? 'w-[50%]' : 'w-full'}
-                    canCheck={false}
-                  />
-                )}
-                columnWrapperStyle={
-                  gridView
-                    ? { justifyContent: 'space-between', gap: 8 }
-                    : undefined
-                }
-                ItemSeparatorComponent={ItemSeparator}
-                scrollEnabled={true}
-                onEndReached={handleLoadMore}
-                onEndReachedThreshold={0.1}
-                ListFooterComponent={() =>
-                  isLoading ? <ActivityIndicator /> : null
-                }
-                style={{ flex: 1 }}
-                contentContainerStyle={{ flexGrow: 1 }}
-              />
+              {verses === undefined ? (
+                <FlashListSkeletonLoader type='verses' gridView={gridView} />
+              ) : (
+                <FlatList
+                  key={gridView ? 'grid-myverses' : 'list-myverses'}
+                  data={verses}
+                  keyExtractor={(item, index) => index.toString()}
+                  numColumns={gridView ? 2 : 1}
+                  ListEmptyComponent={() => (
+                    <>
+                      <AddVersesEmpty />
+                    </>
+                  )}
+                  renderItem={({ item }) => (
+                    <VerseCard
+                      _id={item._id}
+                      bookName={item.bookName}
+                      chapter={item.chapter}
+                      verses={item.verses}
+                      verseTexts={item.verseTexts}
+                      containerClassName={gridView ? 'w-[50%]' : 'w-full'}
+                      canCheck={false}
+                    />
+                  )}
+                  columnWrapperStyle={
+                    gridView
+                      ? { justifyContent: 'space-between', gap: 8 }
+                      : undefined
+                  }
+                  ItemSeparatorComponent={ItemSeparator}
+                  scrollEnabled={true}
+                  // onEndReached={handleLoadMore}
+                  onEndReachedThreshold={0.1}
+                  // ListFooterComponent={() =>
+                  //   isLoading ? <ActivityIndicator /> : null
+                  // }
+                  style={{ flex: 1 }}
+                  contentContainerStyle={{ flexGrow: 1 }}
+                />
+              )}
             </View>
 
             <CustomButton
-              onPress={() =>
-                router.push(
-                  name === 'flashcards'
-                    ? '/practice/flashcards/practice'
-                    : '/practice/fill-in-blanks/practice'
-                )
-              }
+              onPress={() => {
+                if (verses && verses.length > 0) {
+                  setPracticeSession(verses, 'verses');
+                  router.push(
+                    name === 'flashcards'
+                      ? '/practice/flashcards/practice'
+                      : '/practice/fill-in-blanks/practice'
+                  );
+                }
+              }}
+              disabled={!verses || verses.length === 0}
             >
-              Start Practice
+              Start Verses Practice
             </CustomButton>
           </View>
         </TabsContent>
@@ -156,49 +169,73 @@ export default function PracticeComp({ name }: { name: string }) {
               {totalCollectionsCount ?? 0} collections
             </ThemedText>
 
-            <View>
-              <FlatList
-                key={gridView ? 'grid-collections' : 'list-collections'}
-                data={collections || []}
-                keyExtractor={(item, index) => index.toString()}
-                numColumns={gridView ? 2 : 1}
-                ListEmptyComponent={() => (
-                  <>
-                    {/* Loading */}
-                    {/* <CollectionCardSkeleton /> */}
-                    <AddVersesEmpty collection />
-                  </>
-                )}
-                renderItem={({ item }) => (
-                  <CollectionCard
-                    _id={item._id}
-                    collectionName={item.collectionName}
-                    versesLength={item.versesLength}
-                    onAddPress={() => console.log(`${item} pressed`)}
-                    containerClassName={gridView ? 'w-[50%]' : 'w-full'}
-                    canCheck={false}
-                  />
-                )}
-                columnWrapperStyle={
-                  gridView
-                    ? { justifyContent: 'space-between', gap: 8 }
-                    : undefined
-                }
-                ItemSeparatorComponent={ItemSeparator}
-                scrollEnabled={false}
-              />
+            <View
+              className='flex-1'
+              style={{ minHeight: Platform.OS === 'web' ? 400 : undefined }}
+            >
+              {collections === undefined ? (
+                <FlashListSkeletonLoader
+                  type='collections'
+                  gridView={gridView}
+                />
+              ) : (
+                <FlatList
+                  key={gridView ? 'grid-collections' : 'list-collections'}
+                  data={collections || []}
+                  keyExtractor={(item, index) => index.toString()}
+                  numColumns={gridView ? 2 : 1}
+                  ListEmptyComponent={() => (
+                    <>
+                      <AddVersesEmpty collection />
+                    </>
+                  )}
+                  renderItem={({ item }) => (
+                    <CollectionCard
+                      _id={item._id}
+                      collectionName={item.collectionName}
+                      versesLength={item.versesLength}
+                      onAddPress={() => console.log(`${item} pressed`)}
+                      containerClassName={gridView ? 'w-[50%]' : 'w-full'}
+                      canCheck={false}
+                    />
+                  )}
+                  columnWrapperStyle={
+                    gridView
+                      ? { justifyContent: 'space-between', gap: 8 }
+                      : undefined
+                  }
+                  ItemSeparatorComponent={ItemSeparator}
+                />
+              )}
             </View>
 
             <CustomButton
-              onPress={() =>
+              onPress={() => {
+                // Get all verses from all collections
+                const allCollectionVerses =
+                  collections?.flatMap(
+                    collection => collection.collectionVerses
+                  ) || [];
+
+                if (allCollectionVerses.length === 0) {
+                  // Show an alert or message that no collections are available
+                  return;
+                }
+
+                setPracticeSession(allCollectionVerses, 'collections');
                 router.push(
                   name === 'flashcards'
                     ? '/practice/flashcards/practice'
                     : '/practice/fill-in-blanks/practice'
-                )
+                );
+              }}
+              disabled={
+                !collections ||
+                collections.length === 0 ||
+                collections.every(c => c.collectionVerses.length === 0)
               }
             >
-              Start Practice
+              Start Collections Practice
             </CustomButton>
           </View>
         </TabsContent>

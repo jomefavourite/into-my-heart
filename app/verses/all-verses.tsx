@@ -20,6 +20,7 @@ import CancelIcon from '@/components/icons/CancelIcon';
 import { useGridListView } from '@/store/tab-store';
 import { FlashList } from '@shopify/flash-list';
 import { useAuth } from '@clerk/clerk-expo';
+import FlashListSkeletonLoader from '@/components/FlashListSkeletonLoader';
 
 export const metadata = {
   title: 'All Verses - Into My Heart',
@@ -48,7 +49,7 @@ const AllVersesScreen = () => {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const { isDarkMode } = useColorScheme();
 
-  const { results, status, loadMore } = usePaginatedQuery(
+  const { results, status, loadMore, isLoading } = usePaginatedQuery(
     api.verses.getAllVerses,
     isSignedIn && isLoaded ? {} : 'skip',
     { initialNumItems: 20 }
@@ -130,37 +131,39 @@ const AllVersesScreen = () => {
       />
 
       <View className='flex-1 px-[18px]'>
-        <FlashList
-          key={gridView ? 'grid-myverses' : 'list-myverses'}
-          data={results}
-          keyExtractor={(item, index) => index.toString()}
-          numColumns={gridView ? 2 : 1}
-          ListEmptyComponent={() => (
-            <>
-              {/* Loading */}
-              {/* <VerseCardSkeleton /> */}
-              <AddVersesEmpty />
-            </>
-          )}
-          renderItem={({ item }) => (
-            <VerseCard
-              _id={item._id}
-              bookName={item.bookName}
-              chapter={item.chapter}
-              verses={item.verses}
-              verseTexts={item.verseTexts}
-              containerClassName={gridView ? 'w-[50%]' : 'w-full'}
-              canCheck={false}
-              canDelete={shouldDelete}
-              onDeletePress={() => toggleSelectedVerse(item._id)}
-              isSelectedForDelete={selectedToDelete.includes(item._id)}
-            />
-          )}
-          columnWrapperStyle={
-            gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
-          }
-          ItemSeparatorComponent={ItemSeparator}
-        />
+        {isLoading && results?.length === 0 ? (
+          <FlashListSkeletonLoader type='verses' gridView={gridView} />
+        ) : (
+          <FlashList
+            key={gridView ? 'grid-myverses' : 'list-myverses'}
+            data={results}
+            keyExtractor={(item, index) => index.toString()}
+            numColumns={gridView ? 2 : 1}
+            ListEmptyComponent={() => (
+              <>
+                <AddVersesEmpty />
+              </>
+            )}
+            renderItem={({ item }) => (
+              <VerseCard
+                _id={item._id}
+                bookName={item.bookName}
+                chapter={item.chapter}
+                verses={item.verses}
+                verseTexts={item.verseTexts}
+                containerClassName={gridView ? 'w-[50%]' : 'w-full'}
+                canCheck={false}
+                canDelete={shouldDelete}
+                onDeletePress={() => toggleSelectedVerse(item._id)}
+                isSelectedForDelete={selectedToDelete.includes(item._id)}
+              />
+            )}
+            // columnWrapperStyle={
+            //   gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
+            // }
+            ItemSeparatorComponent={ItemSeparator}
+          />
+        )}
       </View>
 
       <BottomSheet

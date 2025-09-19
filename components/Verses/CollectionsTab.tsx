@@ -14,6 +14,7 @@ import { Button } from '../ui/button';
 import { useRouter } from 'expo-router';
 import ArrowRightIcon from '../icons/ArrowRightIcon';
 import { useConvexAuth } from 'convex/react';
+import FlashListSkeletonLoader from '../FlashListSkeletonLoader';
 
 type CollectionsTabProps = {
   gridView: boolean;
@@ -41,7 +42,7 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
             size={'icon'}
             variant={'ghost'}
             onPress={() => router.push('/verses/all-collections')}
-            className='flex-row '
+            className='flex-row'
           >
             <ThemedText size={12} className='pl-2'>
               View all
@@ -50,39 +51,41 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
           </Button>
         </View>
 
-        <FlatList
-          key={gridView ? 'grid-myverses' : 'list-myverses'}
-          data={getCollections}
-          keyExtractor={(item, index) => index.toString()}
-          numColumns={gridView ? 2 : 1}
-          ListEmptyComponent={() => (
-            <>
-              {/* Loading */}
-              {/* <VerseCardSkeleton /> */}
-              <AddVersesEmpty collection />
-            </>
-          )}
-          renderItem={({ item }) => (
-            <CollectionCard
-              _id={item._id}
-              collectionName={item.collectionName}
-              versesLength={item.versesLength}
-              onAddPress={() => console.log(`${item} pressed`)}
-              containerClassName={gridView ? 'w-[50%]' : 'w-full'}
-              canCheck={false}
-            />
-          )}
-          columnWrapperStyle={
-            gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
-          }
-          ItemSeparatorComponent={ItemSeparator}
-          // contentContainerStyle={
-          //   gridView
-          //     ? { paddingVertical: 8, paddingHorizontal: 16 }
-          //     : { paddingVertical: 8, paddingHorizontal: 16 }
-          // }
-          scrollEnabled={false}
-        />
+        {getCollections === undefined ? (
+          <FlashListSkeletonLoader type='collections' gridView={gridView} />
+        ) : (
+          <FlatList
+            key={gridView ? 'grid-myverses' : 'list-myverses'}
+            data={getCollections}
+            keyExtractor={(item, index) => index.toString()}
+            numColumns={gridView ? 2 : 1}
+            ListEmptyComponent={() => (
+              <>
+                <AddVersesEmpty collection />
+              </>
+            )}
+            renderItem={({ item }) => (
+              <CollectionCard
+                _id={item._id}
+                collectionName={item.collectionName}
+                versesLength={item.versesLength}
+                onAddPress={() => console.log(`${item} pressed`)}
+                containerClassName={gridView ? 'w-[50%]' : 'w-full'}
+                canCheck={false}
+              />
+            )}
+            columnWrapperStyle={
+              gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
+            }
+            ItemSeparatorComponent={ItemSeparator}
+            // contentContainerStyle={
+            //   gridView
+            //     ? { paddingVertical: 8, paddingHorizontal: 16 }
+            //     : { paddingVertical: 8, paddingHorizontal: 16 }
+            // }
+            scrollEnabled={false}
+          />
+        )}
       </View>
 
       <View>
