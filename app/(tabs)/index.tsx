@@ -70,7 +70,7 @@ export default function HomeScreen() {
                   variant='medium'
                   className='!font-semibold md:text-base md:font-medium'
                 >
-                  Verse of the Day dd
+                  Verse of the Day
                 </ThemedText>
 
                 <View className='mt-2 rounded-3xl border-none bg-[#313131] px-5 py-6 dark:bg-[#343434]'>

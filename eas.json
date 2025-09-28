@@ -6,13 +6,28 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "environment": "development",
+      "channel": "development",
+      "env": {
+        "EXPO_PUBLIC_CONVEX_URL": "https://abundant-kingfisher-646.convex.cloud"
+      }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "environment": "preview",
+      "channel": "preview",
+      "env": {
+        "EXPO_PUBLIC_CONVEX_URL": "https://abundant-kingfisher-646.convex.cloud"
+      }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "environment": "production",
+      "channel": "production",
+      "env": {
+        "EXPO_PUBLIC_CONVEX_URL": "https://nautical-hippopotamus-611.convex.cloud"
+      }
     }
   },
   "submit": {
