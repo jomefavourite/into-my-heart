@@ -19,6 +19,7 @@ import { api } from '@/convex/_generated/api';
 import { useAuth, useUser } from '@clerk/clerk-expo';
 import '@/global.css';
 import Loader from '@/components/Loader';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 
 export const metadata = {
   title: 'Into My Heart - Memorize Bible Verses',
@@ -40,13 +41,12 @@ export const metadata = {
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { isSignedIn, isLoaded } = useAuth();
-  const { user } = useUser();
+  const { canMakeQueries, isLoading } = useAuthGuard();
 
-  // Fetch user's verses - only when user is fully authenticated and loaded
+  // Only fetch verses when authentication is fully ready
   const getVerses = useQuery(
     api.verses.getVerses,
-    isSignedIn && isLoaded && user ? { take: 5 } : 'skip'
+    canMakeQueries ? { take: 5 } : 'skip'
   );
 
   return (
@@ -119,9 +119,9 @@ export default function HomeScreen() {
                   </Link>
                 </View>
 
-                {!isSignedIn || !isLoaded || !user ? (
+                {!canMakeQueries ? (
                   <AddVersesEmpty />
-                ) : getVerses === undefined ? (
+                ) : isLoading || getVerses === undefined ? (
                   <View className='flex-1 items-center justify-center py-8'>
                     <Loader />
                   </View>

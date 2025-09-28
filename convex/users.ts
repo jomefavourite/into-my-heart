@@ -64,7 +64,7 @@ export async function getCurrentUser(ctx: QueryCtx) {
     const identity = await ctx.auth.getUserIdentity();
     if (identity === null) {
       console.error('getCurrentUser: No user identity found');
-      throw new Error('Unauthorized - No user identity');
+      throw new Error('Authentication required. Please sign in.');
     }
 
     // console.log(
@@ -78,7 +78,7 @@ export async function getCurrentUser(ctx: QueryCtx) {
         'getCurrentUser: User not found in database for subject:',
         identity.subject
       );
-      throw new Error('User not found in database');
+      throw new Error('User account not found. Please contact support.');
     }
 
     return user;
@@ -86,14 +86,16 @@ export async function getCurrentUser(ctx: QueryCtx) {
     console.error('getCurrentUser error:', error);
     // Re-throw with more specific error message
     if (error instanceof Error) {
-      if (error.message.includes('No user identity')) {
-        throw new Error('Authentication required. Please sign in.');
+      if (error.message.includes('Authentication required')) {
+        throw error; // Don't wrap again
       }
-      if (error.message.includes('User not found')) {
-        throw new Error('User account not found. Please contact support.');
+      if (error.message.includes('User account not found')) {
+        throw error; // Don't wrap again
       }
+      // For any other errors, provide a generic auth error
+      throw new Error('Authentication required. Please sign in.');
     }
-    throw error;
+    throw new Error('Authentication required. Please sign in.');
   }
 }
 

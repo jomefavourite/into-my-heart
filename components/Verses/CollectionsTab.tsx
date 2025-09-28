@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, View, ScrollView } from 'react-native';
 import React, { memo } from 'react';
 import VerseCard from '@/components/Verses/VerseCard';
 import { verses } from '@/lib/utils';
@@ -13,25 +13,25 @@ import SuggestionEmpty from '../EmptyScreen/SuggestionEmpty';
 import { Button } from '../ui/button';
 import { useRouter } from 'expo-router';
 import ArrowRightIcon from '../icons/ArrowRightIcon';
-import { useConvexAuth } from 'convex/react';
 import FlashListSkeletonLoader from '../FlashListSkeletonLoader';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 
 type CollectionsTabProps = {
   gridView: boolean;
 };
 
 const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
-  const { isAuthenticated } = useConvexAuth();
+  const { canMakeQueries } = useAuthGuard();
   const getCollections = useQuery(
     api.collections.getCollections,
-    isAuthenticated ? {} : 'skip'
+    canMakeQueries ? {} : 'skip'
   );
   const router = useRouter();
 
   // console.log(getVerses, 'getVerses');
 
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       <View>
         <View className='flex-row items-center justify-between'>
           <ThemedText className='py-2 text-lg font-semibold'>
@@ -76,11 +76,6 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
               gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
             }
             ItemSeparatorComponent={ItemSeparator}
-            // contentContainerStyle={
-            //   gridView
-            //     ? { paddingVertical: 8, paddingHorizontal: 16 }
-            //     : { paddingVertical: 8, paddingHorizontal: 16 }
-            // }
             scrollEnabled={false}
           />
         )}
@@ -105,9 +100,11 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
           )}
           renderItem={({ item }) => (
             <VerseCard
-              reference={item.reference}
-              text={item.text}
-              onAddPress={() => console.log(`${item.text} pressed`)}
+              bookName={item.bookName}
+              chapter={item.chapter}
+              verses={item.verses}
+              verseTexts={[{ verse: item.verses[0], text: item.reference }]}
+              onAddPress={() => console.log(`${item.reference} pressed`)}
               containerClassName={gridView ? 'w-[50%]' : 'w-full'} // Keep this for card sizing
             />
           )}
@@ -116,11 +113,6 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
             gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
           }
           ItemSeparatorComponent={ItemSeparator}
-          // contentContainerStyle={
-          //   gridView
-          //     ? { paddingVertical: 8, paddingHorizontal: 16 }
-          //     : { paddingVertical: 8, paddingHorizontal: 16 }
-          // }
           scrollEnabled={false}
         />
       </View>
@@ -129,12 +121,3 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
 };
 
 export default memo(CollectionsTab);
-
-const styles = StyleSheet.create({
-  text: {
-    fontSize: 18,
-    paddingTop: 10,
-    paddingBottom: 10,
-    fontWeight: 500,
-  },
-});

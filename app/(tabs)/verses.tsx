@@ -25,6 +25,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { FlashList } from '@shopify/flash-list';
 
 export const metadata = {
   title: 'My Verses - Into My Heart',
@@ -102,14 +103,14 @@ export default function VersesHomeScreen() {
               </TabsTrigger>
             </TabsList>
 
-            <View className='flex-row'>
+            <View className='flex-row gap-2'>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     size={'icon'}
                     variant={'ghost'}
                     // onPress={() => router.push('/verses/select-book')}
-                    className='flex-row items-center gap-2'
+                    className='flex-row items-center gap-1'
                   >
                     <ThemedText className='hidden md:block'>Add</ThemedText>
                     <AddIcon stroke='white' />
@@ -148,30 +149,37 @@ export default function VersesHomeScreen() {
             </View>
           </View>
 
-          <FlatList
-            className='px-[18px]'
-            data={[{ id: 'page' }]} // single item to render accordion
-            keyExtractor={item => item.id}
-            renderItem={() => (
-              <>
-                <Animated.View
-                  style={{ opacity: activeTab === 'verses' ? 1 : 0 }}
-                >
-                  <TabsContent value='verses'>
-                    <VersesTab gridView={gridView} />
-                  </TabsContent>
-                </Animated.View>
-
-                <Animated.View
-                  style={{ opacity: activeTab === 'collections' ? 1 : 0 }}
-                >
-                  <TabsContent value='collections'>
-                    <CollectionsTab gridView={gridView} />
-                  </TabsContent>
-                </Animated.View>
-              </>
+          <ScrollView
+            className='mb-12 flex-1 px-[18px]'
+            contentContainerStyle={{ flexGrow: 1 }}
+            showsVerticalScrollIndicator={false}
+          >
+            {activeTab === 'verses' && (
+              <Animated.View
+                style={{
+                  opacity: 1,
+                  flex: 1,
+                }}
+              >
+                <TabsContent value='verses' className='flex-1'>
+                  <VersesTab gridView={gridView} />
+                </TabsContent>
+              </Animated.View>
             )}
-          />
+
+            {activeTab === 'collections' && (
+              <Animated.View
+                style={{
+                  opacity: 1,
+                  flex: 1,
+                }}
+              >
+                <TabsContent value='collections' className='flex-1'>
+                  <CollectionsTab gridView={gridView} />
+                </TabsContent>
+              </Animated.View>
+            )}
+          </ScrollView>
         </Tabs>
       </View>
     </SafeAreaView>

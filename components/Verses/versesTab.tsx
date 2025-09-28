@@ -14,25 +14,25 @@ import { useMutation } from 'convex/react';
 import { addVerseSuggestion } from '@/convex/verseSuggestions';
 import AddVersesEmpty from '../EmptyScreen/AddVersesEmpty';
 import SuggestionEmpty from '../EmptyScreen/SuggestionEmpty';
-import { useConvexAuth } from 'convex/react';
 import Loader from '../Loader';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 
 type VersesTabProps = {
   gridView: boolean;
 };
 
 const VersesTab = ({ gridView }: VersesTabProps) => {
-  const { isAuthenticated, isLoading } = useConvexAuth();
+  const { canMakeQueries, isLoading } = useAuthGuard();
   const router = useRouter();
 
   const getVerses = useQuery(
     api.verses.getVerses,
-    isAuthenticated ? { take: 5 } : 'skip'
+    canMakeQueries ? { take: 5 } : 'skip'
   );
 
   const getVerseSuggestions = useQuery(
     api.verseSuggestions.getVersesSuggestion,
-    isAuthenticated ? {} : 'skip'
+    canMakeQueries ? {} : 'skip'
   );
 
   const addVerse = useMutation(api.verses.addVerse);
@@ -60,10 +60,12 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!canMakeQueries) {
     return (
       <View>
-        <ThemedText className='text-base'>Please sign in to view your verses.</ThemedText>
+        <ThemedText className='text-base'>
+          Please sign in to view your verses.
+        </ThemedText>
       </View>
     );
   }
@@ -80,7 +82,7 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
   }
 
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       <View>
         <View className='flex-row items-center justify-between'>
           <ThemedText className='py-2 text-lg font-semibold'>
@@ -93,9 +95,7 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
             onPress={() => router.push('/verses/all-verses')}
             className='flex-row'
           >
-            <ThemedText className='pl-2 text-xs'>
-              View all
-            </ThemedText>
+            <ThemedText className='pl-2 text-xs'>View all</ThemedText>
             <ArrowRightIcon />
           </Button>
         </View>
@@ -129,6 +129,7 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
           scrollEnabled={false}
         />
       </View>
+
       <View>
         <ThemedText className='py-2 text-lg font-semibold'>
           Verse Suggestions

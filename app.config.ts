@@ -18,7 +18,7 @@ const SCHEME = 'intomyheart';
 export default ({ config }: ConfigContext): ExpoConfig => {
   console.log(
     '⚙️ Building app for environment:',
-    process.env.CONVEX_DEPLOYMENT
+    process.env.APP_ENV
   );
   const { name, bundleIdentifier, icon, adaptiveIcon, packageName, scheme } =
     getDynamicAppConfig(
