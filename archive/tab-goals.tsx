@@ -37,14 +37,12 @@ export default function GoalsScreen() {
   return (
     <Container>
       <View className='gap-5'>
-        <ThemedText size={22} variant='semibold'>
-          Goals
-        </ThemedText>
+        <ThemedText className='text-[22px] font-semibold'>Goals</ThemedText>
 
         <Tabs
           value={value}
           onValueChange={setValue}
-          className='w-full mx-auto flex-col gap-4'
+          className='mx-auto w-full flex-col gap-4'
         >
           <View className='flex-row justify-between'>
             <TabsList className='flex-row'>
@@ -61,7 +59,7 @@ export default function GoalsScreen() {
                   Goals
                 </ThemedText>
               </TabsTrigger>
-              <TabsTrigger value='completed' className='w-fit '>
+              <TabsTrigger value='completed' className='w-fit'>
                 <ThemedText
                   size={13}
                   variant='medium'
@@ -100,7 +98,7 @@ export default function GoalsScreen() {
 
           <TabsContent value='goals'>
             <View className='gap-3'>
-              <ThemedText variant='medium'>Goals suggested</ThemedText>
+              <ThemedText className='font-medium'>Goals suggested</ThemedText>
 
               <ScrollView
                 horizontal={true}
@@ -129,7 +127,7 @@ export default function GoalsScreen() {
 
             <View className='gap-3'>
               <View className='flex-row items-center justify-between'>
-                <ThemedText variant='medium'>My Goals</ThemedText>
+                <ThemedText className='font-medium'>My Goals</ThemedText>
                 <Button
                   size={'icon'}
                   variant={'ghost'}

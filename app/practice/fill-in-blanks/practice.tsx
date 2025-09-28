@@ -229,7 +229,9 @@ export default function FillInTheBlanks() {
             className={`mx-1 inline-flex h-6 min-w-[100px] items-center justify-center rounded-md border-2 border-dashed px-3 text-sm font-medium transition-all duration-200 ${isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-300'} ${isCorrect ? 'border-green-500 bg-green-50 text-green-700' : ''} ${isIncorrect ? 'border-red-500 bg-red-50 text-red-700' : ''} ${!showResults ? 'hover:bg-blue-25 hover:border-blue-400' : ''} `}
             disabled={showResults}
           >
-            <ThemedText>{blank.selectedAnswer || '___'}</ThemedText>
+            <ThemedText className='text-sm'>
+              {blank.selectedAnswer || '___'}
+            </ThemedText>
           </Button>
         );
       }
@@ -251,7 +253,9 @@ export default function FillInTheBlanks() {
       <SafeAreaView className='flex-1'>
         <BackHeader items={[{ label: 'Practice', href: '/practice' }]} />
         <View className='flex-1 items-center justify-center p-4'>
-          <ThemedText>No practice session found</ThemedText>
+          <ThemedText className='text-base'>
+            No practice session found
+          </ThemedText>
           <CustomButton
             onPress={() => router.replace('/practice/fill-in-blanks')}
             className='mt-4'
@@ -282,17 +286,17 @@ export default function FillInTheBlanks() {
         <View className='flex-1 flex-col justify-between p-[18]'>
           <View>
             <View className='mb-4 flex-row items-center justify-between'>
-              <ThemedText size={18} variant='semibold'>
+              <ThemedText className='text-lg font-semibold'>
                 Fill in the Blanks {currentVerseIndex + 1} of {verses.length}
               </ThemedText>
-              <ThemedText size={14} className='text-muted-foreground'>
+              <ThemedText className='text-sm text-muted-foreground'>
                 {currentVerse.bookName} {currentVerse.chapter}:
                 {currentVerse.verses.join(', ')}
               </ThemedText>
             </View>
 
             <Card className='border-0 border-gray-200 bg-gray-50 p-2'>
-              <ThemedText size={14} className='text-muted-foreground'>
+              <ThemedText className='text-sm text-muted-foreground'>
                 Click on a blank space, then select the correct word from the
                 options below
               </ThemedText>
@@ -308,7 +312,9 @@ export default function FillInTheBlanks() {
               {selectedBlankId && !showResults && (
                 <View className='text-center'>
                   <Badge variant='outline' className='bg-blue-50 text-blue-700'>
-                    <ThemedText>Filling blank #{selectedBlankId}</ThemedText>
+                    <ThemedText className='text-sm'>
+                      Filling blank #{selectedBlankId}
+                    </ThemedText>
                   </Badge>
                 </View>
               )}
@@ -318,7 +324,7 @@ export default function FillInTheBlanks() {
           <View className=''>
             {/* Options */}
             <View className='space-y-3'>
-              <ThemedText className='font-semibold'>
+              <ThemedText className='text-base font-semibold'>
                 Choose the correct words:
               </ThemedText>
               <View className='flex-row flex-wrap justify-center gap-3'>
@@ -330,7 +336,7 @@ export default function FillInTheBlanks() {
                     disabled={option.used || showResults}
                     className={`h-10 rounded-full !px-4 !py-2 text-sm transition-all duration-200 ${option.used ? 'cursor-not-allowed opacity-50' : ''} ${!option.used && !showResults ? 'hover:border-blue-300 hover:bg-blue-50' : ''} `}
                   >
-                    <ThemedText>{option.text}</ThemedText>
+                    <ThemedText className='text-sm'>{option.text}</ThemedText>
                   </Button>
                 ))}
               </View>

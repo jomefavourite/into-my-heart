@@ -51,8 +51,7 @@ const VerseCard: React.FC<VerseCardProps> = ({
           <ThemedText
             numberOfLines={1}
             ellipsizeMode='tail'
-            size={14}
-            variant='medium'
+            className='text-sm font-medium'
           >
             {bookName} {chapter}:{verses.length > 0 ? verses.join(', ') : '1'}
           </ThemedText>
@@ -71,8 +70,7 @@ const VerseCard: React.FC<VerseCardProps> = ({
         <ThemedText
           numberOfLines={2}
           ellipsizeMode='tail'
-          size={13}
-          className='w-fit !overflow-hidden !text-ellipsis text-[#707070] dark:text-[#909090]'
+          className='w-fit !overflow-hidden !text-ellipsis text-[13px] text-[#707070] dark:text-[#909090]'
         >
           {verseTexts.length > 0
             ? verseTexts.map((text, index) => `${text.verse}. ${text.text} `)

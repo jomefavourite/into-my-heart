@@ -135,10 +135,10 @@ export default function Flashcards() {
 
       <View className='flex-1 p-[18px]'>
         <View className='mb-4 flex-row items-center justify-between'>
-          <ThemedText size={18} variant='semibold'>
+          <ThemedText className='text-lg font-semibold'>
             Flashcard {currentIndex + 1} of {verses.length}
           </ThemedText>
-          <ThemedText size={14} className='text-muted-foreground'>
+          <ThemedText className='text-sm text-muted-foreground'>
             {currentVerse.bookName} {currentVerse.chapter}:{currentVerse.verses}
           </ThemedText>
         </View>
@@ -159,7 +159,7 @@ export default function Flashcards() {
         </View>
 
         <View className='mt-4 items-center'>
-          <ThemedText size={14} className='text-center text-muted-foreground'>
+          <ThemedText className='text-center text-sm text-muted-foreground'>
             Tap the flashcard to reveal the answer before proceeding
           </ThemedText>
         </View>
@@ -174,7 +174,7 @@ export default function Flashcards() {
           </CustomButton>
 
           <View className='flex-row items-center gap-2'>
-            <ThemedText size={14} className='text-muted-foreground'>
+            <ThemedText className='text-sm text-muted-foreground'>
               {currentIndex + 1} / {verses.length}
             </ThemedText>
           </View>

@@ -31,9 +31,7 @@ export default function PracticeScreen() {
   return (
     <SafeAreaView className='flex-1'>
       <View className='p-[18]'>
-        <ThemedText size={22} variant='semibold'>
-          Practice
-        </ThemedText>
+        <ThemedText className='text-[22px] font-semibold'>Practice</ThemedText>
       </View>
 
       <ScrollView className=''>
@@ -60,12 +58,12 @@ export default function PracticeScreen() {
         </View>
 
         <View className='px-[18px] md:mt-6'>
-          <ThemedText variant='semibold'>Practice Techniques</ThemedText>
+          <ThemedText className='font-semibold'>Practice Techniques</ThemedText>
 
           <View className='mt-2 gap-3'>
             <Link href='/practice/flashcards'>
               <View className='w-full flex-row items-center justify-between rounded-lg border border-[#E8E8E8] px-4 py-2 web:p-6 dark:border-[#E8E8E8]'>
-                <ThemedText variant='medium'>Flashcards</ThemedText>
+                <ThemedText className='font-medium'>Flashcards</ThemedText>
                 <FlashCardIcon1
                   // width={24}
                   // height={24}
@@ -76,13 +74,15 @@ export default function PracticeScreen() {
 
             <Link href='/practice/fill-in-blanks'>
               <View className='w-full flex-row items-center justify-between rounded-lg border border-[#E8E8E8] px-4 py-2 web:p-6 dark:border-[#E8E8E8]'>
-                <ThemedText variant='medium'>Fill-in-the-blanks</ThemedText>
+                <ThemedText className='font-medium'>
+                  Fill-in-the-blanks
+                </ThemedText>
                 <FillInBlanksIcon className='bottom-0 right-0 web:absolute' />
               </View>
             </Link>
 
             <View className='w-full cursor-not-allowed flex-row items-center justify-between rounded-lg border border-[#E8E8E8] px-4 py-2 opacity-50 web:p-6 dark:border-[#E8E8E8]'>
-              <ThemedText variant='medium'>Recitation</ThemedText>
+              <ThemedText className='font-medium'>Recitation</ThemedText>
               <RecitationIcon className='bottom-0 right-0 web:absolute' />
             </View>
           </View>

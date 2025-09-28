@@ -44,7 +44,7 @@ export default function EditProfile() {
       <View className='p-[18px]'>
         <View className='gap-10'>
           <View className='mx-auto mt-6'>
-            <Avatar alt={user?.firstName || ''} className='w-24 h-24'>
+            <Avatar alt={user?.firstName || ''} className='h-24 w-24'>
               <AvatarImage
                 source={{ uri: selectedImage ? selectedImage : user?.imageUrl }}
               />
@@ -102,15 +102,15 @@ export default function EditProfile() {
 
         <CustomBottomSheet ref={bottomSheetRef} index={-1} snapPoints={['30%']}>
           <BottomSheetView className='p-4 py-8'>
-            <ThemedText variant='medium' className='text-center'>
+            <ThemedText className='text-center font-medium'>
               Delete your account?
             </ThemedText>
-            <ThemedText className='text-center text-[#707070] dark:text-[#909090'>
+            <ThemedText className='dark:text-[#909090 text-center text-[#707070]'>
               This will permanently remove your data, including your saved
               verses, progress, and goals. This action cannot be undone.
             </ThemedText>
 
-            <View className='gap-2 mt-7'>
+            <View className='mt-7 gap-2'>
               <CustomButton onPress={() => bottomSheetRef.current?.close()}>
                 Cancel
               </CustomButton>

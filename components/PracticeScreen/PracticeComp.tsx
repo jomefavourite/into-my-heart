@@ -98,7 +98,9 @@ export default function PracticeComp({ name }: { name: string }) {
 
         <TabsContent value='verses' className='flex-1'>
           <View className='flex-1 gap-3'>
-            <ThemedText size={13}>{totalVersesCount ?? 0} verses</ThemedText>
+            <ThemedText className='text-[13px]'>
+              {totalVersesCount ?? 0} verses
+            </ThemedText>
 
             <View
               className='flex-1'
@@ -165,7 +167,7 @@ export default function PracticeComp({ name }: { name: string }) {
         </TabsContent>
         <TabsContent value='collections' className='flex-1'>
           <View className='flex-1 gap-3'>
-            <ThemedText size={13}>
+            <ThemedText className='text-[13px]'>
               {totalCollectionsCount ?? 0} collections
             </ThemedText>
 

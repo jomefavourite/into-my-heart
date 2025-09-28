@@ -114,7 +114,7 @@ export default function SelectVerses() {
 
       <View className='flex-1 justify-between px-[18px]'>
         <ScrollView className='flex-1'>
-          <ThemedText variant='medium' className=' text-lg font-semibold mb-4'>
+          <ThemedText className='mb-4 text-lg font-semibold'>
             {bookName} {chapter}
           </ThemedText>
 
@@ -122,7 +122,7 @@ export default function SelectVerses() {
             value={localVerses}
             onValueChange={handleValueChange}
             type='multiple'
-            className=' w-full flex-wrap gap-2 justify-start'
+            className='w-full flex-wrap justify-start gap-2'
           >
             {new Array(versesLength).fill(0).map((_, index) => {
               const verseValue = `${index + 1}`;
@@ -133,7 +133,7 @@ export default function SelectVerses() {
                   key={index}
                   value={verseValue}
                   aria-label={`Select verse ${index + 1}`}
-                  className={`bg-container flex-row  items-center rounded-md w-[54px] h-[40px] ${isActive ? 'bg-black hover:bg-black dark:bg-zinc-500 web:group-hover:bg-black' : ''}`}
+                  className={`h-[40px] w-[54px] flex-row items-center rounded-md bg-container ${isActive ? 'bg-black hover:bg-black web:group-hover:bg-black dark:bg-zinc-500' : ''}`}
                 >
                   <ThemedText style={isActive ? { color: 'white' } : {}}>
                     {index + 1}

@@ -136,9 +136,7 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView className='flex-1'>
       <View className='flex-row items-center justify-between px-[18px]'>
-        <ThemedText size={22} variant='semibold'>
-          Profile
-        </ThemedText>
+        <ThemedText className='text-[22px] font-semibold'>Profile</ThemedText>
 
         <CustomButton className=''>Donate</CustomButton>
       </View>
@@ -186,45 +184,33 @@ export default function ProfileScreen() {
                 </View>
               </View>
 
-              <ThemedText size={18} variant='medium' className='text-center'>
+              <ThemedText className='text-center text-lg font-medium'>
                 {user?.firstName} {user?.lastName}
               </ThemedText>
             </View>
 
             <View className='my-6 flex-row items-center justify-between'>
               <View className='flex-row items-center gap-2'>
-                <ThemedText
-                  size={27}
-                  variant='semibold'
-                  className='text-[#707070]'
-                >
+                <ThemedText className='text-[27px] font-semibold text-[#707070]'>
                   0
                 </ThemedText>
-                <ThemedText size={12} className='max-w-[65px]'>
+                <ThemedText className='max-w-[65px] text-xs'>
                   verses memorized
                 </ThemedText>
               </View>
               <View className='flex-row items-center gap-2'>
-                <ThemedText
-                  size={27}
-                  variant='semibold'
-                  className='text-[#707070]'
-                >
+                <ThemedText className='text-[27px] font-semibold text-[#707070]'>
                   0
                 </ThemedText>
-                <ThemedText size={12} className='max-w-[65px]'>
+                <ThemedText className='max-w-[65px] text-xs'>
                   collections memorized
                 </ThemedText>
               </View>
               <View className='flex-row items-center gap-2'>
-                <ThemedText
-                  size={27}
-                  variant='semibold'
-                  className='text-[#707070]'
-                >
+                <ThemedText className='text-[27px] font-semibold text-[#707070]'>
                   0
                 </ThemedText>
-                <ThemedText size={12} className='max-w-[65px]'>
+                <ThemedText className='max-w-[65px] text-xs'>
                   goals completed
                 </ThemedText>
               </View>

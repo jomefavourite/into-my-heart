@@ -53,7 +53,7 @@ export default function HomeHeader({
       >
         <View
           className={cn(
-            'p-4 flex-row justify-between items-center',
+            'flex-row items-center justify-between p-4',
             !!isWelcome && 'justify-end'
           )}
         >
@@ -66,17 +66,19 @@ export default function HomeHeader({
                 </AvatarFallback>
               </Avatar>
               <View>
-                <ThemedText size={12} className='text-[#707070]'>
+                <ThemedText className='text-xs text-[#707070]'>
                   Welcome
                 </ThemedText>
-                <ThemedText variant='medium'>{user?.firstName}</ThemedText>
+                <ThemedText className='font-medium'>
+                  {user?.firstName}
+                </ThemedText>
               </View>
             </View>
           )}
 
-          <View className='flex-row items-center justify-end gap-4 ml-auto'>
+          <View className='ml-auto flex-row items-center justify-end gap-4'>
             <CustomButton
-              className={cn('w-fit !px-4 gap-1 self-end')}
+              className={cn('w-fit gap-1 self-end !px-4')}
               onPress={() => {
                 setStreakBottomSheetIndex(1);
               }}

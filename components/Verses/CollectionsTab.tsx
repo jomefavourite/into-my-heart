@@ -34,7 +34,7 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
     <View>
       <View>
         <View className='flex-row items-center justify-between'>
-          <ThemedText size={18} variant='semibold' className='py-2'>
+          <ThemedText className='py-2 text-lg font-semibold'>
             My Collections
           </ThemedText>
 
@@ -44,9 +44,7 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
             onPress={() => router.push('/verses/all-collections')}
             className='flex-row'
           >
-            <ThemedText size={12} className='pl-2'>
-              View all
-            </ThemedText>
+            <ThemedText className='pl-2 text-xs'>View all</ThemedText>
             <ArrowRightIcon />
           </Button>
         </View>
@@ -89,7 +87,7 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
       </View>
 
       <View>
-        <ThemedText size={18} variant='semibold' className='py-2'>
+        <ThemedText className='py-2 text-lg font-semibold'>
           Collection Suggestions
         </ThemedText>
 

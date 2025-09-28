@@ -22,7 +22,7 @@ const StreakBottomSheetContent = memo(() => {
 
   return (
     <BottomSheetView className='flex-1 p-4'>
-      <View className='mx-auto mt-6 mb-6'>
+      <View className='mx-auto mb-6 mt-6'>
         <Svg width={100} height={100} fill='none'>
           <Path
             fill={isDarkMode ? '#fff' : '#313131'}
@@ -37,7 +37,7 @@ const StreakBottomSheetContent = memo(() => {
           />
         </Svg>
       </View>
-      <ThemedText className='text-black text-center font-medium dark:text-white mb-6'>
+      <ThemedText className='mb-6 text-center font-medium text-black dark:text-white'>
         Every day you practice, you're strengthening your memory and hiding
         God's Word in your heart.
       </ThemedText>
@@ -82,7 +82,7 @@ export const StartDateBottomSheetContent = memo(() => {
     <BottomSheetView className='flex-1 px-4'>
       {/* <Calendar /> */}
 
-      <View className='flex-row gap-2 '>
+      <View className='flex-row gap-2'>
         <CustomButton variant='outline' className='flex-1'>
           Cancel
         </CustomButton>
@@ -168,12 +168,12 @@ export const CustomRadioButton = memo(
     return (
       <Pressable
         onPress={onPress}
-        className={cn('py-4 px-3 text-center', isActive ? 'bg-[#FAFAFA]' : '')}
+        className={cn('px-3 py-4 text-center', isActive ? 'bg-[#FAFAFA]' : '')}
       >
         <ThemedText
           className={cn(
             isActive ? 'text-black' : 'text-[#707070]',
-            'text-base  text-center'
+            'text-center text-base'
           )}
         >
           {label}
@@ -187,13 +187,10 @@ const RemoveGoalBottomSheetContent = memo(() => {
   return (
     <BottomSheetView className='flex-1 p-4'>
       <View className='mt-auto'>
-        <ThemedText variant='medium' className='text-center mb-2'>
+        <ThemedText className='mb-2 text-center font-medium'>
           This goal will be removed
         </ThemedText>
-        <ThemedText
-          size={14}
-          className='text-center text-[#707070] dark:text-[#909090] max-w-[288px] mx-auto'
-        >
+        <ThemedText className='mx-auto max-w-[288px] text-center text-sm text-[#707070] dark:text-[#909090]'>
           This goal and all progress will be removed. This action cannot be
           undone.
         </ThemedText>

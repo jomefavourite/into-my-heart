@@ -41,7 +41,7 @@ function BackHeader({
   }
 
   return (
-    <View className='items-center justify-between flex-row p-[18px]'>
+    <View className='flex-row items-center justify-between p-[18px]'>
       {LiftComponent ? (
         LiftComponent
       ) : (
@@ -59,9 +59,7 @@ function BackHeader({
       {TitleComponent ? (
         <>{TitleComponent}</>
       ) : (
-        <ThemedText size={16} variant='medium'>
-          {title}
-        </ThemedText>
+        <ThemedText className='text-base font-medium'>{title}</ThemedText>
       )}
 
       {RightComponent ? (

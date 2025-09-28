@@ -33,9 +33,9 @@ export default function GoalCard({
 
   return (
     <Link href={'/goals/kdjsdds'}>
-      <View className={cn('bg-container p-4 rounded-lg gap-1', itemClassName)}>
-        <View className='flex-row justify-between items-center'>
-          <ThemedText size={14} variant='medium' numberOfLines={2}>
+      <View className={cn('gap-1 rounded-lg bg-container p-4', itemClassName)}>
+        <View className='flex-row items-center justify-between'>
+          <ThemedText className='text-sm font-medium' numberOfLines={2}>
             Enter goal name
           </ThemedText>
 

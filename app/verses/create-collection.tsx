@@ -86,7 +86,7 @@ const CreateCollection = () => {
       />
 
       <View className='flex-1 px-[18px]'>
-        <View className='gap-1 pb-3 '>
+        <View className='gap-1 pb-3'>
           <Label nativeID='collectionName'>Collection name</Label>
           <Input
             aria-aria-labelledby='collectionName'
@@ -99,7 +99,7 @@ const CreateCollection = () => {
             }}
           />
           {hasInputError && (
-            <ThemedText size={12} className='text-red-500 text-sm mt-1'>
+            <ThemedText className='mt-1 text-xs text-red-500'>
               Collection name is required
             </ThemedText>
           )}

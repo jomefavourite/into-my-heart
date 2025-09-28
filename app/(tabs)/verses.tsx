@@ -58,7 +58,7 @@ export default function VersesHomeScreen() {
     <SafeAreaView className='flex-1'>
       <View className='flex-1 gap-5'>
         <View className='p-[18px]'>
-          <ThemedText size={22} variant='semibold'>
+          <ThemedText className='text-[22px] font-semibold'>
             Verses & Collections
           </ThemedText>
         </View>
@@ -122,7 +122,7 @@ export default function VersesHomeScreen() {
                       router.push('/verses/select-book');
                     }}
                   >
-                    <ThemedText size={14} variant='medium'>
+                    <ThemedText className='text-sm font-medium'>
                       Add Verse
                     </ThemedText>
                   </DropdownMenuItem>
@@ -132,7 +132,7 @@ export default function VersesHomeScreen() {
                       router.push('/verses/create-collection');
                     }}
                   >
-                    <ThemedText size={14} variant='medium'>
+                    <ThemedText className='text-sm font-medium'>
                       Add Collection
                     </ThemedText>
                   </DropdownMenuItem>

@@ -504,34 +504,34 @@ export default function VerseSummary() {
           <View className='gap-3'>
             {isCollOrVerse === 'collections' && (
               <View className='w-full flex-row items-center justify-between'>
-                <ThemedText size={14}>Collection name</ThemedText>
+                <ThemedText className='text-sm'>Collection name</ThemedText>
                 <Button
                   size={'sm'}
                   variant={'ghost'}
                   className='flex-row items-center text-sm'
                   // onPress={handleBookChange}
                 >
-                  <ThemedText size={14}>{collectionName}</ThemedText>
+                  <ThemedText className='text-sm'>{collectionName}</ThemedText>
                   <ArrowRightIcon />
                 </Button>
               </View>
             )}
             <View className='w-full flex-row items-center justify-between'>
-              <ThemedText size={14}>Book</ThemedText>
+              <ThemedText className='text-sm'>Book</ThemedText>
               <Button
                 size={'sm'}
                 variant={'ghost'}
                 className='flex-row items-center text-sm'
                 onPress={handleBookChange}
               >
-                <ThemedText size={14}>
+                <ThemedText className='text-sm'>
                   {bookName} {chapter}
                 </ThemedText>
                 <ArrowRightIcon />
               </Button>
             </View>
             <View className='w-full flex-row items-center justify-between'>
-              <ThemedText size={14}>Verses</ThemedText>
+              <ThemedText className='text-sm'>Verses</ThemedText>
               <Button
                 size={'sm'}
                 variant={'ghost'}
@@ -542,7 +542,7 @@ export default function VerseSummary() {
                   )
                 }
               >
-                <ThemedText size={14}>
+                <ThemedText className='text-sm'>
                   {versesList.length > 5
                     ? `${minVerse}...${maxVerse}`
                     : versesList.sort((a, b) => a - b).join(', ')}
@@ -551,18 +551,18 @@ export default function VerseSummary() {
               </Button>
             </View>
             <View className='w-full flex-row items-center justify-between'>
-              <ThemedText size={14}>Bible translation</ThemedText>
+              <ThemedText className='text-sm'>Bible translation</ThemedText>
               <Button
                 size={'sm'}
                 variant={'ghost'}
                 className='flex-row items-center text-sm'
                 disabled
               >
-                <ThemedText size={14}>KJV</ThemedText>
+                <ThemedText className='text-sm'>KJV</ThemedText>
               </Button>
             </View>
             <View className='w-full flex-row items-center justify-between'>
-              <ThemedText size={14}>Review Frequency</ThemedText>
+              <ThemedText className='text-sm'>Review Frequency</ThemedText>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -571,7 +571,9 @@ export default function VerseSummary() {
                     variant={'ghost'}
                     className='flex-row items-center text-sm'
                   >
-                    <ThemedText size={14}>{reviewFreqValue}</ThemedText>
+                    <ThemedText className='text-sm'>
+                      {reviewFreqValue}
+                    </ThemedText>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className='native:w-52 w-48 px-0'>

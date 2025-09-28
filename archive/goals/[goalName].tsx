@@ -31,7 +31,7 @@ export default function GoalName() {
                 <MoreVerticalIcon />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className='w-48 native:w-52'>
+            <DropdownMenuContent className='native:w-52 w-48'>
               <DropdownMenuItem>
                 <Text>Add Verse</Text>
               </DropdownMenuItem>
@@ -49,11 +49,11 @@ export default function GoalName() {
 
       <View className='p-[18px]'>
         <View>
-          <ThemedText size={18} variant='medium'>
+          <ThemedText className='text-lg font-medium'>
             Enter goal name
           </ThemedText>
-          <ThemedText size={14}>Tomorrow</ThemedText>
-          <ThemedText size={14}>Daily Review</ThemedText>
+          <ThemedText className='text-sm'>Tomorrow</ThemedText>
+          <ThemedText className='text-sm'>Daily Review</ThemedText>
         </View>
 
         <View className='flex-row items-center'>
@@ -61,14 +61,12 @@ export default function GoalName() {
           <ThemedText className=''>100%</ThemedText>
         </View>
 
-        <View className='bg-container p-4 rounded-lg gap-1]'>
-          <View className='flex-row gap-1 items-center'>
+        <View className='gap-1] rounded-lg bg-container p-4'>
+          <View className='flex-row items-center gap-1'>
             <DumbbellIcon fontSize={13} />
-            <ThemedText size={14} variant='medium'>
-              Faith Boost
-            </ThemedText>
+            <ThemedText className='text-sm font-medium'>Faith Boost</ThemedText>
           </View>
-          <ThemedText size={12}>
+          <ThemedText className='text-xs'>
             A little progress each day adds up to big results! Keep going!
           </ThemedText>
         </View>

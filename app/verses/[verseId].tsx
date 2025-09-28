@@ -74,9 +74,7 @@ export default function VersePage() {
           <View className='rounded-md bg-container p-3'>
             <View className='flex-row items-center gap-2'>
               <IdeaIcon fontSize={13} />
-              <ThemedText variant='medium' className='text-md'>
-                Study Tip
-              </ThemedText>
+              <ThemedText className='text-md font-medium'>Study Tip</ThemedText>
             </View>
 
             <ThemedText className='text-secondary-text text-sm'>

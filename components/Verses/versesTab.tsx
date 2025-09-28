@@ -63,7 +63,7 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
   if (!isAuthenticated) {
     return (
       <View>
-        <ThemedText>Please sign in to view your verses.</ThemedText>
+        <ThemedText className='text-base'>Please sign in to view your verses.</ThemedText>
       </View>
     );
   }
@@ -72,7 +72,7 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
   if (getVerses === undefined && !isLoading) {
     return (
       <View>
-        <ThemedText>
+        <ThemedText className='text-base'>
           Authentication error. Please try refreshing the page.
         </ThemedText>
       </View>
@@ -83,7 +83,7 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
     <View>
       <View>
         <View className='flex-row items-center justify-between'>
-          <ThemedText size={18} variant='semibold' className='py-2'>
+          <ThemedText className='py-2 text-lg font-semibold'>
             My Verses
           </ThemedText>
 
@@ -93,7 +93,7 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
             onPress={() => router.push('/verses/all-verses')}
             className='flex-row'
           >
-            <ThemedText size={12} className='pl-2'>
+            <ThemedText className='pl-2 text-xs'>
               View all
             </ThemedText>
             <ArrowRightIcon />
@@ -130,7 +130,7 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
         />
       </View>
       <View>
-        <ThemedText size={18} variant='semibold' className='py-2'>
+        <ThemedText className='py-2 text-lg font-semibold'>
           Verse Suggestions
         </ThemedText>
 

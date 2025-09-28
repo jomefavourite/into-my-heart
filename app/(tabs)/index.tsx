@@ -70,7 +70,7 @@ export default function HomeScreen() {
                   variant='medium'
                   className='!font-semibold md:text-base md:font-medium'
                 >
-                  Verse of the Day
+                  Verse of the Day dd
                 </ThemedText>
 
                 <View className='mt-2 rounded-3xl border-none bg-[#313131] px-5 py-6 dark:bg-[#343434]'>
@@ -115,7 +115,7 @@ export default function HomeScreen() {
                 <View className='flex-row items-center justify-between'>
                   <ThemedText variant='medium'>My Verses</ThemedText>
                   <Link href={'/verses/all-verses'}>
-                    <ThemedText size={12}>View all -{'>'}</ThemedText>
+                    <ThemedText className='text-xs'>View all -{'>'}</ThemedText>
                   </Link>
                 </View>
 
@@ -157,9 +157,11 @@ export default function HomeScreen() {
             <View className='gap-3'>
               <View className='gap-2'>
                 <View className='mb-2 flex-row items-center justify-between'>
-                  <ThemedText variant='medium'>Verse Suggestions</ThemedText>
+                  <ThemedText className='font-medium'>
+                    Verse Suggestions
+                  </ThemedText>
                   <Link href={'/verses/verse-suggestions'}>
-                    <ThemedText size={12}>View all -{'>'}</ThemedText>
+                    <ThemedText className='text-xs'>View all -{'>'}</ThemedText>
                   </Link>
                 </View>
 
@@ -185,7 +187,7 @@ export default function HomeScreen() {
               </View>
 
               <View className='mb-12 gap-2'>
-                <ThemedText size={18} variant='medium'>
+                <ThemedText className='text-lg font-medium'>
                   Bible study and Memorization tips
                 </ThemedText>
 
@@ -206,7 +208,7 @@ export default function HomeScreen() {
                   onPress={() => router.push('/memorization-tips')}
                   className='flex-row items-center gap-1'
                 >
-                  <ThemedText size={13} className='ml-auto'>
+                  <ThemedText className='ml-auto text-[13px]'>
                     Read here
                   </ThemedText>
                   <ArrowRightIcon />

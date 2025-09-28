@@ -152,7 +152,7 @@ export default function CollectionPage() {
               </DropdownMenuTrigger>
               <DropdownMenuContent className='mr-4'>
                 <DropdownMenuItem onPress={handleAddVerses}>
-                  <ThemedText size={14} variant='medium'>
+                  <ThemedText className='text-sm font-medium'>
                     Edit collection
                   </ThemedText>
                 </DropdownMenuItem>
@@ -161,7 +161,7 @@ export default function CollectionPage() {
                     // setIsCollOrVerse('collections');
                   }}
                 >
-                  <ThemedText size={14} variant='medium'>
+                  <ThemedText className='text-sm font-medium'>
                     Delete Verses
                   </ThemedText>
                 </DropdownMenuItem>

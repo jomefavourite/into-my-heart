@@ -67,7 +67,7 @@ export default function CreateGoal() {
         />
 
         <View className=' '>
-          <View className='gap-1 pb-3 p-[18px]'>
+          <View className='gap-1 p-[18px] pb-3'>
             <Label nativeID='goalName'>Goal Name</Label>
             <Input
               aria-aria-labelledby='goalName'
@@ -77,10 +77,8 @@ export default function CreateGoal() {
             />
           </View>
 
-          <View className='p-[18px] border-1 border-[#E8E8E8] dark:border-[#E8E8E8] py-4 border-y flex-row items-center justify-between'>
-            <ThemedText size={14} variant='medium'>
-              Verses
-            </ThemedText>
+          <View className='border-1 flex-row items-center justify-between border-y border-[#E8E8E8] p-[18px] py-4 dark:border-[#E8E8E8]'>
+            <ThemedText className='text-sm font-medium'>Verses</ThemedText>
             <Button
               size={'icon'}
               className='bg-transparent'
@@ -90,9 +88,9 @@ export default function CreateGoal() {
             </Button>
           </View>
 
-          <View className='p-[18px] border-b border-[#E8E8E8] dark:border-[#E8E8E8] py-4 flex-row gap-5'>
+          <View className='flex-row gap-5 border-b border-[#E8E8E8] p-[18px] py-4 dark:border-[#E8E8E8]'>
             <View className='flex-1'>
-              <ThemedText size={14} variant='medium'>
+              <ThemedText className='text-sm font-medium'>
                 Start date
               </ThemedText>
               <Button
@@ -103,30 +101,28 @@ export default function CreateGoal() {
                 {startDate ? (
                   <ThemedText>{startDate}</ThemedText>
                 ) : (
-                  <ThemedText size={14} className='text-[#707070]'>
+                  <ThemedText className='text-sm text-[#707070]'>
                     Set Date
                   </ThemedText>
                 )}
               </Button>
             </View>
             <View className='flex-1'>
-              <ThemedText size={14} variant='medium'>
-                End date
-              </ThemedText>
+              <ThemedText className='text-sm font-medium'>End date</ThemedText>
               <Button onPress={() => endDateBottomSheetRef?.current?.expand()}>
                 <ThemedText>hello</ThemedText>
               </Button>
             </View>
           </View>
 
-          <View className='p-[18px] border-b border-[#E8E8E8] flex-row items-center justify-between dark:border-[#E8E8E8] py-4'>
-            <ThemedText size={14} variant='medium'>
+          <View className='flex-row items-center justify-between border-b border-[#E8E8E8] p-[18px] py-4 dark:border-[#E8E8E8]'>
+            <ThemedText className='text-sm font-medium'>
               Review Frequency
             </ThemedText>
 
             <Button
               variant={'ghost'}
-              className='w-fit flex-row gap-2 items-center'
+              className='w-fit flex-row items-center gap-2'
               onPress={() => bottomSheetRef?.current?.expand()}
             >
               <ThemedText>{reviewFreqValue}</ThemedText>
