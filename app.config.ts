@@ -16,10 +16,7 @@ const ADAPTIVE_ICON = './assets/images/adaptive-icon.png';
 const SCHEME = 'intomyheart';
 
 export default ({ config }: ConfigContext): ExpoConfig => {
-  console.log(
-    '⚙️ Building app for environment:',
-    process.env.APP_ENV
-  );
+  console.log('⚙️ Building app for environment:', process.env.APP_ENV);
   const { name, bundleIdentifier, icon, adaptiveIcon, packageName, scheme } =
     getDynamicAppConfig(
       (process.env.APP_ENV as 'development' | 'preview' | 'production') ||
@@ -127,7 +124,7 @@ export const getDynamicAppConfig = (
     name: `${APP_NAME} Development`,
     bundleIdentifier: `${BUNDLE_IDENTIFIER}.dev`,
     packageName: `${PACKAGE_NAME}.dev`,
-    icon: './assets/images/icons/iOS-Dev.png',
+    icon: './assets/images/icon.png',
     adaptiveIcon: './assets/images/icons/Android-Dev.png',
     scheme: `${SCHEME}-dev`,
   };

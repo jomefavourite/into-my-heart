@@ -39,18 +39,8 @@ const ThemedText: React.FC<ThemedTextProps> = ({
   children,
   ...props
 }) => {
-  const fontFamily = fontMap[variant] || fontMap.regular;
-  const fontSize = sizeMap[size] || sizeMap[16];
-
-  const styles = StyleSheet.create({
-    text: {
-      fontFamily: fontFamily,
-      fontSize: fontSize,
-    },
-  });
-
   return (
-    <Text style={[styles.text]} className={cn(className)} {...props}>
+    <Text className={cn(className)} {...props}>
       {children}
     </Text>
   );

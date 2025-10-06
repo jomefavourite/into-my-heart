@@ -43,7 +43,7 @@ const buttonVariants = cva(
         default: 'h-14 px-6 py-4 native:h-14 native:px-6 native:py-4',
         // default: cn('h-10 px-4 py-2 sm:h-9', Platform.select({ web: 'has-[>svg]:px-3' })),
         sm: cn(
-          'h-9 gap-1.5 rounded-md px-3 sm:h-8',
+          'h-10 gap-1.5 rounded-md px-3 sm:h-10',
           Platform.select({ web: 'has-[>svg]:px-2.5' })
         ),
         lg: cn(

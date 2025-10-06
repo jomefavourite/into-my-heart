@@ -1,7 +1,5 @@
-import React, { useState } from 'react';
-import { FlatList, ScrollView, Text, View } from 'react-native';
-import Container from '@/components/Container';
-import Title from '@/components/Title';
+import React from 'react';
+import { FlatList, View } from 'react-native';
 import ThemedText from '@/components/ThemedText';
 import VersesTab from '@/components/Verses/versesTab';
 import CollectionsTab from '@/components/Verses/CollectionsTab';
@@ -26,6 +24,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { FlashList } from '@shopify/flash-list';
+import HomeHeader from '@/components/Home/Header';
+import PageHeader from '@/components/PageHeader';
 
 export const metadata = {
   title: 'My Verses - Into My Heart',
@@ -56,136 +56,125 @@ export default function VersesHomeScreen() {
   // console.log(activeTab, 'activeTab in verses home screen');
 
   return (
-    <SafeAreaView className='flex-1'>
-      <View className='flex-1 gap-5'>
-        <View className='p-[18px]'>
-          <ThemedText className='text-[22px] font-semibold'>
-            Verses & Collections
-          </ThemedText>
+    <SafeAreaView edges={['top', 'left', 'right']} className='flex-1 gap-5'>
+      <PageHeader title='Verses & Collections' />
+
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className='mx-auto w-full flex-1 flex-col gap-1.5'
+      >
+        <View className='flex-row justify-between px-[18px]'>
+          <TabsList className='flex-row'>
+            <TabsTrigger value='verses' className='' id='verses'>
+              <ThemedText
+                size={13}
+                variant='medium'
+                className={cn(
+                  'text-muted-foreground',
+                  activeTab === 'verses' &&
+                    'text-white dark:text-primary-foreground'
+                )}
+              >
+                Verses
+              </ThemedText>
+            </TabsTrigger>
+            <TabsTrigger value='collections' className='w-fit' id='collections'>
+              <ThemedText
+                size={13}
+                variant='medium'
+                className={cn(
+                  'text-muted-foreground',
+                  activeTab === 'collections' &&
+                    'text-white dark:text-primary-foreground'
+                )}
+              >
+                Collections
+              </ThemedText>
+            </TabsTrigger>
+          </TabsList>
+
+          <View className='flex-row gap-2'>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  size={'icon'}
+                  variant={'ghost'}
+                  // onPress={() => router.push('/verses/select-book')}
+                  className='flex-row items-center gap-1'
+                >
+                  <ThemedText className='hidden md:block'>Add</ThemedText>
+                  <AddIcon stroke='white' />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className='mr-4'>
+                <DropdownMenuItem
+                  onPress={() => {
+                    setIsCollOrVerse('verses');
+                    router.push('/verses/select-book');
+                  }}
+                >
+                  <ThemedText className='text-sm font-medium'>
+                    Add Verse
+                  </ThemedText>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onPress={() => {
+                    setIsCollOrVerse('collections');
+                    router.push('/verses/create-collection');
+                  }}
+                >
+                  <ThemedText className='text-sm font-medium'>
+                    Add Collection
+                  </ThemedText>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button
+              size={'icon'}
+              variant={'ghost'}
+              onPress={() => setGridView(!gridView)}
+            >
+              {gridView ? <GridViewIcon /> : <ListViewIcon stroke='white' />}
+            </Button>
+          </View>
         </View>
 
-        <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className='mx-auto w-full flex-1 flex-col gap-1.5'
-        >
-          <View className='flex-row justify-between px-[18px]'>
-            <TabsList className='flex-row'>
-              <TabsTrigger value='verses' className='' id='verses'>
-                <ThemedText
-                  size={13}
-                  variant='medium'
-                  className={cn(
-                    'text-muted-foreground',
-                    activeTab === 'verses' &&
-                      'text-white dark:text-primary-foreground'
-                  )}
+        <FlatList
+          className='flex-1 px-[18px]'
+          data={[{ id: 'page' }]} // single item to render accordion
+          keyExtractor={item => item.id}
+          renderItem={() => (
+            <View style={{ width: '100%' }}>
+              {activeTab === 'verses' && (
+                <Animated.View
+                  style={{
+                    opacity: 1,
+                    flex: 1,
+                  }}
                 >
-                  Verses
-                </ThemedText>
-              </TabsTrigger>
-              <TabsTrigger
-                value='collections'
-                className='w-fit'
-                id='collections'
-              >
-                <ThemedText
-                  size={13}
-                  variant='medium'
-                  className={cn(
-                    'text-muted-foreground',
-                    activeTab === 'collections' &&
-                      'text-white dark:text-primary-foreground'
-                  )}
-                >
-                  Collections
-                </ThemedText>
-              </TabsTrigger>
-            </TabsList>
+                  <TabsContent value='verses' className='flex-1'>
+                    <VersesTab gridView={gridView} />
+                  </TabsContent>
+                </Animated.View>
+              )}
 
-            <View className='flex-row gap-2'>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    size={'icon'}
-                    variant={'ghost'}
-                    // onPress={() => router.push('/verses/select-book')}
-                    className='flex-row items-center gap-1'
-                  >
-                    <ThemedText className='hidden md:block'>Add</ThemedText>
-                    <AddIcon stroke='white' />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className='mr-4'>
-                  <DropdownMenuItem
-                    onPress={() => {
-                      setIsCollOrVerse('verses');
-                      router.push('/verses/select-book');
-                    }}
-                  >
-                    <ThemedText className='text-sm font-medium'>
-                      Add Verse
-                    </ThemedText>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onPress={() => {
-                      setIsCollOrVerse('collections');
-                      router.push('/verses/create-collection');
-                    }}
-                  >
-                    <ThemedText className='text-sm font-medium'>
-                      Add Collection
-                    </ThemedText>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <Button
-                size={'icon'}
-                variant={'ghost'}
-                onPress={() => setGridView(!gridView)}
-              >
-                {gridView ? <GridViewIcon /> : <ListViewIcon stroke='white' />}
-              </Button>
+              {activeTab === 'collections' && (
+                <Animated.View
+                  style={{
+                    opacity: 1,
+                    flex: 1,
+                  }}
+                >
+                  <TabsContent value='collections' className='flex-1'>
+                    <CollectionsTab gridView={gridView} />
+                  </TabsContent>
+                </Animated.View>
+              )}
             </View>
-          </View>
-
-          <FlatList
-            className='flex-1 px-[18px]'
-            data={[{ id: 'page' }]} // single item to render accordion
-            keyExtractor={item => item.id}
-            scrollEnabled={true}
-            renderItem={() => (
-              <>
-                {activeTab === 'verses' && (
-                  <Animated.View
-                    style={{
-                      opacity: 1,
-                      flex: 1,
-                    }}
-                  >
-                    <TabsContent value='verses' className='flex-1'>
-                      <VersesTab gridView={gridView} />
-                    </TabsContent>
-                  </Animated.View>
-                )}
-
-                {activeTab === 'collections' && (
-                  <Animated.View
-                    style={{
-                      opacity: 1,
-                      flex: 1,
-                    }}
-                  >
-                    <TabsContent value='collections' className='flex-1'>
-                      <CollectionsTab gridView={gridView} />
-                    </TabsContent>
-                  </Animated.View>
-                )}
-              </>
-            )}
-          />
-        </Tabs>
-      </View>
+          )}
+        />
+      </Tabs>
     </SafeAreaView>
   );
 }

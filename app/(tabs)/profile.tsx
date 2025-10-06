@@ -7,7 +7,10 @@ import ThemedText from '@/components/ThemedText';
 import CustomButton from '@/components/CustomButton';
 import { useAuth, useClerk, useUser } from '@clerk/clerk-react';
 import { ScrollView } from 'react-native-gesture-handler';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
 import { Href, Link } from 'expo-router';
@@ -15,6 +18,7 @@ import ArrowRightIcon from '@/components/icons/ArrowRightIcon';
 import Svg, { Path } from 'react-native-svg';
 import { useConvexAuth, useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
+import PageHeader from '@/components/PageHeader';
 
 interface ProfileLinkItem {
   title: string;
@@ -134,14 +138,11 @@ export default function ProfileScreen() {
   );
 
   return (
-    <SafeAreaView className='flex-1'>
-      <View className='flex-row items-center justify-between px-[18px]'>
-        <ThemedText className='text-[22px] font-semibold'>Profile</ThemedText>
+    <SafeAreaView edges={['top', 'left', 'right']} className='flex-1'>
+      <PageHeader title='Profile' />
 
-        <CustomButton className=''>Donate</CustomButton>
-      </View>
-      <ScrollView className='p-[18px]'>
-        <View>
+      <ScrollView className=''>
+        <View className='p-[18px]'>
           <View className='web:lg:flex-row web:lg:items-center web:lg:justify-between'>
             <View className='lg:items-center web:lg:flex-row'>
               <View className='mx-auto my-6 lg:mx-0'>
@@ -237,22 +238,22 @@ export default function ProfileScreen() {
               </View>
             ))}
           </View>
+
+          <CustomButton
+            onPress={() => {
+              const newTheme = isDarkMode ? 'light' : 'dark';
+              setColorScheme(newTheme);
+              // setAndroidNavigationBar(newTheme);
+              AsyncStorage.setItem('theme', newTheme);
+            }}
+          >
+            {isDarkMode ? 'Light mode' : 'Dark mode'}
+          </CustomButton>
+
+          <CustomButton variant='outline' onPress={() => signOut()}>
+            Sign out
+          </CustomButton>
         </View>
-
-        <CustomButton
-          onPress={() => {
-            const newTheme = isDarkMode ? 'light' : 'dark';
-            setColorScheme(newTheme);
-            // setAndroidNavigationBar(newTheme);
-            AsyncStorage.setItem('theme', newTheme);
-          }}
-        >
-          {isDarkMode ? 'Light mode' : 'Dark mode'}
-        </CustomButton>
-
-        <CustomButton variant='outline' onPress={() => signOut()}>
-          Sign out
-        </CustomButton>
       </ScrollView>
     </SafeAreaView>
   );

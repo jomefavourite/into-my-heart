@@ -8,6 +8,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FlashCardIcon1 from '@/components/icons/practice/FlashCardIcon1';
 import RecitationIcon from '@/components/icons/practice/RecitationIcon';
+import PageHeader from '@/components/PageHeader';
 
 export const metadata = {
   title: 'Practice - Into My Heart',
@@ -29,10 +30,8 @@ export const metadata = {
 
 export default function PracticeScreen() {
   return (
-    <SafeAreaView className='flex-1'>
-      <View className='p-[18]'>
-        <ThemedText className='text-[22px] font-semibold'>Practice</ThemedText>
-      </View>
+    <SafeAreaView edges={['top', 'left', 'right']} className='flex-1'>
+      <PageHeader title='Practice' />
 
       <ScrollView className=''>
         <View className='mx-auto my-[76] max-w-[192px] px-[18px] md:mx-0 md:my-2 md:max-w-full md:flex-row md:items-start md:justify-between'>

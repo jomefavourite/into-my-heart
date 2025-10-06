@@ -14,12 +14,14 @@ import { verses } from '@/lib/utils';
 import VerseCard from '@/components/Verses/VerseCard';
 import ItemSeparator from '@/components/ItemSeparator';
 import AddVersesEmpty from '@/components/EmptyScreen/AddVersesEmpty';
-import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { useAuth, useUser } from '@clerk/clerk-expo';
 import '@/global.css';
 import Loader from '@/components/Loader';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { useQuery } from 'convex-helpers/react/cache';
+import PageHeader from '@/components/PageHeader';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const metadata = {
   title: 'Into My Heart - Memorize Bible Verses',
@@ -50,21 +52,24 @@ export default function HomeScreen() {
   );
 
   return (
-    <>
+    <SafeAreaView edges={['top', 'left', 'right']} className='flex-1'>
       {/* {Platform.OS !== 'web' && <HomeHeader isWelcome />} */}
-      <View className='md:hidden'>
+      {/* <View>
         <HomeHeader isWelcome />
-      </View>
+      </View> */}
+
+      <PageHeader title='Home' isWelcome />
 
       <FlatList
         className='flex-1 px-[18]'
         data={[{ id: 'accordion' }]}
         keyExtractor={item => item.id}
+        nestedScrollEnabled
         renderItem={() => (
-          <View className='gap-8 web:grid web:lg:grid-cols-2'>
+          <View className='web:scroll-container gap-5 web:grid web:lg:grid-cols-2'>
             <View className='gap-4'>
               {/* Verse of the Day */}
-              <View>
+              {/* <View>
                 <ThemedText
                   size={12}
                   variant='medium'
@@ -108,15 +113,22 @@ export default function HomeScreen() {
                     </CustomButton>
                   </View>
                 </View>
-              </View>
+              </View> */}
 
               {/* My Verses */}
               <View className='gap-2'>
                 <View className='flex-row items-center justify-between'>
-                  <ThemedText variant='medium'>My Verses</ThemedText>
-                  <Link href={'/verses/all-verses'}>
-                    <ThemedText className='text-xs'>View all -{'>'}</ThemedText>
-                  </Link>
+                  <ThemedText className='font-medium'>My Verses</ThemedText>
+
+                  <Button
+                    size={'icon'}
+                    variant={'ghost'}
+                    onPress={() => router.push('/verses/all-verses')}
+                    className='flex-row gap-0'
+                  >
+                    <ThemedText className='pl-2 text-xs'>View all</ThemedText>
+                    <ArrowRightIcon />
+                  </Button>
                 </View>
 
                 {!canMakeQueries ? (
@@ -128,7 +140,7 @@ export default function HomeScreen() {
                 ) : getVerses && getVerses.length > 0 ? (
                   <FlatList
                     data={getVerses}
-                    style={{ height: 300 }}
+                    // style={{ height: 300 }}
                     keyExtractor={(item, index) => index.toString()}
                     renderItem={({ item }) => (
                       <VerseCard
@@ -160,14 +172,21 @@ export default function HomeScreen() {
                   <ThemedText className='font-medium'>
                     Verse Suggestions
                   </ThemedText>
-                  <Link href={'/verses/verse-suggestions'}>
-                    <ThemedText className='text-xs'>View all -{'>'}</ThemedText>
-                  </Link>
+
+                  <Button
+                    size={'icon'}
+                    variant={'ghost'}
+                    onPress={() => router.push('/verses/verse-suggestions')}
+                    className='flex-row gap-0'
+                  >
+                    <ThemedText className='pl-2 text-xs'>View all</ThemedText>
+                    <ArrowRightIcon />
+                  </Button>
                 </View>
 
                 <FlatList
                   data={verses}
-                  style={{ height: 300 }}
+                  // style={{ height: 300 }}
                   keyExtractor={(item, index) => index.toString()}
                   renderItem={({ item }) => (
                     <VerseCard
@@ -204,20 +223,18 @@ export default function HomeScreen() {
                   className='my-2 w-full rounded-xl'
                 />
 
-                <Pressable
-                  onPress={() => router.push('/memorization-tips')}
-                  className='flex-row items-center gap-1'
+                <Link
+                  href={'/memorization-tips'}
+                  className='ml-auto flex flex-row items-center gap-1'
                 >
-                  <ThemedText className='ml-auto text-[13px]'>
-                    Read here
-                  </ThemedText>
+                  <ThemedText className='text-[13px]'>Read here</ThemedText>
                   <ArrowRightIcon />
-                </Pressable>
+                </Link>
               </View>
             </View>
           </View>
         )}
       />
-    </>
+    </SafeAreaView>
   );
 }

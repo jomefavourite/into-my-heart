@@ -43,6 +43,10 @@ import { ConvexQueryClient } from '@convex-dev/react-query';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '@/global.css';
 import { NAV_THEME } from '@/lib/theme';
+import {
+  initialWindowMetrics,
+  SafeAreaProvider,
+} from 'react-native-safe-area-context';
 // import * as Sentry from '@sentry/react-native';
 // import { isRunningInExpoGo } from 'expo';
 
@@ -175,11 +179,7 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
     const inOnboardingGroup = segments[0] === '(onboarding)';
 
     if (!inOnboardingGroup) {
-      return (
-        <View className='flex-1'>
-          <TabBarSidebar />
-        </View>
-      );
+      return <TabBarSidebar />;
     }
   }
 
@@ -243,9 +243,11 @@ function RootLayout() {
           <QueryClientProvider client={queryClient}>
             <ThemeProvider value={isDarkMode ? DARK_THEME : LIGHT_THEME}>
               <GestureHandlerRootView style={{ flex: 1 }}>
-                <InitialLayout isDarkMode={isDarkMode} />
-                <PortalHost />
-                <StatusBar style='auto' />
+                <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+                  <InitialLayout isDarkMode={isDarkMode} />
+                  <PortalHost />
+                  <StatusBar style='auto' />
+                </SafeAreaProvider>
               </GestureHandlerRootView>
             </ThemeProvider>
           </QueryClientProvider>

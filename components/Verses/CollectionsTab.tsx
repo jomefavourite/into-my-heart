@@ -21,7 +21,7 @@ type CollectionsTabProps = {
 };
 
 const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
-  const { canMakeQueries } = useAuthGuard();
+  const { canMakeQueries, isLoading } = useAuthGuard();
   const getCollections = useQuery(
     api.collections.getCollections,
     canMakeQueries ? {} : 'skip'
@@ -42,14 +42,14 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
             size={'icon'}
             variant={'ghost'}
             onPress={() => router.push('/verses/all-collections')}
-            className='flex-row'
+            className='flex-row gap-0'
           >
             <ThemedText className='pl-2 text-xs'>View all</ThemedText>
             <ArrowRightIcon />
           </Button>
         </View>
 
-        {getCollections === undefined ? (
+        {isLoading ? (
           <FlashListSkeletonLoader type='collections' gridView={gridView} />
         ) : (
           <FlatList

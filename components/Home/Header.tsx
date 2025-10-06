@@ -53,7 +53,7 @@ export default function HomeHeader({
       >
         <View
           className={cn(
-            'flex-row items-center justify-between p-4',
+            'flex-row items-center justify-between p-4 web:p-0',
             !!isWelcome && 'justify-end'
           )}
         >
@@ -79,6 +79,7 @@ export default function HomeHeader({
           <View className='ml-auto flex-row items-center justify-end gap-4'>
             <CustomButton
               className={cn('w-fit gap-1 self-end !px-4')}
+              size='sm'
               onPress={() => {
                 setStreakBottomSheetIndex(1);
               }}

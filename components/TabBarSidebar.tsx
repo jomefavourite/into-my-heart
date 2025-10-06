@@ -39,17 +39,16 @@ export default function TabBarSidebar() {
   const insets = useSafeAreaInsets();
 
   return (
-    <View className='max-w-7xl flex-1 flex-row justify-center'>
+    <View className='mx-auto w-full max-w-7xl flex-1 flex-row justify-center'>
       {/* Sidebar */}
       <View
-        className='h-full w-[240px] flex-col border-r border-[#E8E8E8]'
+        className='sticky top-0 h-[100svh] w-[240px] shrink-0 flex-col self-start border-r border-[#E8E8E8]'
         style={[{ paddingTop: insets.top || 24 }]}
       >
         <View className='px-4'>
           <Logo />
         </View>
 
-        {/* Navigation links */}
         <ScrollView className='mt-10 flex-1 px-4'>
           {tabs.map((tab, index) => {
             const isActive =
@@ -78,7 +77,6 @@ export default function TabBarSidebar() {
             );
           })}
 
-          {/* Add a link that goes to the admin panel, this should only be visible to admins */}
           <AdminOnly>
             <Link href='/admin' asChild>
               <View>
@@ -93,7 +91,7 @@ export default function TabBarSidebar() {
 
       {/* Content area */}
       <View className='flex-1' style={{ width: 'auto' }}>
-        {Platform.OS === 'web' && <HomeHeader />}
+        {/* {Platform.OS === 'web' && <HomeHeader />} */}
         <Slot />
       </View>
     </View>

@@ -2,6 +2,7 @@ body,
 html,
 #root {
   font-family: 'Inter', sans-serif;
+  overflow: auto !important;
 }
 
 @tailwind base;

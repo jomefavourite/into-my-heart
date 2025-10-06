@@ -16,6 +16,7 @@ import AddVersesEmpty from '../EmptyScreen/AddVersesEmpty';
 import SuggestionEmpty from '../EmptyScreen/SuggestionEmpty';
 import Loader from '../Loader';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
+import FlashListSkeletonLoader from '../FlashListSkeletonLoader';
 
 type VersesTabProps = {
   gridView: boolean;
@@ -51,36 +52,6 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
     // });
   };
 
-  // Don't render if not authenticated or still loading
-  if (isLoading) {
-    return (
-      <View className='flex-1 items-center justify-center'>
-        <Loader />
-      </View>
-    );
-  }
-
-  if (!canMakeQueries) {
-    return (
-      <View>
-        <ThemedText className='text-base'>
-          Please sign in to view your verses.
-        </ThemedText>
-      </View>
-    );
-  }
-
-  // Handle authentication errors
-  if (getVerses === undefined && !isLoading) {
-    return (
-      <View>
-        <ThemedText className='text-base'>
-          Authentication error. Please try refreshing the page.
-        </ThemedText>
-      </View>
-    );
-  }
-
   return (
     <View style={{ flex: 1 }}>
       <View>
@@ -93,41 +64,44 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
             size={'icon'}
             variant={'ghost'}
             onPress={() => router.push('/verses/all-verses')}
-            className='flex-row'
+            className='flex-row gap-0'
           >
             <ThemedText className='pl-2 text-xs'>View all</ThemedText>
             <ArrowRightIcon />
           </Button>
         </View>
-        <FlatList
-          key={gridView ? 'grid-myverses' : 'list-myverses'}
-          data={getVerses}
-          keyExtractor={(item, index) => index.toString()}
-          numColumns={gridView ? 2 : 1}
-          ListEmptyComponent={() => (
-            <>
-              {/* Loading */}
-              {/* <VerseCardSkeleton /> */}
-              <AddVersesEmpty />
-            </>
-          )}
-          renderItem={({ item }) => (
-            <VerseCard
-              _id={item._id}
-              bookName={item.bookName}
-              chapter={item.chapter}
-              verses={item.verses}
-              verseTexts={item.verseTexts}
-              containerClassName={gridView ? 'w-[50%]' : 'w-full'}
-              canCheck={false}
-            />
-          )}
-          columnWrapperStyle={
-            gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
-          }
-          ItemSeparatorComponent={ItemSeparator}
-          scrollEnabled={false}
-        />
+
+        {isLoading ? (
+          <FlashListSkeletonLoader type='verses' gridView={gridView} />
+        ) : (
+          <FlatList
+            key={gridView ? 'grid-myverses' : 'list-myverses'}
+            data={getVerses}
+            keyExtractor={(item, index) => index.toString()}
+            numColumns={gridView ? 2 : 1}
+            ListEmptyComponent={() => (
+              <>
+                <AddVersesEmpty />
+              </>
+            )}
+            renderItem={({ item }) => (
+              <VerseCard
+                _id={item._id}
+                bookName={item.bookName}
+                chapter={item.chapter}
+                verses={item.verses}
+                verseTexts={item.verseTexts}
+                containerClassName={gridView ? 'w-[50%]' : 'w-full'}
+                canCheck={false}
+              />
+            )}
+            columnWrapperStyle={
+              gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
+            }
+            ItemSeparatorComponent={ItemSeparator}
+            scrollEnabled={false}
+          />
+        )}
       </View>
 
       <View>

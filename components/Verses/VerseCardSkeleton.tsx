@@ -17,22 +17,13 @@ const VerseCardSkeleton: React.FC<VerseCardSkeletonProps> = ({
         {/* Header row with title and icon */}
         <View className='flex-row items-center justify-between'>
           <Skeleton className='h-4 w-24' />
-          <Skeleton className='h-6 w-6 rounded-full' />
+          {/* <Skeleton className='h-6 w-6 rounded-full' /> */}
         </View>
-
-        {/* Verse reference */}
-        <Skeleton className='h-3 w-16' />
 
         {/* Verse text lines */}
         <View className='gap-1'>
           <Skeleton className='h-3 w-full' />
           <Skeleton className='h-3 w-3/4' />
-        </View>
-
-        {/* Bottom row with verse count */}
-        <View className='mt-2 flex-row items-center justify-between'>
-          <Skeleton className='h-3 w-20' />
-          <Skeleton className='h-4 w-4 rounded-full' />
         </View>
       </View>
     </View>

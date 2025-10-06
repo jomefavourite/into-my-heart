@@ -2,7 +2,7 @@ import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { Href } from 'expo-router';
 import OnboardIcon1 from '@/components/icons/onboarding/onboarding-1.svg';
-import React from "react"
+import React from 'react';
 import { create } from 'zustand';
 
 export function cn(...inputs: ClassValue[]) {
@@ -17,8 +17,21 @@ export const verses = [
     reviewFreq: 'Daily',
     reference: 'In the beginning, God created the heavens and the earth.',
   },
+  {
+    bookName: 'Genesis',
+    chapter: 1,
+    verses: ['1'],
+    reviewFreq: 'Daily',
+    reference: 'In the beginning, God created the heavens and the earth.',
+  },
+  {
+    bookName: 'Genesis',
+    chapter: 1,
+    verses: ['1'],
+    reviewFreq: 'Daily',
+    reference: 'In the beginning, God created the heavens and the earth.',
+  },
 ];
-
 
 export interface OnboardingStep {
   title: string;
@@ -27,7 +40,6 @@ export interface OnboardingStep {
   Icon: React.ComponentType<any> | null; // Or any other appropriate type for Icon
   btnText: string;
 }
-
 
 interface HeaderBottomSheet {
   streakBottomSheetIndex: number;
