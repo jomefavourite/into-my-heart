@@ -149,37 +149,41 @@ export default function VersesHomeScreen() {
             </View>
           </View>
 
-          <ScrollView
-            className='mb-12 flex-1 px-[18px]'
-            contentContainerStyle={{ flexGrow: 1 }}
-            showsVerticalScrollIndicator={false}
-          >
-            {activeTab === 'verses' && (
-              <Animated.View
-                style={{
-                  opacity: 1,
-                  flex: 1,
-                }}
-              >
-                <TabsContent value='verses' className='flex-1'>
-                  <VersesTab gridView={gridView} />
-                </TabsContent>
-              </Animated.View>
-            )}
+          <FlatList
+            className='flex-1 px-[18px]'
+            data={[{ id: 'page' }]} // single item to render accordion
+            keyExtractor={item => item.id}
+            scrollEnabled={true}
+            renderItem={() => (
+              <>
+                {activeTab === 'verses' && (
+                  <Animated.View
+                    style={{
+                      opacity: 1,
+                      flex: 1,
+                    }}
+                  >
+                    <TabsContent value='verses' className='flex-1'>
+                      <VersesTab gridView={gridView} />
+                    </TabsContent>
+                  </Animated.View>
+                )}
 
-            {activeTab === 'collections' && (
-              <Animated.View
-                style={{
-                  opacity: 1,
-                  flex: 1,
-                }}
-              >
-                <TabsContent value='collections' className='flex-1'>
-                  <CollectionsTab gridView={gridView} />
-                </TabsContent>
-              </Animated.View>
+                {activeTab === 'collections' && (
+                  <Animated.View
+                    style={{
+                      opacity: 1,
+                      flex: 1,
+                    }}
+                  >
+                    <TabsContent value='collections' className='flex-1'>
+                      <CollectionsTab gridView={gridView} />
+                    </TabsContent>
+                  </Animated.View>
+                )}
+              </>
             )}
-          </ScrollView>
+          />
         </Tabs>
       </View>
     </SafeAreaView>

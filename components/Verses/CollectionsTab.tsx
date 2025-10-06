@@ -76,7 +76,7 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
               gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
             }
             ItemSeparatorComponent={ItemSeparator}
-            scrollEnabled={false}
+            scrollEnabled={true}
           />
         )}
       </View>
@@ -113,7 +113,7 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
             gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
           }
           ItemSeparatorComponent={ItemSeparator}
-          scrollEnabled={false}
+          scrollEnabled={true}
         />
       </View>
     </View>
