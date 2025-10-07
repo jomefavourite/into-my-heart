@@ -7,12 +7,12 @@ export default function OnboardingLayout() {
   const { isSignedIn, isLoaded } = useAuth();
 
   if (isAuthenticated) {
-    return <Redirect href={'/'} />;
+    return <Redirect href={'/(tabs)'} />;
   }
 
-  if (isSignedIn) {
-    return <Redirect href={'/'} />;
-  }
+  // if (isSignedIn) {
+  //   return <Redirect href={'/'} />;
+  // }
 
   return (
     <Stack>

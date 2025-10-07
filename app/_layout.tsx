@@ -7,24 +7,17 @@ import {
   ThemeProvider,
   DefaultTheme,
   DarkTheme,
-  NavigationContainer,
 } from '@react-navigation/native';
-import {
-  Redirect,
-  Slot,
-  Stack,
-  useNavigationContainerRef,
-  useRouter,
-  useSegments,
-} from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { Platform, useWindowDimensions, View } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { ConvexReactClient } from 'convex/react';
-import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
-import { tokenCache } from '@/cache';
+import { ClerkLoaded, ClerkProvider, useAuth } from '@clerk/clerk-expo';
+// import { tokenCache } from '@/cache';
+import { tokenCache } from '@clerk/clerk-expo/token-cache';
 import { ConvexProviderWithClerk } from 'convex/react-clerk';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {
@@ -47,8 +40,6 @@ import {
   initialWindowMetrics,
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
-// import * as Sentry from '@sentry/react-native';
-// import { isRunningInExpoGo } from 'expo';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -179,6 +170,7 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
     const inOnboardingGroup = segments[0] === '(onboarding)';
 
     if (!inOnboardingGroup) {
+      console.log('InitialLayout - TabBarSidebar');
       return <TabBarSidebar />;
     }
   }
@@ -198,7 +190,6 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
 
 function RootLayout() {
   const hasMounted = React.useRef(false);
-  const { isDarkMode } = useColorScheme();
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
   const [loaded, error] = useFonts({
     Inter_400Regular,
@@ -237,24 +228,33 @@ function RootLayout() {
 
   return (
     <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
-      {/* <ClerkLoaded> */}
-      <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-        <ConvexQueryCacheProvider>
-          <QueryClientProvider client={queryClient}>
-            <ThemeProvider value={isDarkMode ? DARK_THEME : LIGHT_THEME}>
-              <GestureHandlerRootView style={{ flex: 1 }}>
-                <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-                  <InitialLayout isDarkMode={isDarkMode} />
-                  <PortalHost />
-                  <StatusBar style='auto' />
-                </SafeAreaProvider>
-              </GestureHandlerRootView>
-            </ThemeProvider>
-          </QueryClientProvider>
-        </ConvexQueryCacheProvider>
-      </ConvexProviderWithClerk>
-      {/* </ClerkLoaded> */}
+      <ClerkLoaded>
+        <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+          <ConvexQueryCacheProvider>
+            <QueryClientProvider client={queryClient}>
+              <ThemeProviderWrapper />
+            </QueryClientProvider>
+          </ConvexQueryCacheProvider>
+        </ConvexProviderWithClerk>
+      </ClerkLoaded>
     </ClerkProvider>
+  );
+}
+
+function ThemeProviderWrapper() {
+  // Temporarily hardcode dark mode to debug infinite loop
+  const { isDarkMode } = useColorScheme();
+
+  return (
+    <ThemeProvider value={isDarkMode ? DARK_THEME : LIGHT_THEME}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+          <InitialLayout isDarkMode={isDarkMode} />
+          <PortalHost />
+          <StatusBar style='auto' />
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
+    </ThemeProvider>
   );
 }
 

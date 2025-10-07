@@ -13,7 +13,7 @@ import {
 } from 'react-native-safe-area-context';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
-import { Href, Link } from 'expo-router';
+import { Href, Link, router } from 'expo-router';
 import ArrowRightIcon from '@/components/icons/ArrowRightIcon';
 import Svg, { Path } from 'react-native-svg';
 import { useConvexAuth, useQuery } from 'convex/react';
@@ -137,6 +137,16 @@ export default function ProfileScreen() {
     state => state.setStreakBottomSheetIndex
   );
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      // Redirect to your desired page
+      router.replace('/');
+    } catch (err) {
+      console.error(JSON.stringify(err, null, 2));
+    }
+  };
+
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className='flex-1'>
       <PageHeader title='Profile' />
@@ -250,7 +260,7 @@ export default function ProfileScreen() {
             {isDarkMode ? 'Light mode' : 'Dark mode'}
           </CustomButton>
 
-          <CustomButton variant='outline' onPress={() => signOut()}>
+          <CustomButton variant='outline' onPress={handleSignOut}>
             Sign out
           </CustomButton>
         </View>

@@ -2,31 +2,23 @@ import { httpRouter } from 'convex/server';
 import { httpAction } from './_generated/server';
 import { internal } from './_generated/api';
 import { Webhook } from 'svix';
-import type { WebhookEvent } from '@clerk/backend';
+import type { UserJSON, WebhookEvent } from '@clerk/backend';
 
 const http = httpRouter();
 
 const handleClerkWebhook = httpAction(async (ctx, request) => {
-  // const event = await validateRequest(request);
-
-  // if (!event) {
-  //   return new Response('Error occurred', { status: 400 });
-  // }
-  // const { data, type } = event;
-
   const { data, type } = await request.json();
 
   switch (type) {
     case 'user.created':
-      await ctx.runMutation(internal.users.createUser, {
-        clerkId: data.id,
-        first_name: data.first_name ? (data.first_name as string) : undefined,
-        last_name: data.last_name ? (data.last_name as string) : undefined,
-        email: data.email_addresses[0].email_address,
-        imageUrl: data.image_url,
+      await ctx.runMutation(internal.users.upsertFromClerk, {
+        data: data as UserJSON,
       });
       break;
     case 'user.deleted':
+      await ctx.runMutation(internal.users.deleteFromClerk, {
+        clerkUserId: data.id,
+      });
       break;
     default:
       console.log('Ignored Clerk webhook event', type);
@@ -37,6 +29,7 @@ const handleClerkWebhook = httpAction(async (ctx, request) => {
     status: 200,
   });
 });
+
 http.route({
   path: '/clerk-users-webhook',
   method: 'POST',

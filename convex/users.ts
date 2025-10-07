@@ -1,55 +1,156 @@
-import { v } from 'convex/values';
+// import { v } from 'convex/values';
 import {
-  internalMutation,
+  // internalMutation,
   mutation,
-  query,
-  QueryCtx,
+  // query,
+  // QueryCtx,
 } from './_generated/server';
 
-export const getUserByClerkId = query({
-  args: {
-    clerkId: v.optional(v.string()),
-  },
-  handler: async (ctx, { clerkId }) => {
-    const user = await ctx.db
-      .query('users')
-      .filter(q => q.eq(q.field('clerkId'), clerkId))
-      .unique();
+// export const getUserByClerkId = query({
+//   args: {
+//     clerkId: v.optional(v.string()),
+//   },
+//   handler: async (ctx, { clerkId }) => {
+//     const user = await ctx.db
+//       .query('users')
+//       .filter(q => q.eq(q.field('clerkId'), clerkId))
+//       .unique();
 
-    return user;
+//     return user;
+//   },
+// });
+
+// export const createUser = internalMutation({
+//   args: {
+//     clerkId: v.string(),
+//     email: v.string(),
+//     first_name: v.optional(v.string()),
+//     last_name: v.optional(v.string()),
+//     imageUrl: v.optional(v.string()),
+//   },
+//   handler: async (ctx, args) => {
+//     const userId = await ctx.db.insert('users', {
+//       ...args,
+//       role: 'user', // Default role for new users
+//     });
+//     return userId;
+//   },
+// });
+
+// export const updateUser = mutation({
+//   args: {
+//     _id: v.id('users'),
+//     first_name: v.optional(v.string()),
+//     last_name: v.optional(v.string()),
+//     imageUrl: v.optional(v.string()),
+//     pushToken: v.optional(v.string()),
+//   },
+//   handler: async (ctx, args) => {
+//     await getCurrentUserOrThrow(ctx);
+
+//     const { _id, ...rest } = args;
+//     return await ctx.db.patch(_id, rest);
+//   },
+// });
+
+// export async function getCurrentUserOrThrow(ctx: QueryCtx) {
+//   const userRecord = await getCurrentUser(ctx);
+//   if (!userRecord) throw new Error("Can't get current user");
+//   return userRecord;
+// }
+
+// export async function getCurrentUser(ctx: QueryCtx) {
+//   try {
+//     const identity = await ctx.auth.getUserIdentity();
+//     if (identity === null) {
+//       console.error('getCurrentUser: No user identity found');
+//       throw new Error('Authentication required. Please sign in.');
+//     }
+
+//     // console.log(
+//     //   'getCurrentUser: Identity found for subject:',
+//     //   identity.subject
+//     // );
+//     const user = await userByExternalId(ctx, identity.subject);
+
+//     if (!user) {
+//       console.error(
+//         'getCurrentUser: User not found in database for subject:',
+//         identity.subject
+//       );
+//       throw new Error('User account not found. Please contact support.');
+//     }
+
+//     return user;
+//   } catch (error) {
+//     console.error('getCurrentUser error:', error);
+//     // Re-throw with more specific error message
+//     if (error instanceof Error) {
+//       if (error.message.includes('Authentication required')) {
+//         throw error; // Don't wrap again
+//       }
+//       if (error.message.includes('User account not found')) {
+//         throw error; // Don't wrap again
+//       }
+//       // For any other errors, provide a generic auth error
+//       throw new Error('Authentication required. Please sign in.');
+//     }
+//     throw new Error('Authentication required. Please sign in.');
+//   }
+// }
+
+// async function userByExternalId(ctx: QueryCtx, externalId: string) {
+//   return await ctx.db
+//     .query('users')
+//     .withIndex('byClerkId', q => q.eq('clerkId', externalId))
+//     .unique();
+// }
+
+// -------------------------------------------------
+
+import { internalMutation, query, QueryCtx } from './_generated/server';
+import { UserJSON } from '@clerk/backend';
+import { v, Validator } from 'convex/values';
+
+export const current = query({
+  args: {},
+  handler: async ctx => {
+    return await getCurrentUser(ctx);
   },
 });
 
-export const createUser = internalMutation({
-  args: {
-    clerkId: v.string(),
-    email: v.string(),
-    first_name: v.optional(v.string()),
-    last_name: v.optional(v.string()),
-    imageUrl: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    const userId = await ctx.db.insert('users', {
-      ...args,
-      role: 'user', // Default role for new users
-    });
-    return userId;
+export const upsertFromClerk = internalMutation({
+  args: { data: v.any() as Validator<UserJSON> }, // no runtime validation, trust Clerk
+  async handler(ctx, { data }) {
+    const userAttributes = {
+      first_name: data.first_name ? (data.first_name as string) : undefined,
+      last_name: data.last_name ? (data.last_name as string) : undefined,
+      email: data.email_addresses[0].email_address,
+      clerkId: data.id,
+      imageUrl: data.image_url,
+    };
+
+    const user = await userByExternalId(ctx, data.id);
+    if (user === null) {
+      await ctx.db.insert('users', userAttributes);
+    } else {
+      await ctx.db.patch(user._id, userAttributes);
+    }
   },
 });
 
-export const updateUser = mutation({
-  args: {
-    _id: v.id('users'),
-    first_name: v.optional(v.string()),
-    last_name: v.optional(v.string()),
-    imageUrl: v.optional(v.string()),
-    pushToken: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    await getCurrentUserOrThrow(ctx);
+export const deleteFromClerk = internalMutation({
+  args: { clerkUserId: v.string() },
+  async handler(ctx, { clerkUserId }) {
+    const user = await userByExternalId(ctx, clerkUserId);
 
-    const { _id, ...rest } = args;
-    return await ctx.db.patch(_id, rest);
+    if (user !== null) {
+      await ctx.db.delete(user._id);
+    } else {
+      console.warn(
+        `Can't delete user, there is none for Clerk user ID: ${clerkUserId}`
+      );
+    }
   },
 });
 
@@ -60,43 +161,11 @@ export async function getCurrentUserOrThrow(ctx: QueryCtx) {
 }
 
 export async function getCurrentUser(ctx: QueryCtx) {
-  try {
-    const identity = await ctx.auth.getUserIdentity();
-    if (identity === null) {
-      console.error('getCurrentUser: No user identity found');
-      throw new Error('Authentication required. Please sign in.');
-    }
-
-    // console.log(
-    //   'getCurrentUser: Identity found for subject:',
-    //   identity.subject
-    // );
-    const user = await userByExternalId(ctx, identity.subject);
-
-    if (!user) {
-      console.error(
-        'getCurrentUser: User not found in database for subject:',
-        identity.subject
-      );
-      throw new Error('User account not found. Please contact support.');
-    }
-
-    return user;
-  } catch (error) {
-    console.error('getCurrentUser error:', error);
-    // Re-throw with more specific error message
-    if (error instanceof Error) {
-      if (error.message.includes('Authentication required')) {
-        throw error; // Don't wrap again
-      }
-      if (error.message.includes('User account not found')) {
-        throw error; // Don't wrap again
-      }
-      // For any other errors, provide a generic auth error
-      throw new Error('Authentication required. Please sign in.');
-    }
-    throw new Error('Authentication required. Please sign in.');
+  const identity = await ctx.auth.getUserIdentity();
+  if (identity === null) {
+    return null;
   }
+  return await userByExternalId(ctx, identity.subject);
 }
 
 async function userByExternalId(ctx: QueryCtx, externalId: string) {
@@ -181,7 +250,7 @@ export const isCurrentUserAdmin = query({
   handler: async ctx => {
     try {
       const currentUser = await getCurrentUser(ctx);
-      return currentUser.role === 'admin';
+      return currentUser?.role === 'admin';
     } catch {
       return false;
     }
@@ -199,7 +268,7 @@ export const getCurrentUserRole = query({
       }
 
       const currentUser = await getCurrentUser(ctx);
-      return currentUser.role || 'user';
+      return currentUser?.role || 'user';
     } catch (error) {
       // console.log(
       //   'getCurrentUserRole: User not authenticated or not found, returning default role'
