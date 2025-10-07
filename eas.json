@@ -28,14 +28,6 @@
       "env": {
         "EXPO_PUBLIC_CONVEX_URL": "https://nautical-hippopotamus-611.convex.cloud"
       }
-    },
-    "production-web": {
-      "platform": "web",
-      "environment": "production",
-      "channel": "production",
-      "env": {
-        "EXPO_PUBLIC_CONVEX_URL": "https://nautical-hippopotamus-611.convex.cloud"
-      }
     }
   },
   "submit": {
