@@ -127,7 +127,7 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
     authCheckAttempted.current = false;
 
     const inAuthGroup = segments[0] === '(onboarding)';
-    const inTabsGroup = segments[0] === '(tabs)'
+    const inTabsGroup = segments[0] === '(tabs)';
 
     // Add delay to ensure authentication state is stable
     const authCheck = async () => {
