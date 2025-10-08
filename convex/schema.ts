@@ -47,7 +47,6 @@ export const Collection = {
 };
 
 export const VerseSuggestion = {
-  userId: v.id('users'),
   bookName: v.string(),
   chapter: v.number(),
   verses: v.array(v.string()),
@@ -60,7 +59,6 @@ export const VerseSuggestion = {
   reviewFreq: v.string(),
 };
 export const CollectionSuggestion = {
-  userId: v.id('users'),
   bookName: v.string(),
   chapter: v.number(),
   verses: v.array(v.string()),

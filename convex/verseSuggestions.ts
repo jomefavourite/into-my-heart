@@ -31,21 +31,23 @@ export const addVerseSuggestion = mutation({
       verses: args.verses,
       reviewFreq: args.reviewFreq,
       verseTexts: args.versesTexts,
-      userId: user._id, // Reference to the user who created the verse
     });
   },
 });
 
 export const getVersesSuggestion = query({
-  handler: async ctx => {
+  args: {
+    take: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
     try {
-      const user = await getCurrentUserOrThrow(ctx);
+      await getCurrentUserOrThrow(ctx); // Just check authentication
 
+      // Get all verse suggestions (available to all users)
       const verses = await ctx.db
         .query('versesSuggestions')
         .order('desc')
-        .filter(q => q.eq(q.field('userId'), user._id)) // Filter by current user
-        .take(50);
+        .take(args.take || 50);
 
       return verses;
     } catch (error) {
@@ -79,5 +81,19 @@ export const deleteVerseSuggestion = mutation({
     }
 
     await ctx.db.delete(_id);
+  },
+});
+
+// Admin-only query to get all verse suggestions
+export const getAllVerseSuggestions = query({
+  handler: async ctx => {
+    const user = await getCurrentUserOrThrow(ctx);
+
+    const verses = await ctx.db
+      .query('versesSuggestions')
+      .order('desc')
+      .take(100);
+
+    return verses;
   },
 });

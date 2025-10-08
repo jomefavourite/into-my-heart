@@ -57,7 +57,6 @@ const getVerseTexts = async ({
   try {
     const bookId = BOOKS.find(book => book.name === bookName)?.id;
     const chapterData = await fetch(
-      // `https://cdn.jsdelivr.net/gh/jomefavourite/bible-api/bibles/en-kjv/books/${bookName.toLowerCase()}/chapters/${chapter}/verses/${verse}.json`
       `https://bible.helloao.org/api/eng-kjv/${bookId}/${chapter}.json`
     );
 

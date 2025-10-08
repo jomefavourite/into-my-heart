@@ -6,11 +6,15 @@ import {
   TouchableOpacity,
   Alert,
   TextInput,
+  Platform,
+  Modal,
 } from 'react-native';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { Id } from '../../convex/_generated/dataModel';
 import { AdminOnly } from './AdminOnly';
+import { AddVerseForm } from './AddVerseForm';
+import { BulkAddVerses } from './BulkAddVerses';
 import { useAuth } from '@clerk/clerk-expo';
 
 interface VerseSuggestion {
@@ -44,15 +48,25 @@ export function AdminSuggestions() {
   const [activeTab, setActiveTab] = useState<'verses' | 'collections'>(
     'verses'
   );
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [addFormType, setAddFormType] = useState<'verse' | 'collection'>(
+    'verse'
+  );
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteItem, setDeleteItem] = useState<{
+    id: Id<'versesSuggestions'> | Id<'collectionSuggestions'>;
+    type: 'verse' | 'collection';
+    title: string;
+  } | null>(null);
 
   const verseSuggestions =
     useQuery(
-      api.verseSuggestions.getVersesSuggestion,
+      api.verseSuggestions.getAllVerseSuggestions,
       isSignedIn && isLoaded ? {} : 'skip'
     ) ?? [];
   const collectionSuggestions =
     useQuery(
-      api.collectionSuggestions.getCollectionsSuggestion,
+      api.collectionSuggestions.getAllCollectionSuggestions,
       isSignedIn && isLoaded ? {} : 'skip'
     ) ?? [];
 
@@ -64,58 +78,116 @@ export function AdminSuggestions() {
   );
 
   const handleDeleteVerseSuggestion = async (id: Id<'versesSuggestions'>) => {
-    Alert.alert(
-      'Delete Verse Suggestion',
-      'Are you sure you want to delete this verse suggestion?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteVerseSuggestion({ _id: id });
-              Alert.alert('Success', 'Verse suggestion deleted successfully!');
-            } catch (error) {
-              Alert.alert(
-                'Error',
-                `Failed to delete verse suggestion: ${error}`
-              );
-            }
+    const suggestion = verseSuggestions.find(s => s._id === id);
+    const title = suggestion
+      ? `${suggestion.bookName} ${suggestion.chapter}:${suggestion.verses.join(',')}`
+      : 'Verse Suggestion';
+
+    // Use native Alert on mobile, custom modal on web
+    if (Platform.OS !== 'web') {
+      Alert.alert(
+        'Delete Verse Suggestion',
+        'Are you sure you want to delete this verse suggestion?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: () => executeDelete(id, 'verse'),
           },
-        },
-      ]
-    );
+        ]
+      );
+    } else {
+      setDeleteItem({
+        id,
+        type: 'verse',
+        title: `Delete "${title}"`,
+      });
+      setShowDeleteModal(true);
+    }
   };
 
   const handleDeleteCollectionSuggestion = async (
     id: Id<'collectionSuggestions'>
   ) => {
-    Alert.alert(
-      'Delete Collection Suggestion',
-      'Are you sure you want to delete this collection suggestion?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteCollectionSuggestion({ _id: id });
-              Alert.alert(
-                'Success',
-                'Collection suggestion deleted successfully!'
-              );
-            } catch (error) {
-              Alert.alert(
-                'Error',
-                `Failed to delete collection suggestion: ${error}`
-              );
-            }
+    const suggestion = collectionSuggestions.find(s => s._id === id);
+    const title = suggestion
+      ? `${suggestion.bookName} ${suggestion.chapter}:${suggestion.verses.join(',')}`
+      : 'Collection Suggestion';
+
+    // Use native Alert on mobile, custom modal on web
+    if (Platform.OS !== 'web') {
+      Alert.alert(
+        'Delete Collection Suggestion',
+        'Are you sure you want to delete this collection suggestion?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: () => executeDelete(id, 'collection'),
           },
-        },
-      ]
-    );
+        ]
+      );
+    } else {
+      setDeleteItem({
+        id,
+        type: 'collection',
+        title: `Delete "${title}"`,
+      });
+      setShowDeleteModal(true);
+    }
+  };
+
+  const executeDelete = async (
+    id: Id<'versesSuggestions'> | Id<'collectionSuggestions'>,
+    type: 'verse' | 'collection'
+  ) => {
+    try {
+      if (type === 'verse') {
+        await deleteVerseSuggestion({ _id: id as Id<'versesSuggestions'> });
+      } else {
+        await deleteCollectionSuggestion({
+          _id: id as Id<'collectionSuggestions'>,
+        });
+      }
+
+      // Use native Alert on mobile, custom modal on web
+      if (Platform.OS !== 'web') {
+        Alert.alert(
+          'Success',
+          `${type === 'verse' ? 'Verse' : 'Collection'} suggestion deleted successfully!`
+        );
+      } else {
+        // For web, we could show a toast or just close the modal
+        setShowDeleteModal(false);
+        setDeleteItem(null);
+      }
+    } catch (error) {
+      // Use native Alert on mobile, custom modal on web
+      if (Platform.OS !== 'web') {
+        Alert.alert('Error', `Failed to delete ${type} suggestion: ${error}`);
+      } else {
+        // For web, we could show an error toast or modal
+        console.error(`Failed to delete ${type} suggestion:`, error);
+        setShowDeleteModal(false);
+        setDeleteItem(null);
+      }
+    }
+  };
+
+  const handleAddVerse = () => {
+    setAddFormType('verse');
+    setShowAddForm(true);
+  };
+
+  const handleAddCollection = () => {
+    setAddFormType('collection');
+    setShowAddForm(true);
+  };
+
+  const handleFormSuccess = () => {
+    // The queries will automatically refetch due to Convex reactivity
   };
 
   const renderVerseSuggestion = (suggestion: VerseSuggestion) => (
@@ -204,6 +276,9 @@ export function AdminSuggestions() {
             add or delete them.
           </Text>
 
+          {/* Bulk Add Bible Verses */}
+          <BulkAddVerses />
+
           {/* Tab Navigation */}
           <View className='mb-4 flex-row rounded-lg bg-white p-1'>
             <TouchableOpacity
@@ -236,6 +311,26 @@ export function AdminSuggestions() {
             </TouchableOpacity>
           </View>
 
+          {/* Add Buttons */}
+          <View className='mb-4 flex-row space-x-2'>
+            <TouchableOpacity
+              onPress={handleAddVerse}
+              className='flex-1 rounded-md bg-green-600 px-4 py-2'
+            >
+              <Text className='text-center text-sm font-medium text-white'>
+                Add Verse Suggestion
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleAddCollection}
+              className='flex-1 rounded-md bg-green-600 px-4 py-2'
+            >
+              <Text className='text-center text-sm font-medium text-white'>
+                Add Collection Suggestion
+              </Text>
+            </TouchableOpacity>
+          </View>
+
           {/* Content */}
           <ScrollView className='flex-1'>
             {activeTab === 'verses' ? (
@@ -259,6 +354,57 @@ export function AdminSuggestions() {
             )}
           </ScrollView>
         </View>
+
+        {/* Add Form Modal */}
+        {showAddForm && (
+          <AddVerseForm
+            type={addFormType}
+            onClose={() => setShowAddForm(false)}
+            onSuccess={handleFormSuccess}
+          />
+        )}
+
+        {/* Web Delete Confirmation Modal */}
+        {showDeleteModal && deleteItem && (
+          <Modal
+            transparent
+            visible={showDeleteModal}
+            animationType='fade'
+            onRequestClose={() => setShowDeleteModal(false)}
+          >
+            <View className='flex-1 items-center justify-center bg-black/50 p-4'>
+              <View className='w-full max-w-sm rounded-lg bg-white p-6'>
+                <Text className='mb-2 text-lg font-semibold text-gray-900'>
+                  {deleteItem.title}
+                </Text>
+                <Text className='mb-6 text-sm text-gray-600'>
+                  Are you sure you want to delete this {deleteItem.type}{' '}
+                  suggestion? This action cannot be undone.
+                </Text>
+                <View className='flex-row space-x-3'>
+                  <TouchableOpacity
+                    onPress={() => setShowDeleteModal(false)}
+                    className='flex-1 rounded-md bg-gray-200 px-4 py-2'
+                  >
+                    <Text className='text-center text-sm font-medium text-gray-700'>
+                      Cancel
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() =>
+                      executeDelete(deleteItem.id, deleteItem.type)
+                    }
+                    className='flex-1 rounded-md bg-red-600 px-4 py-2'
+                  >
+                    <Text className='text-center text-sm font-medium text-white'>
+                      Delete
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
+        )}
       </View>
     </AdminOnly>
   );

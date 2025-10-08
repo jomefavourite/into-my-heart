@@ -41,9 +41,12 @@ const VerseCard: React.FC<VerseCardProps> = ({
 
   return (
     <Pressable
-      onPress={() =>
-        canCheck || canDelete || noRoute ? null : router.push(`/verses/${_id}`)
-      }
+      onPress={() => {
+        if (canCheck || canDelete || noRoute || !_id) {
+          return; // Don't navigate
+        }
+        router.push(`/verses/${_id}`);
+      }}
       className={`flex-row items-center rounded-xl bg-container px-4 py-[18px] ${containerClassName}`}
     >
       <View className='flex-1 gap-2'>

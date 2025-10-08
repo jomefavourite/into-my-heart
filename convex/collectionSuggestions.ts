@@ -31,21 +31,23 @@ export const addCollectionSuggestion = mutation({
       verses: args.verses,
       reviewFreq: args.reviewFreq,
       verseTexts: args.versesTexts,
-      userId: user._id, // Reference to the user who created the verse
     });
   },
 });
 
 export const getCollectionsSuggestion = query({
-  handler: async ctx => {
+  args: {
+    take: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
     try {
-      // Just check if user is authenticated, no admin role required
-      await getCurrentUserOrThrow(ctx);
+      await getCurrentUserOrThrow(ctx); // Just check authentication
 
+      // Get all collection suggestions (available to all users)
       const verses = await ctx.db
         .query('collectionSuggestions')
         .order('desc')
-        .take(50);
+        .take(args.take || 50);
 
       return verses;
     } catch (error) {
@@ -79,5 +81,24 @@ export const deleteCollectionSuggestion = mutation({
     }
 
     await ctx.db.delete(_id);
+  },
+});
+
+// Admin-only query to get all collection suggestions
+export const getAllCollectionSuggestions = query({
+  handler: async ctx => {
+    const user = await getCurrentUserOrThrow(ctx);
+
+    // Check if user has admin role
+    if (user.role !== 'admin') {
+      throw new Error('Unauthorized - Admin access required');
+    }
+
+    const collections = await ctx.db
+      .query('collectionSuggestions')
+      .order('desc')
+      .take(100);
+
+    return collections;
   },
 });
