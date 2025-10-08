@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import Logo from '../icons/logo/Logo';
-import { Onest_400Regular } from '@expo-google-fonts/onest';
 import { Href, Link, useRouter } from 'expo-router';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react-native';
@@ -90,16 +89,16 @@ const HeroSection = (): JSX.Element => {
         </div>
       </header>
 
-      <div className='mx-auto grid max-w-screen-2xl gap-6 px-6 py-[50px] lg:grid-cols-2 lg:px-[107px]'>
+      <div className='container mx-auto grid gap-6 px-6 py-[50px] lg:grid-cols-2 lg:px-[107px]'>
         <div className='flex flex-col justify-center gap-7'>
-          <div className='flex w-full flex-col gap-3 text-center md:text-left'>
-            <h1 className='font-onest text-[44px] font-semibold leading-[53px] tracking-[-0.44px] text-[#313131]'>
+          <div className='mx-auto flex w-full flex-col items-center justify-center gap-3 lg:mx-0 lg:text-left'>
+            <h1 className='max-w-2xl text-center font-onest text-[44px] font-semibold leading-[53px] tracking-[-0.44px] text-[#313131] lg:text-left'>
               The Engaging Way To Keep{' '}
               <span className='text-[#1c1c1c]'>God&apos;s Word</span> In Your
               Heart
             </h1>
 
-            <p className='text-base font-medium leading-6 tracking-[0.16px] text-[#707070]'>
+            <p className='max-w-xl text-center text-base font-medium leading-6 tracking-[0.16px] text-[#707070] lg:text-left'>
               Build a daily habit of engaging with God&#39;s Word. Our app helps
               you memorize Bible verses with proven techniques, track your
               progress, and grow spiritually.
@@ -107,7 +106,7 @@ const HeroSection = (): JSX.Element => {
           </div>
 
           {/* CTA Buttons */}
-          <div className='mx-auto flex gap-3 md:ml-0'>
+          <div className='mx-auto flex gap-3 lg:ml-0'>
             <CustomButton
               onPress={() => router.push('/onboard')}
               className='w-full flex-1'
@@ -127,13 +126,13 @@ const HeroSection = (): JSX.Element => {
             </CustomButton>
           </div>
         </div>
-
-        <div className='hidden w-full md:block'>
+        {/* Move to the right */}
+        <div className='w-full lg:ml-auto lg:justify-end'>
           {/* Phone mockup card */}
-          <Card className='h-[470px] w-full overflow-hidden rounded-[20px] border-none bg-neutral-50 md:w-[460px]'>
-            <div className='relative top-[30px] h-[427px] w-full'>
+          <Card className='w-full overflow-hidden rounded-[20px] border-none bg-neutral-50 md:w-[460px]'>
+            <div className='relative w-full'>
               <Image
-                className='mx-auto w-full object-center'
+                className='object-fit mx-auto w-full'
                 alt='iPhone showing app interface'
                 source={require('/assets/images/hero-phone.png')}
               />

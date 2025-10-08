@@ -2,6 +2,8 @@ import React from 'react';
 import { Separator } from '@/components/ui/separator';
 import { Icon } from '../ui/icon';
 import { Instagram } from 'lucide-react-native';
+import Logo from '../icons/logo/Logo';
+import { Href, Link } from 'expo-router';
 
 // Define navigation links data for reusability
 const firstNavLinks = [
@@ -26,10 +28,9 @@ const socialIcons = [
     bgColor: 'bg-[#1c1b1a]',
     href: 'https://www.instagram.com/intomyheart.life/',
   },
-  // { name: 'Mail', src: '/mail-01.svg', bgColor: 'bg-[#313131]' },
-  // { name: 'New twitter', src: '/new-twitter.svg', bgColor: 'bg-[#1c1b1a]' },
-  { name: 'Youtube', src: '/youtube.svg', bgColor: 'bg-[#1c1b1a]' },
-  { name: 'Facebook', src: '/facebook-02.svg', bgColor: 'bg-[#1c1b1a]' },
+
+  // { name: 'Youtube', src: '/youtube.svg', bgColor: 'bg-[#1c1b1a]' },
+  // { name: 'Facebook', src: '/facebook-02.svg', bgColor: 'bg-[#1c1b1a]' },
 ];
 
 // Define footer policy links
@@ -46,9 +47,7 @@ const FooterSection = (): JSX.Element => {
         {/* Brand and Social Media Section */}
         <div className='flex flex-col items-start gap-3.5'>
           <div className='flex flex-col items-start gap-2'>
-            <h2 className="font-['Pacifico',Helvetica] text-2xl font-normal text-[#313131]">
-              Into my heart
-            </h2>
+            <Logo />
             <p className='max-w-[291px] text-sm font-medium leading-5 text-[#707070]'>
               Helping believers memorize Scripture and transform their lives
               through the power of God&#39;s Word.
@@ -57,13 +56,15 @@ const FooterSection = (): JSX.Element => {
 
           <div className='flex items-center gap-[23px]'>
             {socialIcons.map((icon, index) => (
-              <div
+              <Link
+                href={icon.href as Href}
+                target='_blank'
                 key={index}
                 className={`relative h-10 w-10 ${icon.bgColor} flex items-center justify-center overflow-hidden rounded-[20px]`}
               >
                 {/* <img className='h-5 w-5' alt={icon.name} src={icon.src} /> */}
-                <Icon as={Instagram} className='h-5 w-5' />
-              </div>
+                <Icon as={Instagram} className='h-5 w-5 text-white' />
+              </Link>
             ))}
           </div>
         </div>

@@ -2,6 +2,11 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import OpenBookSVG from '../icons/onboarding/open-book.svg';
+import MicSVG from '../../assets/images/home/mic.svg';
+import FlashcardSVG from '../../assets/images/home/flashcard.svg';
+import PuzzleSVG from '../../assets/images/home/puzzle.svg';
+import StreakSVG from '../../assets/images/home/streak.svg';
+import GoalSVG from '../../assets/images/home/goal.svg';
 
 // Feature cards data
 const featureCards = [
@@ -11,35 +16,35 @@ const featureCards = [
     description:
       "Whether you're focusing on peace, purpose, or promises, you can choose from themed verse packs or favourite scriptures.",
     imageContent: (
-      <div className='relative w-[340px] h-[251px] mx-auto'>
-        <div className='flex flex-col w-[302px] items-start justify-center p-4 absolute top-40 left-[18px] bg-[#fdfdfd] rounded-[10px] overflow-hidden shadow-[0px_4px_10px_-6px_#00000012]'>
-          <div className='flex flex-col items-start gap-2 relative self-stretch w-full'>
-            <div className="mt-[-0.89px] leading-[17.9px] relative w-fit [font-family:'Inter',Helvetica] font-medium text-[#313131] text-xs tracking-[0] whitespace-nowrap">
+      <div className='relative mx-auto h-[251px] w-[340px]'>
+        <div className='absolute left-[18px] top-40 flex w-[302px] flex-col items-start justify-center overflow-hidden rounded-[10px] bg-[#fdfdfd] p-4 shadow-[0px_4px_10px_-6px_#00000012]'>
+          <div className='relative flex w-full flex-col items-start gap-2 self-stretch'>
+            <div className="relative mt-[-0.89px] w-fit whitespace-nowrap text-xs font-medium leading-[17.9px] tracking-[0] text-[#313131] [font-family:'Inter',Helvetica]">
               Genesis 1:1
             </div>
-            <div className="relative self-stretch [font-family:'Inter',Helvetica] font-normal text-[#707070] text-[11px] tracking-[0] leading-[16.1px]">
+            <div className="relative self-stretch text-[11px] font-normal leading-[16.1px] tracking-[0] text-[#707070] [font-family:'Inter',Helvetica]">
               In the beginning, God created the heavens and the earth.
             </div>
           </div>
         </div>
 
-        <div className='w-[302px] top-20 left-px -rotate-1 shadow-[0px_9.8px_17.65px_-5.88px_#00000012] flex flex-col items-start justify-center p-4 absolute bg-[#fdfdfd] rounded-[10px] overflow-hidden'>
-          <div className='flex flex-col items-start gap-2 relative self-stretch w-full'>
-            <div className="mt-[-0.89px] leading-[17.9px] relative w-fit [font-family:'Inter',Helvetica] font-medium text-[#313131] text-xs tracking-[0] whitespace-nowrap">
+        <div className='absolute left-px top-20 flex w-[302px] -rotate-1 flex-col items-start justify-center overflow-hidden rounded-[10px] bg-[#fdfdfd] p-4 shadow-[0px_9.8px_17.65px_-5.88px_#00000012]'>
+          <div className='relative flex w-full flex-col items-start gap-2 self-stretch'>
+            <div className="relative mt-[-0.89px] w-fit whitespace-nowrap text-xs font-medium leading-[17.9px] tracking-[0] text-[#313131] [font-family:'Inter',Helvetica]">
               Genesis 1:1
             </div>
-            <div className="relative self-stretch [font-family:'Inter',Helvetica] font-normal text-[#707070] text-[11px] tracking-[0] leading-[16.1px]">
+            <div className="relative self-stretch text-[11px] font-normal leading-[16.1px] tracking-[0] text-[#707070] [font-family:'Inter',Helvetica]">
               In the beginning, God created the heavens and the earth.
             </div>
           </div>
         </div>
 
-        <div className='w-[302px] top-[18px] left-[34px] rotate-[7deg] shadow-[0px_9.8px_17.65px_-5.88px_#00000012] flex flex-col items-start justify-center p-4 absolute bg-[#fdfdfd] rounded-[10px] overflow-hidden'>
-          <div className='flex flex-col items-start gap-2 relative self-stretch w-full'>
-            <div className="mt-[-0.89px] leading-[17.9px] relative w-fit [font-family:'Inter',Helvetica] font-medium text-[#313131] text-xs tracking-[0] whitespace-nowrap">
+        <div className='absolute left-[34px] top-[18px] flex w-[302px] rotate-[7deg] flex-col items-start justify-center overflow-hidden rounded-[10px] bg-[#fdfdfd] p-4 shadow-[0px_9.8px_17.65px_-5.88px_#00000012]'>
+          <div className='relative flex w-full flex-col items-start gap-2 self-stretch'>
+            <div className="relative mt-[-0.89px] w-fit whitespace-nowrap text-xs font-medium leading-[17.9px] tracking-[0] text-[#313131] [font-family:'Inter',Helvetica]">
               Genesis 1:1
             </div>
-            <div className="relative self-stretch [font-family:'Inter',Helvetica] font-normal text-[#707070] text-[11px] tracking-[0] leading-[16.1px]">
+            <div className="relative self-stretch text-[11px] font-normal leading-[16.1px] tracking-[0] text-[#707070] [font-family:'Inter',Helvetica]">
               In the beginning, God created the heavens and the earth.
             </div>
           </div>
@@ -53,48 +58,36 @@ const featureCards = [
     description:
       "With flashcards, fill-in-the-blanks, and recitation drills, you'll stay engaged memorizing much more than you imagined.",
     imageContent: (
-      <div className='relative w-[251px] h-[251px] mx-auto'>
-        <div className='relative w-[282px] h-[251px] -left-4'>
-          <div className='absolute w-[251px] h-[251px] top-0 left-4'>
+      <div className='relative mx-auto h-[251px] w-[251px]'>
+        <div className='relative -left-4 h-[251px] w-[282px]'>
+          <div className='absolute left-4 top-0 h-[251px] w-[251px]'>
             <div className='relative h-[251px] rounded-[125.5px]'>
-              <div className='absolute w-[251px] h-[251px] top-0 left-0 rounded-[125.5px] border-2 border-solid border-[#f0f0f0]'>
-                <div className='inline-flex items-center justify-center p-2 relative top-[201px] left-[191px] bg-neutral-50 rounded-[30px] overflow-hidden border-[0.97px] border-solid border-[#e8e8e8]'>
-                  <img
-                    className='relative w-6 h-6'
-                    alt='Mic'
-                    src='/mic-02.svg'
-                  />
+              <div className='absolute left-0 top-0 h-[251px] w-[251px] rounded-[125.5px] border-2 border-solid border-[#f0f0f0]'>
+                <div className='relative left-[191px] top-[201px] inline-flex items-center justify-center overflow-hidden rounded-[30px] border-[0.97px] border-solid border-[#e8e8e8] bg-neutral-50 p-2'>
+                  <MicSVG className='relative h-6 w-6' />
                 </div>
               </div>
 
-              <div className='absolute w-[193px] h-[193px] top-[29px] left-[29px] rounded-[96.54px] border-2 border-solid border-[#f0f0f0]'>
-                <div className='inline-flex items-center justify-center p-2 relative top-[133px] -left-0.5 bg-neutral-50 rounded-[30px] overflow-hidden border-[0.97px] border-solid border-[#e8e8e8]'>
-                  <img
-                    className='relative w-6 h-6'
-                    alt='Cards'
-                    src='/cards-01.svg'
-                  />
+              <div className='absolute left-[29px] top-[29px] h-[193px] w-[193px] rounded-[96.54px] border-2 border-solid border-[#f0f0f0]'>
+                <div className='relative -left-0.5 top-[133px] inline-flex items-center justify-center overflow-hidden rounded-[30px] border-[0.97px] border-solid border-[#e8e8e8] bg-neutral-50 p-2'>
+                  <FlashcardSVG className='relative h-6 w-6' />
                 </div>
               </div>
 
-              <div className='absolute w-[135px] h-[135px] top-[58px] left-[58px] rounded-[67.58px] border-2 border-solid border-[#f0f0f0]'>
-                <div className='inline-flex items-center justify-center p-2 relative top-[-21px] left-[46px] bg-neutral-50 rounded-[30px] overflow-hidden border-[0.97px] border-solid border-[#e8e8e8]'>
-                  <img
-                    className='relative w-6 h-6'
-                    alt='Puzzle'
-                    src='/puzzle.svg'
-                  />
+              <div className='absolute left-[58px] top-[58px] h-[135px] w-[135px] rounded-[67.58px] border-2 border-solid border-[#f0f0f0]'>
+                <div className='relative left-[46px] top-[-21px] inline-flex items-center justify-center overflow-hidden rounded-[30px] border-[0.97px] border-solid border-[#e8e8e8] bg-neutral-50 p-2'>
+                  <PuzzleSVG className='relative h-6 w-6' />
                 </div>
               </div>
             </div>
           </div>
 
-          <div className='w-[282px] top-[84px] left-0 shadow-[0px_9.14px_16.45px_-5.48px_#00000012] flex flex-col items-start justify-center p-4 absolute bg-[#fdfdfd] rounded-[10px] overflow-hidden'>
-            <div className='flex flex-col items-start gap-1.5 relative self-stretch w-full'>
-              <div className="mt-[-0.83px] leading-[16.0px] relative w-fit [font-family:'Inter',Helvetica] font-medium text-[#313131] text-xs tracking-[0] whitespace-nowrap">
+          <div className='absolute left-0 top-[84px] flex w-[282px] flex-col items-start justify-center overflow-hidden rounded-[10px] bg-[#fdfdfd] p-4 shadow-[0px_9.14px_16.45px_-5.48px_#00000012]'>
+            <div className='relative flex w-full flex-col items-start gap-1.5 self-stretch'>
+              <div className="relative mt-[-0.83px] w-fit whitespace-nowrap text-xs font-medium leading-[16.0px] tracking-[0] text-[#313131] [font-family:'Inter',Helvetica]">
                 Genesis 1:1
               </div>
-              <div className="relative self-stretch [font-family:'Inter',Helvetica] font-normal text-[#707070] text-[11px] tracking-[0] leading-[14px]">
+              <div className="relative self-stretch text-[11px] font-normal leading-[14px] tracking-[0] text-[#707070] [font-family:'Inter',Helvetica]">
                 In the beginning, God created the heavens and the earth.
               </div>
             </div>
@@ -109,13 +102,9 @@ const featureCards = [
     description:
       'Stay on track with streak reminders, progress milestones, and a satisfying "you did it" after each session keep you going strong.',
     imageContent: (
-      <div className='flex items-center justify-center h-[251px]'>
-        <div className='relative w-[251px] h-[251px] bg-[url(/icon-set-regular-1.svg)] bg-[100%_100%]'>
-          <img
-            className='absolute w-[100px] h-[100px] top-[75px] left-[76px]'
-            alt='Icon set regular'
-            src='/icon-set-regular.svg'
-          />
+      <div className='relative mx-auto h-[251px] w-[251px]'>
+        <div className='relative -left-4 h-[251px] w-[282px]'>
+          <StreakSVG className='bg-gray-100 text-gray-100' />
         </div>
       </div>
     ),
@@ -126,58 +115,50 @@ const featureCards = [
     description:
       "Create goals that work for you—daily, weekly, or monthly. It's not about speed, it's about growing deeper in the Word.",
     imageContent: (
-      <div className='relative h-[251px] flex items-center justify-center'>
-        <div className='flex flex-col w-[352px] items-start gap-1 px-[18px] py-4 absolute top-[187px] left-[62px] bg-[#fdfdfd] rounded-[10px] overflow-hidden shadow-[0px_4px_10px_-6px_#00000012]'>
-          <div className='flex items-center justify-between relative self-stretch w-full'>
-            <div className="relative w-fit [font-family:'Inter',Helvetica] font-medium text-[#313131] text-[13px] tracking-[0] leading-[18px] whitespace-nowrap">
+      <div className='relative flex h-[251px] items-center justify-center'>
+        <div className='absolute top-[187px] flex w-[352px] flex-col items-start gap-1 overflow-hidden rounded-[10px] bg-[#fdfdfd] px-[18px] py-4 shadow-[0px_4px_10px_-6px_#00000012]'>
+          <div className='relative flex w-full items-center justify-between self-stretch'>
+            <div className="relative w-fit whitespace-nowrap text-[13px] font-medium leading-[18px] tracking-[0] text-[#313131] [font-family:'Inter',Helvetica]">
               Memorize Psalm 91
             </div>
-            <img
-              className='relative w-6 h-6'
-              alt='Icon set regular'
-              src='/icon-set-regular-2.svg'
-            />
+            <GoalSVG />
           </div>
-          <div className='flex items-center justify-between relative self-stretch w-full'>
-            <div className="relative w-fit mt-[-1.00px] [font-family:'Inter',Helvetica] font-normal text-[#707070] text-xs tracking-[0] leading-[18px] whitespace-nowrap">
+          <div className='relative flex w-full items-center justify-between self-stretch'>
+            <div className="relative mt-[-1.00px] w-fit whitespace-nowrap text-xs font-normal leading-[18px] tracking-[0] text-[#707070] [font-family:'Inter',Helvetica]">
               Daily
             </div>
-            <div className="relative w-fit mt-[-1.00px] [font-family:'Inter',Helvetica] font-normal text-[#707070] text-xs tracking-[0] leading-[18px] whitespace-nowrap">
+            <div className="relative mt-[-1.00px] w-fit whitespace-nowrap text-xs font-normal leading-[18px] tracking-[0] text-[#707070] [font-family:'Inter',Helvetica]">
               Completed
             </div>
           </div>
         </div>
 
-        <div className='px-[18px] py-4 top-[105px] left-[60px] rotate-1 flex flex-col w-[352px] items-start gap-1 absolute bg-[#fdfdfd] rounded-[10px] overflow-hidden shadow-[0px_10px_17px_-6px_#00000012]'>
-          <div className='flex items-center justify-between relative self-stretch w-full'>
-            <div className="relative w-fit [font-family:'Inter',Helvetica] font-medium text-[#313131] text-[13px] tracking-[0] leading-[18px] whitespace-nowrap">
+        <div className='absolute top-[105px] flex w-[352px] rotate-1 flex-col items-start gap-1 overflow-hidden rounded-[10px] bg-[#fdfdfd] px-[18px] py-4 shadow-[0px_10px_17px_-6px_#00000012]'>
+          <div className='relative flex w-full items-center justify-between self-stretch'>
+            <div className="relative w-fit whitespace-nowrap text-[13px] font-medium leading-[18px] tracking-[0] text-[#313131] [font-family:'Inter',Helvetica]">
               Memorize Psalm 91
             </div>
-            <img
-              className='relative w-[24.42px] h-[24.42px] mt-[-0.21px] mb-[-0.21px] mr-[-0.21px] -rotate-1'
-              alt='Icon set regular'
-              src='/icon-set-regular-3.svg'
-            />
+            <GoalSVG />
           </div>
-          <div className='flex items-center justify-between relative self-stretch w-full'>
-            <div className="relative w-fit mt-[-1.00px] [font-family:'Inter',Helvetica] font-normal text-[#707070] text-xs tracking-[0] leading-[18px] whitespace-nowrap">
+          <div className='relative flex w-full items-center justify-between self-stretch'>
+            <div className="relative mt-[-1.00px] w-fit whitespace-nowrap text-xs font-normal leading-[18px] tracking-[0] text-[#707070] [font-family:'Inter',Helvetica]">
               Daily
             </div>
-            <div className="relative w-fit mt-[-1.00px] [font-family:'Inter',Helvetica] font-normal text-[#707070] text-xs tracking-[0] leading-[18px] whitespace-nowrap">
+            <div className="relative mt-[-1.00px] w-fit whitespace-nowrap text-xs font-normal leading-[18px] tracking-[0] text-[#707070] [font-family:'Inter',Helvetica]">
               Completed
             </div>
           </div>
         </div>
 
-        <div className='p-[18px] top-6 left-[63px] -rotate-3 flex flex-col w-[352px] items-start gap-1 absolute bg-[#fdfdfd] rounded-[10px] overflow-hidden shadow-[0px_10px_17px_-6px_#00000012]'>
-          <div className="relative w-fit mt-[-1.00px] [font-family:'Inter',Helvetica] font-medium text-[#313131] text-[13px] tracking-[0] leading-[18px] whitespace-nowrap">
+        <div className='absolute top-6 flex w-[352px] -rotate-3 flex-col items-start gap-1 overflow-hidden rounded-[10px] bg-[#fdfdfd] p-[18px] shadow-[0px_10px_17px_-6px_#00000012]'>
+          <div className="relative mt-[-1.00px] w-fit whitespace-nowrap text-[13px] font-medium leading-[18px] tracking-[0] text-[#313131] [font-family:'Inter',Helvetica]">
             Memorize Psalm 91
           </div>
-          <div className='flex items-center justify-between relative self-stretch w-full'>
-            <div className="relative w-fit mt-[-1.00px] [font-family:'Inter',Helvetica] font-normal text-[#707070] text-xs tracking-[0] leading-[18px] whitespace-nowrap">
+          <div className='relative flex w-full items-center justify-between self-stretch'>
+            <div className="relative mt-[-1.00px] w-fit whitespace-nowrap text-xs font-normal leading-[18px] tracking-[0] text-[#707070] [font-family:'Inter',Helvetica]">
               Daily
             </div>
-            <div className="relative w-fit mt-[-1.00px] [font-family:'Inter',Helvetica] font-normal text-[#707070] text-xs tracking-[0] leading-[18px] whitespace-nowrap">
+            <div className="relative mt-[-1.00px] w-fit whitespace-nowrap text-xs font-normal leading-[18px] tracking-[0] text-[#707070] [font-family:'Inter',Helvetica]">
               Due 17 Jan
             </div>
           </div>
@@ -191,44 +172,44 @@ const FeaturesSection = (): JSX.Element => {
   return (
     <section
       id='key-features'
-      className='flex flex-col items-center gap-[50px] px-6 py-[50px] md:px-[107px] w-full'
+      className='flex w-full flex-col items-center gap-[50px] px-6 py-[50px] md:px-[107px]'
     >
       <div className='flex flex-col items-center gap-3'>
         <Badge
           variant='outline'
-          className='bg-neutral-50 rounded-[20px] px-3 py-1.5 flex items-center gap-1'
+          className='flex items-center gap-1 rounded-[20px] bg-neutral-50 px-3 py-1.5'
         >
           <OpenBookSVG />
-          <span className='font-medium text-[#313131] text-sm'>
+          <span className='text-sm font-medium text-[#313131]'>
             Key Features
           </span>
         </Badge>
 
         <div className='flex flex-col items-center justify-center gap-2 text-center'>
-          <h2 className="[font-family:'Onest',Helvetica] font-semibold text-[#313131] text-[28px] leading-[34px]">
+          <h2 className="text-[28px] font-semibold leading-[34px] text-[#313131] [font-family:'Onest',Helvetica]">
             Simple, fun, and interactive
           </h2>
-          <p className="max-w-[502px] [font-family:'Inter',Helvetica] font-medium text-[#707070] text-base tracking-[0.16px] leading-6">
+          <p className="max-w-[502px] text-base font-medium leading-6 tracking-[0.16px] text-[#707070] [font-family:'Inter',Helvetica]">
             Use fill-in-the-blanks, flashcards, and guided review to make
             scripture memorization simple and effective.
           </p>
         </div>
       </div>
 
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-5 w-full'>
+      <div className='grid w-full grid-cols-1 gap-5 md:grid-cols-2'>
         {featureCards.map(card => (
           <Card
             key={card.id}
-            className='bg-neutral-50 rounded-[20px] overflow-hidden border border-solid border-[#e8e8e8]'
+            className='relative overflow-hidden rounded-[20px] border border-solid border-[#e8e8e8] bg-neutral-50 py-0'
           >
-            <CardContent className='p-0 h-[280px] flex items-center justify-center'>
+            <CardContent className='flex h-[280px] items-center justify-center p-0'>
               {card.imageContent}
             </CardContent>
-            <CardFooter className='flex flex-col w-full items-start gap-[5px] p-[18px] bg-white'>
-              <h3 className="self-stretch mt-[-1.00px] [font-family:'Inter',Helvetica] font-semibold text-[#313131] text-xl tracking-[-0.40px] leading-[26px]">
+            <CardFooter className='flex w-full flex-col items-start gap-[5px] bg-white p-[18px]'>
+              <h3 className="mt-[-1.00px] self-stretch text-xl font-semibold leading-[26px] tracking-[-0.40px] text-[#313131] [font-family:'Inter',Helvetica]">
                 {card.title}
               </h3>
-              <p className="self-stretch [font-family:'Inter',Helvetica] font-normal text-[#707070] text-base tracking-[0.16px] leading-6">
+              <p className="self-stretch text-base font-normal leading-6 tracking-[0.16px] text-[#707070] [font-family:'Inter',Helvetica]">
                 {card.description}
               </p>
             </CardFooter>

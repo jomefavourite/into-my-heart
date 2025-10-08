@@ -67,7 +67,7 @@ export default function HomeHeader({
               </Avatar>
               <View>
                 <ThemedText className='text-xs text-[#707070]'>
-                  Welcome {process.env.APP_ENV}
+                  Welcome
                 </ThemedText>
                 <ThemedText className='font-medium'>
                   {user?.firstName}
