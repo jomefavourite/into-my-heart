@@ -6,8 +6,10 @@ import ThemedText from '../ThemedText';
 import ItemSeparator from '../ItemSeparator';
 // import { useQuery } from 'convex/react';
 import { useQuery } from 'convex-helpers/react/cache';
+import { useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import CollectionCard from './CollectionCard';
+import CollectionSuggestionCard from './CollectionSuggestionCard';
 import AddVersesEmpty from '../EmptyScreen/AddVersesEmpty';
 import SuggestionEmpty from '../EmptyScreen/SuggestionEmpty';
 import { Button } from '../ui/button';
@@ -30,7 +32,24 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
     api.collectionSuggestions.getCollectionsSuggestion,
     canMakeQueries ? { take: 5 } : 'skip'
   );
+
+  const addCollectionSuggestionToUser = useMutation(
+    api.collectionSuggestions.addCollectionSuggestionToUser
+  );
+
   const router = useRouter();
+
+  const handleAddCollectionSuggestion = async (collectionData: any) => {
+    try {
+      await addCollectionSuggestionToUser({
+        suggestionId: collectionData._id,
+      });
+      // The UI will automatically update due to Convex reactivity
+    } catch (error) {
+      console.error('Error adding collection suggestion:', error);
+      // You might want to show an alert here
+    }
+  };
 
   // console.log(getVerses, 'getVerses');
 
@@ -106,14 +125,14 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
               </>
             )}
             renderItem={({ item }) => (
-              <CollectionCard
+              <CollectionSuggestionCard
                 _id={item._id}
                 collectionName={item.collectionName}
                 versesLength={item.versesLength}
-                onAddPress={() => console.log(`${item} pressed`)}
+                collectionVerses={item.collectionVerses}
+                onAddPress={() => handleAddCollectionSuggestion(item)}
                 containerClassName={gridView ? 'w-[50%]' : 'w-full'}
                 canCheck={true}
-                isSuggestion={true}
               />
             )}
             columnWrapperStyle={
