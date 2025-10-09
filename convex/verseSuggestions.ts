@@ -7,7 +7,7 @@ export const addVerseSuggestion = mutation({
     bookName: v.string(),
     chapter: v.number(),
     verses: v.array(v.string()),
-    versesTexts: v.array(
+    verseTexts: v.array(
       v.object({
         verse: v.string(),
         text: v.string(),
@@ -30,7 +30,7 @@ export const addVerseSuggestion = mutation({
       chapter: args.chapter,
       verses: args.verses,
       reviewFreq: args.reviewFreq,
-      verseTexts: args.versesTexts,
+      verseTexts: args.verseTexts,
     });
   },
 });
