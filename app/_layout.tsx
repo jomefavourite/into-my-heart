@@ -40,6 +40,8 @@ import {
   initialWindowMetrics,
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -252,6 +254,8 @@ function ThemeProviderWrapper() {
           <InitialLayout isDarkMode={isDarkMode} />
           <PortalHost />
           <StatusBar style='auto' />
+          <Analytics />
+          <SpeedInsights />
         </SafeAreaProvider>
       </GestureHandlerRootView>
     </ThemeProvider>
