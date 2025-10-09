@@ -22,6 +22,7 @@ import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useQuery } from 'convex-helpers/react/cache';
 import PageHeader from '@/components/PageHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import VersesSuggestion from '@/components/Verses/VersesSuggestion';
 
 export const metadata = {
   title: 'Into My Heart - Memorize Bible Verses',
@@ -167,43 +168,7 @@ export default function HomeScreen() {
             </View>
 
             <View className='gap-3'>
-              <View className='gap-2'>
-                <View className='mb-2 flex-row items-center justify-between'>
-                  <ThemedText className='font-medium'>
-                    Verse Suggestions
-                  </ThemedText>
-
-                  <Button
-                    size={'icon'}
-                    variant={'ghost'}
-                    onPress={() => router.push('/verses/verse-suggestions')}
-                    className='flex-row gap-0'
-                  >
-                    <ThemedText className='pl-2 text-xs'>View all</ThemedText>
-                    <ArrowRightIcon />
-                  </Button>
-                </View>
-
-                <FlatList
-                  data={verses}
-                  // style={{ height: 300 }}
-                  keyExtractor={(item, index) => index.toString()}
-                  renderItem={({ item }) => (
-                    <VerseCard
-                      bookName={item.bookName}
-                      chapter={item.chapter}
-                      verses={item.verses}
-                      verseTexts={[
-                        { verse: item.verses[0], text: item.reference },
-                      ]}
-                      onAddPress={() =>
-                        console.log(`${item.reference} pressed`)
-                      }
-                    />
-                  )}
-                  ItemSeparatorComponent={ItemSeparator}
-                />
-              </View>
+              <VersesSuggestion gridView={false} isHome={true} />
 
               <View className='mb-12 gap-2'>
                 <ThemedText className='text-lg font-medium'>

@@ -59,16 +59,27 @@ export const VerseSuggestion = {
   reviewFreq: v.string(),
 };
 export const CollectionSuggestion = {
-  bookName: v.string(),
-  chapter: v.number(),
-  verses: v.array(v.string()),
-  verseTexts: v.array(
+  collectionName: v.string(),
+  versesLength: v.number(),
+  collectionVerses: v.array(
     v.object({
-      verse: v.string(),
-      text: v.string(),
+      bookName: v.string(),
+      chapter: v.float64(),
+      verses: v.array(v.string()),
+      reviewFreq: v.string(),
+      verseTexts: v.array(
+        v.object({
+          verse: v.string(),
+          text: v.string(),
+        })
+      ),
     })
   ),
-  reviewFreq: v.string(),
+};
+
+export const UserVerseSuggestion = {
+  userId: v.id('users'),
+  suggestionId: v.id('versesSuggestions'),
 };
 
 export default defineSchema({
@@ -77,4 +88,7 @@ export default defineSchema({
   versesSuggestions: defineTable(VerseSuggestion),
   collectionSuggestions: defineTable(CollectionSuggestion),
   collections: defineTable(Collection),
+  userVerseSuggestions: defineTable(UserVerseSuggestion)
+    .index('byUserId', ['userId'])
+    .index('bySuggestionId', ['suggestionId']),
 });

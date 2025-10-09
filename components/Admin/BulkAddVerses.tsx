@@ -14,30 +14,6 @@ import { useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { BOOKS } from '../../lib/books';
 
-const bibleVerses = [
-  'Genesis 1:1',
-  'John 1:1',
-  'Psalm 19:1',
-  'Proverbs 3:5-6',
-  'Hebrews 11:1',
-  '2 Corinthians 5:7',
-  'John 3:16',
-  '1 Corinthians 13:4-7',
-  'Matthew 22:37-39',
-  'Philippians 4:13',
-  'Joshua 1:9',
-  'Isaiah 40:31',
-  'Psalm 23:1',
-  'John 14:27',
-  'Philippians 4:6-7',
-  'Romans 10:9',
-  'Ephesians 2:8-9',
-  'Romans 8:1',
-  'James 1:5',
-  'Psalm 119:105',
-  'Micah 6:8',
-];
-
 // Helper function to parse verse reference
 function parseVerseReference(verseRef: string) {
   // Remove emojis and extra spaces
@@ -165,11 +141,15 @@ export function BulkAddVerses() {
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [completeMessage, setCompleteMessage] = useState('');
   const [customBulkText, setCustomBulkText] = useState('');
-  const [useCustomText, setUseCustomText] = useState(false);
   const [versesToProcess, setVersesToProcess] = useState<string[]>([]);
+  const [addMode, setAddMode] = useState<'verses' | 'collections'>('verses');
+  const [collectionName, setCollectionName] = useState('');
 
   const addVerseSuggestion = useMutation(
     api.verseSuggestions.addVerseSuggestion
+  );
+  const addCollectionSuggestion = useMutation(
+    api.collectionSuggestions.addCollectionSuggestion
   );
 
   // Function to parse custom bulk text input
@@ -193,15 +173,22 @@ export function BulkAddVerses() {
   const handleBulkAdd = async () => {
     console.log('BulkAddVerses: handleBulkAdd called');
 
-    // Determine which verses to process
-    const versesToProcess = useCustomText
-      ? parseCustomBulkText(customBulkText)
-      : bibleVerses;
+    // Parse custom text input
+    const versesToProcess = parseCustomBulkText(customBulkText);
 
     if (versesToProcess.length === 0) {
       Alert.alert(
         'Error',
         'No verses to process. Please add some verse references.'
+      );
+      return;
+    }
+
+    // Validate collection name if in collection mode
+    if (addMode === 'collections' && !collectionName.trim()) {
+      Alert.alert(
+        'Error',
+        'Please enter a collection name for collection mode.'
       );
       return;
     }
@@ -215,11 +202,11 @@ export function BulkAddVerses() {
     if (Platform.OS !== 'web') {
       Alert.alert(
         'Bulk Add Bible Verses',
-        `This will add ${versesToProcess.length} Bible verses to verse suggestions. Continue?`,
+        `This will add ${versesToProcess.length} Bible verses to ${addMode === 'verses' ? 'verse suggestions' : 'collection suggestions'}. Continue?`,
         [
           { text: 'Cancel', style: 'cancel' },
           {
-            text: 'Add All Verses',
+            text: `Add All ${addMode === 'verses' ? 'Verses' : 'Collections'}`,
             onPress: () => startBulkAddProcess(versesToProcess),
           },
         ]
@@ -230,9 +217,7 @@ export function BulkAddVerses() {
     }
   };
 
-  const startBulkAddProcess = async (
-    versesToProcess: string[] = bibleVerses
-  ) => {
+  const startBulkAddProcess = async (versesToProcess: string[]) => {
     setShowConfirmModal(false);
     setIsLoading(true);
     setProgress({ current: 0, total: versesToProcess.length });
@@ -241,57 +226,140 @@ export function BulkAddVerses() {
     const successList: string[] = [];
     const failedList: string[] = [];
 
-    for (let i = 0; i < versesToProcess.length; i++) {
-      const verse = versesToProcess[i];
-      console.log(
-        `Processing verse ${i + 1}/${versesToProcess.length}: ${verse}`
-      );
-
-      setProgress({ current: i + 1, total: versesToProcess.length });
-
-      try {
-        console.log(`Parsing verse reference: ${verse}`);
-        const { bookName, chapter, verses, verseNumbers } =
-          parseVerseReference(verse);
-        console.log(`Parsed: ${bookName} ${chapter}:${verses.join(',')}`);
-
-        // Fetch verse texts from API
-        console.log(`Fetching verse texts from API...`);
-        const verseTexts = await fetchVerseTexts(
-          bookName,
-          chapter,
-          verseNumbers
+    if (addMode === 'verses') {
+      // Process each verse individually
+      for (let i = 0; i < versesToProcess.length; i++) {
+        const verse = versesToProcess[i];
+        console.log(
+          `Processing verse ${i + 1}/${versesToProcess.length}: ${verse}`
         );
-        console.log(`Fetched ${verseTexts.length} verse texts`);
 
-        if (verseTexts.length === 0) {
-          console.warn(`No verse texts found for ${verse}`);
-          failedList.push(`${verse} - No verse texts found`);
-          continue;
+        setProgress({ current: i + 1, total: versesToProcess.length });
+
+        try {
+          console.log(`Parsing verse reference: ${verse}`);
+          const { bookName, chapter, verses, verseNumbers } =
+            parseVerseReference(verse);
+          console.log(`Parsed: ${bookName} ${chapter}:${verses.join(',')}`);
+
+          // Fetch verse texts from API
+          console.log(`Fetching verse texts from API...`);
+          const verseTexts = await fetchVerseTexts(
+            bookName,
+            chapter,
+            verseNumbers
+          );
+          console.log(`Fetched ${verseTexts.length} verse texts`);
+
+          if (verseTexts.length === 0) {
+            console.warn(`No verse texts found for ${verse}`);
+            failedList.push(`${verse} - No verse texts found`);
+            continue;
+          }
+
+          // Add to database
+          console.log(`Adding to database...`);
+          await addVerseSuggestion({
+            bookName,
+            chapter: parseFloat(chapter.toString()),
+            verses,
+            versesTexts: verseTexts.map((vt: any) => ({
+              verse: vt.verse.toString(),
+              text: vt.text,
+            })),
+            reviewFreq: 'daily',
+          });
+
+          console.log(`Successfully added ${verse}`);
+          successList.push(verse);
+        } catch (error) {
+          console.error(`Failed to add ${verse}:`, error);
+          failedList.push(`${verse} - ${error}`);
         }
 
-        // Add to database
-        console.log(`Adding to database...`);
-        await addVerseSuggestion({
-          bookName,
-          chapter,
-          verses,
-          versesTexts: verseTexts.map((vt: any) => ({
-            verse: vt.verse.toString(),
-            text: vt.text,
-          })),
-          reviewFreq: 'daily',
-        });
+        // Add a small delay to avoid overwhelming the API
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
+    } else {
+      // Process all verses as a single collection
+      const collectionVerses = [];
+      let totalVersesLength = 0;
 
-        console.log(`Successfully added ${verse}`);
-        successList.push(verse);
-      } catch (error) {
-        console.error(`Failed to add ${verse}:`, error);
-        failedList.push(`${verse} - ${error}`);
+      for (let i = 0; i < versesToProcess.length; i++) {
+        const verse = versesToProcess[i];
+        console.log(
+          `Processing verse ${i + 1}/${versesToProcess.length}: ${verse}`
+        );
+
+        setProgress({ current: i + 1, total: versesToProcess.length });
+
+        try {
+          console.log(`Parsing verse reference: ${verse}`);
+          const { bookName, chapter, verses, verseNumbers } =
+            parseVerseReference(verse);
+          console.log(`Parsed: ${bookName} ${chapter}:${verses.join(',')}`);
+
+          // Fetch verse texts from API
+          console.log(`Fetching verse texts from API...`);
+          const verseTexts = await fetchVerseTexts(
+            bookName,
+            chapter,
+            verseNumbers
+          );
+          console.log(`Fetched ${verseTexts.length} verse texts`);
+
+          if (verseTexts.length === 0) {
+            console.warn(`No verse texts found for ${verse}`);
+            failedList.push(`${verse} - No verse texts found`);
+            continue;
+          }
+
+          // Add to collection verses array
+          collectionVerses.push({
+            bookName,
+            chapter: parseFloat(chapter.toString()),
+            verses,
+            reviewFreq: 'daily',
+            verseTexts: verseTexts.map((vt: any) => ({
+              verse: vt.verse.toString(),
+              text: vt.text,
+            })),
+          });
+
+          totalVersesLength += verseNumbers.length;
+          successList.push(verse);
+        } catch (error) {
+          console.error(`Failed to add ${verse}:`, error);
+          failedList.push(`${verse} - ${error}`);
+        }
+
+        // Add a small delay to avoid overwhelming the API
+        await new Promise(resolve => setTimeout(resolve, 200));
       }
 
-      // Add a small delay to avoid overwhelming the API
-      await new Promise(resolve => setTimeout(resolve, 200));
+      // Create the collection if we have any successful verses
+      if (collectionVerses.length > 0) {
+        try {
+          console.log(
+            `Creating collection with ${collectionVerses.length} verse groups...`
+          );
+          console.log('Collection data:', {
+            collectionName: collectionName.trim(),
+            versesLength: totalVersesLength,
+            collectionVerses,
+          });
+
+          await addCollectionSuggestion({
+            collectionName: collectionName.trim(),
+            versesLength: totalVersesLength,
+            collectionVerses,
+          });
+          console.log(`Successfully created collection: ${collectionName}`);
+        } catch (error) {
+          console.error(`Failed to create collection:`, error);
+          failedList.push(`Collection creation failed - ${error}`);
+        }
+      }
     }
 
     setResults({ success: successList, failed: failedList });
@@ -318,10 +386,71 @@ export function BulkAddVerses() {
         Bulk Add Bible Verses
       </Text>
       <Text className='mb-4 text-sm text-gray-600'>
-        Add {bibleVerses.length} popular Bible verses to verse suggestions
+        Add Bible verses to{' '}
+        {addMode === 'verses' ? 'verse suggestions' : 'collection suggestions'}
         automatically. This will fetch verse texts from the Bible API and add
         them to the database.
       </Text>
+
+      {/* Add Mode Selector */}
+      <View className='mb-4'>
+        <Text className='mb-2 text-sm font-medium text-gray-700'>Add as:</Text>
+        <View className='flex-row rounded-lg bg-gray-100 p-1'>
+          <TouchableOpacity
+            onPress={() => setAddMode('verses')}
+            className={`flex-1 rounded-md px-3 py-2 ${
+              addMode === 'verses' ? 'bg-white shadow-sm' : 'bg-transparent'
+            }`}
+          >
+            <Text
+              className={`text-center text-sm font-medium ${
+                addMode === 'verses' ? 'text-gray-900' : 'text-gray-600'
+              }`}
+            >
+              Individual Verses
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setAddMode('collections')}
+            className={`flex-1 rounded-md px-3 py-2 ${
+              addMode === 'collections'
+                ? 'bg-white shadow-sm'
+                : 'bg-transparent'
+            }`}
+          >
+            <Text
+              className={`text-center text-sm font-medium ${
+                addMode === 'collections' ? 'text-gray-900' : 'text-gray-600'
+              }`}
+            >
+              Collections
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <Text className='mt-1 text-xs text-gray-500'>
+          {addMode === 'verses'
+            ? 'Each verse will be added as a separate suggestion'
+            : 'All verses will be grouped into a single collection'}
+        </Text>
+      </View>
+
+      {/* Collection Name Input (only for collection mode) */}
+      {addMode === 'collections' && (
+        <View className='mb-4'>
+          <Text className='mb-2 text-sm font-medium text-gray-700'>
+            Collection Name
+          </Text>
+          <TextInput
+            value={collectionName}
+            onChangeText={setCollectionName}
+            placeholder='e.g., Faith & Trust, Love Verses, etc.'
+            className='rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900'
+          />
+          <Text className='mt-1 text-xs text-gray-500'>
+            All verses will be grouped under this collection name
+          </Text>
+        </View>
+      )}
 
       {isLoading && (
         <View className='mb-4 rounded-md bg-blue-50 p-3'>
@@ -372,58 +501,26 @@ export function BulkAddVerses() {
         </View>
       )}
 
-      {/* Custom Bulk Text Input */}
+      {/* Verse List Input */}
       <View className='mb-4'>
-        <View className='mb-3 flex-row items-center justify-between'>
-          <Text className='text-sm font-medium text-gray-700'>
-            Use Custom Verse List
-          </Text>
-          <TouchableOpacity
-            onPress={() => setUseCustomText(!useCustomText)}
-            className={`rounded-md px-3 py-1 ${
-              useCustomText ? 'bg-blue-100' : 'bg-gray-100'
-            }`}
-          >
-            <Text
-              className={`text-xs font-medium ${
-                useCustomText ? 'text-blue-700' : 'text-gray-600'
-              }`}
-            >
-              {useCustomText ? 'ON' : 'OFF'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {useCustomText && (
-          <View className='mb-3'>
-            <Text className='mb-2 text-sm text-gray-600'>
-              Enter Bible verse references (one per line):
-            </Text>
-            <TextInput
-              value={customBulkText}
-              onChangeText={setCustomBulkText}
-              placeholder={`Genesis 1:1\nJohn 3:16\nPsalm 23:1\nProverbs 3:5-6\n...`}
-              multiline
-              numberOfLines={6}
-              className='rounded-md border border-gray-300 bg-white p-3 text-sm text-gray-900'
-              style={{ textAlignVertical: 'top' }}
-            />
-            <Text className='mt-1 text-xs text-gray-500'>
-              Lines starting with // or # will be ignored as comments
-            </Text>
-          </View>
-        )}
-
-        {!useCustomText && (
-          <View className='mb-3 rounded-md bg-blue-50 p-3'>
-            <Text className='mb-1 text-sm font-medium text-blue-800'>
-              Using Predefined Verses ({bibleVerses.length} verses)
-            </Text>
-            <Text className='text-xs text-blue-600'>
-              Popular Bible verses will be added automatically
-            </Text>
-          </View>
-        )}
+        <Text className='mb-2 text-sm font-medium text-gray-700'>
+          Bible Verse References
+        </Text>
+        <Text className='mb-2 text-sm text-gray-600'>
+          Enter Bible verse references (one per line):
+        </Text>
+        <TextInput
+          value={customBulkText}
+          onChangeText={setCustomBulkText}
+          placeholder={`Genesis 1:1\nJohn 3:16\nPsalm 23:1\nProverbs 3:5-6\n...`}
+          multiline
+          numberOfLines={6}
+          className='rounded-md border border-gray-300 bg-white p-3 text-sm text-gray-900'
+          style={{ textAlignVertical: 'top' }}
+        />
+        <Text className='mt-1 text-xs text-gray-500'>
+          Lines starting with // or # will be ignored as comments
+        </Text>
       </View>
 
       <TouchableOpacity
@@ -442,8 +539,8 @@ export function BulkAddVerses() {
           )}
           <Text className='text-center text-sm font-medium text-white'>
             {isLoading
-              ? 'Adding Verses...'
-              : `Add ${useCustomText ? 'Custom' : 'All'} Bible Verses`}
+              ? `Adding ${addMode === 'verses' ? 'Verses' : 'Collection'}...`
+              : `Add Bible ${addMode === 'verses' ? 'Verses' : 'Collection'}`}
           </Text>
         </View>
       </TouchableOpacity>
@@ -459,11 +556,14 @@ export function BulkAddVerses() {
           <View className='flex-1 items-center justify-center bg-black/50 p-4'>
             <View className='w-full max-w-sm rounded-lg bg-white p-6'>
               <Text className='mb-2 text-lg font-semibold text-gray-900'>
-                Bulk Add Bible Verses
+                Bulk Add Bible {addMode === 'verses' ? 'Verses' : 'Collection'}
               </Text>
               <Text className='mb-6 text-sm text-gray-600'>
-                This will add {versesToProcess.length} Bible verses to verse
-                suggestions. Continue?
+                This will add {versesToProcess.length} Bible verses to{' '}
+                {addMode === 'verses'
+                  ? 'verse suggestions'
+                  : 'a collection suggestion'}
+                . Continue?
               </Text>
               <View className='flex-row space-x-3'>
                 <TouchableOpacity
@@ -479,7 +579,7 @@ export function BulkAddVerses() {
                   className='flex-1 rounded-md bg-green-600 px-4 py-2'
                 >
                   <Text className='text-center text-sm font-medium text-white'>
-                    Add All Verses
+                    Add {addMode === 'verses' ? 'Verses' : 'Collection'}
                   </Text>
                 </TouchableOpacity>
               </View>

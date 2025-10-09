@@ -4,16 +4,22 @@ import { getCurrentUserOrThrow } from './users';
 
 export const addCollectionSuggestion = mutation({
   args: {
-    bookName: v.string(),
-    chapter: v.number(),
-    verses: v.array(v.string()),
-    versesTexts: v.array(
+    collectionName: v.string(),
+    versesLength: v.number(),
+    collectionVerses: v.array(
       v.object({
-        verse: v.string(),
-        text: v.string(),
+        bookName: v.string(),
+        chapter: v.float64(),
+        verses: v.array(v.string()),
+        reviewFreq: v.string(),
+        verseTexts: v.array(
+          v.object({
+            verse: v.string(),
+            text: v.string(),
+          })
+        ),
       })
     ),
-    reviewFreq: v.string(), // e.g., "daily", "weekly", "monthly"
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUserOrThrow(ctx);
@@ -26,11 +32,9 @@ export const addCollectionSuggestion = mutation({
     }
 
     await ctx.db.insert('collectionSuggestions', {
-      bookName: args.bookName,
-      chapter: args.chapter,
-      verses: args.verses,
-      reviewFreq: args.reviewFreq,
-      verseTexts: args.versesTexts,
+      collectionName: args.collectionName,
+      versesLength: args.versesLength,
+      collectionVerses: args.collectionVerses,
     });
   },
 });

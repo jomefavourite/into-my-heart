@@ -19,32 +19,7 @@ type Notification = {
   read: boolean;
 };
 
-const notifications: Notification[] = [
-  {
-    id: '1',
-    title: 'New Message from Sarah',
-    description: 'Hey! Just checking in on the project...',
-    time: '2 min ago',
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100',
-    read: false,
-  },
-  {
-    id: '2',
-    title: 'Meeting Reminder',
-    description: 'Team standup in 15 minutes',
-    time: '15 min ago',
-    image: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100',
-    read: true,
-  },
-  {
-    id: '3',
-    title: 'Project Update',
-    description: 'The design team has shared new assets',
-    time: '1 hour ago',
-    image: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=100',
-    read: false,
-  },
-];
+const notifications: Notification[] = [];
 
 export default function NotificationsScreen() {
   return (
@@ -55,24 +30,36 @@ export default function NotificationsScreen() {
       />
 
       <ScrollView style={styles.container}>
-        <ThemedText>Hello Notification</ThemedText>
-        {notifications.map(notification => (
-          <TouchableOpacity
-            key={notification.id}
-            style={[
-              styles.notificationCard,
-              notification.read && styles.readNotification,
-            ]}
-          >
-            <Image source={{ uri: notification.image }} style={styles.avatar} />
-            <View style={styles.content}>
-              <Text style={styles.title}>{notification.title}</Text>
-              <Text style={styles.description}>{notification.description}</Text>
-              <Text style={styles.time}>{notification.time}</Text>
-            </View>
-            {!notification.read && <View style={styles.unreadDot} />}
-          </TouchableOpacity>
-        ))}
+        {notifications.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <ThemedText style={styles.emptyText}>
+              No notification yet
+            </ThemedText>
+          </View>
+        ) : (
+          notifications.map(notification => (
+            <TouchableOpacity
+              key={notification.id}
+              style={[
+                styles.notificationCard,
+                notification.read && styles.readNotification,
+              ]}
+            >
+              <Image
+                source={{ uri: notification.image }}
+                style={styles.avatar}
+              />
+              <View style={styles.content}>
+                <Text style={styles.title}>{notification.title}</Text>
+                <Text style={styles.description}>
+                  {notification.description}
+                </Text>
+                <Text style={styles.time}>{notification.time}</Text>
+              </View>
+              {!notification.read && <View style={styles.unreadDot} />}
+            </TouchableOpacity>
+          ))
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -123,5 +110,16 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: '#007AFF',
     marginLeft: 8,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 100,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
   },
 });

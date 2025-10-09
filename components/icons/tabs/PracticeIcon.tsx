@@ -3,29 +3,48 @@ import Svg, { SvgProps, Path } from 'react-native-svg';
 import { useColorScheme } from '@/hooks/useColorScheme';
 interface PracticeIconProps extends SvgProps {
   focused: boolean;
+  inverse?: boolean;
 }
 
-const PracticeIcon: React.FC<PracticeIconProps> = ({ focused, ...rest }) => {
+const PracticeIcon: React.FC<PracticeIconProps> = ({
+  focused,
+  inverse,
+  ...rest
+}) => {
   const { isDarkMode } = useColorScheme();
 
-  const fillColor = focused
-    ? isDarkMode
-      ? '#FFFFFF' // Dark mode focused color
-      : '#303030' // Light mode focused color
-    : 'none';
+  // Define base colors (same as HomeIcon)
+  const primaryColor = isDarkMode ? '#FFFFFF' : '#303030';
+  const secondaryColor = isDarkMode ? '#FFFFFF' : '#FFFFFF';
+  const inactiveColor = isDarkMode ? '#707070' : '#707070';
 
-  const strokeColor = focused ? (isDarkMode ? '#fff' : '#303030') : '#707070';
+  // Determine colors based on state
+  let fillColor: string;
+  let strokeColor: string;
+  let smallDashColor: string;
+
+  if (inverse) {
+    // Inverse mode: colors are flipped
+    fillColor = focused ? secondaryColor : inactiveColor;
+    strokeColor = focused ? primaryColor : inactiveColor;
+    smallDashColor = focused ? secondaryColor : inactiveColor;
+  } else {
+    // Normal mode
+    fillColor = focused ? primaryColor : inactiveColor;
+    strokeColor = focused ? inactiveColor : inactiveColor;
+    smallDashColor = focused ? primaryColor : inactiveColor;
+  }
 
   return (
     <Svg width={24} height={24} fill='none' {...rest}>
       <Path
-        stroke={strokeColor}
+        stroke={smallDashColor}
         strokeLinejoin='round'
         strokeWidth={1.5}
         d='M16 8a2.624 2.624 0 0 1-1.455 1.608c-2.28 1.01-3.927 2.656-4.937 4.937A2.624 2.624 0 0 1 8 16'
       />
       <Path
-        stroke={strokeColor}
+        // stroke={strokeColor}
         fill={fillColor}
         strokeLinecap='round'
         strokeLinejoin='round'
@@ -33,7 +52,7 @@ const PracticeIcon: React.FC<PracticeIconProps> = ({ focused, ...rest }) => {
         d='M3.2 20.8 2 22M20.8 3.2 22 2M17.788 2.422l-1.512 1.453 3.84 3.877 1.478-1.435c.444-.522.58-.916.027-1.64l-1.105-1.164-1.121-1.106c-.717-.642-1.281-.296-1.607.015Z'
       />
       <Path
-        stroke={strokeColor}
+        // stroke={strokeColor}
         fill={fillColor}
         strokeLinecap='round'
         strokeLinejoin='round'

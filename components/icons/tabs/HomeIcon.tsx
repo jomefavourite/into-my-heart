@@ -10,44 +10,27 @@ interface HomeIconProps extends SvgProps {
 const HomeIcon = ({ focused, inverse, ...rest }: HomeIconProps) => {
   const { isDarkMode } = useColorScheme();
 
+  // Define base colors
+  const primaryColor = isDarkMode ? '#FFFFFF' : '#303030';
+  const secondaryColor = isDarkMode ? '#303030' : '#FFFFFF';
+  const inactiveColor = isDarkMode ? '#707070' : '#707070';
+
+  // Determine colors based on state
   let fillColor: string;
+  let strokeColor: string;
+  let smallDashColor: string;
+
   if (inverse) {
-    fillColor = focused ? (isDarkMode ? '#303030' : '#FFFFFF') : 'none';
+    // Inverse mode: colors are flipped
+    fillColor = focused ? secondaryColor : 'none';
+    strokeColor = focused ? primaryColor : inactiveColor;
+    smallDashColor = focused ? primaryColor : inactiveColor;
   } else {
-    fillColor = focused ? (isDarkMode ? '#FFFFFF' : '#303030') : 'none';
+    // Normal mode
+    fillColor = focused ? primaryColor : 'none';
+    strokeColor = focused ? primaryColor : inactiveColor;
+    smallDashColor = focused ? secondaryColor : inactiveColor;
   }
-
-  const strokeColor = inverse
-    ? focused
-      ? isDarkMode
-        ? '#303030'
-        : '#FFFFFF'
-      : isDarkMode
-        ? '#303030'
-        : '#FFFFFF'
-    : focused
-      ? isDarkMode
-        ? '#303030'
-        : '#303030'
-      : isDarkMode
-        ? '#303030'
-        : '#FFFFFF';
-
-  const smallDashColor = inverse
-    ? focused
-      ? isDarkMode
-        ? '#fff'
-        : '#303030'
-      : isDarkMode
-        ? '#303030'
-        : '#fff'
-    : focused
-      ? isDarkMode
-        ? '#303030'
-        : '#fff'
-      : isDarkMode
-        ? '#fff'
-        : '#303030';
 
   return (
     <Svg width={24} height={24} fill='none' {...rest}>

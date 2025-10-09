@@ -4,27 +4,35 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 
 interface VersesIconProps extends SvgProps {
   focused: boolean;
+  inverse?: boolean;
 }
 
-const VersesIcon = ({ focused, ...rest }: VersesIconProps) => {
+const VersesIcon = ({ focused, inverse, ...rest }: VersesIconProps) => {
   const { isDarkMode } = useColorScheme();
 
-  const fillColor = focused
-    ? isDarkMode
-      ? '#FFFFFF' // Dark mode focused color
-      : '#303030' // Light mode focused color
-    : 'none';
+  // Define base colors (same as HomeIcon)
+  const primaryColor = isDarkMode ? '#FFFFFF' : '#303030';
+  const secondaryColor = isDarkMode ? '#303030' : '#FFFFFF';
+  const inactiveColor = isDarkMode ? '#707070' : '#707070';
 
-  const strokeColor = focused
-    ? isDarkMode
-      ? '#303030'
-      : '#FFFFFF'
-    : '#707070';
+  // Determine colors based on state
+  let fillColor: string;
+  let strokeColor: string;
+
+  if (inverse) {
+    // Inverse mode: colors are flipped
+    fillColor = focused ? secondaryColor : 'none';
+    strokeColor = focused ? primaryColor : inactiveColor;
+  } else {
+    // Normal mode
+    fillColor = focused ? primaryColor : 'none';
+    strokeColor = focused ? secondaryColor : inactiveColor;
+  }
 
   return (
     <Svg width={24} height={24} fill='none' {...rest}>
       <Path
-        stroke={focused ? (isDarkMode ? '#303030' : '#303030') : '#707070'}
+        stroke={strokeColor}
         fill={fillColor}
         strokeLinecap='round'
         strokeLinejoin='round'

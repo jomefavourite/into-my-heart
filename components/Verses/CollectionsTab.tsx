@@ -26,6 +26,10 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
     api.collections.getCollections,
     canMakeQueries ? {} : 'skip'
   );
+  const collectionSuggestions = useQuery(
+    api.collectionSuggestions.getCollectionsSuggestion,
+    canMakeQueries ? { take: 5 } : 'skip'
+  );
   const router = useRouter();
 
   // console.log(getVerses, 'getVerses');
@@ -86,35 +90,40 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
           Collection Suggestions
         </ThemedText>
 
-        <FlatList
-          key={gridView ? 'grid-suggestions' : 'list-suggestions'}
-          data={verses}
-          keyExtractor={(item, index) => index.toString()}
-          numColumns={gridView ? 2 : 1}
-          ListEmptyComponent={() => (
-            <>
-              {/* Loading */}
-              {/* <VerseCardSkeleton /> */}
-              <SuggestionEmpty collection />
-            </>
-          )}
-          renderItem={({ item }) => (
-            <VerseCard
-              bookName={item.bookName}
-              chapter={item.chapter}
-              verses={item.verses}
-              verseTexts={[{ verse: item.verses[0], text: item.reference }]}
-              onAddPress={() => console.log(`${item.reference} pressed`)}
-              containerClassName={gridView ? 'w-[50%]' : 'w-full'} // Keep this for card sizing
-            />
-          )}
-          columnWrapperStyle={
-            // Apply gap between columns if gridView is true
-            gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
-          }
-          ItemSeparatorComponent={ItemSeparator}
-          scrollEnabled={true}
-        />
+        {isLoading ? (
+          <FlashListSkeletonLoader type='collections' gridView={gridView} />
+        ) : (
+          <FlatList
+            key={gridView ? 'grid-suggestions' : 'list-suggestions'}
+            data={collectionSuggestions}
+            keyExtractor={(item, index) => index.toString()}
+            numColumns={gridView ? 2 : 1}
+            ListEmptyComponent={() => (
+              <>
+                {/* Loading */}
+                {/* <VerseCardSkeleton /> */}
+                <SuggestionEmpty collection />
+              </>
+            )}
+            renderItem={({ item }) => (
+              <CollectionCard
+                _id={item._id}
+                collectionName={item.collectionName}
+                versesLength={item.versesLength}
+                onAddPress={() => console.log(`${item} pressed`)}
+                containerClassName={gridView ? 'w-[50%]' : 'w-full'}
+                canCheck={true}
+                isSuggestion={true}
+              />
+            )}
+            columnWrapperStyle={
+              // Apply gap between columns if gridView is true
+              gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
+            }
+            ItemSeparatorComponent={ItemSeparator}
+            scrollEnabled={true}
+          />
+        )}
       </View>
     </View>
   );

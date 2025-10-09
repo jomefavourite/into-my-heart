@@ -6,12 +6,13 @@ import { useRouter } from 'expo-router';
 import { Id } from '@/convex/_generated/dataModel';
 
 interface CollectionCardProps {
-  _id: Id<'collections'>;
+  _id: Id<'collections'> | Id<'collectionSuggestions'>;
   collectionName: string;
   versesLength?: number;
   containerClassName?: string;
   onAddPress?: () => void;
   canCheck?: boolean;
+  isSuggestion?: boolean;
 }
 
 const CollectionCard: React.FC<CollectionCardProps> = ({
@@ -21,14 +22,27 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
   containerClassName = '',
   onAddPress = () => {},
   canCheck = true,
+  isSuggestion = false,
 }) => {
   const router = useRouter();
 
+  const handlePress = () => {
+    if (canCheck) {
+      return;
+    }
+
+    if (isSuggestion) {
+      // For suggestions, we might want to show a preview or add to collection
+      onAddPress();
+    } else {
+      // For regular collections, navigate to the collection page
+      router.push(`/verses/collection/${_id}`);
+    }
+  };
+
   return (
     <Pressable
-      onPress={() =>
-        canCheck ? null : router.push(`/verses/collection/${_id}`)
-      }
+      onPress={handlePress}
       className={`flex-row items-center rounded-xl bg-container px-4 py-[18px] ${containerClassName}`}
     >
       <View className='flex-1 gap-2'>

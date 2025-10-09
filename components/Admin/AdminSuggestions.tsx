@@ -27,20 +27,22 @@ interface VerseSuggestion {
     text: string;
   }>;
   reviewFreq: string;
-  userId: Id<'users'>;
 }
 
 interface CollectionSuggestion {
   _id: Id<'collectionSuggestions'>;
-  bookName: string;
-  chapter: number;
-  verses: string[];
-  verseTexts: Array<{
-    verse: string;
-    text: string;
+  collectionName: string;
+  versesLength: number;
+  collectionVerses?: Array<{
+    bookName: string;
+    chapter: number;
+    verses: string[];
+    reviewFreq: string;
+    verseTexts: Array<{
+      verse: string;
+      text: string;
+    }>;
   }>;
-  reviewFreq: string;
-  userId: Id<'users'>;
 }
 
 export function AdminSuggestions() {
@@ -112,7 +114,7 @@ export function AdminSuggestions() {
   ) => {
     const suggestion = collectionSuggestions.find(s => s._id === id);
     const title = suggestion
-      ? `${suggestion.bookName} ${suggestion.chapter}:${suggestion.verses.join(',')}`
+      ? suggestion.collectionName
       : 'Collection Suggestion';
 
     // Use native Alert on mobile, custom modal on web
@@ -234,11 +236,10 @@ export function AdminSuggestions() {
       <View className='mb-2 flex-row items-start justify-between'>
         <View className='flex-1'>
           <Text className='text-lg font-semibold text-gray-900'>
-            {suggestion.bookName} {suggestion.chapter}:
-            {suggestion.verses.join(', ')}
+            {suggestion.collectionName}
           </Text>
           <Text className='mb-2 text-sm text-gray-500'>
-            Review Frequency: {suggestion.reviewFreq}
+            {suggestion.versesLength} verses in this collection
           </Text>
         </View>
         <TouchableOpacity
@@ -249,15 +250,46 @@ export function AdminSuggestions() {
         </TouchableOpacity>
       </View>
 
-      <View className='space-y-2'>
-        {suggestion.verseTexts.map((verse, index) => (
-          <View key={index} className='rounded-md bg-gray-50 p-3'>
-            <Text className='mb-1 text-sm font-medium text-gray-700'>
-              Verse {verse.verse}:
+      <View className='space-y-3'>
+        {suggestion.collectionVerses &&
+        suggestion.collectionVerses.length > 0 ? (
+          suggestion.collectionVerses.map((verseGroup, groupIndex) => (
+            <View key={groupIndex} className='rounded-md bg-gray-50 p-3'>
+              <Text className='mb-2 text-sm font-medium text-gray-700'>
+                {verseGroup.bookName} {verseGroup.chapter}:
+                {verseGroup.verses.join(', ')}
+              </Text>
+              <Text className='mb-2 text-xs text-gray-500'>
+                Review Frequency: {verseGroup.reviewFreq}
+              </Text>
+              <View className='space-y-2'>
+                {verseGroup.verseTexts && verseGroup.verseTexts.length > 0 ? (
+                  verseGroup.verseTexts.map((verse, verseIndex) => (
+                    <View key={verseIndex} className='rounded bg-white p-2'>
+                      <Text className='mb-1 text-xs font-medium text-gray-600'>
+                        Verse {verse.verse}:
+                      </Text>
+                      <Text className='text-xs text-gray-600'>
+                        {verse.text}
+                      </Text>
+                    </View>
+                  ))
+                ) : (
+                  <Text className='text-xs text-gray-500'>
+                    No verse texts available
+                  </Text>
+                )}
+              </View>
+            </View>
+          ))
+        ) : (
+          <View className='rounded-md bg-gray-50 p-3'>
+            <Text className='text-sm text-gray-500'>
+              This collection appears to be using an old format. Please delete
+              and recreate it.
             </Text>
-            <Text className='text-sm text-gray-600'>{verse.text}</Text>
           </View>
-        ))}
+        )}
       </View>
     </View>
   );

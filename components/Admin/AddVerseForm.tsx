@@ -70,6 +70,7 @@ const fetchVerseTexts = async (
 };
 
 export function AddVerseForm({ type, onClose, onSuccess }: AddVerseFormProps) {
+  const [collectionName, setCollectionName] = useState('');
   const [bookName, setBookName] = useState('');
   const [chapter, setChapter] = useState('');
   const [verses, setVerses] = useState('');
@@ -133,6 +134,10 @@ export function AddVerseForm({ type, onClose, onSuccess }: AddVerseFormProps) {
   const handleSubmit = async () => {
     try {
       // Validate inputs
+      if (type === 'collection' && !collectionName.trim()) {
+        Alert.alert('Error', 'Please enter a collection name');
+        return;
+      }
       if (!bookName.trim()) {
         Alert.alert('Error', 'Please enter a book name');
         return;
@@ -169,18 +174,30 @@ export function AddVerseForm({ type, onClose, onSuccess }: AddVerseFormProps) {
         text: texts[index]?.trim() || '',
       }));
 
-      const args = {
-        bookName: bookName.trim(),
-        chapter: parseInt(chapter),
-        verses: verseNumbers,
-        versesTexts: verseTextsArray,
-        reviewFreq,
-      };
-
       if (type === 'verse') {
+        const args = {
+          bookName: bookName.trim(),
+          chapter: parseInt(chapter),
+          verses: verseNumbers,
+          versesTexts: verseTextsArray,
+          reviewFreq,
+        };
         await addVerseSuggestion(args);
         Alert.alert('Success', 'Verse suggestion added successfully!');
       } else {
+        const args = {
+          collectionName: collectionName.trim(),
+          versesLength: verseNumbers.length,
+          collectionVerses: [
+            {
+              bookName: bookName.trim(),
+              chapter: parseInt(chapter),
+              verses: verseNumbers,
+              reviewFreq,
+              verseTexts: verseTextsArray,
+            },
+          ],
+        };
         await addCollectionSuggestion(args);
         Alert.alert('Success', 'Collection suggestion added successfully!');
       }
@@ -214,6 +231,21 @@ export function AddVerseForm({ type, onClose, onSuccess }: AddVerseFormProps) {
         </View>
 
         <ScrollView className='flex-1 p-4'>
+          {/* Collection Name (only for collection type) */}
+          {type === 'collection' && (
+            <View className='mb-4'>
+              <Text className='mb-2 text-sm font-medium text-gray-700'>
+                Collection Name
+              </Text>
+              <TextInput
+                value={collectionName}
+                onChangeText={setCollectionName}
+                placeholder='e.g., Faith & Trust, Love Verses, etc.'
+                className='rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900'
+              />
+            </View>
+          )}
+
           {/* Book Name */}
           <View className='mb-4'>
             <Text className='mb-2 text-sm font-medium text-gray-700'>

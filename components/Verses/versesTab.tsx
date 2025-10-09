@@ -17,6 +17,7 @@ import SuggestionEmpty from '../EmptyScreen/SuggestionEmpty';
 import Loader from '../Loader';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import FlashListSkeletonLoader from '../FlashListSkeletonLoader';
+import VersesSuggestion from './VersesSuggestion';
 
 type VersesTabProps = {
   gridView: boolean;
@@ -32,24 +33,27 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
   );
 
   const getVerseSuggestions = useQuery(
-    api.verseSuggestions.getVersesSuggestion,
+    api.verseSuggestions.getAvailableVerseSuggestions,
     canMakeQueries ? { take: 5 } : 'skip'
   );
 
   const addVerse = useMutation(api.verses.addVerse);
-  const addVerseSuggestion = useMutation(
-    api.verseSuggestions.addVerseSuggestion
+  const addVerseSuggestionToUser = useMutation(
+    api.verseSuggestions.addVerseSuggestionToUser
   );
 
   // console.log(getVerses, 'getVerses');
 
-  const handleAddVerseSuggestion = (verseData: any) => {
-    // addVerse({
-    //   bookName: verseData.bookName,
-    //   chapter: verseData.chapter,
-    //   verses: verseData.verses,
-    //   reviewFreq: '',
-    // });
+  const handleAddVerseSuggestion = async (verseData: any) => {
+    try {
+      await addVerseSuggestionToUser({
+        suggestionId: verseData._id,
+      });
+      // The UI will automatically update due to Convex reactivity
+    } catch (error) {
+      console.error('Error adding verse suggestion:', error);
+      // You might want to show an alert here
+    }
   };
 
   return (
@@ -104,59 +108,7 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
         )}
       </View>
 
-      <View>
-        <View className='flex-row items-center justify-between'>
-          <ThemedText className='py-2 text-lg font-semibold'>
-            Verse Suggestions
-          </ThemedText>
-
-          <Button
-            size={'icon'}
-            variant={'ghost'}
-            onPress={() => router.push('/verses/all-verses-suggestions')}
-            className='flex-row gap-0'
-          >
-            <ThemedText className='pl-2 text-xs'>View all</ThemedText>
-            <ArrowRightIcon />
-          </Button>
-        </View>
-
-        <FlatList
-          key={gridView ? 'grid-suggestions' : 'list-suggestions'}
-          data={getVerseSuggestions}
-          keyExtractor={(item, index) => index.toString()}
-          numColumns={gridView ? 2 : 1}
-          ListEmptyComponent={() => (
-            <>
-              {/* Loading */}
-              {/* <VerseCardSkeleton /> */}
-              <SuggestionEmpty />
-            </>
-          )}
-          renderItem={({ item }) => (
-            <VerseCard
-              _id={item._id as any} // Type assertion to handle ID mismatch
-              bookName={item.bookName}
-              chapter={item.chapter}
-              verses={item.verses}
-              verseTexts={item.verseTexts || []} // Provide default empty array
-              onAddPress={() => handleAddVerseSuggestion(item)}
-              containerClassName={gridView ? 'w-[50%]' : 'w-full'} // Keep this for card sizing
-            />
-          )}
-          columnWrapperStyle={
-            // Apply gap between columns if gridView is true
-            gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
-          }
-          ItemSeparatorComponent={ItemSeparator}
-          // contentContainerStyle={
-          //   gridView
-          //     ? { paddingVertical: 8, paddingHorizontal: 16 }
-          //     : { paddingVertical: 8, paddingHorizontal: 16 }
-          // }
-          scrollEnabled={false}
-        />
-      </View>
+      <VersesSuggestion gridView={gridView} />
     </View>
   );
 };

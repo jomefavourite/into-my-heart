@@ -4,18 +4,30 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 
 interface ProfileIconProps extends SvgProps {
   focused: boolean;
+  inverse?: boolean;
 }
 
-const ProfileIcon = ({ focused, ...rest }: ProfileIconProps) => {
+const ProfileIcon = ({ focused, inverse, ...rest }: ProfileIconProps) => {
   const { isDarkMode } = useColorScheme();
 
-  const fillColor = focused
-    ? isDarkMode
-      ? '#FFFFFF' // Dark mode focused color
-      : '#303030' // Light mode focused color
-    : 'none';
+  // Define base colors
+  const primaryColor = isDarkMode ? '#FFFFFF' : '#303030';
+  const secondaryColor = isDarkMode ? '#303030' : '#FFFFFF';
+  const inactiveColor = isDarkMode ? '#707070' : '#707070';
 
-  const strokeColor = focused ? (isDarkMode ? '#fff' : '#303030') : '#707070';
+  // Determine colors based on state
+  let fillColor: string;
+  let strokeColor: string;
+
+  if (inverse) {
+    // Inverse mode: colors are flipped
+    fillColor = focused ? secondaryColor : 'none';
+    strokeColor = focused ? primaryColor : inactiveColor;
+  } else {
+    // Normal mode
+    fillColor = focused ? primaryColor : 'none';
+    strokeColor = focused ? primaryColor : inactiveColor;
+  }
 
   return (
     <Svg width={24} height={24} fill='none' {...rest}>

@@ -74,7 +74,7 @@ const AllVersesScreen = () => {
   };
 
   const RightComponent = (
-    <>
+    <View className='flex flex-row gap-2'>
       {!shouldDelete && (
         <Button
           size={'icon'}
@@ -104,7 +104,7 @@ const AllVersesScreen = () => {
           <DeleteIcon />
         </Button>
       )}
-    </>
+    </View>
   );
 
   return (

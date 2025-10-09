@@ -46,13 +46,29 @@ const AllVersesSuggestion = () => {
 
   const { isDarkMode } = useColorScheme();
 
+  const addVerseSuggestionToUser = useMutation(
+    api.verseSuggestions.addVerseSuggestionToUser
+  );
+
   const results =
     useQuery(
-      api.verseSuggestions.getVersesSuggestion,
+      api.verseSuggestions.getAvailableVerseSuggestions,
       isSignedIn && isLoaded ? { take: 50 } : 'skip'
     ) ?? [];
 
   const isLoading = !results;
+
+  const handleAddVerseSuggestion = async (verseData: any) => {
+    try {
+      await addVerseSuggestionToUser({
+        suggestionId: verseData._id,
+      });
+      // The UI will automatically update due to Convex reactivity
+    } catch (error) {
+      console.error('Error adding verse suggestion:', error);
+      // You might want to show an alert here
+    }
+  };
 
   return (
     <SafeAreaView className='flex-1'>
@@ -89,6 +105,7 @@ const AllVersesSuggestion = () => {
                 verseTexts={item.verseTexts}
                 containerClassName={gridView ? 'w-[50%]' : 'w-full'}
                 canCheck={true}
+                onAddPress={() => handleAddVerseSuggestion(item)}
               />
             )}
             ItemSeparatorComponent={ItemSeparator}
