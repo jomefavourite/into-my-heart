@@ -94,7 +94,7 @@ const CheckboxItem = ({ title }: { title: string }) => {
     if (title === 'Dark mode') {
       const newTheme = isDarkMode ? 'light' : 'dark';
       setColorScheme(newTheme);
-      // AsyncStorage.setItem('theme', newTheme);
+      AsyncStorage.setItem('theme', newTheme);
     }
     setIsEnabled(previousState => !previousState);
   };
@@ -252,17 +252,6 @@ export default function ProfileScreen() {
               </View>
             ))}
           </View>
-
-          <CustomButton
-            onPress={() => {
-              const newTheme = isDarkMode ? 'light' : 'dark';
-              setColorScheme(newTheme);
-              // setAndroidNavigationBar(newTheme);
-              AsyncStorage.setItem('theme', newTheme);
-            }}
-          >
-            {isDarkMode ? 'Light mode' : 'Dark mode'}
-          </CustomButton>
 
           <CustomButton variant='outline' onPress={handleSignOut}>
             Sign out

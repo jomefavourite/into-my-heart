@@ -38,7 +38,7 @@ export default function PracticeScreen() {
       <PageHeader title='Practice' />
 
       <ScrollView className=''>
-        <View className='mx-auto my-[76] max-w-[192px] px-[18px] md:mx-0 md:my-2 md:max-w-full md:flex-row md:items-start md:justify-between'>
+        <View className='mx-auto my-[58px] max-w-[192px] px-[18px] md:mx-0 md:my-2 md:max-w-full md:flex-row md:items-start md:justify-between'>
           <View>
             <ThemedText
               size={18}
@@ -60,7 +60,7 @@ export default function PracticeScreen() {
           </CustomButton>
         </View>
 
-        <View className='px-[18px] md:mt-6'>
+        <View className='mb-6 px-[18px] md:mt-6'>
           <ThemedText className='font-semibold'>Practice Techniques</ThemedText>
 
           <View className='mt-2 gap-3'>

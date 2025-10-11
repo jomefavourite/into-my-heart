@@ -23,8 +23,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { FlashList } from '@shopify/flash-list';
-import HomeHeader from '@/components/Home/Header';
 import PageHeader from '@/components/PageHeader';
 
 export default function VersesHomeScreen() {
@@ -144,7 +142,7 @@ export default function VersesHomeScreen() {
         </View>
 
         <FlatList
-          className='flex-1 px-[18px]'
+          className='flex-1 px-[18px] pb-[18px]'
           data={[{ id: 'page' }]} // single item to render accordion
           keyExtractor={item => item.id}
           renderItem={() => (
