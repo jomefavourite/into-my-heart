@@ -1,5 +1,5 @@
 import React from 'react';
-import { FlatList, View } from 'react-native';
+import { FlatList, View, Platform } from 'react-native';
 import ThemedText from '@/components/ThemedText';
 import VersesTab from '@/components/Verses/versesTab';
 import CollectionsTab from '@/components/Verses/CollectionsTab';
@@ -27,27 +27,8 @@ import { FlashList } from '@shopify/flash-list';
 import HomeHeader from '@/components/Home/Header';
 import PageHeader from '@/components/PageHeader';
 
-export const metadata = {
-  title: 'My Verses - Into My Heart',
-  description:
-    'View and manage your memorized Bible verses. Add new verses, organize collections, and track your progress.',
-  openGraph: {
-    title: 'My Verses - Into My Heart',
-    description:
-      'View and manage your memorized Bible verses. Add new verses, organize collections, and track your progress.',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'My Verses - Into My Heart',
-    description:
-      'View and manage your memorized Bible verses. Add new verses, organize collections, and track your progress.',
-  },
-};
-
 export default function VersesHomeScreen() {
   const { activeTab, setActiveTab } = useVersesTabStore();
-
   const { setIsCollOrVerse } = useIsCollOrVerse();
   const { gridView, setGridView } = useGridListView();
 
@@ -57,6 +38,28 @@ export default function VersesHomeScreen() {
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className='flex-1 gap-5'>
+      {Platform.OS === 'web' && (
+        <>
+          <title>My Verses - Into My Heart</title>
+          <meta
+            name='description'
+            content='View and manage your memorized Bible verses. Add new verses, organize collections, and track your progress.'
+          />
+          <meta
+            name='keywords'
+            content='Bible, memorization, verses, flashcards, practice, Christian, faith, scripture'
+          />
+          <meta name='author' content='Into My Heart' />
+          <meta name='robots' content='index, follow' />
+          <meta property='og:type' content='website' />
+          <meta property='og:site_name' content='Into My Heart' />
+          <meta property='og:locale' content='en_US' />
+          <meta name='twitter:card' content='summary_large_image' />
+          <meta name='theme-color' content='#313131' />
+          <meta name='msapplication-TileColor' content='#313131' />
+        </>
+      )}
+
       <PageHeader title='Verses & Collections' />
 
       <Tabs

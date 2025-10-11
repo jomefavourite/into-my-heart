@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Platform } from 'react-native';
 import React, { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { cn, useBottomSheetStore } from '@/lib/utils';
@@ -107,24 +107,6 @@ const CheckboxItem = ({ title }: { title: string }) => {
   );
 };
 
-export const metadata = {
-  title: 'Profile - Into My Heart',
-  description:
-    'Manage your profile settings, preferences, and account information for your Bible memorization journey.',
-  openGraph: {
-    title: 'Profile - Into My Heart',
-    description:
-      'Manage your profile settings, preferences, and account information for your Bible memorization journey.',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Profile - Into My Heart',
-    description:
-      'Manage your profile settings, preferences, and account information for your Bible memorization journey.',
-  },
-};
-
 export default function ProfileScreen() {
   const { isDarkMode, setColorScheme } = useColorScheme();
   const { signOut } = useClerk();
@@ -149,6 +131,28 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className='flex-1'>
+      {Platform.OS === 'web' && (
+        <>
+          <title>Profile - Into My Heart</title>
+          <meta
+            name='description'
+            content='Manage your profile settings, preferences, and account information for your Bible memorization journey.'
+          />
+          <meta
+            name='keywords'
+            content='Bible, memorization, verses, flashcards, practice, Christian, faith, scripture'
+          />
+          <meta name='author' content='Into My Heart' />
+          <meta name='robots' content='index, follow' />
+          <meta property='og:type' content='website' />
+          <meta property='og:site_name' content='Into My Heart' />
+          <meta property='og:locale' content='en_US' />
+          <meta name='twitter:card' content='summary_large_image' />
+          <meta name='theme-color' content='#313131' />
+          <meta name='msapplication-TileColor' content='#313131' />
+        </>
+      )}
+
       <PageHeader title='Profile' />
 
       <ScrollView className=''>

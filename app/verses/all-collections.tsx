@@ -1,4 +1,4 @@
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, Platform } from 'react-native';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'expo-router';
@@ -21,24 +21,6 @@ import DeleteIcon from '@/components/icons/DeleteIcon';
 import CollectionCard from '@/components/Verses/CollectionCard';
 import { useAuth } from '@clerk/clerk-expo';
 import FlashListSkeletonLoader from '@/components/FlashListSkeletonLoader';
-
-export const metadata = {
-  title: 'All Collections - Into My Heart',
-  description:
-    'View and manage all your Bible verse collections. Organize verses by theme, topic, or study plan.',
-  openGraph: {
-    title: 'All Collections - Into My Heart',
-    description:
-      'View and manage all your Bible verse collections. Organize verses by theme, topic, or study plan.',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'All Collections - Into My Heart',
-    description:
-      'View and manage all your Bible verse collections. Organize verses by theme, topic, or study plan.',
-  },
-};
 
 const AllCollectionScreen = () => {
   const { isSignedIn, isLoaded } = useAuth();
@@ -73,6 +55,28 @@ const AllCollectionScreen = () => {
 
   return (
     <SafeAreaView className='flex-1'>
+      {Platform.OS === 'web' && (
+        <>
+          <title>All Collections - Into My Heart</title>
+          <meta
+            name='description'
+            content='View and manage all your Bible verse collections. Organize verses by theme, topic, or study plan.'
+          />
+          <meta
+            name='keywords'
+            content='Bible, memorization, verses, flashcards, practice, Christian, faith, scripture'
+          />
+          <meta name='author' content='Into My Heart' />
+          <meta name='robots' content='index, follow' />
+          <meta property='og:type' content='website' />
+          <meta property='og:site_name' content='Into My Heart' />
+          <meta property='og:locale' content='en_US' />
+          <meta name='twitter:card' content='summary_large_image' />
+          <meta name='theme-color' content='#313131' />
+          <meta name='msapplication-TileColor' content='#313131' />
+        </>
+      )}
+
       <BackHeader
         title={shouldDelete ? 'Delete Collections' : 'All Collections'}
         canDelete

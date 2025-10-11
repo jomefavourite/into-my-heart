@@ -1,4 +1,4 @@
-import { ScrollView, View } from 'react-native';
+import { ScrollView, View, Platform } from 'react-native';
 import React, { useCallback, useMemo, useRef, useEffect } from 'react';
 import ThemedText from '@/components/ThemedText';
 import BackHeader from '@/components/BackHeader';
@@ -74,24 +74,6 @@ const getVerseTexts = async ({
     console.error(`Error fetching ${bookName} ${chapter}:${verse}:`, error);
     return null;
   }
-};
-
-export const metadata = {
-  title: 'Add Verse - Into My Heart',
-  description:
-    'Add a new Bible verse to your memorization collection. Select book, chapter, and verses to memorize.',
-  openGraph: {
-    title: 'Add Verse - Into My Heart',
-    description:
-      'Add a new Bible verse to your memorization collection. Select book, chapter, and verses to memorize.',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Add Verse - Into My Heart',
-    description:
-      'Add a new Bible verse to your memorization collection. Select book, chapter, and verses to memorize.',
-  },
 };
 
 export default function VerseSummary() {
@@ -457,6 +439,28 @@ export default function VerseSummary() {
 
   return (
     <SafeAreaView className='flex-1'>
+      {Platform.OS === 'web' && (
+        <>
+          <title>Add Verse - Into My Heart</title>
+          <meta
+            name='description'
+            content='Add a new Bible verse to your memorization collection. Select book, chapter, and verses to memorize.'
+          />
+          <meta
+            name='keywords'
+            content='Bible, memorization, verses, flashcards, practice, Christian, faith, scripture'
+          />
+          <meta name='author' content='Into My Heart' />
+          <meta name='robots' content='index, follow' />
+          <meta property='og:type' content='website' />
+          <meta property='og:site_name' content='Into My Heart' />
+          <meta property='og:locale' content='en_US' />
+          <meta name='twitter:card' content='summary_large_image' />
+          <meta name='theme-color' content='#313131' />
+          <meta name='msapplication-TileColor' content='#313131' />
+        </>
+      )}
+
       <BackHeader
         title='Add Verse'
         items={

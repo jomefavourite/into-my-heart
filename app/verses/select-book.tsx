@@ -60,7 +60,7 @@ const ChapterItem = React.memo(
 
     return (
       <Pressable
-        className='bg-container flex-row justify-center items-center rounded-md w-[54px] h-[40px] m-1'
+        className='m-1 h-[40px] w-[54px] flex-row items-center justify-center rounded-md bg-container'
         onPress={handlePress}
       >
         <ThemedText className='text-center'>{chapter}</ThemedText>
@@ -71,17 +71,8 @@ const ChapterItem = React.memo(
 
 export default function AddBookScreen() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [ready, setReady] = useState(false);
   const { setVerses } = useBookStore();
   const { isCollOrVerse } = useIsCollOrVerse();
-
-  // Defer rendering to after transition
-  useEffect(() => {
-    const task = InteractionManager.runAfterInteractions(() => {
-      setReady(true);
-    });
-    return () => task.cancel();
-  }, []);
 
   // Reset verses when the screen is loaded
   useEffect(() => {
@@ -104,14 +95,6 @@ export default function AddBookScreen() {
         book.abbreviation.toLowerCase().includes(lower)
     );
   }, [searchQuery]);
-
-  if (!ready) {
-    return (
-      <SafeAreaView className='flex-1 justify-center items-center'>
-        <ActivityIndicator size='large' />
-      </SafeAreaView>
-    );
-  }
 
   return (
     <SafeAreaView className='flex-1'>
@@ -155,7 +138,7 @@ export default function AddBookScreen() {
           {filteredBooks.map(book => (
             <AccordionItem key={book.id} value={book.id}>
               <AccordionTrigger className='hover:no-underline'>
-                <View className='flex-row items-center justify-between w-full'>
+                <View className='w-full flex-row items-center justify-between'>
                   <ThemedText>{book.name}</ThemedText>
                   <ThemedText>{book.chaptersLength}</ThemedText>
                 </View>

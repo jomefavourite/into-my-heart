@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { View, Platform } from 'react-native';
 import React from 'react';
 import ThemedText from '@/components/ThemedText';
 import CustomButton from '@/components/CustomButton';
@@ -10,27 +10,31 @@ import FlashCardIcon1 from '@/components/icons/practice/FlashCardIcon1';
 import RecitationIcon from '@/components/icons/practice/RecitationIcon';
 import PageHeader from '@/components/PageHeader';
 
-export const metadata = {
-  title: 'Practice - Into My Heart',
-  description:
-    'Practice memorizing Bible verses with flashcards, fill-in-the-blanks, and recitation techniques.',
-  openGraph: {
-    title: 'Practice - Into My Heart',
-    description:
-      'Practice memorizing Bible verses with flashcards, fill-in-the-blanks, and recitation techniques.',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Practice - Into My Heart',
-    description:
-      'Practice memorizing Bible verses with flashcards, fill-in-the-blanks, and recitation techniques.',
-  },
-};
-
 export default function PracticeScreen() {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className='flex-1'>
+      {Platform.OS === 'web' && (
+        <>
+          <title>Practice - Into My Heart</title>
+          <meta
+            name='description'
+            content='Practice memorizing Bible verses with flashcards, fill-in-the-blanks, and recitation techniques.'
+          />
+          <meta
+            name='keywords'
+            content='Bible, memorization, verses, flashcards, practice, Christian, faith, scripture'
+          />
+          <meta name='author' content='Into My Heart' />
+          <meta name='robots' content='index, follow' />
+          <meta property='og:type' content='website' />
+          <meta property='og:site_name' content='Into My Heart' />
+          <meta property='og:locale' content='en_US' />
+          <meta name='twitter:card' content='summary_large_image' />
+          <meta name='theme-color' content='#313131' />
+          <meta name='msapplication-TileColor' content='#313131' />
+        </>
+      )}
+
       <PageHeader title='Practice' />
 
       <ScrollView className=''>

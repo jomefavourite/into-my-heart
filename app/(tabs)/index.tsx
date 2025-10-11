@@ -1,4 +1,4 @@
-import { View, Pressable, Image } from 'react-native';
+import { View, Pressable, Image, Platform } from 'react-native';
 import CustomButton from '@/components/CustomButton';
 import ThemedText from '@/components/ThemedText';
 import { useRef } from 'react';
@@ -10,12 +10,10 @@ import ShareIcon from '@/components/icons/ShareIcon';
 import { Link, useRouter } from 'expo-router';
 import ArrowRightIcon from '@/components/icons/ArrowRightIcon';
 import { FlatList } from 'react-native';
-import { verses } from '@/lib/utils';
 import VerseCard from '@/components/Verses/VerseCard';
 import ItemSeparator from '@/components/ItemSeparator';
 import AddVersesEmpty from '@/components/EmptyScreen/AddVersesEmpty';
 import { api } from '@/convex/_generated/api';
-import { useAuth, useUser } from '@clerk/clerk-expo';
 import '@/global.css';
 import Loader from '@/components/Loader';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
@@ -23,24 +21,6 @@ import { useQuery } from 'convex-helpers/react/cache';
 import PageHeader from '@/components/PageHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import VersesSuggestion from '@/components/Verses/VersesSuggestion';
-
-export const metadata = {
-  title: 'Into My Heart - Memorize Bible Verses',
-  description:
-    'Memorize Bible verses with proven techniques. Practice with flashcards, fill-in-the-blanks, and recitation methods.',
-  openGraph: {
-    title: 'Into My Heart - Memorize Bible Verses',
-    description:
-      'Memorize Bible verses with proven techniques. Practice with flashcards, fill-in-the-blanks, and recitation methods.',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Into My Heart - Memorize Bible Verses',
-    description:
-      'Memorize Bible verses with proven techniques. Practice with flashcards, fill-in-the-blanks, and recitation methods.',
-  },
-};
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -54,6 +34,28 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className='flex-1'>
+      {Platform.OS === 'web' && (
+        <>
+          <title>Into My Heart - Memorize Bible Verses</title>
+          <meta
+            name='description'
+            content='Into My Heart - Memorize Bible verses with proven techniques. Practice with flashcards, fill-in-the-blanks, and recitation methods.'
+          />
+          <meta
+            name='keywords'
+            content='Bible, memorization, verses, flashcards, practice, Christian, faith, scripture'
+          />
+          <meta name='author' content='Into My Heart' />
+          <meta name='robots' content='index, follow' />
+          <meta property='og:type' content='website' />
+          <meta property='og:site_name' content='Into My Heart' />
+          <meta property='og:locale' content='en_US' />
+          <meta name='twitter:card' content='summary_large_image' />
+          <meta name='theme-color' content='#313131' />
+          <meta name='msapplication-TileColor' content='#313131' />
+        </>
+      )}
+
       {/* {Platform.OS !== 'web' && <HomeHeader isWelcome />} */}
       {/* <View>
         <HomeHeader isWelcome />
