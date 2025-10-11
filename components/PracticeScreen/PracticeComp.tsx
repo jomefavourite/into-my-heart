@@ -154,8 +154,8 @@ export default function PracticeComp({ name }: { name: string }) {
                   setPracticeSession(verses, 'verses');
                   router.push(
                     name === 'flashcards'
-                      ? '/practice/flashcards/practice'
-                      : '/practice/fill-in-blanks/practice'
+                      ? '/memorize/flashcards/practice'
+                      : '/memorize/fill-in-blanks/practice'
                   );
                 }
               }}
@@ -227,8 +227,8 @@ export default function PracticeComp({ name }: { name: string }) {
                 setPracticeSession(allCollectionVerses, 'collections');
                 router.push(
                   name === 'flashcards'
-                    ? '/practice/flashcards/practice'
-                    : '/practice/fill-in-blanks/practice'
+                    ? '/memorize/flashcards/practice'
+                    : '/memorize/fill-in-blanks/practice'
                 );
               }}
               disabled={

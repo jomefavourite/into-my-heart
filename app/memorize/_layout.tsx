@@ -1,7 +1,7 @@
 import React from 'react';
 import { Stack } from 'expo-router';
 
-const PracticeLayout = () => {
+const MemorizeLayout = () => {
   return (
     <>
       <Stack>
@@ -28,4 +28,4 @@ const PracticeLayout = () => {
   );
 };
 
-export default PracticeLayout;
+export default MemorizeLayout;

@@ -126,7 +126,7 @@ export default function FillInTheBlanks() {
   // Handle navigation back if no practice session
   useEffect(() => {
     if (!currentSession) {
-      router.replace('/practice/fill-in-blanks');
+      router.replace('/memorize/fill-in-blanks');
     }
   }, [currentSession, router]);
 
@@ -185,7 +185,7 @@ export default function FillInTheBlanks() {
     } else {
       // Practice session complete
       clearPracticeSession();
-      router.replace('/practice/fill-in-blanks');
+      router.replace('/memorize/fill-in-blanks');
     }
   };
 
@@ -197,7 +197,7 @@ export default function FillInTheBlanks() {
 
   const handleExitPractice = () => {
     clearPracticeSession();
-    router.replace('/practice/fill-in-blanks');
+    router.replace('/memorize/fill-in-blanks');
   };
 
   const renderSentenceWithBlanks = () => {
@@ -251,16 +251,16 @@ export default function FillInTheBlanks() {
   if (!currentSession || !currentVerse) {
     return (
       <SafeAreaView className='flex-1'>
-        <BackHeader items={[{ label: 'Practice', href: '/practice' }]} />
+        <BackHeader items={[{ label: 'Memorize', href: '/memorize' }]} />
         <View className='flex-1 items-center justify-center p-4'>
           <ThemedText className='text-base'>
-            No practice session found
+            No memorize session found
           </ThemedText>
           <CustomButton
-            onPress={() => router.replace('/practice/fill-in-blanks')}
+            onPress={() => router.replace('/memorize/fill-in-blanks')}
             className='mt-4'
           >
-            Start Practice
+            Start Memorize
           </CustomButton>
         </View>
       </SafeAreaView>
@@ -271,13 +271,13 @@ export default function FillInTheBlanks() {
     <SafeAreaView className='flex-1'>
       <BackHeader
         items={[
-          { label: 'Practice', href: '/practice' },
-          { label: 'Fill in the blanks', href: '/practice/fill-in-blanks' },
+          { label: 'Memorize', href: '/memorize' },
+          { label: 'Fill in the blanks', href: '/memorize/fill-in-blanks' },
           {
             label: isCollectionsPractice
               ? 'Collections Practice'
-              : 'Practice Session',
-            href: '/practice/fill-in-blanks/practice',
+              : 'Memorize Session',
+            href: '/memorize/fill-in-blanks/practice',
           },
         ]}
       />
@@ -392,7 +392,7 @@ export default function FillInTheBlanks() {
                   <CustomButton onPress={handleNextVerse} className='px-6'>
                     {currentVerseIndex < verses.length - 1
                       ? 'Next Verse'
-                      : 'Finish Practice'}
+                      : 'Finish Memorize'}
                   </CustomButton>
                 </View>
               )}
@@ -412,7 +412,7 @@ export default function FillInTheBlanks() {
                   onPress={handleExitPractice}
                   className='bg-transparent px-6'
                 >
-                  Exit Practice
+                  Exit Memorize
                 </CustomButton>
               </View>
             </View>

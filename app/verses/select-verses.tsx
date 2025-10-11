@@ -28,6 +28,7 @@ export default function SelectVerses() {
   } = useBookStore();
   const { isCollOrVerse } = useIsCollOrVerse();
   const hasInitialized = useRef(false);
+  const isUpdatingRef = useRef(false);
 
   // Extract values from URL or fallback to store
   const bookName = bookURL || bookName1;
@@ -53,14 +54,19 @@ export default function SelectVerses() {
       }
       hasInitialized.current = true;
     }
-  }, [versesURL, setVerses]);
+  }, [versesURL]);
 
   // Sync local state to store when it changes (but not during programmatic updates)
   useEffect(() => {
-    if (!isUpdatingProgrammatically) {
+    if (!isUpdatingProgrammatically && !isUpdatingRef.current) {
+      isUpdatingRef.current = true;
       setVerses(localVerses);
+      // Reset the ref after the update
+      requestAnimationFrame(() => {
+        isUpdatingRef.current = false;
+      });
     }
-  }, [localVerses, setVerses, isUpdatingProgrammatically]);
+  }, [localVerses, isUpdatingProgrammatically]);
 
   const handleValueChange = useCallback((newValue: string[]) => {
     setLocalVerses(newValue);
@@ -83,11 +89,11 @@ export default function SelectVerses() {
     setLocalVerses(newVerses);
     setVerses(newVerses);
 
-    // Reset flag after state updates
-    setTimeout(() => {
+    // Reset flag after state updates using requestAnimationFrame for better timing
+    requestAnimationFrame(() => {
       setIsUpdatingProgrammatically(false);
-    }, 0);
-  }, [versesLength, setVerses]);
+    });
+  }, [versesLength]);
 
   return (
     <SafeAreaView className='flex-1'>

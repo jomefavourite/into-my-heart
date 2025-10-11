@@ -122,13 +122,13 @@ export default function Flashcards() {
     <SafeAreaView className='flex-1'>
       <BackHeader
         items={[
-          { label: 'Practice', href: '/practice' },
-          { label: 'Flashcards', href: '/practice/flashcards' },
+          { label: 'Memorize', href: '/memorize' },
+          { label: 'Flashcards', href: '/memorize/flashcards' },
           {
             label: isCollectionsPractice
               ? 'Collections Practice'
-              : 'Practice Session',
-            href: '/practice/flashcards/practice',
+              : 'Memorize Session',
+            href: '/memorize/flashcards/practice',
           },
         ]}
       />
@@ -181,7 +181,7 @@ export default function Flashcards() {
 
           <CustomButton
             onPress={handleNext}
-            disabled={!canProceedToNext}
+            disabled={currentIndex >= (verses?.length || 0) - 1}
             className={!canProceedToNext ? 'opacity-50' : ''}
           >
             {currentIndex >= (verses?.length || 0) - 1
@@ -281,19 +281,20 @@ const FlashCard = ({
           </View>
         </Animated.View>
 
-        <Animated.View
-          style={[styles.card, styles.cardBack, backAnimatedStyle]}
-          className='bg-[#3D3D3D]'
+        <ScrollView
+          className='flex-1'
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: 'center',
+            paddingHorizontal: 16,
+            paddingVertical: 20,
+            minHeight: '100%',
+          }}
+          showsVerticalScrollIndicator={false}
         >
-          <ScrollView
-            className='flex-1'
-            contentContainerStyle={{
-              flexGrow: 1,
-              justifyContent: 'center',
-              paddingHorizontal: 16,
-              paddingVertical: 20,
-            }}
-            showsVerticalScrollIndicator={false}
+          <Animated.View
+            style={[styles.card, styles.cardBack, backAnimatedStyle]}
+            className='bg-[#3D3D3D]'
           >
             <ThemedText
               size={18}
@@ -304,11 +305,12 @@ const FlashCard = ({
             <Text className='mt-4 text-center text-base italic text-black dark:text-white'>
               Tap to flip back
             </Text>
-          </ScrollView>
-          <View className='absolute bottom-4 left-1/2 -translate-x-1/2'>
-            <OpenBookIcon />
-          </View>
-        </Animated.View>
+
+            <View className='absolute bottom-4 left-1/2 -translate-x-1/2'>
+              <OpenBookIcon />
+            </View>
+          </Animated.View>
+        </ScrollView>
       </View>
     </TouchableOpacity>
   );

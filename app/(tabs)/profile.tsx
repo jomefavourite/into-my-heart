@@ -87,8 +87,8 @@ const LinkItem = ({ title, link }: { title: string; link: Href }) => (
 );
 
 const CheckboxItem = ({ title }: { title: string }) => {
-  const [isEnabled, setIsEnabled] = useState(false);
   const { isDarkMode, setColorScheme } = useColorScheme();
+  const [isEnabled, setIsEnabled] = useState(isDarkMode);
 
   const toggleSwitch = () => {
     if (title === 'Dark mode') {
@@ -158,7 +158,7 @@ export default function ProfileScreen() {
       <ScrollView className=''>
         <View className='p-[18px]'>
           <View className='web:lg:flex-row web:lg:items-center web:lg:justify-between'>
-            <View className='lg:items-center web:lg:flex-row'>
+            <View className='web:space-x-8 lg:items-center web:lg:flex-row'>
               <View className='mx-auto my-6 lg:mx-0'>
                 <Avatar alt={user?.firstName || ''} className='h-24 w-24'>
                   <AvatarImage source={{ uri: user?.imageUrl }} />
@@ -204,7 +204,7 @@ export default function ProfileScreen() {
               </ThemedText>
             </View>
 
-            <View className='my-6 flex-row items-center justify-between'>
+            <View className='my-6 flex-row items-center justify-between gap-6'>
               <View className='flex-row items-center gap-2'>
                 <ThemedText className='text-[27px] font-semibold text-[#707070]'>
                   0

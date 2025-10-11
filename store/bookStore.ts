@@ -31,6 +31,7 @@ interface BookStore {
   setCollectionName: (name: string) => void;
   setCollectionVerses: (collectionVerses: CollectionVerses) => void;
   setCollectionVersesArray: (collectionVerses: CollectionVerses[]) => void; // Add this setter
+  removeCollectionVerse: (index: number) => void; // Add this setter
   setIsCollectionUpdate: (isCollectionUpdate: boolean) => void;
   setSelectedVerseIds: (ids: string[]) => void; // Add this setter
   resetAll: () => void;
@@ -59,6 +60,12 @@ export const useBookStore = create<BookStore>()(
           collectionVerses: [...state.collectionVerses, collectionVerses],
         })),
       setCollectionVersesArray: collectionVerses => set({ collectionVerses }),
+      removeCollectionVerse: index =>
+        set(state => ({
+          collectionVerses: state.collectionVerses.filter(
+            (_, i) => i !== index
+          ),
+        })),
       setIsCollectionUpdate: isCollectionUpdate => set({ isCollectionUpdate }),
       setSelectedVerseIds: ids => set({ selectedVerseIds: ids }),
       resetAll: () =>

@@ -26,7 +26,7 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
   const { canMakeQueries, isLoading } = useAuthGuard();
   const getCollections = useQuery(
     api.collections.getCollections,
-    canMakeQueries ? {} : 'skip'
+    canMakeQueries ? { take: 5 } : 'skip'
   );
   const collectionSuggestions = useQuery(
     api.collectionSuggestions.getCollectionsSuggestion,
@@ -99,7 +99,7 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
               gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
             }
             ItemSeparatorComponent={ItemSeparator}
-            scrollEnabled={true}
+            scrollEnabled={false}
           />
         )}
       </View>

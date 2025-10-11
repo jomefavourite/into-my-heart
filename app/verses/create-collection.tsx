@@ -34,6 +34,7 @@ const CreateCollection = () => {
     isCollectionUpdate,
     selectedVerseIds,
     setCollectionVersesArray,
+    removeCollectionVerse,
   } = useBookStore();
 
   const addCollection = useMutation(api.collections.addCollection);
@@ -109,6 +110,10 @@ const CreateCollection = () => {
       setCollectionVersesArray(newVerses);
     }
   }, [moveVerses, collectionId, selectedVerses, setCollectionVersesArray]);
+
+  const handleRemoveVerse = (index: number) => {
+    removeCollectionVerse(index);
+  };
 
   const handleCreateCollection = async () => {
     if (!collectionName) {
@@ -227,7 +232,7 @@ const CreateCollection = () => {
           <FlatList
             data={collectionVerses}
             keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => (
+            renderItem={({ item, index }) => (
               <VerseCard
                 // _id={item._id}
                 bookName={item.bookName}
@@ -236,6 +241,8 @@ const CreateCollection = () => {
                 verseTexts={item.verseTexts}
                 onAddPress={() => console.log(`${item} pressed`)}
                 canCheck={false}
+                collectionDelete={true}
+                onCollectionDeletePress={() => handleRemoveVerse(index)}
                 // containerClassName={gridView ? 'w-[50%]' : 'w-full'}
               />
             )}

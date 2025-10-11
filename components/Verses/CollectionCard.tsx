@@ -4,6 +4,8 @@ import AddCircleIcon from '@/components/icons/AddCircleIcon';
 import ThemedText from '../ThemedText';
 import { useRouter } from 'expo-router';
 import { Id } from '@/convex/_generated/dataModel';
+import CheckmarkCircleIcon from '../icons/CheckmarkCircleIcon';
+import CircleIcon from '../icons/CircleIcon';
 
 interface CollectionCardProps {
   _id: Id<'collections'> | Id<'collectionSuggestions'>;
@@ -13,6 +15,9 @@ interface CollectionCardProps {
   onAddPress?: () => void;
   canCheck?: boolean;
   isSuggestion?: boolean;
+  canDelete?: boolean;
+  onDeletePress?: () => void;
+  isSelectedForDelete?: boolean;
 }
 
 const CollectionCard: React.FC<CollectionCardProps> = ({
@@ -23,6 +28,9 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
   onAddPress = () => {},
   canCheck = true,
   isSuggestion = false,
+  canDelete = false,
+  onDeletePress = () => {},
+  isSelectedForDelete = false,
 }) => {
   const router = useRouter();
 
@@ -55,6 +63,15 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
           >
             {collectionName}
           </ThemedText>
+          {canDelete && (
+            <TouchableOpacity className='' onPress={onDeletePress}>
+              {isSelectedForDelete ? (
+                <CheckmarkCircleIcon />
+              ) : (
+                <CircleIcon color={'#000'} />
+              )}
+            </TouchableOpacity>
+          )}
           {/* <TouchableOpacity className='p-2' onPress={onAddPress}>
             <AddCircleIcon color={'#000'} />
           </TouchableOpacity> */}

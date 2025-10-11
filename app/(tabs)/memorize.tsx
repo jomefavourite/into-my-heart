@@ -10,12 +10,12 @@ import FlashCardIcon1 from '@/components/icons/practice/FlashCardIcon1';
 import RecitationIcon from '@/components/icons/practice/RecitationIcon';
 import PageHeader from '@/components/PageHeader';
 
-export default function PracticeScreen() {
+export default function MemorizeScreen() {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className='flex-1'>
       {Platform.OS === 'web' && (
         <>
-          <title>Practice - Into My Heart</title>
+          <title>Memorize - Into My Heart</title>
           <meta
             name='description'
             content='Practice memorizing Bible verses with flashcards, fill-in-the-blanks, and recitation techniques.'
@@ -35,7 +35,7 @@ export default function PracticeScreen() {
         </>
       )}
 
-      <PageHeader title='Practice' />
+      <PageHeader title='Memorize' />
 
       <ScrollView className=''>
         <View className='mx-auto my-[58px] max-w-[192px] px-[18px] md:mx-0 md:my-2 md:max-w-full md:flex-row md:items-start md:justify-between'>
@@ -51,20 +51,22 @@ export default function PracticeScreen() {
               size={14}
               className='mt-1 text-center text-[#707070] dark:text-[#909090] md:text-left'
             >
-              Practice every verse you've added all in one session
+              Memorize every verse you've added all in one session
             </ThemedText>
           </View>
 
           <CustomButton size='lg' className='mt-4 text-center md:mt-0'>
-            Practice All
+            Memorize All
           </CustomButton>
         </View>
 
         <View className='mb-6 px-[18px] md:mt-6'>
-          <ThemedText className='font-semibold'>Practice Techniques</ThemedText>
+          <ThemedText className='font-semibold'>
+            Memorization Techniques
+          </ThemedText>
 
           <View className='mt-2 gap-3'>
-            <Link href='/practice/flashcards'>
+            <Link href='/memorize/flashcards'>
               <View className='w-full flex-row items-center justify-between rounded-lg border border-[#E8E8E8] px-4 py-2 web:p-6 dark:border-[#E8E8E8]'>
                 <ThemedText className='font-medium'>Flashcards</ThemedText>
                 <FlashCardIcon1
@@ -75,7 +77,7 @@ export default function PracticeScreen() {
               </View>
             </Link>
 
-            <Link href='/practice/fill-in-blanks'>
+            <Link href='/memorize/fill-in-blanks'>
               <View className='w-full flex-row items-center justify-between rounded-lg border border-[#E8E8E8] px-4 py-2 web:p-6 dark:border-[#E8E8E8]'>
                 <ThemedText className='font-medium'>
                   Fill-in-the-blanks

@@ -36,14 +36,17 @@ export const addCollection = mutation({
 });
 
 export const getCollections = query({
-  handler: async ctx => {
+  args: {
+    take: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
     const user = await getCurrentUserOrThrow(ctx);
 
     const collections = await ctx.db
       .query('collections')
       .filter(q => q.eq(q.field('userId'), user._id))
       .order('desc')
-      .take(50);
+      .take(args.take ?? 50);
 
     return collections;
   },

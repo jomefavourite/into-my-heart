@@ -7,6 +7,7 @@ import { Link, useRouter } from 'expo-router';
 import { Id } from '@/convex/_generated/dataModel';
 import CircleIcon from '../icons/CircleIcon';
 import CheckmarkCircleIcon from '../icons/CheckmarkCircleIcon';
+import DeleteIcon from '../icons/DeleteIcon';
 
 interface VerseCardProps {
   _id?: Id<'verses'>;
@@ -21,6 +22,8 @@ interface VerseCardProps {
   canDelete?: boolean;
   isSelectedForDelete?: boolean;
   noRoute?: boolean;
+  collectionDelete?: boolean;
+  onCollectionDeletePress?: () => void;
 }
 
 const VerseCard: React.FC<VerseCardProps> = ({
@@ -36,6 +39,8 @@ const VerseCard: React.FC<VerseCardProps> = ({
   onDeletePress,
   isSelectedForDelete,
   noRoute = false,
+  collectionDelete = false,
+  onCollectionDeletePress,
 }) => {
   const router = useRouter();
 
@@ -66,6 +71,12 @@ const VerseCard: React.FC<VerseCardProps> = ({
               ) : (
                 <CircleIcon color={'#000'} />
               )}
+            </TouchableOpacity>
+          )}
+
+          {collectionDelete && (
+            <TouchableOpacity className='' onPress={onCollectionDeletePress}>
+              <DeleteIcon color={'#000'} />
             </TouchableOpacity>
           )}
         </View>

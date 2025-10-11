@@ -12,7 +12,7 @@ import HomeIcon from '@/components/icons/tabs/HomeIcon';
 import PracticeIcon from '@/components/icons/tabs/PracticeIcon';
 import ProfileIcon from '@/components/icons/tabs/ProfileIcon';
 import VersesIcon from '@/components/icons/tabs/VersesIcon';
-// import GoalsIcon from '@/components/icons/tabs/GoalsIcon';
+import GoalsIcon from '@/components/icons/tabs/GoalsIcon';
 import ThemedText from './ThemedText';
 import HomeHeader from './Home/Header';
 import Logo from './icons/logo/Logo';
@@ -23,13 +23,14 @@ type Tab = {
   name: string;
   href: Href;
   icon: React.ComponentType<{ focused: boolean; inverse: boolean }>;
+  disabled?: boolean;
 }[];
 
 const tabs: Tab = [
   { name: 'Home', href: '/(tabs)', icon: HomeIcon },
   { name: 'Verses', href: '/verses', icon: VersesIcon },
-  { name: 'Practice', href: '/practice', icon: PracticeIcon },
-  // { name: 'Goals', href: '/goals', icon: GoalsIcon },
+  { name: 'Memorize', href: '/memorize', icon: PracticeIcon },
+  // { name: 'Goals', href: '/#', icon: GoalsIcon, disabled: true },
   { name: 'Profile', href: '/profile', icon: ProfileIcon },
 ];
 

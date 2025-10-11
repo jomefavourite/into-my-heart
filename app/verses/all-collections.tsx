@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, Platform } from 'react-native';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'expo-router';
 import RemoveCircleIcon from '@/components/icons/RemoveCircleIcon';
@@ -21,17 +21,23 @@ import DeleteIcon from '@/components/icons/DeleteIcon';
 import CollectionCard from '@/components/Verses/CollectionCard';
 import { useAuth } from '@clerk/clerk-expo';
 import FlashListSkeletonLoader from '@/components/FlashListSkeletonLoader';
+import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import CustomButton from '@/components/CustomButton';
 
 const AllCollectionScreen = () => {
   const { isSignedIn, isLoaded } = useAuth();
   const router = useRouter();
   const { gridView } = useGridListView();
-  const [shouldDelete, setShouldDelete] = useState(false);
+  const [shouldSelect, setShouldSelect] = useState(false);
   const [selectedToDelete, setSelectedToDelete] = useState<Id<'collections'>[]>(
     []
   );
   const [bottomSheetIndex, setBottomSheetIndex] = useState(-1);
   const { isDarkMode } = useColorScheme();
+
+  const [moveBottomSheetIndex, setMoveBottomSheetIndex] = useState(-1);
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  const moveBottomSheetRef = useRef<BottomSheet>(null);
 
   const { results, status, loadMore, isLoading } = usePaginatedQuery(
     api.collections.getAllCollections,
@@ -47,11 +53,47 @@ const AllCollectionScreen = () => {
     );
   };
 
-  const handleDeleteVerses: () => Promise<void> = async () => {
+  const handleDeleteCollections: () => Promise<void> = async () => {
     await deleteCollections({ ids: selectedToDelete });
     // toast is needed here
     setBottomSheetIndex(-1);
+    bottomSheetRef.current?.close();
   };
+
+  const RightComponent = (
+    <View className='flex flex-row gap-2'>
+      {!shouldSelect && (
+        <Button
+          size={'icon'}
+          variant={'ghost'}
+          onPress={() => setShouldSelect(true)}
+        >
+          <RemoveCircleIcon />
+        </Button>
+      )}
+
+      {shouldSelect && (
+        <Button
+          size={'icon'}
+          variant={'ghost'}
+          disabled={selectedToDelete?.length === 0}
+          onPress={() => setBottomSheetIndex(1)}
+        >
+          <DeleteIcon />
+        </Button>
+      )}
+
+      {Platform.OS === 'web' && shouldSelect ? (
+        <Button
+          size={'icon'}
+          variant={'ghost'}
+          onPress={() => setShouldSelect(false)}
+        >
+          <CancelIcon />
+        </Button>
+      ) : null}
+    </View>
+  );
 
   return (
     <SafeAreaView className='flex-1'>
@@ -78,46 +120,23 @@ const AllCollectionScreen = () => {
       )}
 
       <BackHeader
-        title={shouldDelete ? 'Delete Collections' : 'All Collections'}
-        canDelete
+        title={shouldSelect ? 'Delete Collections' : 'All Collections'}
+        BreadcrumbRightComponent={RightComponent}
         LiftComponent={
-          shouldDelete ? (
+          shouldSelect ? (
             <Button
               size={'icon'}
               variant={'ghost'}
-              onPress={() => setShouldDelete(false)}
+              onPress={() => setShouldSelect(false)}
             >
               <CancelIcon />
             </Button>
           ) : null
         }
-        RightComponent={
-          <>
-            {shouldDelete && (
-              <Button
-                size={'icon'}
-                variant={'ghost'}
-                onPress={() => setBottomSheetIndex(1)}
-              >
-                <DeleteIcon />
-              </Button>
-            )}
-
-            {!shouldDelete && (
-              <Button
-                size={'icon'}
-                variant={'ghost'}
-                disabled={results.length === 0}
-                onPress={() => setShouldDelete(true)}
-              >
-                <RemoveCircleIcon />
-              </Button>
-            )}
-          </>
-        }
+        RightComponent={RightComponent}
         items={[
           { label: 'Verses', href: '/verses' },
-          { label: 'My Collections', href: '/verses/all-collections' },
+          { label: 'All Collections', href: '/verses/all-collections' },
         ]}
       />
 
@@ -143,6 +162,9 @@ const AllCollectionScreen = () => {
                 onAddPress={() => console.log(`${item} pressed`)}
                 containerClassName={gridView ? 'w-[50%]' : 'w-full'}
                 canCheck={false}
+                canDelete={shouldSelect}
+                onDeletePress={() => toggleSelectedVerse(item._id)}
+                isSelectedForDelete={selectedToDelete.includes(item._id)}
               />
             )}
             columnWrapperStyle={
@@ -153,6 +175,38 @@ const AllCollectionScreen = () => {
           />
         )}
       </View>
+
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={bottomSheetIndex}
+        snapPoints={['25%']}
+        enablePanDownToClose={true}
+        onChange={index => setBottomSheetIndex(index)}
+        backgroundStyle={{
+          backgroundColor: isDarkMode ? '#313131' : '#fff',
+        }}
+        style={{
+          boxShadow: isDarkMode
+            ? '0px -4px 26px rgba(0,0,0, 0.5)'
+            : '0px -4px 26px rgba(0,0,0, 0.1)',
+          borderRadius: 30,
+        }}
+      >
+        <BottomSheetView className='flex-1 p-4'>
+          <View className='mx-auto mb-6 mt-6'>
+            <ThemedText className='mb-6 text-center font-medium text-black dark:text-white'>
+              These collections will be removed
+            </ThemedText>
+            <ThemedText className='mb-6 text-center font-medium text-black dark:text-white'>
+              These collections will be removed and all progress. This action
+              cannot be undone.
+            </ThemedText>
+            <CustomButton onPress={handleDeleteCollections}>
+              Remove collections
+            </CustomButton>
+          </View>
+        </BottomSheetView>
+      </BottomSheet>
     </SafeAreaView>
   );
 };

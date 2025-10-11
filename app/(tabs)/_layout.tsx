@@ -53,9 +53,9 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name='practice'
+          name='memorize'
           options={{
-            title: 'Practice',
+            title: 'Memorize',
             tabBarIcon: ({ focused }) => <PracticeIcon focused={focused} />,
           }}
         />

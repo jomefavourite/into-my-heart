@@ -179,7 +179,7 @@ export function AddVerseForm({ type, onClose, onSuccess }: AddVerseFormProps) {
           bookName: bookName.trim(),
           chapter: parseInt(chapter),
           verses: verseNumbers,
-          versesTexts: verseTextsArray,
+          verseTexts: verseTextsArray,
           reviewFreq,
         };
         await addVerseSuggestion(args);

@@ -39,14 +39,14 @@ export default function Flashcards() {
           <Button
             size={'icon'}
             variant='ghost'
-            onPress={() => router.push('/practice/flashcards')}
+            onPress={() => router.push('/memorize/flashcards')}
           >
             <SettingsIcon />
           </Button>
         }
         items={[
-          { label: 'Practice', href: '/practice' },
-          { label: 'Flashcards', href: '/practice/flashcards' },
+          { label: 'Memorize', href: '/memorize' },
+          { label: 'Flashcards', href: '/memorize/flashcards' },
         ]}
       />
 

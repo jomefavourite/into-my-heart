@@ -91,7 +91,7 @@ export default function HomeScreen() {
                   </ThemedText>
                   <ThemedText
                     variant='medium'
-                    className='my-7 text-base text-white dark:text-primary'
+                    className='my-4 text-base text-white dark:text-primary'
                   >
                     Thy word have I hid in mine heart, That I might not sin
                     against thee.
@@ -106,13 +106,14 @@ export default function HomeScreen() {
                         <ShareIcon stroke='white' />
                       </Button>
                     </View> */}
-                    <CustomButton
+
+                    {/* <CustomButton
                       variant='secondary'
                       className='w-fit'
-                      onPress={() => router.push('/(home)/verse-of-the-day')}
+                      // onPress={() => router.push('/(home)/verse-of-the-day')}
                     >
                       Memorize
-                    </CustomButton>
+                    </CustomButton> */}
                   </View>
                 </View>
               </View>

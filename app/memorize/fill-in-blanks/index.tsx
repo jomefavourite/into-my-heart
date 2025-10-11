@@ -39,14 +39,14 @@ export default function FillInBlanks() {
           <Button
             size={'icon'}
             variant='ghost'
-            onPress={() => router.push('/practice/fill-in-blanks/settings')}
+            onPress={() => router.push('/memorize/fill-in-blanks/settings')}
           >
             <SettingsIcon />
           </Button>
         }
         items={[
-          { label: 'Practice', href: '/practice' },
-          { label: 'Fill in the blanks', href: '/practice/fill-in-blanks' },
+          { label: 'Memorize', href: '/memorize' },
+          { label: 'Fill in the blanks', href: '/memorize/fill-in-blanks' },
         ]}
       />
 

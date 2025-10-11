@@ -38,16 +38,11 @@ const MoveToCollectionModal: React.FC<MoveToCollectionModalProps> = ({
   const [newCollectionName, setNewCollectionName] = useState('');
   const [hasInputError, setHasInputError] = useState(false);
 
-  const {
-    setCollectionName,
-    setVerses,
-    setIsCollOrVerse,
-    setSelectedVerseIds,
-  } = useBookStore();
+  const { setCollectionName, setVerses, setSelectedVerseIds } = useBookStore();
   const { setIsCollOrVerse: setTabStore } = useIsCollOrVerse();
 
   // Fetch existing collections
-  const collections = useQuery(api.collections.getCollections);
+  const collections = useQuery(api.collections.getCollections, {});
 
   const handleSelectExistingCollection = (collectionId: Id<'collections'>) => {
     // Store the selected verse IDs in the store

@@ -263,7 +263,7 @@ export function BulkAddVerses() {
             bookName,
             chapter: parseFloat(chapter.toString()),
             verses,
-            versesTexts: verseTexts.map((vt: any) => ({
+            verseTexts: verseTexts.map((vt: any) => ({
               verse: vt.verse.toString(),
               text: vt.text,
             })),

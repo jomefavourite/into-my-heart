@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Platform } from 'react-native';
+import { View, Text, ScrollView, Platform, FlatList } from 'react-native';
 import React, { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import RemoveCircleIcon from '@/components/icons/RemoveCircleIcon';
@@ -162,7 +162,7 @@ const AllVersesScreen = () => {
         {isLoading && results?.length === 0 ? (
           <FlashListSkeletonLoader type='verses' gridView={gridView} />
         ) : (
-          <FlashList
+          <FlatList
             key={gridView ? 'grid-myverses' : 'list-myverses'}
             data={results}
             keyExtractor={(item, index) => index.toString()}
@@ -186,9 +186,9 @@ const AllVersesScreen = () => {
                 isSelectedForDelete={selectedVerses.includes(item._id)}
               />
             )}
-            // columnWrapperStyle={
-            //   gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
-            // }
+            columnWrapperStyle={
+              gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
+            }
             ItemSeparatorComponent={ItemSeparator}
           />
         )}

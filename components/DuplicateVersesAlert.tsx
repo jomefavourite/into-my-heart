@@ -10,6 +10,9 @@ import {
 import { AlertTriangle, X } from 'lucide-react-native';
 import CustomBottomSheet from './CustomBottomSheet';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
+import ThemedText from './ThemedText';
+import { Button } from './ui/button';
+import CustomButton from './CustomButton';
 
 interface DuplicateVersesAlertProps {
   visible: boolean;
@@ -63,7 +66,7 @@ export function DuplicateVersesAlert({
       }}
     >
       <View
-        className='flex-1 bg-black/50 items-center justify-center p-4'
+        className='flex-1 items-center justify-center bg-black/50 p-4'
         style={{
           position: 'fixed',
           top: 0,
@@ -73,14 +76,14 @@ export function DuplicateVersesAlert({
           zIndex: 10000,
         }}
       >
-        <View className='bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl max-w-md w-full'>
+        <View className='w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800'>
           {/* Header */}
-          <View className='flex-row items-center justify-between mb-4'>
+          <View className='mb-4 flex-row items-center justify-between'>
             <View className='flex-row items-center'>
               <AlertTriangle size={24} color='#F59E0B' />
-              <Text className='text-xl font-bold text-amber-600 ml-2'>
+              <ThemedText className='ml-2 text-xl font-bold'>
                 Duplicate Verses Found
-              </Text>
+              </ThemedText>
             </View>
             <TouchableOpacity
               onPress={onClose}
@@ -92,41 +95,38 @@ export function DuplicateVersesAlert({
           </View>
 
           {/* Message */}
-          <Text className='text-gray-600 mb-6 leading-5'>
+          <ThemedText className='mb-6 leading-5 text-gray-600'>
             The following verses from {bookName} {chapter} already exist in your
             collection:
-          </Text>
+          </ThemedText>
 
-          <View className='bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg mb-6'>
-            <Text className='text-amber-800 dark:text-amber-200 font-medium text-center'>
+          <View className='mb-6 rounded-lg'>
+            <ThemedText className='text-center font-medium'>
               {duplicateVerses.join(', ')}
-            </Text>
+            </ThemedText>
           </View>
 
-          <Text className='text-gray-600 mb-6 leading-5'>
+          <ThemedText className='mb-6 leading-5 text-gray-600'>
             These verses will be skipped. Do you want to continue adding the
             remaining verses?
-          </Text>
+          </ThemedText>
 
           {/* Actions */}
           <View className='flex-row space-x-3'>
-            <TouchableOpacity
+            <CustomButton
               onPress={onClose}
-              className='flex-1 bg-gray-100 dark:bg-gray-700 py-3 px-4 rounded-md'
+              variant='outline'
+              className='flex-1 rounded-md px-4 py-3'
             >
-              <Text className='text-gray-700 dark:text-gray-300 font-medium text-center'>
-                Cancel
-              </Text>
-            </TouchableOpacity>
+              Cancel
+            </CustomButton>
 
-            <TouchableOpacity
+            <CustomButton
               onPress={onContinue}
-              className='flex-1 bg-blue-600 py-3 px-4 rounded-md'
+              className='flex-1 rounded-md px-4 py-3'
             >
-              <Text className='text-white font-medium text-center'>
-                Continue
-              </Text>
-            </TouchableOpacity>
+              Continue
+            </CustomButton>
           </View>
         </View>
       </View>

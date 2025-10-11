@@ -9,27 +9,26 @@ import { Image } from 'react-native';
 const steps = [
   {
     number: 1,
-    title: 'Select Verses',
+    title: 'Save Verses and Collections',
     description:
       'Choose from curated collections or search for specific passages that resonate with you.',
   },
   {
     number: 2,
-    title: 'Listen, reflect, and take notes',
+    title: 'Memorize the Word and track your progress',
     description:
-      'Our simple 4-step process makes Scripture memorization accessible and effective for everyone.',
+      'Memorize the Word and track your progress with fill-in-the-blanks, flashcards, and recitation techniques.',
   },
   {
     number: 3,
-    title: 'Practice to memorize and track your progress',
+    title: 'Set goals and meet your expectations ',
     description:
-      'Our simple 4-step process makes Scripture memorization accessible and effective for everyone.',
+      'Achieve your memorization targets through personalized goals, with daily reminders and progress tracking.',
   },
   {
     number: 4,
-    title: 'Practice to memorize and track your progress',
-    description:
-      'Our simple 4-step process makes Scripture memorization accessible and effective for everyone.',
+    title: 'Save notes for further study',
+    description: 'Access your saved notes for further study and reference.',
   },
 ];
 
@@ -38,25 +37,25 @@ const HowItWorksSection = (): JSX.Element => {
     <>
       <section
         id='approach'
-        className='flex flex-col items-center gap-[50px] py-[50px] px-6 md:px-[107px] w-full'
+        className='flex w-full flex-col items-center gap-[50px] px-6 py-[50px] md:px-[107px]'
       >
         {/* Header section */}
         <div className='flex flex-col items-center gap-3'>
           <Badge
             variant='secondary'
-            className='flex flex-row items-center gap-1 px-3 py-1.5 bg-neutral-50 rounded-[20px]'
+            className='flex flex-row items-center gap-1 rounded-[20px] bg-neutral-50 px-3 py-1.5'
           >
             <OpenBookSVG />
-            <span className='font-medium text-[#313131] text-sm'>
+            <span className='text-sm font-medium text-[#313131]'>
               How It Works
             </span>
           </Badge>
 
           <div className='flex flex-col items-center justify-center gap-2 text-center'>
-            <h2 className="[font-family:'Onest',Helvetica] font-semibold text-[#313131] text-[28px] leading-[34px]">
+            <h2 className="text-[28px] font-semibold leading-[34px] text-[#313131] [font-family:'Onest',Helvetica]">
               Simple, fun, and interactive
             </h2>
-            <p className="max-w-[460px] [font-family:'Inter',Helvetica] font-medium text-[#707070] text-base tracking-[0.16px] leading-6">
+            <p className="max-w-[460px] text-base font-medium leading-6 tracking-[0.16px] text-[#707070] [font-family:'Inter',Helvetica]">
               Our simple 4-step process makes Scripture memorization accessible
               and effective for everyone.
             </p>
@@ -64,36 +63,36 @@ const HowItWorksSection = (): JSX.Element => {
         </div>
 
         {/* Main content section */}
-        <div className='flex flex-col lg:flex-row items-center justify-center gap-[50px]'>
+        <div className='flex flex-col items-center justify-center gap-[50px] lg:flex-row'>
           {/* Phone mockup card */}
-          <Card className='w-full md:w-[460px] h-[470px] bg-neutral-50 rounded-[20px] overflow-hidden border-none'>
-            <div className='relative w-full h-[427px] top-[43px]'>
+          <Card className='h-[470px] w-full overflow-hidden rounded-[20px] border-none bg-neutral-50 md:w-[460px]'>
+            <div className='relative top-[43px] h-[427px] w-full'>
               <Image
-                className='object-center w-full mx-auto'
+                className='mx-auto w-full object-center'
                 alt='iPhone showing app interface'
                 source={require('/assets/images/phone-mock.png')}
               />
-              <div className='absolute w-full h-[61px] bottom-0 left-0 backdrop-blur-[5px] [background:linear-gradient(0deg, #F0F0F0 37.23%, rgba(255, 255, 255, 0.00) 109.02%)]' />
+              <div className='[background:linear-gradient(0deg, #F0F0F0 37.23%, rgba(255, 255, 255, 0.00) 109.02%)] absolute bottom-0 left-0 h-[61px] w-full backdrop-blur-[5px]' />
             </div>
           </Card>
 
           {/* Steps section */}
           <div className='flex items-start justify-center gap-2.5'>
             {/* Numbers column */}
-            <div className='flex flex-col items-center gap-[72px] relative'>
+            <div className='relative flex flex-col items-center gap-[72px]'>
               {/* <img
                 className='absolute w-px h-[350px] top-[17px] left-5 object-cover'
                 alt='Vertical line connecting steps'
                 src='/line-4.svg'
               /> */}
-              <div className='absolute w-px h-[350px] bg-[#e8e8e8] top-[17px] left-5 object-cover -z-10'></div>
+              <div className='absolute left-5 top-[17px] -z-10 h-[350px] w-px bg-[#e8e8e8] object-cover'></div>
 
               {steps.map(step => (
                 <div
                   key={step.number}
-                  className='flex w-[42px] items-center justify-center px-[7px] py-[9px] bg-neutral-50 rounded-[100px] overflow-hidden border-2 border-solid border-[#e8e8e8]'
+                  className='flex w-[42px] items-center justify-center overflow-hidden rounded-[100px] border-2 border-solid border-[#e8e8e8] bg-neutral-50 px-[7px] py-[9px]'
                 >
-                  <div className="mt-[-2.00px] [font-family:'Inter',Helvetica] font-medium text-[#707070] text-base text-center leading-6">
+                  <div className="mt-[-2.00px] text-center text-base font-medium leading-6 text-[#707070] [font-family:'Inter',Helvetica]">
                     {step.number}
                   </div>
                 </div>
@@ -105,10 +104,10 @@ const HowItWorksSection = (): JSX.Element => {
               {steps.map(step => (
                 <div key={step.number} className='flex items-start gap-2.5'>
                   <div className='flex flex-col items-start justify-center gap-1'>
-                    <h3 className="[font-family:'Inter',Helvetica] font-medium text-[#313131] text-sm leading-5">
+                    <h3 className="text-sm font-medium leading-5 text-[#313131] [font-family:'Inter',Helvetica]">
                       {step.title}
                     </h3>
-                    <p className="w-full max-w-[400px] [font-family:'Inter',Helvetica] font-normal text-[#707070] text-sm leading-5">
+                    <p className="w-full max-w-[400px] text-sm font-normal leading-5 text-[#707070] [font-family:'Inter',Helvetica]">
                       {step.description}
                     </p>
                   </div>
