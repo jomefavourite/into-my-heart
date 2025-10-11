@@ -90,7 +90,7 @@ export default function TabBarSidebar() {
       </View>
 
       {/* Content area */}
-      <View className='flex-1' style={{ width: 'auto' }}>
+      <View className='w-full max-w-[1040px] flex-1'>
         {/* {Platform.OS === 'web' && <HomeHeader />} */}
         <Slot />
       </View>

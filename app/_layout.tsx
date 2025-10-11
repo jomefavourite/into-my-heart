@@ -170,7 +170,6 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
     const inOnboardingGroup = segments[0] === '(onboarding)';
 
     if (!inOnboardingGroup) {
-      console.log('InitialLayout - TabBarSidebar');
       return <TabBarSidebar />;
     }
   }

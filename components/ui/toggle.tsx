@@ -25,7 +25,7 @@ const toggleVariants = cva(
         ),
       },
       size: {
-        default: 'h-10 min-w-10 px-2.5 sm:h-9 sm:min-w-9 sm:px-2',
+        default: 'min-h-[40px] min-w-[54px]',
         sm: 'h-9 min-w-9 px-2 sm:h-8 sm:min-w-8 sm:px-1.5',
         lg: 'h-11 min-w-11 px-3 sm:h-10 sm:min-w-10 sm:px-2.5',
       },
@@ -53,7 +53,8 @@ function Toggle({
           ? 'text-accent-foreground'
           : Platform.select({ web: 'group-hover:text-muted-foreground' }),
         className
-      )}>
+      )}
+    >
       <TogglePrimitive.Root
         className={cn(
           toggleVariants({ variant, size }),
@@ -67,9 +68,14 @@ function Toggle({
   );
 }
 
-function ToggleIcon({ className, ...props }: React.ComponentProps<typeof Icon>) {
+function ToggleIcon({
+  className,
+  ...props
+}: React.ComponentProps<typeof Icon>) {
   const textClass = React.useContext(TextClassContext);
-  return <Icon className={cn('size-4 shrink-0', textClass, className)} {...props} />;
+  return (
+    <Icon className={cn('size-4 shrink-0', textClass, className)} {...props} />
+  );
 }
 
 export { Toggle, ToggleIcon, toggleVariants };

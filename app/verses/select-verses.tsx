@@ -113,7 +113,7 @@ export default function SelectVerses() {
       />
 
       <View className='flex-1 justify-between px-[18px]'>
-        <ScrollView className='flex-1'>
+        <View className='flex-1'>
           <ThemedText className='mb-4 text-lg font-semibold'>
             {bookName} {chapter}
           </ThemedText>
@@ -122,7 +122,7 @@ export default function SelectVerses() {
             value={localVerses}
             onValueChange={handleValueChange}
             type='multiple'
-            className='w-full flex-wrap justify-start gap-2'
+            className='flex-wrap gap-2'
           >
             {new Array(versesLength).fill(0).map((_, index) => {
               const verseValue = `${index + 1}`;
@@ -133,7 +133,7 @@ export default function SelectVerses() {
                   key={index}
                   value={verseValue}
                   aria-label={`Select verse ${index + 1}`}
-                  className={`h-[40px] w-[54px] flex-row items-center rounded-md bg-container ${isActive ? 'bg-black hover:bg-black web:group-hover:bg-black dark:bg-zinc-500' : ''}`}
+                  className={`min-h-[40px] min-w-[54px] flex-none flex-row items-center justify-center rounded-md bg-container ${isActive ? 'bg-black hover:bg-black web:group-hover:bg-black dark:bg-zinc-500' : ''}`}
                 >
                   <ThemedText style={isActive ? { color: 'white' } : {}}>
                     {index + 1}
@@ -142,7 +142,7 @@ export default function SelectVerses() {
               );
             })}
           </ToggleGroup>
-        </ScrollView>
+        </View>
 
         <View className='my-5 gap-3'>
           <CustomButton variant='outline' onPress={handleAddAllVerse}>
