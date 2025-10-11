@@ -75,7 +75,7 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
           </Button>
         </View>
 
-        {isLoading ? (
+        {getVerses === undefined ? (
           <FlashListSkeletonLoader type='verses' gridView={gridView} />
         ) : (
           <FlatList

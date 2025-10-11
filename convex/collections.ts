@@ -191,3 +191,64 @@ export const updateCollection = mutation({
     return collection;
   },
 });
+
+export const addVersesToCollection = mutation({
+  args: {
+    collectionId: v.id('collections'),
+    verseIds: v.array(v.id('verses')),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUserOrThrow(ctx);
+
+    // Get the collection
+    const collection = await ctx.db.get(args.collectionId);
+    if (!collection) {
+      throw new Error('Collection not found');
+    }
+
+    // Verify the collection belongs to the user
+    if (collection.userId !== user._id) {
+      throw new Error('Unauthorized to modify this collection');
+    }
+
+    // Get the verses to add
+    const versesToAdd = await Promise.all(
+      args.verseIds.map(async id => {
+        const verse = await ctx.db.get(id);
+        if (!verse || verse.userId !== user._id) {
+          return null;
+        }
+        return verse;
+      })
+    );
+
+    const validVerses = versesToAdd.filter(verse => verse !== null);
+
+    if (validVerses.length === 0) {
+      throw new Error('No valid verses found to add');
+    }
+
+    // Convert verses to collection format
+    const newCollectionVerses = validVerses.map(verse => ({
+      bookName: verse!.bookName,
+      chapter: verse!.chapter,
+      verses: verse!.verses,
+      reviewFreq: verse!.reviewFreq ?? '',
+      verseTexts: verse!.verseTexts,
+    }));
+
+    // Add new verses to existing collection
+    const updatedCollectionVerses = [
+      ...collection.collectionVerses,
+      ...newCollectionVerses,
+    ];
+
+    // Update the collection
+    await ctx.db.patch(args.collectionId, {
+      collectionVerses: updatedCollectionVerses,
+      versesLength: updatedCollectionVerses.length,
+    });
+
+    return { success: true, addedCount: validVerses.length };
+  },
+});

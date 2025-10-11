@@ -46,13 +46,15 @@ export default function VersePage() {
               showsVerticalScrollIndicator={true}
               contentContainerStyle={{ justifyContent: 'center', flexGrow: 1 }}
             >
-              {verse && verse?.verseTexts?.length > 0
-                ? verse?.verseTexts.map((text, index) => (
-                    <ThemedText key={index} className=''>
-                      {text.verse}. {text.text}
-                    </ThemedText>
-                  ))
-                : '...'}
+              {verse && verse?.verseTexts?.length > 0 ? (
+                verse?.verseTexts.map((text, index) => (
+                  <ThemedText key={index} className=''>
+                    {text.verse}. {text.text}
+                  </ThemedText>
+                ))
+              ) : (
+                <ThemedText className=''>'...'</ThemedText>
+              )}
             </ScrollView>
           </Card>
 

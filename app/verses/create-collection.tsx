@@ -1,5 +1,5 @@
 import { View, Text } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BackHeader from '@/components/BackHeader';
 import { Label } from '@/components/ui/label';
@@ -15,7 +15,7 @@ import ItemSeparator from '@/components/ItemSeparator';
 import CustomButton from '@/components/CustomButton';
 import ArrowRightIcon from '@/components/icons/ArrowRightIcon';
 import AddVersesEmpty from '@/components/EmptyScreen/AddVersesEmpty';
-import { useMutation } from 'convex/react';
+import { useMutation, useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { useIsCollOrVerse } from '@/store/tab-store';
 import { Id } from '@/convex/_generated/dataModel';
@@ -23,7 +23,7 @@ import { useLocalSearchParams } from 'expo-router';
 
 const CreateCollection = () => {
   const router = useRouter();
-  const { collectionId } = useLocalSearchParams();
+  const { collectionId, moveVerses } = useLocalSearchParams();
 
   const {
     collectionName,
@@ -32,14 +32,83 @@ const CreateCollection = () => {
     setVerses,
     resetAll,
     isCollectionUpdate,
+    selectedVerseIds,
+    setCollectionVersesArray,
   } = useBookStore();
 
   const addCollection = useMutation(api.collections.addCollection);
   const updateCollection = useMutation(api.collections.updateCollection);
+  const addVersesToCollection = useMutation(
+    api.collections.addVersesToCollection
+  );
 
   const { setIsCollOrVerse } = useIsCollOrVerse();
 
   const [hasInputError, setHasInputError] = useState(false);
+  const [isMovingVerses, setIsMovingVerses] = useState(false);
+
+  // If we're moving verses to an existing collection, fetch the collection data
+  const existingCollection = useQuery(
+    api.collections.getCollectionById,
+    collectionId && moveVerses
+      ? { id: collectionId as Id<'collections'> }
+      : 'skip'
+  );
+
+  // Fetch selected verses when moving verses
+  const selectedVerses = useQuery(
+    api.verses.getVersesByIds,
+    moveVerses === 'true' && selectedVerseIds.length > 0
+      ? { ids: selectedVerseIds as Id<'verses'>[] }
+      : 'skip'
+  );
+
+  // Handle moving verses to existing collection
+  useEffect(() => {
+    if (moveVerses === 'true' && collectionId && existingCollection) {
+      setCollectionName(existingCollection.collectionName);
+      setIsMovingVerses(true);
+
+      // Combine existing collection verses with selected verses
+      const existingVerses = existingCollection.collectionVerses || [];
+      const newVerses = selectedVerses
+        ? selectedVerses.map(verse => ({
+            bookName: verse.bookName,
+            chapter: verse.chapter,
+            verses: verse.verses,
+            reviewFreq: verse.reviewFreq ?? '',
+            verseTexts: verse.verseTexts,
+          }))
+        : [];
+
+      setCollectionVersesArray([...existingVerses, ...newVerses]);
+    }
+  }, [
+    moveVerses,
+    collectionId,
+    existingCollection,
+    selectedVerses,
+    setCollectionName,
+    setCollectionVersesArray,
+  ]);
+
+  // Handle creating new collection with selected verses
+  useEffect(() => {
+    if (moveVerses === 'true' && !collectionId && selectedVerses) {
+      setIsMovingVerses(true);
+
+      // Convert selected verses to collection format
+      const newVerses = selectedVerses.map(verse => ({
+        bookName: verse.bookName,
+        chapter: verse.chapter,
+        verses: verse.verses,
+        reviewFreq: verse.reviewFreq ?? '',
+        verseTexts: verse.verseTexts,
+      }));
+
+      setCollectionVersesArray(newVerses);
+    }
+  }, [moveVerses, collectionId, selectedVerses, setCollectionVersesArray]);
 
   const handleCreateCollection = async () => {
     if (!collectionName) {
@@ -49,39 +118,68 @@ const CreateCollection = () => {
 
     setHasInputError(false);
 
-    const mappedCollectionVerses = collectionVerses.map(verse => ({
-      ...verse,
-      reviewFreq: verse.reviewFreq ?? '',
-    }));
-
-    const payload = {
-      collectionName,
-      collectionVerses: mappedCollectionVerses,
-      versesLength: mappedCollectionVerses.length,
-    };
-
     try {
-      if (isCollectionUpdate) {
+      if (isMovingVerses && collectionId) {
+        // Moving verses to existing collection - update the collection with combined verses
+        const mappedCollectionVerses = collectionVerses.map(verse => ({
+          ...verse,
+          reviewFreq: verse.reviewFreq ?? '',
+        }));
+
         await updateCollection({
           id: collectionId as Id<'collections'>,
-          ...payload,
+          collectionName,
+          collectionVerses: mappedCollectionVerses,
+          versesLength: mappedCollectionVerses.length,
         });
+        resetAll();
+        router.push('/verses#collections');
+      } else if (isCollectionUpdate) {
+        // Updating existing collection
+        const mappedCollectionVerses = collectionVerses.map(verse => ({
+          ...verse,
+          reviewFreq: verse.reviewFreq ?? '',
+        }));
+
+        await updateCollection({
+          id: collectionId as Id<'collections'>,
+          collectionName,
+          collectionVerses: mappedCollectionVerses,
+          versesLength: mappedCollectionVerses.length,
+        });
+        resetAll();
+        router.push('/verses#collections');
       } else {
+        // Creating new collection
+        const mappedCollectionVerses = collectionVerses.map(verse => ({
+          ...verse,
+          reviewFreq: verse.reviewFreq ?? '',
+        }));
+
+        const payload = {
+          collectionName,
+          collectionVerses: mappedCollectionVerses,
+          versesLength: mappedCollectionVerses.length,
+        };
+
         await addCollection(payload);
+        resetAll();
+        router.push('/verses#collections');
       }
-      resetAll();
-      router.push('/verses#collections');
     } catch (error) {
-      console.error('Error adding collection:', error);
+      console.error('Error handling collection:', error);
     }
   };
   return (
     <SafeAreaView className='flex-1'>
       <BackHeader
-        title='Create Collection'
+        title={isMovingVerses ? 'Add to Collection' : 'Create Collection'}
         items={[
           { label: 'Verses', href: '/verses' },
-          { label: 'Create Collection', href: '/verses/create-collection' },
+          {
+            label: isMovingVerses ? 'Add to Collection' : 'Create Collection',
+            href: '/verses/create-collection',
+          },
         ]}
       />
 
@@ -108,17 +206,19 @@ const CreateCollection = () => {
         <View className='flex-row items-center justify-between'>
           <ThemedText>Verses</ThemedText>
 
-          <Button
-            size={'icon'}
-            variant={'ghost'}
-            onPress={() => {
-              setIsCollOrVerse('collections');
-              setVerses([]); // Clear any existing verses before starting new selection
-              router.push('/verses/select-book');
-            }}
-          >
-            <AddIcon stroke='white' />
-          </Button>
+          {!isMovingVerses && (
+            <Button
+              size={'icon'}
+              variant={'ghost'}
+              onPress={() => {
+                setIsCollOrVerse('collections');
+                setVerses([]); // Clear any existing verses before starting new selection
+                router.push('/verses/select-book');
+              }}
+            >
+              <AddIcon stroke='white' />
+            </Button>
+          )}
         </View>
 
         <View className='flex-1 justify-between'>
@@ -147,7 +247,7 @@ const CreateCollection = () => {
               disabled={collectionVerses.length < 1}
               onPress={handleCreateCollection}
             >
-              Create Collection
+              {isMovingVerses ? 'Add to Collection' : 'Create Collection'}
             </CustomButton>
           </View>
         </View>

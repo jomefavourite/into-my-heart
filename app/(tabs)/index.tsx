@@ -72,13 +72,13 @@ export default function HomeScreen() {
           <View className='web:scroll-container gap-5 web:grid web:lg:grid-cols-2'>
             <View className='gap-4'>
               {/* Verse of the Day */}
-              {/* <View>
+              <View>
                 <ThemedText
                   size={12}
                   variant='medium'
                   className='!font-semibold md:text-base md:font-medium'
                 >
-                  Verse of the Day
+                  Favourite Verse
                 </ThemedText>
 
                 <View className='mt-2 rounded-3xl border-none bg-[#313131] px-5 py-6 dark:bg-[#343434]'>
@@ -87,26 +87,25 @@ export default function HomeScreen() {
                     variant='medium'
                     className='text-white dark:text-primary'
                   >
-                    John 3:16 KJV
+                    Psalm 119:11 KJV
                   </ThemedText>
                   <ThemedText
                     variant='medium'
                     className='my-7 text-base text-white dark:text-primary'
                   >
-                    For God so loved the world, that he gave his only Son, that
-                    whoever believes in him should not perish but have eternal
-                    life.
+                    Thy word have I hid in mine heart, That I might not sin
+                    against thee.
                   </ThemedText>
 
                   <View className='flex-row items-center justify-between'>
-                    <View className='flex-row gap-2'>
+                    {/* <View className='flex-row gap-2'>
                       <Button size={'icon'} className='bg-transparent'>
                         <FavouriteIcon stroke='white' />
                       </Button>
                       <Button size={'icon'} className='bg-transparent'>
                         <ShareIcon stroke='white' />
                       </Button>
-                    </View>
+                    </View> */}
                     <CustomButton
                       variant='secondary'
                       className='w-fit'
@@ -116,7 +115,7 @@ export default function HomeScreen() {
                     </CustomButton>
                   </View>
                 </View>
-              </View> */}
+              </View>
 
               {/* My Verses */}
               <View className='gap-2'>

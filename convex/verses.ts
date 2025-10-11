@@ -174,3 +174,22 @@ export const getVerseById = query({
     return verse;
   },
 });
+
+export const getVersesByIds = query({
+  args: {
+    ids: v.array(v.id('verses')),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUserOrThrow(ctx);
+
+    const verses = await Promise.all(
+      args.ids.map(async id => {
+        const verse = await ctx.db.get(id);
+        // Only return verses that belong to the user
+        return verse && verse.userId === user._id ? verse : null;
+      })
+    );
+
+    return verses.filter(verse => verse !== null);
+  },
+});

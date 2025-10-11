@@ -12,6 +12,7 @@ type CollectionVerses = {
     text: string;
   }[];
 };
+
 interface BookStore {
   collectionName: string;
   bookName: string;
@@ -21,6 +22,7 @@ interface BookStore {
   verses: string[];
   collectionVerses: CollectionVerses[];
   isCollectionUpdate: boolean;
+  selectedVerseIds: string[]; // Add this for storing verse IDs to move
   setBookName: (name: string) => void;
   setChapter: (chapter: number) => void;
   setChapterLength: (length: number) => void;
@@ -28,7 +30,9 @@ interface BookStore {
   setVerses: (verses: string[]) => void;
   setCollectionName: (name: string) => void;
   setCollectionVerses: (collectionVerses: CollectionVerses) => void;
+  setCollectionVersesArray: (collectionVerses: CollectionVerses[]) => void; // Add this setter
   setIsCollectionUpdate: (isCollectionUpdate: boolean) => void;
+  setSelectedVerseIds: (ids: string[]) => void; // Add this setter
   resetAll: () => void;
 }
 
@@ -43,6 +47,7 @@ export const useBookStore = create<BookStore>()(
       verses: [], // selected verses
       collectionVerses: [],
       isCollectionUpdate: false,
+      selectedVerseIds: [], // Initialize selectedVerseIds
       setBookName: name => set({ bookName: name }),
       setChapter: chapter => set({ chapter }),
       setChapterLength: length => set({ chapterLength: length }),
@@ -53,7 +58,9 @@ export const useBookStore = create<BookStore>()(
         set(state => ({
           collectionVerses: [...state.collectionVerses, collectionVerses],
         })),
+      setCollectionVersesArray: collectionVerses => set({ collectionVerses }),
       setIsCollectionUpdate: isCollectionUpdate => set({ isCollectionUpdate }),
+      setSelectedVerseIds: ids => set({ selectedVerseIds: ids }),
       resetAll: () =>
         set({
           bookName: '',
@@ -64,6 +71,7 @@ export const useBookStore = create<BookStore>()(
           collectionVerses: [],
           versesLength: 0,
           isCollectionUpdate: false,
+          selectedVerseIds: [],
         }),
     }),
     {

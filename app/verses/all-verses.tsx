@@ -21,14 +21,19 @@ import { useGridListView } from '@/store/tab-store';
 import { FlashList } from '@shopify/flash-list';
 import { useAuth } from '@clerk/clerk-expo';
 import FlashListSkeletonLoader from '@/components/FlashListSkeletonLoader';
+import MoveCollectionIcon from '@/components/icons/MoveCollectionIcon';
+import MoveToCollectionBottomSheet from '@/components/MoveToCollectionBottomSheet';
+import MoveToCollectionModal from '@/components/MoveToCollectionModal';
 
 const AllVersesScreen = () => {
   const { isSignedIn, isLoaded } = useAuth();
   const { gridView } = useGridListView();
-  const [shouldDelete, setShouldDelete] = useState(false);
-  const [selectedToDelete, setSelectedToDelete] = useState<Id<'verses'>[]>([]);
+  const [shouldSelect, setShouldSelect] = useState(false);
+  const [selectedVerses, setSelectedVerses] = useState<Id<'verses'>[]>([]);
   const [bottomSheetIndex, setBottomSheetIndex] = useState(-1);
+  const [moveBottomSheetIndex, setMoveBottomSheetIndex] = useState(-1);
   const bottomSheetRef = useRef<BottomSheet>(null);
+  const moveBottomSheetRef = useRef<BottomSheet>(null);
   const { isDarkMode } = useColorScheme();
 
   const { results, status, loadMore, isLoading } = usePaginatedQuery(
@@ -40,52 +45,71 @@ const AllVersesScreen = () => {
   const deleteVerses = useMutation(api.verses.deleteVerses);
 
   const toggleSelectedVerse = (_id: Id<'verses'>) => {
-    setSelectedToDelete(prev =>
+    setSelectedVerses(prev =>
       prev.includes(_id) ? prev.filter(id => id !== _id) : [...prev, _id]
     );
   };
 
   const handleDeleteVerses: () => Promise<void> = async () => {
-    await deleteVerses({ ids: selectedToDelete });
+    await deleteVerses({ ids: selectedVerses });
     // toast is needed here
 
-    setSelectedToDelete([]);
+    setSelectedVerses([]);
     setBottomSheetIndex(-1);
-    setShouldDelete(false);
+    setShouldSelect(false);
     bottomSheetRef.current?.close();
   };
 
   const RightComponent = (
     <View className='flex flex-row gap-2'>
-      {!shouldDelete && (
+      {shouldSelect && (
         <Button
           size={'icon'}
           variant={'ghost'}
-          onPress={() => setShouldDelete(true)}
+          disabled={selectedVerses?.length === 0}
+          onPress={() => {
+            if (Platform.OS === 'web') {
+              setMoveBottomSheetIndex(1);
+            } else {
+              setMoveBottomSheetIndex(1);
+            }
+          }}
+        >
+          <MoveCollectionIcon />
+          <ThemedText>Move to collection</ThemedText>
+        </Button>
+      )}
+
+      {!shouldSelect && (
+        <Button
+          size={'icon'}
+          variant={'ghost'}
+          onPress={() => setShouldSelect(true)}
         >
           <RemoveCircleIcon />
         </Button>
       )}
 
-      <Button
-        size={'icon'}
-        variant={'ghost'}
-        // disabled={selectedToDelete?.length === 0}
-        // onPress={() => setBottomSheetIndex(1)}
-      >
-        <Text>Move to collection</Text>
-      </Button>
-
-      {shouldDelete && (
+      {shouldSelect && (
         <Button
           size={'icon'}
           variant={'ghost'}
-          disabled={selectedToDelete?.length === 0}
+          disabled={selectedVerses?.length === 0}
           onPress={() => setBottomSheetIndex(1)}
         >
           <DeleteIcon />
         </Button>
       )}
+
+      {Platform.OS === 'web' && shouldSelect ? (
+        <Button
+          size={'icon'}
+          variant={'ghost'}
+          onPress={() => setShouldSelect(false)}
+        >
+          <CancelIcon />
+        </Button>
+      ) : null}
     </View>
   );
 
@@ -114,14 +138,14 @@ const AllVersesScreen = () => {
       )}
 
       <BackHeader
-        title={shouldDelete ? 'Delete Verses' : 'My Verses'}
+        title={shouldSelect ? 'Delete Verses' : 'My Verses'}
         BreadcrumbRightComponent={RightComponent}
         LiftComponent={
-          shouldDelete ? (
+          shouldSelect ? (
             <Button
               size={'icon'}
               variant={'ghost'}
-              onPress={() => setShouldDelete(false)}
+              onPress={() => setShouldSelect(false)}
             >
               <CancelIcon />
             </Button>
@@ -157,9 +181,9 @@ const AllVersesScreen = () => {
                 verseTexts={item.verseTexts}
                 containerClassName={gridView ? 'w-[50%]' : 'w-full'}
                 canCheck={false}
-                canDelete={shouldDelete}
+                canDelete={shouldSelect}
                 onDeletePress={() => toggleSelectedVerse(item._id)}
-                isSelectedForDelete={selectedToDelete.includes(item._id)}
+                isSelectedForDelete={selectedVerses.includes(item._id)}
               />
             )}
             // columnWrapperStyle={
@@ -201,6 +225,49 @@ const AllVersesScreen = () => {
           </View>
         </BottomSheetView>
       </BottomSheet>
+
+      {/* Move to Collection Bottom Sheet - Mobile Only */}
+      {Platform.OS !== 'web' && (
+        <BottomSheet
+          ref={moveBottomSheetRef}
+          index={moveBottomSheetIndex}
+          snapPoints={['50%']}
+          enablePanDownToClose={true}
+          onChange={index => setMoveBottomSheetIndex(index)}
+          backgroundStyle={{
+            backgroundColor: isDarkMode ? '#313131' : '#fff',
+          }}
+          style={{
+            boxShadow: isDarkMode
+              ? '0px -4px 26px rgba(0,0,0, 0.5)'
+              : '0px -4px 26px rgba(0,0,0, 0.1)',
+            borderRadius: 30,
+          }}
+        >
+          <MoveToCollectionBottomSheet
+            selectedVerses={selectedVerses}
+            onClose={() => {
+              setMoveBottomSheetIndex(-1);
+              moveBottomSheetRef.current?.close();
+              setSelectedVerses([]);
+              setShouldSelect(false);
+            }}
+          />
+        </BottomSheet>
+      )}
+
+      {/* Move to Collection Modal for Web */}
+      {Platform.OS === 'web' && (
+        <MoveToCollectionModal
+          selectedVerses={selectedVerses}
+          isOpen={moveBottomSheetIndex === 1}
+          onClose={() => {
+            setMoveBottomSheetIndex(-1);
+            setSelectedVerses([]);
+            setShouldSelect(false);
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 };
