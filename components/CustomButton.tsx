@@ -54,7 +54,7 @@ const CustomButton = ({
       {leftIcon && <Icon />}
       {innerElement && innerElement}
       {isLoading ? (
-        <Loader />
+        <ActivityIndicator color={isDarkMode ? '#000' : '#fff'} />
       ) : (
         <ThemedText
           size={14}
