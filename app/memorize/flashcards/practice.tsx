@@ -50,11 +50,12 @@ export default function FlashcardPractice() {
     setIsFlipped(false);
   }, [currentIndex]);
 
-  // Clear practice session when component unmounts
+  // Clear practice session when component unmounts (but not when navigating to complete screen)
   useEffect(() => {
     return () => {
-      // Only clear if we're at the end of the practice session
-      if (verses && currentIndex >= verses.length - 1) {
+      // Only clear if we're not at the end of the practice session
+      // (if we're at the end, we're navigating to complete screen, so don't clear yet)
+      if (verses && currentIndex < verses.length - 1) {
         clearPracticeSession();
       }
     };
@@ -64,9 +65,8 @@ export default function FlashcardPractice() {
     if (verses && currentIndex < verses.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else if (verses && currentIndex >= verses.length - 1) {
-      // Practice session completed
-      clearPracticeSession();
-      router.back();
+      // Practice session completed - navigate to practice complete screen
+      router.replace('./practice-complete');
     }
   };
 
@@ -77,8 +77,7 @@ export default function FlashcardPractice() {
   };
 
   // Check if user can proceed to next question
-  const canProceedToNext =
-    isFlipped && currentIndex < (verses?.length || 0) - 1;
+  const canProceedToNext = isFlipped;
   const canProceedToPrevious = currentIndex > 0;
 
   // console.log({
@@ -183,7 +182,7 @@ export default function FlashcardPractice() {
 
           <CustomButton
             onPress={handleNext}
-            disabled={currentIndex >= (verses?.length || 0) - 1}
+            disabled={!canProceedToNext}
             className={!canProceedToNext ? 'opacity-50' : ''}
           >
             {currentIndex >= (verses?.length || 0) - 1

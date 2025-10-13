@@ -111,3 +111,36 @@ export const formatVerseDisplay = (verses: string[] | undefined) => {
 
   return ` ${firstVerse} - ${lastVerse}`;
 };
+
+export const PracticeCompleteMessages = {
+  standard: [
+    'Great job! Another verse is taking root in your heart. Keep it up!',
+    'Well done! Every session brings you closer to making scripture first nature.',
+    'You’re building a habit that lasts! Stay consistent, and watch how God’s Word transforms you.',
+  ],
+  faithFocused: [
+    'God’s Word is shaping your heart, one verse at a time. Keep growing!',
+    'Strong roots, lasting faith! Keep pressing in, and the Word will stay with you.',
+    'You’re not just memorizing—you’re storing up truth that will guide you always!',
+  ],
+  perfectScore: [
+    'You crushed it! These verses is becoming part of you',
+    'Flawless! Your dedication to the Word is shining through.',
+    'Spot on! Keep practicing, and soon scripture will flow effortlessly from your heart.',
+  ],
+  streakBoosting: [
+    'Your streak is growing! Keep up the momentum and stay rooted in truth.',
+    'Another day, another step in faith! Keep the streak alive and stay in the Word.',
+    'You’re on fire! Keep building your streak and let scripture shape your journey.',
+  ],
+  progress: [
+    "Each step forward is a victory. Keep going, you're making real progress!",
+    'Bit by bit, these verses are becoming part of you. Stay the course!',
+    'Small steps, big impact! The Word is taking root in your heart.',
+  ],
+  encouragement: [
+    'Even when it’s hard, God’s Word is working in you. Stay faithful, keep practicing!',
+    'You’re doing great! Keep pressing in, and the Word will transform you.',
+    'Your dedication is paying off. Keep practicing, and soon scripture will flow effortlessly from your heart.',
+  ],
+};
