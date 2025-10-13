@@ -152,13 +152,7 @@ export default function HomeScreen() {
                         chapter={item.chapter}
                         verses={item.verses}
                         verseTexts={item.verseTexts}
-                        onAddPress={() =>
-                          console.log(
-                            `${item.bookName} ${item.chapter} pressed`
-                          )
-                        }
                         canCheck={false}
-                        noRoute={true}
                       />
                     )}
                     ItemSeparatorComponent={ItemSeparator}

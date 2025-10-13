@@ -48,7 +48,7 @@ const VerseCard: React.FC<VerseCardProps> = ({
   return (
     <Pressable
       onPress={() => {
-        if (canCheck || canDelete || noRoute || !_id) {
+        if (canDelete || noRoute || !_id) {
           return; // Don't navigate
         }
         router.push(`/verses/${_id}`);

@@ -87,6 +87,7 @@ const VersesSuggestion = ({
             verseTexts={item.verseTexts || []} // Provide default empty array
             onAddPress={() => handleAddVerseSuggestion(item)}
             containerClassName={gridView ? 'w-[50%]' : 'w-full'} // Keep this for card sizing
+            noRoute={true}
           />
         )}
         columnWrapperStyle={
