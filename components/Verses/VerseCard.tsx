@@ -8,6 +8,7 @@ import { Id } from '@/convex/_generated/dataModel';
 import CircleIcon from '../icons/CircleIcon';
 import CheckmarkCircleIcon from '../icons/CheckmarkCircleIcon';
 import DeleteIcon from '../icons/DeleteIcon';
+import { formatVerseDisplay } from '@/lib/utils';
 
 interface VerseCardProps {
   _id?: Id<'verses'>;
@@ -61,7 +62,7 @@ const VerseCard: React.FC<VerseCardProps> = ({
             ellipsizeMode='tail'
             className='text-sm font-medium'
           >
-            {bookName} {chapter}:{verses.length > 0 ? verses.join(', ') : '1'}
+            {bookName} {chapter}:{formatVerseDisplay(verses)}
           </ThemedText>
 
           {canDelete && (

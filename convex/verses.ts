@@ -21,6 +21,13 @@ export const addVerse = mutation({
   handler: async (ctx, args) => {
     const user = await getCurrentUserOrThrow(ctx);
 
+    // Validate that verses and verseTexts arrays have the same length
+    if (args.verses.length !== args.verseTexts.length) {
+      throw new Error(
+        `Mismatch: verses array has ${args.verses.length} items but verseTexts has ${args.verseTexts.length} items. They must have the same length.`
+      );
+    }
+
     // Only check for duplicates when adding individually (not as a group)
     if (!args.isGroup) {
       const existingVerses = await ctx.db
@@ -59,6 +66,80 @@ export const addVerse = mutation({
       verseTexts: args.verseTexts,
       userId: user._id, // Reference to the user who created the verse
     });
+  },
+});
+
+export const updateVerse = mutation({
+  args: {
+    id: v.id('verses'),
+    bookName: v.string(),
+    chapter: v.number(),
+    verses: v.array(v.string()),
+    reviewFreq: v.string(),
+    verseTexts: v.array(
+      v.object({
+        verse: v.string(),
+        text: v.string(),
+      })
+    ),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUserOrThrow(ctx);
+
+    // Get the existing verse to verify ownership
+    const existingVerse = await ctx.db.get(args.id);
+    if (!existingVerse) {
+      throw new Error('Verse not found');
+    }
+
+    if (existingVerse.userId !== user._id) {
+      throw new Error('Unauthorized to modify this verse');
+    }
+
+    // Validate that verses and verseTexts arrays have the same length
+    if (args.verses.length !== args.verseTexts.length) {
+      throw new Error(
+        `Mismatch: verses array has ${args.verses.length} items but verseTexts has ${args.verseTexts.length} items. They must have the same length.`
+      );
+    }
+
+    // Check for duplicates with other verses (excluding current verse)
+    const existingVerses = await ctx.db
+      .query('verses')
+      .filter(q => q.eq(q.field('userId'), user._id))
+      .collect();
+
+    for (const otherVerse of existingVerses) {
+      if (
+        otherVerse._id !== args.id && // Skip the current verse being updated
+        otherVerse.bookName === args.bookName &&
+        otherVerse.chapter === args.chapter
+      ) {
+        // Check if any of the verses we're trying to update already exist in other verses
+        const existingVerseNumbers = otherVerse.verses;
+        const newVerseNumbers = args.verses;
+
+        const duplicateVerses = newVerseNumbers.filter(verse =>
+          existingVerseNumbers.includes(verse)
+        );
+
+        if (duplicateVerses.length > 0) {
+          throw new Error(
+            `The following verses already exist in another verse: ${duplicateVerses.join(', ')}. Please remove duplicates and try again.`
+          );
+        }
+      }
+    }
+
+    await ctx.db.patch(args.id, {
+      bookName: args.bookName,
+      chapter: args.chapter,
+      verses: args.verses,
+      reviewFreq: args.reviewFreq,
+      verseTexts: args.verseTexts,
+    });
+
+    return { success: true };
   },
 });
 

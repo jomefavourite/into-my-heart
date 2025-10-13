@@ -1,4 +1,4 @@
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, Platform } from 'react-native';
 import React from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { useQuery } from 'convex-helpers/react/cache';
@@ -14,6 +14,7 @@ import ImageIcon from '@/components/icons/ImageIcon';
 import IdeaIcon from '@/components/icons/IdeaIcon';
 import CustomButton from '@/components/CustomButton';
 import { useAuth } from '@clerk/clerk-expo';
+import { formatVerseDisplay } from '@/lib/utils';
 
 export default function VersePage() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -27,35 +28,65 @@ export default function VersePage() {
       : 'skip'
   );
 
-  console.log(verse);
   return (
     <SafeAreaView className='flex-1'>
       <BackHeader
-        title={`${verse?.bookName} ${verse?.chapter}:${verse && verse?.verses?.length > 0 ? verse?.verses.join(', ') : '1'}`}
+        title={`${verse?.bookName} ${verse?.chapter}:${formatVerseDisplay(verse?.verses)}`}
         items={[
           { label: 'Verses', href: '/verses' },
-          { label: 'Verse Page', href: `/verses/${verseId}` },
+          {
+            label: `${verse?.bookName} ${verse?.chapter}:${formatVerseDisplay(verse?.verses)}`,
+            href: `/verses/${verseId}`,
+          },
         ]}
       />
 
       <View className='flex-1 justify-between px-[18px] pb-[18px]'>
         <View>
-          <Card className='h-60 px-8 py-2'>
-            <ScrollView
-              className='flex-1'
-              showsVerticalScrollIndicator={true}
-              contentContainerStyle={{ justifyContent: 'center', flexGrow: 1 }}
-            >
-              {verse && verse?.verseTexts?.length > 0 ? (
-                verse?.verseTexts.map((text, index) => (
-                  <ThemedText key={index} className=''>
-                    {text.verse}. {text.text}
-                  </ThemedText>
-                ))
+          <Card className='h-96 justify-center px-8 py-4'>
+            <View className='mx-auto max-w-[500px] gap-1'>
+              <ThemedText className=''>
+                {verse?.bookName} {verse?.chapter}:
+                {formatVerseDisplay(verse?.verses)}
+              </ThemedText>
+              {Platform.OS === 'web' ? (
+                <View
+                  style={{
+                    maxHeight: 300,
+                    overflowY: 'auto',
+                    paddingRight: 8,
+                  }}
+                >
+                  {verse && verse?.verseTexts?.length > 0 ? (
+                    verse?.verseTexts.map((text, index) => (
+                      <ThemedText key={index} className=''>
+                        {text.verse}. {text.text}
+                      </ThemedText>
+                    ))
+                  ) : (
+                    <ThemedText className=''>'...'</ThemedText>
+                  )}
+                </View>
               ) : (
-                <ThemedText className=''>'...'</ThemedText>
+                <ScrollView
+                  showsVerticalScrollIndicator={true}
+                  contentContainerStyle={{
+                    justifyContent: 'center',
+                    flexGrow: 1,
+                  }}
+                >
+                  {verse && verse?.verseTexts?.length > 0 ? (
+                    verse?.verseTexts.map((text, index) => (
+                      <ThemedText key={index} className=''>
+                        {text.verse}. {text.text}
+                      </ThemedText>
+                    ))
+                  ) : (
+                    <ThemedText className=''>'...'</ThemedText>
+                  )}
+                </ScrollView>
               )}
-            </ScrollView>
+            </View>
           </Card>
 
           <View className='my-4 flex-row justify-center gap-3'>
@@ -79,7 +110,7 @@ export default function VersePage() {
               <ThemedText className='text-md font-medium'>Study Tip</ThemedText>
             </View>
 
-            <ThemedText className='text-secondary-text text-sm'>
+            <ThemedText className='text-sm'>
               Read the verse aloud repeatedly and try to understand the context
               and meaning.
             </ThemedText>

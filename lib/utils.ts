@@ -98,3 +98,16 @@ export const ONBOARDING_DATA: OnboardingData = {
     btnText: 'Get started',
   },
 };
+
+// Helper function to format verse display
+export const formatVerseDisplay = (verses: string[] | undefined) => {
+  if (!verses || verses.length === 0) return '1';
+  if (verses.length === 1) return verses[0];
+
+  // For 3 or more verses, show range format
+  const sortedVerses = [...verses].sort((a, b) => parseInt(a) - parseInt(b));
+  const firstVerse = sortedVerses[0];
+  const lastVerse = sortedVerses[sortedVerses.length - 1];
+
+  return ` ${firstVerse} - ${lastVerse}`;
+};

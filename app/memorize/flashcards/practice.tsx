@@ -18,8 +18,9 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '@clerk/clerk-expo';
 import { usePracticeStore } from '@/store/practiceStore';
 import Loader from '@/components/Loader';
+import { formatVerseDisplay } from '@/lib/utils';
 
-export default function Flashcards() {
+export default function FlashcardPractice() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const { isSignedIn, isLoaded } = useAuth();
@@ -80,13 +81,13 @@ export default function Flashcards() {
     isFlipped && currentIndex < (verses?.length || 0) - 1;
   const canProceedToPrevious = currentIndex > 0;
 
-  console.log({
-    verses,
-    isLoading,
-    currentSession,
-    isActuallyLoading,
-    shouldFetchVerses,
-  });
+  // console.log({
+  //   verses,
+  //   isLoading,
+  //   currentSession,
+  //   isActuallyLoading,
+  //   shouldFetchVerses,
+  // });
 
   if (isActuallyLoading || (shouldFetchVerses && !verses)) {
     return (
@@ -139,14 +140,15 @@ export default function Flashcards() {
             Flashcard {currentIndex + 1} of {verses.length}
           </ThemedText>
           <ThemedText className='text-sm text-muted-foreground'>
-            {currentVerse.bookName} {currentVerse.chapter}:{currentVerse.verses}
+            {currentVerse.bookName} {currentVerse.chapter}:
+            {formatVerseDisplay(currentVerse.verses)}
           </ThemedText>
         </View>
 
         <View className='flex-1 justify-center'>
           <FlashCard
             key={currentIndex} // Force re-render when question changes
-            front={`${currentVerse.bookName} ${currentVerse.chapter}:${currentVerse.verses.join(', ')}`}
+            front={`${currentVerse.bookName} ${currentVerse.chapter}:${formatVerseDisplay(currentVerse.verses)}`}
             back={`${currentVerse.bookName} ${currentVerse.chapter}:${currentVerse.verses.join(', ')}\n\n${currentVerse.verseTexts
               .map(
                 (vt: { verse: string; text: string }) =>

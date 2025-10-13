@@ -72,9 +72,6 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
               )}
             </TouchableOpacity>
           )}
-          {/* <TouchableOpacity className='p-2' onPress={onAddPress}>
-            <AddCircleIcon color={'#000'} />
-          </TouchableOpacity> */}
         </View>
 
         <ThemedText
