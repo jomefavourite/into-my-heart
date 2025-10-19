@@ -72,44 +72,44 @@ export default function CreateAccount() {
 
   return (
     <SafeAreaView className='flex-1'>
-      <View className='flex flex-col flex-1 justify-between p-[18px]'>
+      <View className='flex flex-1 flex-col justify-between p-[18px]'>
         <Link href='/' className='flex items-center'>
           <Logo />
         </Link>
 
-        <View className=' md:max-w-sm md:mx-auto'>
+        <View className='md:mx-auto md:max-w-sm'>
           <View className=''>
             <View className=''>
               <ThemedText
                 size={18}
                 variant='medium'
-                className='text-center text-lg md:text-2xl font-semibold'
+                className='text-center text-lg font-semibold md:text-2xl'
               >
                 Sign in or Create an account
               </ThemedText>
 
               <ThemedText
                 size={14}
-                className='text-secondary-text text-center mt-2 max-w-[260px] mx-auto'
+                className='text-secondary-text mx-auto mt-2 max-w-[260px] text-center'
               >
                 Keep your progress safe and sync across devices.
               </ThemedText>
             </View>
 
-            <View className='gap-3 my-12'>
+            <View className='my-12 gap-3'>
               <CustomButton onPress={onGooglePress}>
                 Continue with Google
               </CustomButton>
-              <CustomButton variant='outline' onPress={onApplePress}>
+              {/* <CustomButton variant='outline' onPress={onApplePress}>
                 Continue with Apple
-              </CustomButton>
+              </CustomButton> */}
             </View>
           </View>
         </View>
 
         <ThemedText
           size={12}
-          className='text-center text-secondary-text text-sm'
+          className='text-secondary-text text-center text-sm'
         >
           By signing up, you agree to our Terms and have read our Privacy Policy
         </ThemedText>
