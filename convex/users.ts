@@ -244,6 +244,25 @@ export const setUserRole = mutation({
   },
 });
 
+export const updateUserProfile = mutation({
+  args: {
+    first_name: v.optional(v.string()),
+    last_name: v.optional(v.string()),
+    imageUrl: v.optional(v.string()),
+  },
+  handler: async (ctx, { first_name, last_name, imageUrl }) => {
+    const currentUser = await getCurrentUserOrThrow(ctx);
+
+    const updateData: any = {};
+    if (first_name !== undefined) updateData.first_name = first_name;
+    if (last_name !== undefined) updateData.last_name = last_name;
+    if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
+
+    await ctx.db.patch(currentUser._id, updateData);
+    return { success: true };
+  },
+});
+
 // Helper function to check if current user is admin
 export const isCurrentUserAdmin = query({
   args: {},

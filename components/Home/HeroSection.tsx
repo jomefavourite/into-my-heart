@@ -116,9 +116,7 @@ const HeroSection = (): JSX.Element => {
 
             <CustomButton
               variant='outline'
-              innerElement={
-                <span className='text-secondary-text text-xs'>Coming soon</span>
-              }
+              innerElement={<span className='text-xs'>Coming soon</span>}
               disabled
               className='cursor-not-allowed flex-col gap-0'
             >

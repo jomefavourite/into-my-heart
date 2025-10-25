@@ -1,4 +1,4 @@
-import { SafeAreaView, View } from 'react-native';
+import { View, Alert } from 'react-native';
 import React, { useState } from 'react';
 import BackHeader from '@/components/BackHeader';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -11,14 +11,30 @@ import CustomButton from '@/components/CustomButton';
 import DeleteIcon, { DeleteLightIcon } from '@/components/icons/DeleteIcon';
 import CustomBottomSheet from '@/components/CustomBottomSheet';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Stack } from 'expo-router';
+import { useMutation } from 'convex/react';
+import { api } from '@/convex/_generated/api';
+import { useToast } from 'react-native-toast-notifications';
+
+export const metadata = {
+  title: 'Edit Profile',
+  description:
+    'Edit your profile information including name and profile picture',
+};
 
 export default function EditProfile() {
   const { user } = useUser();
   const bottomSheetRef = React.useRef<BottomSheet>(null);
+  const updateUserProfile = useMutation(api.users.updateUserProfile);
+  const toast = useToast();
 
   const [selectedImage, setSelectedImage] = useState<string | undefined>(
     undefined
   );
+  const [firstName, setFirstName] = useState(user?.firstName || '');
+  const [lastName, setLastName] = useState(user?.lastName || '');
+  const [isLoading, setIsLoading] = useState(false);
 
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -30,7 +46,53 @@ export default function EditProfile() {
     if (!result.canceled) {
       setSelectedImage(result.assets[0].uri);
     } else {
-      alert('You did not select any image.');
+      Alert.alert('No image selected', 'You did not select any image.');
+    }
+  };
+
+  const handleSave = async () => {
+    if (!user) return;
+
+    setIsLoading(true);
+    try {
+      // Update user profile with Clerk
+      await user.update({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+      });
+
+      // If there's a new image, update it
+      if (selectedImage) {
+        const response = await fetch(selectedImage);
+        const blob = await response.blob();
+        await user.setProfileImage({ file: blob });
+      }
+
+      // Update Convex with the new profile data
+      await updateUserProfile({
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        imageUrl: selectedImage || user.imageUrl,
+      });
+
+      // toast.show('Profile updated successfully!', {
+      //   type: 'succes',
+      //   placement: 'bottom',
+      //   duration: 4000,
+      //   animationType: 'slide-in',
+      // });
+
+      // Alert.alert('Success', 'Profile updated successfully!');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      // toast.show('Failed to update profile. Please try again.', {
+      //   type: 'danger',
+      //   placement: 'bottom',
+      //   duration: 4000,
+      // });
+      // Alert.alert('Error', 'Failed to update profile. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -44,16 +106,32 @@ export default function EditProfile() {
       <View className='p-[18px]'>
         <View className='gap-10'>
           <View className='mx-auto mt-6'>
-            <Avatar alt={user?.firstName || ''} className='h-24 w-24'>
-              <AvatarImage
-                source={{ uri: selectedImage ? selectedImage : user?.imageUrl }}
+            <View className='mx-auto h-24 w-24 items-center justify-center gap-0 rounded-full border-2 border-dashed border-gray-300 p-0 dark:border-gray-600'>
+              <CustomButton
+                onPress={pickImageAsync}
+                variant='default'
+                className='mx-auto gap-0'
+                innerElement={
+                  <Avatar alt={firstName || ''} className='h-20 w-20'>
+                    {/* <AvatarImage
+                      source={{
+                        uri: selectedImage ? selectedImage : user?.imageUrl,
+                      }}
+                    /> */}
+                    <AvatarFallback>
+                      <ThemedText className='text-lg font-medium'>
+                        {firstName?.charAt(0) ||
+                          user?.firstName?.charAt(0) ||
+                          '?'}
+                      </ThemedText>
+                    </AvatarFallback>
+                  </Avatar>
+                }
               />
-              <AvatarFallback>
-                <ThemedText>{user?.firstName?.charAt(0)}</ThemedText>
-              </AvatarFallback>
-            </Avatar>
-
-            {/* <CustomButton onPress={pickImageAsync}>o</CustomButton> */}
+            </View>
+            <ThemedText className='mt-2 text-center text-sm text-gray-600 dark:text-gray-400'>
+              Tap to change photo
+            </ThemedText>
           </View>
 
           <View className='gap-4'>
@@ -61,43 +139,56 @@ export default function EditProfile() {
               <Label nativeID='firstName'>First name</Label>
               <Input
                 aria-aria-labelledby='firstName'
-                defaultValue={user?.firstName || ''}
+                value={firstName}
+                onChangeText={setFirstName}
                 placeholder='Enter first name'
                 className='dark:text-white'
-                editable={false}
+                editable={true}
               />
             </View>
             <View className='gap-3 pb-3'>
               <Label nativeID='lastName'>Last name</Label>
               <Input
                 aria-aria-labelledby='lastName'
-                defaultValue={user?.lastName || ''}
+                value={lastName}
+                onChangeText={setLastName}
                 placeholder='Enter last name'
                 className='dark:text-white'
-                editable={false}
+                editable={true}
               />
             </View>
             <View className='gap-3 pb-3'>
               <Label nativeID='email'>Email</Label>
               <Input
                 aria-aria-labelledby='email'
-                defaultValue={user?.primaryEmailAddress?.toString() || ''}
-                placeholder='Enter last name'
+                value={user?.primaryEmailAddress?.toString() || ''}
+                placeholder='Email address'
                 className='dark:text-white'
                 editable={false}
               />
             </View>
           </View>
 
-          <CustomButton
-            leftIcon
-            className='w-full'
-            onPress={() => {
-              bottomSheetRef.current?.expand();
-            }}
-          >
-            Delete Account
-          </CustomButton>
+          <View className='gap-3'>
+            <CustomButton
+              onPress={handleSave}
+              className='w-full'
+              disabled={isLoading}
+            >
+              {isLoading ? 'Saving...' : 'Save Changes'}
+            </CustomButton>
+
+            <CustomButton
+              leftIcon
+              variant='destructive'
+              className='w-full'
+              onPress={() => {
+                bottomSheetRef.current?.expand();
+              }}
+            >
+              Delete Account
+            </CustomButton>
+          </View>
         </View>
 
         <CustomBottomSheet ref={bottomSheetRef} index={-1} snapPoints={['30%']}>
@@ -114,7 +205,7 @@ export default function EditProfile() {
               <CustomButton onPress={() => bottomSheetRef.current?.close()}>
                 Cancel
               </CustomButton>
-              <CustomButton variant='outline'>Delete Account</CustomButton>
+              <CustomButton variant='destructive'>Delete Account</CustomButton>
             </View>
           </BottomSheetView>
         </CustomBottomSheet>

@@ -46,7 +46,7 @@ const StreakBottomSheetContent = memo(() => {
 });
 
 export const StartDateBottomSheetContent = memo(() => {
-  const customHeaderProps: any = useRef();
+  const customHeaderProps: any = useRef({});
 
   const setCustomHeaderNewMonth = (next = false) => {};
   const moveNext = () => {

@@ -6,21 +6,18 @@ import ThemedText from '@/components/ThemedText';
 import { Button } from '@/components/ui/button';
 import { cn, ONBOARDING_DATA } from '@/lib/utils';
 import CancelIcon from '@/components/icons/CancelIcon';
-import ArrowLeftIcon from '@/components/icons/ArrowLeftIcon';
 
 interface OnboardingProps {
   stepNumber: number;
   onNext?: () => void;
   onPrevious?: () => void;
   onStepChange?: (step: number) => void;
-  showNavigation?: boolean;
 }
 
 export default function Onboarding({
   stepNumber,
   onNext,
   onStepChange,
-  showNavigation = false,
 }: OnboardingProps) {
   const router = useRouter();
   const stepData = ONBOARDING_DATA[stepNumber];
@@ -75,11 +72,11 @@ export default function Onboarding({
         <View className='flex-row gap-3'>
           <CustomButton
             onPress={
-              showNavigation
+              stepNumber < 3
                 ? onNext
                 : () => router.push('/(onboarding)/onboard')
             }
-            className={showNavigation && stepNumber > 1 ? 'flex-1' : 'w-full'}
+            className='flex-1'
           >
             {stepData.btnText}
           </CustomButton>

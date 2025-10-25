@@ -40,6 +40,7 @@ import {
   initialWindowMetrics,
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
+import { ToastProvider } from 'react-native-toast-notifications';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -100,6 +101,7 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
   const navigationAttempted = React.useRef(false);
   const currentRoute = React.useRef<string>('');
   const authCheckAttempted = React.useRef(false);
+  const [isCheckingAuth, setIsCheckingAuth] = React.useState(false);
 
   // This prevent flash of white on navigation
   SystemUI.setBackgroundColorAsync(
@@ -111,23 +113,43 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
   useFrameworkReady();
 
   useEffect(() => {
-    if (!isLoaded || navigationAttempted.current) return;
+    if (!isLoaded || isCheckingAuth) return;
 
     const currentPath = segments.join('/');
+    const inAuthGroup = segments[0] === '(onboarding)';
+
+    // Add development mode guard to prevent redirects during hot reloads
+    if (__DEV__) {
+      // In development, only redirect from root path or when explicitly needed
+      if (currentPath === '' || currentPath === '/') {
+        if (isSignedIn) {
+          router.replace('/(tabs)');
+        } else {
+          router.replace('/(onboarding)/onboard');
+        }
+      }
+      return;
+    }
+
+    // Only run auth check on initial load or auth state changes
+    const shouldRedirect =
+      (isSignedIn && inAuthGroup && !navigationAttempted.current) ||
+      (!isSignedIn && !inAuthGroup && !navigationAttempted.current);
+
+    if (!shouldRedirect) return;
 
     // Prevent navigation loops
-    if (currentRoute.current === currentPath) {
+    if (currentRoute.current === currentPath && navigationAttempted.current) {
       return;
     }
 
     currentRoute.current = currentPath;
 
-    // Reset navigation attempt flag when auth state changes
-    navigationAttempted.current = false;
-    authCheckAttempted.current = false;
-
-    const inAuthGroup = segments[0] === '(onboarding)';
-    const inTabsGroup = segments[0] === '(tabs)';
+    // Add debounce to prevent rapid auth checks during development
+    setIsCheckingAuth(true);
+    const timeoutId = setTimeout(() => {
+      setIsCheckingAuth(false);
+    }, 300);
 
     // Add delay to ensure authentication state is stable
     const authCheck = async () => {
@@ -139,7 +161,6 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
 
       // Only redirect if necessary and safe to do so
       if (isSignedIn && inAuthGroup) {
-        // Only redirect if we're actually in the onboarding group
         try {
           navigationAttempted.current = true;
           console.log('InitialLayout - Redirecting to tabs');
@@ -149,7 +170,6 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
           navigationAttempted.current = false;
         }
       } else if (!isSignedIn && !inAuthGroup) {
-        // Only redirect if we're not already in the onboarding group
         try {
           navigationAttempted.current = true;
           console.log('InitialLayout - Redirecting to onboarding');
@@ -162,7 +182,9 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
     };
 
     authCheck();
-  }, [isLoaded, isSignedIn, segments]);
+
+    return () => clearTimeout(timeoutId);
+  }, [isLoaded, isSignedIn]);
 
   const { width } = useWindowDimensions();
 
@@ -248,7 +270,9 @@ function ThemeProviderWrapper() {
     <ThemeProvider value={isDarkMode ? DARK_THEME : LIGHT_THEME}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-          <InitialLayout isDarkMode={isDarkMode} />
+          <ToastProvider>
+            <InitialLayout isDarkMode={isDarkMode} />
+          </ToastProvider>
           <PortalHost />
           <StatusBar style='auto' />
         </SafeAreaProvider>

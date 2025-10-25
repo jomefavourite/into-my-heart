@@ -128,6 +128,13 @@ export default function AddBookScreen() {
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
+
+        <View className='mt-2 flex flex-row justify-between'>
+          <ThemedText className='text-sm font-medium'>Books</ThemedText>
+          <ThemedText className='text-sm font-medium'>
+            Total Chapters
+          </ThemedText>
+        </View>
       </View>
 
       <ScrollView
