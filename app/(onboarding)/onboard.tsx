@@ -1,5 +1,5 @@
-import { View, Platform } from 'react-native';
-import React, { useCallback, useEffect } from 'react';
+import { View, Platform, Alert } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import ThemedText from '@/components/ThemedText';
 import CustomButton from '@/components/CustomButton';
 import * as WebBrowser from 'expo-web-browser';
@@ -20,14 +20,78 @@ export const useWarmUpBrowser = () => {
   }, []);
 };
 
+/**
+ * Minimal & robust Safari detection:
+ * - On web only, true Safari is UA contains "safari" but not "chrome"/"crios"/"fxios"/"edg".
+ */
+const useIsSafari = () => {
+  return useMemo(() => {
+    if (Platform.OS !== 'web') return false;
+    const ua = (navigator.userAgent || navigator.vendor || '').toLowerCase();
+    const isSafariEngine =
+      ua.includes('safari') &&
+      !ua.includes('chrome') &&
+      !ua.includes('crios') &&
+      !ua.includes('fxios') &&
+      !ua.includes('edg');
+    return isSafariEngine;
+  }, []);
+};
+
 WebBrowser.maybeCompleteAuthSession();
 
 export default function CreateAccount() {
   useWarmUpBrowser();
 
   const { startSSOFlow } = useSSO();
+  const isSafari = useIsSafari();
+
+  // Guard against double-taps and let us show retry UI if popup was blocked.
+  const inFlight = useRef(false);
+  const [showSafariPopupHelp, setShowSafariPopupHelp] = React.useState(false);
+
+  // Use a stable redirect URL. Prefer no proxy on web; proxy is fine on native.
+  // const redirectUrl = useMemo(
+  //   () =>
+  //     AuthSession.makeRedirectUri({
+  //       preferLocalhost: true,
+  //       useProxy: Platform.OS !== 'web',
+
+  //     }),
+  //   []
+  // );
+
+  const redirectUrl = AuthSession.makeRedirectUri({
+    scheme: 'into-my-heart',
+    path: 'auth',
+    preferLocalhost: Platform.OS === 'web',
+  });
+
+  const runGoogleSSO = useCallback(async () => {
+    const { createdSessionId, setActive /* signIn, signUp */ } =
+      await startSSOFlow({
+        strategy: 'oauth_google',
+        redirectUrl,
+      });
+    if (createdSessionId) {
+      await setActive!({ session: createdSessionId });
+    }
+  }, [redirectUrl, startSSOFlow]);
 
   const onGooglePress = useCallback(async () => {
+    if (inFlight.current) return;
+    inFlight.current = true;
+    setShowSafariPopupHelp(false);
+
+    // Optional, friendly heads-up for Safari users.
+    if (isSafari) {
+      // Non-blocking: we *don't* await this; we still kick SSO immediately.
+      Alert.alert(
+        'Allow pop-ups for Google sign-in',
+        'Safari may block the sign-in window. If nothing opens, enable pop-ups for this site and tap Retry.'
+      );
+    }
+
     try {
       const { createdSessionId, setActive, signIn, signUp } =
         await startSSOFlow({
@@ -47,6 +111,21 @@ export default function CreateAccount() {
       // See https://clerk.com/docs/custom-flows/error-handling
       // for more info on error handling
       console.error(JSON.stringify(err, null, 2));
+
+      // Typical signals we treat as "popup blocked / dismissed"
+      const msg = String((err as any)?.message || err);
+      const name = String((err as any)?.name || '');
+      const looksBlocked =
+        /blocked|not allowed|dismissed|cancel/i.test(msg) ||
+        /AbortError|Canceled|ERR_WEBBROWSER/i.test(name + ' ' + msg);
+
+      if (isSafari && looksBlocked) {
+        // Show inline help + Retry button
+        setShowSafariPopupHelp(true);
+      } else {
+        console.error('Google SSO error:', err);
+        Alert.alert('Sign-in failed', 'Please try again.');
+      }
     }
   }, []);
 

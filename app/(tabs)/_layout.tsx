@@ -27,7 +27,6 @@ export default function TabLayout() {
           tabBarLabelStyle: {
             fontSize: 12,
             fontWeight: 500,
-            fontFamily: 'Inter',
           },
           tabBarItemStyle:
             Platform.OS === 'web'
