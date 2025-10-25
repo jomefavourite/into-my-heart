@@ -52,7 +52,6 @@ export default function OnboardingPage() {
           onNext={handleNext}
           onPrevious={handlePrevious}
           onStepChange={handleStepChange}
-          showNavigation={true}
         />
       </View>
     </Container>
