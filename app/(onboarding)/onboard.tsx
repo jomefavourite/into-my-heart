@@ -90,7 +90,7 @@ export default function CreateAccount() {
 
               <ThemedText
                 size={14}
-                className='text-secondary-text mx-auto mt-2 max-w-[260px] text-center'
+                className='mx-auto mt-2 max-w-[260px] text-center'
               >
                 Keep your progress safe and sync across devices.
               </ThemedText>
@@ -107,10 +107,7 @@ export default function CreateAccount() {
           </View>
         </View>
 
-        <ThemedText
-          size={12}
-          className='text-secondary-text text-center text-sm'
-        >
+        <ThemedText size={12} className='text-center text-sm'>
           By signing up, you agree to our Terms and have read our Privacy Policy
         </ThemedText>
       </View>

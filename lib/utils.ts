@@ -1,6 +1,5 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { Href } from 'expo-router';
 import OnboardIcon1 from '@/components/icons/onboarding/onboarding-1.svg';
 import React from 'react';
 import { create } from 'zustand';
@@ -36,7 +35,6 @@ export const verses = [
 export interface OnboardingStep {
   title: string;
   subtile: string;
-  link: Href;
   Icon: React.ComponentType<any> | null; // Or any other appropriate type for Icon
   btnText: string;
 }
@@ -77,7 +75,7 @@ export const ONBOARDING_DATA: OnboardingData = {
     title: "God's Word Hidden in Your Heart.",
     subtile:
       "Build a habit of hiding God's Word in your heart with interactive tools designed to help you remember and apply scripture.",
-    link: '/(onboarding)/step2',
+
     Icon: OnboardIcon1,
     btnText: 'Next',
   },
@@ -85,7 +83,7 @@ export const ONBOARDING_DATA: OnboardingData = {
     title: 'Build a Habit That Lasts.',
     subtile:
       'Choose your own verses or explore curated collections. Set goals and review at your own pace.',
-    link: '/(onboarding)/step3',
+
     Icon: null,
     btnText: 'Next',
   },
@@ -93,7 +91,6 @@ export const ONBOARDING_DATA: OnboardingData = {
     title: 'Scripture. Practice. Retain.',
     subtile:
       'Use fill-in-the-blanks, flashcards, and guided review to make scripture memorization simple and effective.',
-    link: '/(onboarding)/onboard',
     Icon: null,
     btnText: 'Get started',
   },

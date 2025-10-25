@@ -1,9 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Platform } from 'react-native';
 import Container from '@/components/Container';
 import Onboarding from '@/components/Onboarding';
 
-export default function OnboardingStep1() {
+export default function OnboardingPage() {
+  const [currentStep, setCurrentStep] = useState(1);
+
+  const handleNext = () => {
+    if (currentStep < 3) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const handleStepChange = (step: number) => {
+    setCurrentStep(step);
+  };
+
   return (
     <Container>
       {Platform.OS === 'web' && (
@@ -29,7 +47,13 @@ export default function OnboardingStep1() {
       )}
 
       <View className='flex-1 justify-between'>
-        <Onboarding stepNumber={1} />
+        <Onboarding
+          stepNumber={currentStep}
+          onNext={handleNext}
+          onPrevious={handlePrevious}
+          onStepChange={handleStepChange}
+          showNavigation={true}
+        />
       </View>
     </Container>
   );

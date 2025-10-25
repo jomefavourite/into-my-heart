@@ -1,38 +1,55 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import CustomButton from '@/components/CustomButton';
 import ThemedText from '@/components/ThemedText';
 import { Button } from '@/components/ui/button';
 import { cn, ONBOARDING_DATA } from '@/lib/utils';
 import CancelIcon from '@/components/icons/CancelIcon';
+import ArrowLeftIcon from '@/components/icons/ArrowLeftIcon';
 
-export default function Onboarding({ stepNumber }: { stepNumber: number }) {
+interface OnboardingProps {
+  stepNumber: number;
+  onNext?: () => void;
+  onPrevious?: () => void;
+  onStepChange?: (step: number) => void;
+  showNavigation?: boolean;
+}
+
+export default function Onboarding({
+  stepNumber,
+  onNext,
+  onStepChange,
+  showNavigation = false,
+}: OnboardingProps) {
   const router = useRouter();
   const stepData = ONBOARDING_DATA[stepNumber];
 
   return (
     <>
-      <View className='flex-row justify-between items-center'>
+      <View className='flex-row items-center justify-between'>
         <View className='flex flex-row gap-1'>
-          <View
+          <Pressable
+            onPress={() => onStepChange?.(1)}
             className={cn(
-              'h-[5px] bg-[#E8E8E8] w-10 rounded-full',
+              'h-[5px] w-10 rounded-full bg-[#E8E8E8] dark:bg-[#E8E8E8]/15',
               stepNumber == 1 && 'bg-black dark:bg-white'
             )}
-          ></View>
-          <View
+          ></Pressable>
+          <Pressable
+            onPress={() => onStepChange?.(2)}
             className={cn(
-              'h-[5px] bg-[#E8E8E8] w-10 rounded-full',
+              'h-[5px] w-10 rounded-full bg-[#E8E8E8] dark:bg-[#E8E8E8]/15',
               stepNumber == 2 && 'bg-black dark:bg-white'
             )}
-          ></View>
-          <View
+          ></Pressable>
+          <Pressable
+            onPress={() => onStepChange?.(3)}
             className={cn(
-              'h-[5px] bg-[#E8E8E8] w-10 rounded-full',
+              'h-[5px] w-10 rounded-full bg-[#E8E8E8] dark:bg-[#E8E8E8]/15',
               stepNumber == 3 && 'bg-black dark:bg-white'
             )}
-          ></View>
+          ></Pressable>
         </View>
 
         <Button variant={'ghost'} size='icon' className='w-fit'>
@@ -42,22 +59,31 @@ export default function Onboarding({ stepNumber }: { stepNumber: number }) {
         </Button>
       </View>
 
-      <View className='justify-center items-center'>
+      <View className='items-center justify-center'>
         {stepData.Icon && <stepData.Icon />}
       </View>
 
       <View>
         <View className='mb-20'>
-          <ThemedText type='subtitle' className=' text-black dark:text-white'>
+          <ThemedText className='text-black dark:text-white'>
             {stepData.title}
           </ThemedText>
 
           <ThemedText className='text-[#707070]'>{stepData.subtile}</ThemedText>
         </View>
 
-        <CustomButton onPress={() => router.push(stepData.link)}>
-          {stepData.btnText}
-        </CustomButton>
+        <View className='flex-row gap-3'>
+          <CustomButton
+            onPress={
+              showNavigation
+                ? onNext
+                : () => router.push('/(onboarding)/onboard')
+            }
+            className={showNavigation && stepNumber > 1 ? 'flex-1' : 'w-full'}
+          >
+            {stepData.btnText}
+          </CustomButton>
+        </View>
       </View>
     </>
   );
