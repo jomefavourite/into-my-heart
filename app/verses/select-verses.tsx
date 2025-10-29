@@ -119,36 +119,38 @@ export default function SelectVerses() {
       />
 
       <View className='flex-1 justify-between px-[18px]'>
-        <View className='flex-1'>
-          <ThemedText className='mb-4 text-lg font-semibold'>
-            {bookName} {chapter}
-          </ThemedText>
+        <ScrollView>
+          <View className='flex-1'>
+            <ThemedText className='mb-4 text-lg font-semibold'>
+              {bookName} {chapter}
+            </ThemedText>
 
-          <ToggleGroup
-            value={localVerses}
-            onValueChange={handleValueChange}
-            type='multiple'
-            className='flex-wrap gap-2'
-          >
-            {new Array(versesLength).fill(0).map((_, index) => {
-              const verseValue = `${index + 1}`;
-              const isActive = localVerses.includes(verseValue);
+            <ToggleGroup
+              value={localVerses}
+              onValueChange={handleValueChange}
+              type='multiple'
+              className='flex-wrap gap-2'
+            >
+              {new Array(versesLength).fill(0).map((_, index) => {
+                const verseValue = `${index + 1}`;
+                const isActive = localVerses.includes(verseValue);
 
-              return (
-                <ToggleGroupItem
-                  key={index}
-                  value={verseValue}
-                  aria-label={`Select verse ${index + 1}`}
-                  className={`min-h-[40px] min-w-[54px] flex-none flex-row items-center justify-center rounded-md bg-container ${isActive ? 'bg-black hover:bg-black web:group-hover:bg-black dark:bg-zinc-500' : ''}`}
-                >
-                  <ThemedText style={isActive ? { color: 'white' } : {}}>
-                    {index + 1}
-                  </ThemedText>
-                </ToggleGroupItem>
-              );
-            })}
-          </ToggleGroup>
-        </View>
+                return (
+                  <ToggleGroupItem
+                    key={index}
+                    value={verseValue}
+                    aria-label={`Select verse ${index + 1}`}
+                    className={`h-[60px] min-w-[60px] max-w-[60px] flex-none flex-row items-center justify-center rounded-md bg-container ${isActive ? 'bg-black hover:bg-black web:group-hover:bg-black dark:bg-zinc-500' : ''}`}
+                  >
+                    <ThemedText style={isActive ? { color: 'white' } : {}}>
+                      {index + 1}
+                    </ThemedText>
+                  </ToggleGroupItem>
+                );
+              })}
+            </ToggleGroup>
+          </View>
+        </ScrollView>
 
         <View className='my-5 gap-3'>
           <CustomButton variant='outline' onPress={handleAddAllVerse}>

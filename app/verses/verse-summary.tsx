@@ -502,126 +502,134 @@ export default function VerseSummary() {
         }
       />
 
-      <View className='flex-1 justify-between px-[18px]'>
-        <View className='gap-5'>
-          <View className='gap-3'>
-            {isCollOrVerse === 'collections' && (
-              <View className='w-full flex-row items-center justify-between'>
-                <ThemedText className='text-sm'>Collection name</ThemedText>
-                <Button
-                  size={'sm'}
-                  variant={'ghost'}
-                  className='flex-row items-center text-sm'
-                  // onPress={handleBookChange}
-                >
-                  <ThemedText className='text-sm'>{collectionName}</ThemedText>
-                  <ArrowRightIcon />
-                </Button>
-              </View>
-            )}
-            <View className='w-full flex-row items-center justify-between'>
-              <ThemedText className='text-sm'>Book</ThemedText>
-              <Button
-                size={'sm'}
-                variant={'ghost'}
-                className='flex-row items-center text-sm'
-                onPress={handleBookChange}
-              >
-                <ThemedText className='text-sm'>
-                  {bookName} {chapter}
-                </ThemedText>
-                <ArrowRightIcon />
-              </Button>
-            </View>
-            <View className='w-full flex-row items-center justify-between'>
-              <ThemedText className='text-sm'>Verses</ThemedText>
-              <Button
-                size={'sm'}
-                variant={'ghost'}
-                className='flex-row items-center text-sm'
-                onPress={() =>
-                  router.replace(
-                    `/verses/select-verses?book=${bookName}&chapter=${chapter}`
-                  )
-                }
-              >
-                <ThemedText className='text-sm'>
-                  {versesList.length > 5
-                    ? `${minVerse}...${maxVerse}`
-                    : versesList.sort((a, b) => a - b).join(', ')}
-                </ThemedText>
-                <ArrowRightIcon />
-              </Button>
-            </View>
-            <View className='w-full flex-row items-center justify-between'>
-              <ThemedText className='text-sm'>Bible translation</ThemedText>
-              <Button
-                size={'sm'}
-                variant={'ghost'}
-                className='flex-row items-center text-sm'
-                disabled
-              >
-                <ThemedText className='text-sm'>KJV</ThemedText>
-              </Button>
-            </View>
-            <View className='w-full flex-row items-center justify-between'>
-              <ThemedText className='text-sm'>Review Frequency</ThemedText>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+      <View className='flex-1'>
+        <ScrollView
+          className='flex-1'
+          contentContainerStyle={{ paddingBottom: 100 }}
+        >
+          <View className='gap-5 px-[18px]'>
+            <View className='gap-3'>
+              {isCollOrVerse === 'collections' && (
+                <View className='w-full flex-row items-center justify-between'>
+                  <ThemedText className='text-sm'>Collection name</ThemedText>
                   <Button
                     size={'sm'}
                     variant={'ghost'}
                     className='flex-row items-center text-sm'
+                    // onPress={handleBookChange}
                   >
                     <ThemedText className='text-sm'>
-                      {reviewFreqValue}
+                      {collectionName}
                     </ThemedText>
+                    <ArrowRightIcon />
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className='native:w-52 w-48 px-0'>
-                  <DropdownMenuItem onPress={() => setReviewFreqValue('Daily')}>
-                    <ThemedText>Daily</ThemedText>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onPress={() => setReviewFreqValue('Weekly')}
-                  >
-                    <ThemedText>Weekly</ThemedText>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onPress={() => setReviewFreqValue('Monthly')}
-                  >
-                    <ThemedText>Monthly</ThemedText>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </View>
-          </View>
-
-          <ScrollView className='max-h-[200px] overflow-y-auto rounded-md border border-black p-3 dark:border-white'>
-            {isVerseTextsListLoading ? (
-              <View className='flex-1 items-center justify-center'>
-                <ActivityIndicator />
-              </View>
-            ) : (
-              verseTexts.map((text, index) => (
-                <ThemedText
-                  key={index}
-                  size={13}
-                  className='block w-full !overflow-hidden !text-ellipsis text-[#707070] dark:text-[#909090]'
+                </View>
+              )}
+              <View className='w-full flex-row items-center justify-between'>
+                <ThemedText className='text-sm'>Book</ThemedText>
+                <Button
+                  size={'sm'}
+                  variant={'ghost'}
+                  className='flex-row items-center text-sm'
+                  onPress={handleBookChange}
                 >
-                  {text?.verse}. {text?.text}
-                </ThemedText>
-              ))
-            )}
-          </ScrollView>
-        </View>
+                  <ThemedText className='text-sm'>
+                    {bookName} {chapter}
+                  </ThemedText>
+                  <ArrowRightIcon />
+                </Button>
+              </View>
+              <View className='w-full flex-row items-center justify-between'>
+                <ThemedText className='text-sm'>Verses</ThemedText>
+                <Button
+                  size={'sm'}
+                  variant={'ghost'}
+                  className='flex-row items-center text-sm'
+                  onPress={() =>
+                    router.replace(
+                      `/verses/select-verses?book=${bookName}&chapter=${chapter}`
+                    )
+                  }
+                >
+                  <ThemedText className='text-sm'>
+                    {versesList.length > 5
+                      ? `${minVerse}...${maxVerse}`
+                      : versesList.sort((a, b) => a - b).join(', ')}
+                  </ThemedText>
+                  <ArrowRightIcon />
+                </Button>
+              </View>
+              <View className='w-full flex-row items-center justify-between'>
+                <ThemedText className='text-sm'>Bible translation</ThemedText>
+                <Button
+                  size={'sm'}
+                  variant={'ghost'}
+                  className='flex-row items-center text-sm'
+                  disabled
+                >
+                  <ThemedText className='text-sm'>KJV</ThemedText>
+                </Button>
+              </View>
+              <View className='w-full flex-row items-center justify-between'>
+                <ThemedText className='text-sm'>Review Frequency</ThemedText>
 
-        <View className='flex-row gap-3'>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      size={'sm'}
+                      variant={'ghost'}
+                      className='flex-row items-center text-sm'
+                    >
+                      <ThemedText className='text-sm'>
+                        {reviewFreqValue}
+                      </ThemedText>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className='native:w-52 w-48 px-0'>
+                    <DropdownMenuItem
+                      onPress={() => setReviewFreqValue('Daily')}
+                    >
+                      <ThemedText>Daily</ThemedText>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onPress={() => setReviewFreqValue('Weekly')}
+                    >
+                      <ThemedText>Weekly</ThemedText>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onPress={() => setReviewFreqValue('Monthly')}
+                    >
+                      <ThemedText>Monthly</ThemedText>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </View>
+            </View>
+
+            <ScrollView className='max-h-[200px] overflow-y-auto rounded-md border border-black p-3 dark:border-white'>
+              {isVerseTextsListLoading ? (
+                <View className='flex-1 items-center justify-center'>
+                  <ActivityIndicator />
+                </View>
+              ) : (
+                verseTexts.map((text, index) => (
+                  <ThemedText
+                    key={index}
+                    size={13}
+                    className='block w-full !overflow-hidden !text-ellipsis text-[#707070] dark:text-[#909090]'
+                  >
+                    {text?.verse}. {text?.text}
+                  </ThemedText>
+                ))
+              )}
+            </ScrollView>
+          </View>
+        </ScrollView>
+
+        <View className='px-[18px] py-5'>
           <CustomButton
             disabled={isVerseTextsListLoading}
             isLoading={isLoading}
-            className='my-5 flex-1'
             onPress={handleAddVerse}
           >
             {isCollOrVerse === 'collections'

@@ -16,6 +16,7 @@ import type {
 import type * as collectionSuggestions from "../collectionSuggestions.js";
 import type * as collections from "../collections.js";
 import type * as http from "../http.js";
+import type * as notes from "../notes.js";
 import type * as users from "../users.js";
 import type * as verseSuggestions from "../verseSuggestions.js";
 import type * as verses from "../verses.js";
@@ -32,6 +33,7 @@ declare const fullApi: ApiFromModules<{
   collectionSuggestions: typeof collectionSuggestions;
   collections: typeof collections;
   http: typeof http;
+  notes: typeof notes;
   users: typeof users;
   verseSuggestions: typeof verseSuggestions;
   verses: typeof verses;

@@ -129,6 +129,17 @@ export default function VersesHomeScreen() {
                     Add Collection
                   </ThemedText>
                 </DropdownMenuItem>
+                <DropdownMenuItem
+                disabled={true}
+                  onPress={() => {
+                  
+                    router.push('/verses/import-verses');
+                  }}
+                >
+                  <ThemedText className='text-sm font-medium'>
+                   Import Verses
+                  </ThemedText>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             <Button

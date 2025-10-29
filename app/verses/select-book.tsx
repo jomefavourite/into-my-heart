@@ -1,12 +1,5 @@
 import React, { useCallback, useMemo, useState, useEffect } from 'react';
-import {
-  View,
-  Pressable,
-  FlatList,
-  Dimensions,
-  InteractionManager,
-  ActivityIndicator,
-} from 'react-native';
+import { View, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
@@ -25,9 +18,6 @@ import {
 import { useBookStore } from '@/store/bookStore';
 import { useIsCollOrVerse } from '@/store/tab-store';
 import { ScrollView } from 'react-native';
-
-const screenWidth = Dimensions.get('window').width;
-const numColumns = Math.floor(screenWidth / 60); // ~60px per chapter item
 
 type ChapterItemType = {
   bookName: string;
@@ -60,7 +50,7 @@ const ChapterItem = React.memo(
 
     return (
       <Pressable
-        className='m-1 h-[40px] w-[54px] flex-row items-center justify-center rounded-md bg-container'
+        className='h-[60px] min-w-[60px] max-w-[60px] flex-1 flex-row items-center justify-center rounded-md bg-container'
         onPress={handlePress}
       >
         <ThemedText className='text-center'>{chapter}</ThemedText>
@@ -122,7 +112,7 @@ export default function AddBookScreen() {
         }
       />
 
-      <View className='mb-4 gap-2 px-[18]'>
+      <View className='mb-2 gap-2 px-[18]'>
         <Input
           placeholder='Search by name or abbreviation'
           value={searchQuery}
@@ -130,8 +120,8 @@ export default function AddBookScreen() {
         />
 
         <View className='mt-2 flex flex-row justify-between'>
-          <ThemedText className='text-sm font-medium'>Books</ThemedText>
-          <ThemedText className='text-sm font-medium'>
+          <ThemedText className='text-xs font-medium'>Books</ThemedText>
+          <ThemedText className='text-xs font-medium'>
             Total Chapters
           </ThemedText>
         </View>
@@ -145,31 +135,24 @@ export default function AddBookScreen() {
           {filteredBooks.map(book => (
             <AccordionItem key={book.id} value={book.id}>
               <AccordionTrigger className='hover:no-underline'>
-                <View className='w-full flex-row items-center justify-between'>
+                <View className='flex-1 flex-row items-center justify-between'>
                   <ThemedText>{book.name}</ThemedText>
                   <ThemedText>{book.chaptersLength}</ThemedText>
                 </View>
               </AccordionTrigger>
 
-              <AccordionContent className='flex-row flex-wrap gap-2'>
-                <FlatList
-                  data={Array.from(
-                    { length: book.chaptersLength },
-                    (_, i) => i + 1
-                  )}
-                  keyExtractor={item => item.toString()}
-                  numColumns={numColumns}
-                  scrollEnabled={false}
-                  contentContainerStyle={{ paddingBottom: 10 }}
-                  renderItem={({ item }) => (
+              <AccordionContent>
+                <View className='flex-row flex-wrap gap-2'>
+                  {Array.from({ length: book.chaptersLength }, (_, i) => (
                     <ChapterItem
-                      chapter={item}
+                      key={i + 1}
+                      chapter={i + 1}
                       bookName={book.name}
                       chapterLength={book.chaptersLength}
                       chapters={book.chapters}
                     />
-                  )}
-                />
+                  ))}
+                </View>
               </AccordionContent>
             </AccordionItem>
           ))}

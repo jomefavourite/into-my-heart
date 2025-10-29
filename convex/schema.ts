@@ -82,6 +82,13 @@ export const UserVerseSuggestion = {
   suggestionId: v.id('versesSuggestions'),
 };
 
+export const VerseNote = {
+  userId: v.id('users'),
+  verseId: v.id('verses'),
+  content: v.string(),
+  updatedAt: v.number(),
+};
+
 export default defineSchema({
   users: defineTable(User).index('byClerkId', ['clerkId']),
   verses: defineTable(Verse),
@@ -91,4 +98,7 @@ export default defineSchema({
   userVerseSuggestions: defineTable(UserVerseSuggestion)
     .index('byUserId', ['userId'])
     .index('bySuggestionId', ['suggestionId']),
+  verseNotes: defineTable(VerseNote)
+    .index('byVerseId', ['verseId'])
+    .index('byUserId', ['userId']),
 });

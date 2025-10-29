@@ -12,7 +12,7 @@ export default function MemorizationTips() {
   const router = useRouter();
   return (
     <Container>
-      <View className='items-center justify-between flex-row mb-7'>
+      <View className='mb-7 flex-row items-center justify-between'>
         <Button size={'icon'} variant={'ghost'} onPress={() => router.back()}>
           <ArrowLeftIcon />
         </Button>
@@ -32,7 +32,7 @@ export default function MemorizationTips() {
         <Image
           source={require('@/assets/images/bible-tips.png')}
           style={{ width: '100%', height: 200 }}
-          className='w-full object-contain h-[170px] rounded-xl'
+          className='h-[170px] w-full rounded-xl object-contain'
         />
         <View className='p-3' />
         <P>
@@ -49,7 +49,7 @@ export default function MemorizationTips() {
           heart and mind to His Word. Ask for wisdom and understanding as you
           study.
         </P>
-        <View className={'flex-row items-start mb-2'}>
+        <View className={'mb-2 flex-row items-start'}>
           <Text className={'mr-2'}>•</Text>
           <P>
             Pray Before You Begin: Start with a prayer asking God to open your
