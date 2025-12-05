@@ -21,6 +21,7 @@ import { useQuery } from 'convex-helpers/react/cache';
 import PageHeader from '@/components/PageHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import VersesSuggestion from '@/components/Verses/VersesSuggestion';
+import { formatVerseDisplay } from '@/lib/utils';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -29,8 +30,26 @@ export default function HomeScreen() {
   // Only fetch verses when authentication is fully ready
   const getVerses = useQuery(
     api.verses.getVerses,
-    canMakeQueries ? { take: 5 } : 'skip'
+    canMakeQueries ? { take: 6 } : 'skip'
   );
+
+  const featuredVerse = useQuery(
+    api.verses.getFeaturedVerse,
+    canMakeQueries ? undefined : 'skip'
+  );
+
+  const getVerseSuggestions = useQuery(
+    api.verseSuggestions.getAvailableVerseSuggestions,
+    canMakeQueries ? { take: 1 } : 'skip'
+  );
+
+  // Determine which verse to show (featured or first suggestion)
+  const displayVerse =
+    featuredVerse ||
+    (getVerseSuggestions && getVerseSuggestions.length > 0
+      ? getVerseSuggestions[0]
+      : null);
+  const isSuggestedVerse = !featuredVerse && displayVerse;
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className='flex-1'>
@@ -71,51 +90,81 @@ export default function HomeScreen() {
         renderItem={() => (
           <View className='web:scroll-container gap-5 web:grid web:lg:grid-cols-2'>
             <View className='gap-4'>
-              {/* Verse of the Day */}
+              {/* Featured Verse */}
               <View>
-                <ThemedText
-                  size={12}
-                  variant='medium'
-                  className='!font-semibold md:text-base md:font-medium'
-                >
-                  Featured Verse
-                </ThemedText>
-
-                <View className='mt-2 rounded-3xl border-none bg-[#313131] px-5 py-6 dark:bg-[#343434]'>
+                <View className='flex-row items-center gap-2'>
                   <ThemedText
                     size={12}
                     variant='medium'
-                    className='text-white dark:text-primary'
+                    className='!font-semibold md:text-base md:font-medium'
                   >
-                    Psalm 119:11 KJV
+                    Featured Verse
                   </ThemedText>
-                  <ThemedText
-                    variant='medium'
-                    className='my-4 text-base text-white dark:text-primary'
-                  >
-                    Thy word have I hid in mine heart, That I might not sin
-                    against thee.
-                  </ThemedText>
-
-                  <View className='flex-row items-center justify-between'>
-                    {/* <View className='flex-row gap-2'>
-                      <Button size={'icon'} className='bg-transparent'>
-                        <FavouriteIcon stroke='white' />
-                      </Button>
-                      <Button size={'icon'} className='bg-transparent'>
-                        <ShareIcon stroke='white' />
-                      </Button>
-                    </View> */}
-
-                    {/* <CustomButton
-                      variant='secondary'
-                      className='w-fit'
-                      // onPress={() => router.push('/(home)/verse-of-the-day')}
-                    >
-                      Memorize
-                    </CustomButton> */}
-                  </View>
+                  {isSuggestedVerse && (
+                    <View className='rounded-full bg-[#909090] px-2 py-0.5'>
+                      <ThemedText className='text-xs text-white'>
+                        Suggested
+                      </ThemedText>
+                    </View>
+                  )}
                 </View>
+
+                {!canMakeQueries || isLoading ? (
+                  <View className='mt-2 rounded-3xl border-none bg-[#313131] px-5 py-6 dark:bg-[#343434]'>
+                    <Loader />
+                  </View>
+                ) : displayVerse ? (
+                  <Pressable
+                    onPress={() => {
+                      if (displayVerse._id && !isSuggestedVerse) {
+                        router.push(`/verses/${displayVerse._id}`);
+                      }
+                    }}
+                    className='mt-2 rounded-3xl border-none bg-[#313131] px-5 py-6 dark:bg-[#343434]'
+                  >
+                    <ThemedText
+                      size={12}
+                      variant='medium'
+                      className='text-white dark:text-primary'
+                    >
+                      {displayVerse.bookName} {displayVerse.chapter}:
+                      {formatVerseDisplay(displayVerse.verses)}
+                    </ThemedText>
+                    <ThemedText
+                      variant='medium'
+                      className='my-4 text-base text-white dark:text-primary'
+                    >
+                      {displayVerse.verseTexts
+                        ?.map(text => `${text.verse}. ${text.text}`)
+                        .join(' ') || '...'}
+                    </ThemedText>
+
+                    <View className='flex-row items-center justify-between'>
+                      {/* <View className='flex-row gap-2'>
+                        <Button size={'icon'} className='bg-transparent'>
+                          <FavouriteIcon stroke='white' />
+                        </Button>
+                        <Button size={'icon'} className='bg-transparent'>
+                          <ShareIcon stroke='white' />
+                        </Button>
+                      </View> */}
+
+                      {/* <CustomButton
+                        variant='secondary'
+                        className='w-fit'
+                        // onPress={() => router.push('/(home)/verse-of-the-day')}
+                      >
+                        Memorize
+                      </CustomButton> */}
+                    </View>
+                  </Pressable>
+                ) : (
+                  <View className='mt-2 rounded-3xl border-none bg-[#313131] px-5 py-6 dark:bg-[#343434]'>
+                    <ThemedText className='text-white dark:text-primary'>
+                      No featured verse yet. Select a verse to feature it.
+                    </ThemedText>
+                  </View>
+                )}
               </View>
 
               {/* My Verses */}

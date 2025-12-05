@@ -158,7 +158,7 @@ const AllVersesScreen = () => {
         ]}
       />
 
-      <View className='flex-1 px-[18px]'>
+      <View className='flex-1 pb-[18px]'>
         {isLoading && results?.length === 0 ? (
           <FlashListSkeletonLoader type='verses' gridView={gridView} />
         ) : (
@@ -167,6 +167,7 @@ const AllVersesScreen = () => {
             data={results}
             keyExtractor={(item, index) => index.toString()}
             numColumns={gridView ? 2 : 1}
+            contentContainerStyle={{ paddingHorizontal: 18 }}
             ListEmptyComponent={() => (
               <>
                 <AddVersesEmpty />
@@ -179,7 +180,7 @@ const AllVersesScreen = () => {
                 chapter={item.chapter}
                 verses={item.verses}
                 verseTexts={item.verseTexts}
-                containerClassName={gridView ? 'w-[50%]' : 'w-full'}
+                containerClassName={gridView ? 'flex-1' : 'w-full'}
                 canCheck={false}
                 canDelete={shouldSelect}
                 onDeletePress={() => toggleSelectedVerse(item._id)}
@@ -187,7 +188,7 @@ const AllVersesScreen = () => {
               />
             )}
             columnWrapperStyle={
-              gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
+              gridView ? { gap: 8, width: '100%' } : undefined
             }
             ItemSeparatorComponent={ItemSeparator}
           />

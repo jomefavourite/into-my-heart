@@ -71,7 +71,9 @@ const ImportVerses = () => {
         const refPattern2 = /([A-Za-z\s]+?)\s+(\d+):(\d+(?:-\d+)?)/;
         const match2 = cleanedText.match(refPattern2);
         if (!match2) {
-          setError('Could not parse verse reference. Expected format: "Book Chapter:Verse" or "Book Chapter:Verse Version"');
+          setError(
+            'Could not parse verse reference. Expected format: "Book Chapter:Verse" or "Book Chapter:Verse Version"'
+          );
           return null;
         }
 
@@ -81,7 +83,9 @@ const ImportVerses = () => {
         const version = undefined;
 
         // Find the book
-        const book = BOOKS.find(b => b.name === bookName || b.abbreviation === bookName);
+        const book = BOOKS.find(
+          b => b.name === bookName || b.abbreviation === bookName
+        );
         if (!book) {
           setError(`Book "${match2[1].trim()}" not found.`);
           return null;
@@ -100,7 +104,9 @@ const ImportVerses = () => {
 
         // Extract the verse text itself (everything before the reference)
         const verseReference = match2[0];
-        const textBeforeRef = cleanedText.substring(0, cleanedText.indexOf(verseReference)).trim();
+        const textBeforeRef = cleanedText
+          .substring(0, cleanedText.indexOf(verseReference))
+          .trim();
 
         const verseTexts = verses.map(v => ({
           verse: v,
@@ -122,7 +128,9 @@ const ImportVerses = () => {
       const version = match[4];
 
       // Find the book
-      const book = BOOKS.find(b => b.name === bookName || b.abbreviation === bookName);
+      const book = BOOKS.find(
+        b => b.name === bookName || b.abbreviation === bookName
+      );
       if (!book) {
         setError(`Book "${match[1].trim()}" not found.`);
         return null;
@@ -141,7 +149,9 @@ const ImportVerses = () => {
 
       // Extract the verse text itself (everything before the reference)
       const verseReference = match[0];
-      const textBeforeRef = cleanedText.substring(0, cleanedText.indexOf(verseReference)).trim();
+      const textBeforeRef = cleanedText
+        .substring(0, cleanedText.indexOf(verseReference))
+        .trim();
 
       const verseTexts = verses.map(v => ({
         verse: v,
@@ -218,13 +228,15 @@ const ImportVerses = () => {
           </ThemedText>
         </View>
 
-        <Button onPress={handleParse} className='mb-4'>
-          <ThemedText className='text-white'>Parse Verse</ThemedText>
-        </Button>
+        <CustomButton onPress={handleParse} className='mb-4'>
+          Parse Verse
+        </CustomButton>
 
         {error && (
           <View className='mb-4 rounded-md bg-red-100 p-3 dark:bg-red-900'>
-            <ThemedText className='text-red-800 dark:text-red-200'>{error}</ThemedText>
+            <ThemedText className='text-red-800 dark:text-red-200'>
+              {error}
+            </ThemedText>
           </View>
         )}
 
@@ -249,7 +261,10 @@ const ImportVerses = () => {
             )}
             <ScrollView className='mt-2 max-h-32'>
               {parsedVerse.verseTexts.map((vt, i) => (
-                <ThemedText key={i} className='text-green-800 dark:text-green-200'>
+                <ThemedText
+                  key={i}
+                  className='text-green-800 dark:text-green-200'
+                >
                   {vt.verse}. {vt.text}
                 </ThemedText>
               ))}
@@ -259,19 +274,16 @@ const ImportVerses = () => {
 
         {parsedVerse && (
           <View className='flex-row gap-2'>
-            <Button
+            <CustomButton
               variant='outline'
               onPress={handleSaveToCollection}
               className='flex-1'
             >
-              <ThemedText>Add to Collection</ThemedText>
-            </Button>
-            <Button
-              onPress={handleSaveToVerses}
-              className='flex-1'
-            >
-              <ThemedText className='text-white'>Save to Verses</ThemedText>
-            </Button>
+              Add to Collection
+            </CustomButton>
+            <CustomButton onPress={handleSaveToVerses} className='flex-1'>
+              Save to Verses
+            </CustomButton>
           </View>
         )}
       </View>

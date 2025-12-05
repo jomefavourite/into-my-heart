@@ -29,12 +29,12 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
 
   const getVerses = useQuery(
     api.verses.getVerses,
-    canMakeQueries ? { take: 5 } : 'skip'
+    canMakeQueries ? { take: 6 } : 'skip'
   );
 
   const getVerseSuggestions = useQuery(
     api.verseSuggestions.getAvailableVerseSuggestions,
-    canMakeQueries ? { take: 5 } : 'skip'
+    canMakeQueries ? { take: 6 } : 'skip'
   );
 
   const addVerse = useMutation(api.verses.addVerse);
@@ -95,12 +95,12 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
                 chapter={item.chapter}
                 verses={item.verses}
                 verseTexts={item.verseTexts}
-                containerClassName={gridView ? 'w-[50%]' : 'w-full'}
+                containerClassName={gridView ? 'flex-1' : 'w-full'}
                 canCheck={false}
               />
             )}
             columnWrapperStyle={
-              gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
+              gridView ? { gap: 8, width: '100%' } : undefined
             }
             ItemSeparatorComponent={ItemSeparator}
             scrollEnabled={false}

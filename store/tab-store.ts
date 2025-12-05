@@ -47,7 +47,7 @@ type GridListView = {
 export const useGridListView = create<GridListView>()(
   persist(
     set => ({
-      gridView: false,
+      gridView: true,
       setGridView: value => set({ gridView: value }),
     }),
     {

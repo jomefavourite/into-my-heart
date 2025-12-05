@@ -5,7 +5,7 @@ import {
   Platform,
   useWindowDimensions,
 } from 'react-native';
-import { Href, router, useLocalSearchParams } from 'expo-router';
+import { Href, router } from 'expo-router';
 import { ChevronRight } from 'lucide-react-native';
 import ThemedText from '../ThemedText';
 import { cn } from '@/lib/utils';
@@ -20,14 +20,11 @@ type BreadcrumbProps = {
 };
 
 function Breadcrumb({ items, BreadcrumbRightComponent }: BreadcrumbProps) {
-  const { book: bookURL, chapter: chapterURL } = useLocalSearchParams();
   const { width } = useWindowDimensions();
 
-  const bookName = String(bookURL || '');
-  const chapter = Number(chapterURL || '');
-
   const handlePress = (href: Href) => {
-    router.replace(`${href}?book=${bookName}&chapter=${chapter}` as Href);
+    // Use the href as-is since breadcrumb items already contain the correct query parameters
+    router.replace(href);
   };
 
   // Check if mobile view (non-web or width <= 768)

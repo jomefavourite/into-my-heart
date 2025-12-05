@@ -1,5 +1,11 @@
-import { ScrollView, View } from 'react-native';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { ScrollView, View, LayoutChangeEvent, FlatList } from 'react-native';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+} from 'react';
 import ThemedText from '@/components/ThemedText';
 import BackHeader from '@/components/BackHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -30,15 +36,17 @@ export default function SelectVerses() {
   const hasInitialized = useRef(false);
   const isUpdatingRef = useRef(false);
 
+  console.log(chapter1, 'chapter1 in select-verses');
   // Extract values from URL or fallback to store
-  const bookName = bookURL || bookName1;
-  const chapter = chapterURL || chapter1;
+  const bookName = String(bookURL || bookName1 || '');
+  const chapter = String(chapterURL || chapter1 || '');
   const versesLength = Number(verseLengthURL) || versesLength1;
 
   // Use local state as the single source of truth for UI
   const [localVerses, setLocalVerses] = useState<string[]>([]);
   const [isUpdatingProgrammatically, setIsUpdatingProgrammatically] =
     useState(false);
+  const [containerWidth, setContainerWidth] = useState(0);
 
   // Restore verses from URL parameters on mount or clear for fresh start
   useEffect(() => {
@@ -95,6 +103,34 @@ export default function SelectVerses() {
     });
   }, [versesLength]);
 
+  const gap = 8;
+
+  // Calculate number of columns based on container width
+  // 5 columns for mobile, increasing for larger screens
+  const numColumns = useMemo(() => {
+    if (containerWidth === 0) return 5; // Default to mobile (5 columns)
+
+    // Breakpoints for responsive columns
+    if (containerWidth < 400) return 5; // Mobile
+    if (containerWidth < 600) return 8; // Mobile
+    if (containerWidth < 900) return 10; // Small tablet
+    if (containerWidth < 1000) return 12; // Small desktop
+    // if (containerWidth < 1100) return 15; // Tablet / Small desktop
+    return 12; // Large desktop
+  }, [containerWidth]);
+
+  // Calculate grid item width based on container width and number of columns
+  const itemWidth = useMemo(() => {
+    if (containerWidth === 0) return 60; // Default fallback
+    const totalGaps = (numColumns - 1) * gap;
+    return (containerWidth - totalGaps) / numColumns;
+  }, [containerWidth, numColumns]);
+
+  const handleContainerLayout = useCallback((event: LayoutChangeEvent) => {
+    const { width } = event.nativeEvent.layout;
+    setContainerWidth(width);
+  }, []);
+
   return (
     <SafeAreaView className='flex-1'>
       <BackHeader
@@ -118,41 +154,60 @@ export default function SelectVerses() {
         }
       />
 
-      <View className='flex-1 justify-between px-[18px]'>
-        <ScrollView>
+      <View className='flex-1 justify-between'>
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 18 }}>
           <View className='flex-1'>
             <ThemedText className='mb-4 text-lg font-semibold'>
-              {bookName} {chapter}
+              {bookName && chapter ? `${bookName} ${chapter}` : ''}
             </ThemedText>
 
-            <ToggleGroup
-              value={localVerses}
-              onValueChange={handleValueChange}
-              type='multiple'
-              className='flex-wrap gap-2'
-            >
-              {new Array(versesLength).fill(0).map((_, index) => {
-                const verseValue = `${index + 1}`;
-                const isActive = localVerses.includes(verseValue);
+            <View onLayout={handleContainerLayout} style={{ width: '100%' }}>
+              <ToggleGroup
+                value={localVerses}
+                onValueChange={handleValueChange}
+                type='multiple'
+                className='w-full'
+              >
+                <FlatList
+                  key={`verses-${numColumns}`}
+                  data={Array.from({ length: versesLength }, (_, i) => i + 1)}
+                  numColumns={numColumns}
+                  scrollEnabled={false}
+                  keyExtractor={item => item.toString()}
+                  columnWrapperStyle={numColumns > 1 ? { gap } : undefined}
+                  contentContainerStyle={{ gap }}
+                  renderItem={({ item: verseNumber }) => {
+                    const verseValue = `${verseNumber}`;
+                    const isActive = localVerses.includes(verseValue);
 
-                return (
-                  <ToggleGroupItem
-                    key={index}
-                    value={verseValue}
-                    aria-label={`Select verse ${index + 1}`}
-                    className={`h-[60px] min-w-[60px] max-w-[60px] flex-none flex-row items-center justify-center rounded-md bg-container ${isActive ? 'bg-black hover:bg-black web:group-hover:bg-black dark:bg-zinc-500' : ''}`}
-                  >
-                    <ThemedText style={isActive ? { color: 'white' } : {}}>
-                      {index + 1}
-                    </ThemedText>
-                  </ToggleGroupItem>
-                );
-              })}
-            </ToggleGroup>
+                    return (
+                      <View style={{ width: itemWidth }}>
+                        <ToggleGroupItem
+                          value={verseValue}
+                          aria-label={`Select verse ${verseNumber}`}
+                          style={{
+                            width: itemWidth,
+                            height: itemWidth,
+                            flex: 0,
+                          }}
+                          className={`!flex-none flex-row items-center justify-center rounded-md bg-container ${isActive ? 'bg-black hover:bg-black web:group-hover:bg-black dark:bg-zinc-500' : ''}`}
+                        >
+                          <ThemedText
+                            style={isActive ? { color: 'white' } : {}}
+                          >
+                            {String(verseNumber)}
+                          </ThemedText>
+                        </ToggleGroupItem>
+                      </View>
+                    );
+                  }}
+                />
+              </ToggleGroup>
+            </View>
           </View>
         </ScrollView>
 
-        <View className='my-5 gap-3'>
+        <View className='my-5 gap-3 px-[18px]'>
           <CustomButton variant='outline' onPress={handleAddAllVerse}>
             Add entire chapter
           </CustomButton>

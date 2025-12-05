@@ -33,7 +33,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     icon: icon,
     scheme: scheme,
     ios: {
-      supportsTablet: true,
+      supportsTablet: false,
       bundleIdentifier: bundleIdentifier,
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,

@@ -199,7 +199,7 @@ export default function CollectionPage() {
                 chapter={item.chapter}
                 verses={item.verses}
                 verseTexts={item.verseTexts}
-                containerClassName={gridView ? 'w-[50%]' : 'w-full'}
+                containerClassName={gridView ? 'flex-1' : 'w-full'}
                 canCheck={false}
                 canDelete={shouldDelete}
                 onDeletePress={() => toggleSelectedVerse(index)}
@@ -208,7 +208,7 @@ export default function CollectionPage() {
               />
             )}
             columnWrapperStyle={
-              gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
+              gridView ? { gap: 8, width: '100%' } : undefined
             }
             ItemSeparatorComponent={ItemSeparator}
             // scrollEnabled={false}

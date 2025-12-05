@@ -27,7 +27,7 @@ const FlashListSkeletonLoader: React.FC<FlashListSkeletonLoaderProps> = ({
     item: { id: string };
     index: number;
   }) => {
-    const containerClassName = gridView ? 'w-[50%]' : 'w-full';
+    const containerClassName = gridView ? 'flex-1' : 'w-full';
 
     if (type === 'verses') {
       return <VerseCardSkeleton containerClassName={containerClassName} />;
@@ -43,9 +43,7 @@ const FlashListSkeletonLoader: React.FC<FlashListSkeletonLoaderProps> = ({
       keyExtractor={item => item.id}
       numColumns={gridView ? 2 : 1}
       renderItem={renderSkeletonItem}
-      columnWrapperStyle={
-        gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
-      }
+      columnWrapperStyle={gridView ? { gap: 8, width: '100%' } : undefined}
       ItemSeparatorComponent={ItemSeparator}
       scrollEnabled={false}
       style={{ flex: 1 }}
@@ -55,5 +53,3 @@ const FlashListSkeletonLoader: React.FC<FlashListSkeletonLoaderProps> = ({
 };
 
 export default FlashListSkeletonLoader;
-
-

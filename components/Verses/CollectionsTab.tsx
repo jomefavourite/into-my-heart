@@ -91,12 +91,12 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
                 collectionName={item.collectionName}
                 versesLength={item.versesLength}
                 onAddPress={() => console.log(`${item} pressed`)}
-                containerClassName={gridView ? 'w-[50%]' : 'w-full'}
+                containerClassName={gridView ? 'flex-1' : 'w-full'}
                 canCheck={false}
               />
             )}
             columnWrapperStyle={
-              gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
+              gridView ? { gap: 8, width: '100%' } : undefined
             }
             ItemSeparatorComponent={ItemSeparator}
             scrollEnabled={false}
@@ -105,9 +105,21 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
       </View>
 
       <View>
-        <ThemedText className='py-2 text-lg font-semibold'>
-          Collection Suggestions
-        </ThemedText>
+        <View className='flex-row items-center justify-between'>
+          <ThemedText className='py-2 text-lg font-semibold'>
+            Collection Suggestions
+          </ThemedText>
+
+          <Button
+            size={'icon'}
+            variant={'ghost'}
+            onPress={() => router.push('/verses/all-collection-suggestions')}
+            className='flex-row gap-0'
+          >
+            <ThemedText className='pl-2 text-xs'>View all</ThemedText>
+            <ArrowRightIcon />
+          </Button>
+        </View>
 
         {isLoading ? (
           <FlashListSkeletonLoader type='collections' gridView={gridView} />
@@ -131,13 +143,13 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
                 versesLength={item.versesLength}
                 collectionVerses={item.collectionVerses}
                 onAddPress={() => handleAddCollectionSuggestion(item)}
-                containerClassName={gridView ? 'w-[50%]' : 'w-full'}
+                containerClassName={gridView ? 'flex-1' : 'w-full'}
                 canCheck={true}
               />
             )}
             columnWrapperStyle={
               // Apply gap between columns if gridView is true
-              gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
+              gridView ? { gap: 8, width: '100%' } : undefined
             }
             ItemSeparatorComponent={ItemSeparator}
             scrollEnabled={true}

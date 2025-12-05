@@ -93,6 +93,23 @@ export default function VersesHomeScreen() {
                 Collections
               </ThemedText>
             </TabsTrigger>
+            <TabsTrigger
+              value='affirmations'
+              className='w-fit'
+              id='affirmations'
+            >
+              <ThemedText
+                size={13}
+                variant='medium'
+                className={cn(
+                  'text-muted-foreground',
+                  activeTab === 'affirmations' &&
+                    'text-white dark:text-primary-foreground'
+                )}
+              >
+                Affirmations
+              </ThemedText>
+            </TabsTrigger>
           </TabsList>
 
           <View className='flex-row gap-2'>
@@ -130,14 +147,12 @@ export default function VersesHomeScreen() {
                   </ThemedText>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                disabled={true}
                   onPress={() => {
-                  
                     router.push('/verses/import-verses');
                   }}
                 >
                   <ThemedText className='text-sm font-medium'>
-                   Import Verses
+                    Import Verses
                   </ThemedText>
                 </DropdownMenuItem>
               </DropdownMenuContent>

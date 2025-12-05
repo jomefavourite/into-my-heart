@@ -1,7 +1,8 @@
 import { View, ScrollView, Platform, Alert } from 'react-native';
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from 'convex-helpers/react/cache';
+import { useMutation } from 'convex/react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ViewShot from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
@@ -22,6 +23,8 @@ import { Image } from 'expo-image';
 import Logo from '@/components/icons/logo/Logo';
 import WithTooltip from '@/components/WithTooltip';
 import VolumeHighIcon from '@/components/icons/VolumeHighIcon';
+import { Pause, Star } from 'lucide-react-native';
+import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function VersePage() {
   const router = useRouter();
@@ -36,16 +39,59 @@ export default function VersePage() {
       : 'skip'
   );
   const viewShotRef = useRef<ViewShot>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const speechUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const setFeaturedVerse = useMutation(api.verses.setFeaturedVerse);
+
+  const { isDarkMode } = useColorScheme();
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (Platform.OS === 'web') {
+        if (typeof window !== 'undefined') {
+          const speechSynthesis = window.speechSynthesis;
+          if (speechSynthesis && speechUtteranceRef.current) {
+            speechSynthesis.cancel();
+          }
+        }
+      } else {
+        Speech.stop();
+      }
+      setIsPlaying(false);
+    };
+  }, []);
 
   const handleNotesPress = () => {
     router.push(`/verses/${verseId}/notes`);
+  };
+
+  const handleToggleFeatured = async () => {
+    if (!verse) return;
+
+    try {
+      await setFeaturedVerse({
+        id: verse._id,
+        isFeatured: !verse.isFeatured,
+      });
+    } catch (error) {
+      console.error('Error toggling featured verse:', error);
+      Alert.alert(
+        'Error',
+        'Failed to update featured verse. Please try again.'
+      );
+    }
   };
 
   const handleDownloadImage = async () => {
     if (!verse || !viewShotRef.current) return;
 
     try {
-      const uri = await viewShotRef?.current?.capture();
+      if (!viewShotRef.current.capture) {
+        Alert.alert('Error', 'Capture method is not available.');
+        return;
+      }
+      const uri = await viewShotRef.current.capture();
 
       // Note: For web is broken for now
       if (Platform.OS === 'web') {
@@ -74,26 +120,86 @@ export default function VersePage() {
   const handleSpeakVerse = () => {
     if (!verse || !verse.verseTexts) return;
 
-    // Stop any currently playing speech
-    Speech.stop();
+    if (isPlaying) {
+      // Pause/Stop current speech
+      if (Platform.OS === 'web') {
+        if (typeof window !== 'undefined') {
+          const speechSynthesis = window.speechSynthesis;
+          if (speechSynthesis) {
+            speechSynthesis.cancel();
+          }
+        }
+      } else {
+        Speech.stop();
+      }
+      setIsPlaying(false);
+      return;
+    }
 
     // Combine all verse texts into a single string
     const fullText = `${verse.bookName} ${verse.chapter}:${formatVerseDisplay(verse.verses)}. ${verse.verseTexts.map(text => `${text.verse}. ${text.text}`).join(' ')}`;
 
-    // Speak the verse
-    Speech.speak(fullText, {
-      language: 'en',
-      pitch: 1.0,
-      rate: 0.9,
-    });
+    if (Platform.OS === 'web') {
+      // Use Web Speech API for web
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        const speechSynthesis = window.speechSynthesis;
+        if (speechSynthesis) {
+          const utterance = new SpeechSynthesisUtterance(fullText);
+          utterance.lang = 'en-US';
+          utterance.pitch = 1.0;
+          utterance.rate = 0.9;
+
+          utterance.onend = () => {
+            setIsPlaying(false);
+            speechUtteranceRef.current = null;
+          };
+
+          utterance.onerror = () => {
+            setIsPlaying(false);
+            speechUtteranceRef.current = null;
+          };
+
+          speechUtteranceRef.current = utterance;
+          speechSynthesis.speak(utterance);
+          setIsPlaying(true);
+        }
+      } else {
+        Alert.alert(
+          'Error',
+          'Speech synthesis is not supported in this browser.'
+        );
+      }
+    } else {
+      // Use expo-speech for native platforms
+      Speech.stop();
+
+      Speech.speak(fullText, {
+        language: 'en',
+        pitch: 1.0,
+        rate: 0.9,
+        onDone: () => {
+          setIsPlaying(false);
+        },
+        onStopped: () => {
+          setIsPlaying(false);
+        },
+        onError: () => {
+          setIsPlaying(false);
+        },
+      });
+
+      setIsPlaying(true);
+    }
   };
 
   return (
     <SafeAreaView className='flex-1'>
-
-{Platform.OS === 'web' && (
+      {Platform.OS === 'web' && (
         <>
-          <title>{verse?.bookName} {verse?.chapter}:{formatVerseDisplay(verse?.verses)} - Into My Heart</title>
+          <title>
+            {verse?.bookName} {verse?.chapter}:
+            {formatVerseDisplay(verse?.verses)} - Into My Heart
+          </title>
           <meta
             name='description'
             content={`Into My Heart - ${verse?.bookName} ${verse?.chapter}:${formatVerseDisplay(verse?.verses)}`}
@@ -225,9 +331,49 @@ export default function VersePage() {
           </Card>
 
           <View className='my-4 flex-row justify-center gap-3'>
-            <WithTooltip tooltipContents='Play audio'>
-              <Button size={'icon'} onPress={handleSpeakVerse}  className='w-10'>
-                <VolumeHighIcon />
+            <WithTooltip
+              tooltipContents={isPlaying ? 'Pause audio' : 'Play audio'}
+            >
+              <Button size={'icon'} onPress={handleSpeakVerse} className='w-10'>
+                {isPlaying ? (
+                  <Pause
+                    size={24}
+                    color={Platform.OS === 'web' ? '#fff' : undefined}
+                  />
+                ) : (
+                  <VolumeHighIcon />
+                )}
+              </Button>
+            </WithTooltip>
+
+            <WithTooltip
+              tooltipContents={
+                verse?.isFeatured ? 'Remove from featured' : 'Mark as featured'
+              }
+            >
+              <Button
+                size={'icon'}
+                onPress={handleToggleFeatured}
+                className='w-10'
+                // variant={verse?.isFeatured ? 'default' : 'outline'}
+              >
+                <Star
+                  size={24}
+                  strokeWidth={1.5}
+                  fill={
+                    verse?.isFeatured ? (isDarkMode ? '#000' : '#fff') : 'none'
+                  }
+                  stroke={
+                    verse?.isFeatured
+                      ? isDarkMode
+                        ? '#000'
+                        : '#fff'
+                      : isDarkMode
+                        ? '#000'
+                        : '#fff'
+                  }
+                  color='currentColor'
+                />
               </Button>
             </WithTooltip>
 
@@ -236,20 +382,20 @@ export default function VersePage() {
                 <NoteIcon />
               </Button>
             </WithTooltip>
-            
+
             {/* <Button size={'icon'}>
               <TimeScheduleIcon />
             </Button> */}
 
             <WithTooltip tooltipContents='Download image'>
-            <Button
-              size={'icon'}
-              className='w-10'
-              onPress={handleDownloadImage}
-            >
-              <ImageIcon />
-            </Button>
-              </WithTooltip>
+              <Button
+                size={'icon'}
+                className='w-10'
+                onPress={handleDownloadImage}
+              >
+                <ImageIcon />
+              </Button>
+            </WithTooltip>
           </View>
 
           <View className='rounded-md bg-container p-3'>

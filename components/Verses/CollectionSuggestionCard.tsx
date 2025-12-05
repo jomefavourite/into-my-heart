@@ -53,7 +53,7 @@ const CollectionSuggestionCard: React.FC<CollectionSuggestionCardProps> = ({
         className='flex-row items-center px-4 py-[18px]'
       >
         <View className='flex-1 gap-2'>
-          <View className='flex-row items-center justify-between'>
+          <View className='flex-row flex-wrap items-center justify-between'>
             <ThemedText
               numberOfLines={1}
               ellipsizeMode='tail'

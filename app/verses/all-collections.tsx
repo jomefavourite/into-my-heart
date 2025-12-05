@@ -140,7 +140,7 @@ const AllCollectionScreen = () => {
         ]}
       />
 
-      <View className='flex-1 px-[18px]'>
+      <View className='flex-1 pb-[18px]'>
         {isLoading && results?.length === 0 ? (
           <FlashListSkeletonLoader type='collections' gridView={gridView} />
         ) : (
@@ -148,6 +148,7 @@ const AllCollectionScreen = () => {
             key={gridView ? 'grid-myverses' : 'list-myverses'}
             data={results}
             keyExtractor={(item, index) => index.toString()}
+            contentContainerStyle={{ paddingHorizontal: 18 }}
             numColumns={gridView ? 2 : 1}
             ListEmptyComponent={() => (
               <>
@@ -160,7 +161,7 @@ const AllCollectionScreen = () => {
                 collectionName={item.collectionName}
                 versesLength={item.versesLength}
                 onAddPress={() => console.log(`${item} pressed`)}
-                containerClassName={gridView ? 'w-[50%]' : 'w-full'}
+                containerClassName={gridView ? 'flex-1' : 'w-full'}
                 canCheck={false}
                 canDelete={shouldSelect}
                 onDeletePress={() => toggleSelectedVerse(item._id)}
@@ -168,7 +169,7 @@ const AllCollectionScreen = () => {
               />
             )}
             columnWrapperStyle={
-              gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
+              gridView ? { gap: 8, width: '100%' } : undefined
             }
             ItemSeparatorComponent={ItemSeparator}
             scrollEnabled={false}

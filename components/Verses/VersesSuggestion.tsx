@@ -24,7 +24,7 @@ const VersesSuggestion = ({
 
   const getVerseSuggestions = useQuery(
     api.verseSuggestions.getAvailableVerseSuggestions,
-    canMakeQueries ? { take: 5 } : 'skip'
+    canMakeQueries ? { take: 6 } : 'skip'
   );
 
   const addVerseSuggestionToUser = useMutation(
@@ -86,13 +86,13 @@ const VersesSuggestion = ({
             verses={item.verses}
             verseTexts={item.verseTexts || []} // Provide default empty array
             onAddPress={() => handleAddVerseSuggestion(item)}
-            containerClassName={gridView ? 'w-[50%]' : 'w-full'} // Keep this for card sizing
+            containerClassName={gridView ? 'flex-1' : 'w-full'} // Keep this for card sizing
             noRoute={true}
           />
         )}
         columnWrapperStyle={
           // Apply gap between columns if gridView is true
-          gridView ? { justifyContent: 'space-between', gap: 8 } : undefined
+          gridView ? { gap: 8, width: '100%' } : undefined
         }
         ItemSeparatorComponent={ItemSeparator}
         // contentContainerStyle={

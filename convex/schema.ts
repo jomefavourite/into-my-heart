@@ -24,6 +24,7 @@ export const Verse = {
     })
   ),
   reviewFreq: v.string(),
+  isFeatured: v.optional(v.boolean()),
 };
 
 export const Collection = {

@@ -274,3 +274,74 @@ export const getVersesByIds = query({
     return verses.filter(verse => verse !== null);
   },
 });
+
+export const setFeaturedVerse = mutation({
+  args: {
+    id: v.id('verses'),
+    isFeatured: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUserOrThrow(ctx);
+
+    // Get the existing verse to verify ownership
+    const existingVerse = await ctx.db.get(args.id);
+    if (!existingVerse) {
+      throw new Error('Verse not found');
+    }
+
+    if (existingVerse.userId !== user._id) {
+      throw new Error('Unauthorized to modify this verse');
+    }
+
+    // If setting as featured, unfeature all other verses
+    if (args.isFeatured) {
+      const allVerses = await ctx.db
+        .query('verses')
+        .filter(q => q.eq(q.field('userId'), user._id))
+        .collect();
+
+      // Unfeature all other verses
+      await Promise.all(
+        allVerses
+          .filter(v => v._id !== args.id && v.isFeatured)
+          .map(v => ctx.db.patch(v._id, { isFeatured: false }))
+      );
+    }
+
+    // Update the verse
+    await ctx.db.patch(args.id, {
+      isFeatured: args.isFeatured,
+    });
+
+    return { success: true };
+  },
+});
+
+export const getFeaturedVerse = query({
+  handler: async ctx => {
+    try {
+      const user = await getCurrentUserOrThrow(ctx);
+
+      // Get featured verse
+      const featuredVerse = await ctx.db
+        .query('verses')
+        .filter(q =>
+          q.and(
+            q.eq(q.field('userId'), user._id),
+            q.eq(q.field('isFeatured'), true)
+          )
+        )
+        .first();
+
+      return featuredVerse || null;
+    } catch (error) {
+      console.error('getFeaturedVerse error:', error);
+      if (error instanceof Error) {
+        if (error.message.includes('Authentication required')) {
+          throw new Error('Authentication required. Please sign in.');
+        }
+      }
+      throw error;
+    }
+  },
+});

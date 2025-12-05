@@ -21,33 +21,34 @@ import { useGridListView } from '@/store/tab-store';
 import { FlashList } from '@shopify/flash-list';
 import { useAuth } from '@clerk/clerk-expo';
 import FlashListSkeletonLoader from '@/components/FlashListSkeletonLoader';
+import CollectionSuggestionCard from '@/components/Verses/CollectionSuggestionCard';
 
-const AllVersesSuggestion = () => {
+const AllCollectionSuggestions = () => {
   const { isSignedIn, isLoaded } = useAuth();
   const { gridView } = useGridListView();
 
   const { isDarkMode } = useColorScheme();
 
-  const addVerseSuggestionToUser = useMutation(
-    api.verseSuggestions.addVerseSuggestionToUser
+  const addCollectionSuggestionToCollection = useMutation(
+    api.collectionSuggestions.addCollectionSuggestionToUser
   );
 
   const results =
     useQuery(
-      api.verseSuggestions.getAvailableVerseSuggestions,
-      isSignedIn && isLoaded ? { take: 50 } : 'skip'
+      api.collectionSuggestions.getAllCollectionSuggestions,
+      isSignedIn && isLoaded ? {} : 'skip'
     ) ?? [];
 
   const isLoading = !results;
 
-  const handleAddVerseSuggestion = async (verseData: any) => {
+  const handleAddCollectionSuggestion = async (collectionData: any) => {
     try {
-      await addVerseSuggestionToUser({
-        suggestionId: verseData._id,
+      await addCollectionSuggestionToCollection({
+        suggestionId: collectionData._id,
       });
       // The UI will automatically update due to Convex reactivity
     } catch (error) {
-      console.error('Error adding verse suggestion:', error);
+      console.error('Error adding collection suggestion:', error);
       // You might want to show an alert here
     }
   };
@@ -56,7 +57,7 @@ const AllVersesSuggestion = () => {
     <SafeAreaView className='flex-1'>
       {Platform.OS === 'web' && (
         <>
-          <title>Verse Suggestions - Into My Heart</title>
+          <title>Collection Suggestions - Into My Heart</title>
           <meta
             name='description'
             content='Browse curated Bible verse suggestions. Discover new verses to memorize and study.'
@@ -77,19 +78,19 @@ const AllVersesSuggestion = () => {
       )}
 
       <BackHeader
-        title={'Verse Suggestions'}
+        title={'Collection Suggestions'}
         items={[
-          { label: 'Verses', href: '/verses' },
+          { label: 'Collections', href: '/verses' },
           {
-            label: 'Verse Suggestions',
-            href: '/verses/all-verses-suggestions',
+            label: 'Collection Suggestions',
+            href: '/verses/all-collection-suggestions',
           },
         ]}
       />
 
       <View className='flex-1 pb-[18px]'>
         {isLoading ? (
-          <FlashListSkeletonLoader type='verses' gridView={gridView} />
+          <FlashListSkeletonLoader type='collections' gridView={gridView} />
         ) : (
           <FlatList
             key={gridView ? 'grid-myverses' : 'list-myverses'}
@@ -103,14 +104,14 @@ const AllVersesSuggestion = () => {
               </>
             )}
             renderItem={({ item }) => (
-              <VerseCard
-                bookName={item.bookName}
-                chapter={item.chapter}
-                verses={item.verses}
-                verseTexts={item.verseTexts}
+              <CollectionSuggestionCard
+                _id={item._id}
+                collectionName={item.collectionName}
+                versesLength={item.versesLength}
+                collectionVerses={item.collectionVerses}
                 containerClassName={gridView ? 'flex-1' : 'w-full'}
                 canCheck={true}
-                onAddPress={() => handleAddVerseSuggestion(item)}
+                onAddPress={() => handleAddCollectionSuggestion(item)}
               />
             )}
             columnWrapperStyle={
@@ -124,4 +125,4 @@ const AllVersesSuggestion = () => {
   );
 };
 
-export default AllVersesSuggestion;
+export default AllCollectionSuggestions;

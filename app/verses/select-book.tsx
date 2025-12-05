@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState, useEffect } from 'react';
-import { View, Pressable } from 'react-native';
+import { View, Pressable, FlatList, LayoutChangeEvent } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
@@ -27,10 +27,17 @@ type ChapterItemType = {
     chapterNumber: number;
     versesLength: number;
   }[];
+  itemWidth: number;
 };
 
 const ChapterItem = React.memo(
-  ({ bookName, chapter, chapterLength, chapters }: ChapterItemType) => {
+  ({
+    bookName,
+    chapter,
+    chapterLength,
+    chapters,
+    itemWidth,
+  }: ChapterItemType) => {
     const router = useRouter();
     const { setBookName, setChapter, setChapterLength, setVersesLength } =
       useBookStore();
@@ -50,7 +57,8 @@ const ChapterItem = React.memo(
 
     return (
       <Pressable
-        className='h-[60px] min-w-[60px] max-w-[60px] flex-1 flex-row items-center justify-center rounded-md bg-container'
+        style={{ width: itemWidth, height: itemWidth }}
+        className='flex-row items-center justify-center rounded-md bg-container'
         onPress={handlePress}
       >
         <ThemedText className='text-center'>{chapter}</ThemedText>
@@ -61,6 +69,10 @@ const ChapterItem = React.memo(
 
 export default function AddBookScreen() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [containerWidth, setContainerWidth] = useState(0);
+  const [openAccordion, setOpenAccordion] = useState<string | undefined>(
+    undefined
+  );
   const { setVerses } = useBookStore();
   const { isCollOrVerse } = useIsCollOrVerse();
 
@@ -86,15 +98,38 @@ export default function AddBookScreen() {
     );
   }, [searchQuery]);
 
+  const gap = 8;
+
+  // Calculate number of columns based on container width
+  // 5 columns for mobile, increasing for larger screens
+  const numColumns = useMemo(() => {
+    if (containerWidth === 0) return 5; // Default to mobile (5 columns)
+
+    // Breakpoints for responsive columns
+    if (containerWidth < 400) return 5; // Mobile
+    if (containerWidth < 600) return 8; // Mobile
+    if (containerWidth < 900) return 10; // Small tablet
+    if (containerWidth < 1000) return 12; // Small desktop
+    if (containerWidth < 1100) return 15; // Tablet / Small desktop
+    return 15; // Large desktop
+  }, [containerWidth]);
+
+  // Calculate grid item width based on container width and number of columns
+  const itemWidth = useMemo(() => {
+    if (containerWidth === 0) return 60; // Default fallback
+    const totalGaps = (numColumns - 1) * gap;
+    return (containerWidth - totalGaps) / numColumns;
+  }, [containerWidth, numColumns]);
+
+  const handleContainerLayout = useCallback((event: LayoutChangeEvent) => {
+    const { width } = event.nativeEvent.layout;
+    setContainerWidth(width);
+  }, []);
+
   return (
     <SafeAreaView className='flex-1'>
       <BackHeader
         title='Select book'
-        RightComponent={
-          <Button variant='outline' className='rounded-full px-4 py-2'>
-            <ThemedText>KJV</ThemedText>
-          </Button>
-        }
         items={
           isCollOrVerse === 'collections'
             ? [
@@ -114,7 +149,7 @@ export default function AddBookScreen() {
 
       <View className='mb-2 gap-2 px-[18]'>
         <Input
-          placeholder='Search by name or abbreviation'
+          placeholder='Search by book name'
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
@@ -131,32 +166,60 @@ export default function AddBookScreen() {
         className='flex-1 px-[18]'
         contentContainerStyle={{ paddingBottom: 24 }}
       >
-        <Accordion type='single' collapsible>
-          {filteredBooks.map(book => (
-            <AccordionItem key={book.id} value={book.id}>
-              <AccordionTrigger className='hover:no-underline'>
-                <View className='flex-1 flex-row items-center justify-between'>
-                  <ThemedText>{book.name}</ThemedText>
-                  <ThemedText>{book.chaptersLength}</ThemedText>
-                </View>
-              </AccordionTrigger>
+        {filteredBooks.length === 0 && searchQuery.trim() ? (
+          <View className='flex-1 items-center justify-center py-12'>
+            <ThemedText className='text-center text-base text-muted-foreground'>
+              Book not found
+            </ThemedText>
+          </View>
+        ) : (
+          <Accordion
+            type='single'
+            collapsible
+            value={openAccordion}
+            onValueChange={setOpenAccordion}
+          >
+            {filteredBooks.map(book => (
+              <AccordionItem key={book.id} value={book.id}>
+                <AccordionTrigger className='hover:no-underline'>
+                  <View className='flex-1 flex-row items-center justify-between'>
+                    <ThemedText>{book.name}</ThemedText>
+                    <ThemedText>{book.chaptersLength}</ThemedText>
+                  </View>
+                </AccordionTrigger>
 
-              <AccordionContent>
-                <View className='flex-row flex-wrap gap-2'>
-                  {Array.from({ length: book.chaptersLength }, (_, i) => (
-                    <ChapterItem
-                      key={i + 1}
-                      chapter={i + 1}
-                      bookName={book.name}
-                      chapterLength={book.chaptersLength}
-                      chapters={book.chapters}
+                <AccordionContent>
+                  <View
+                    onLayout={handleContainerLayout}
+                    style={{ width: '100%' }}
+                  >
+                    <FlatList
+                      key={`${book.id}-${numColumns}`}
+                      data={Array.from(
+                        { length: book.chaptersLength },
+                        (_, i) => i + 1
+                      )}
+                      numColumns={numColumns}
+                      scrollEnabled={false}
+                      keyExtractor={item => item.toString()}
+                      columnWrapperStyle={numColumns > 1 ? { gap } : undefined}
+                      contentContainerStyle={{ gap }}
+                      renderItem={({ item: chapter }) => (
+                        <ChapterItem
+                          chapter={chapter}
+                          bookName={book.name}
+                          chapterLength={book.chaptersLength}
+                          chapters={book.chapters}
+                          itemWidth={itemWidth}
+                        />
+                      )}
                     />
-                  ))}
-                </View>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+                  </View>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
