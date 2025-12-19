@@ -1,4 +1,10 @@
-import { ScrollView, View, LayoutChangeEvent, FlatList } from 'react-native';
+import {
+  ScrollView,
+  View,
+  LayoutChangeEvent,
+  FlatList,
+  Platform,
+} from 'react-native';
 import React, {
   useCallback,
   useEffect,
@@ -131,6 +137,38 @@ export default function SelectVerses() {
     setContainerWidth(width);
   }, []);
 
+  // Ref to access FlatList's underlying DOM element on web
+  const flatListRef = useRef<any>(null);
+
+  // Disable scroll capture on web after FlatList renders
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      const timeout = setTimeout(() => {
+        if (flatListRef.current) {
+          // Try different possible internal ref paths
+          const scrollRef =
+            flatListRef.current?._listRef?._scrollRef ||
+            flatListRef.current?._scrollRef ||
+            flatListRef.current?._component?._scrollRef ||
+            flatListRef.current?._listRef?.getScrollableNode?.();
+
+          if (scrollRef) {
+            const element = scrollRef.node || scrollRef;
+            if (element && element.style) {
+              // @ts-ignore
+              element.style.touchAction = 'pan-y';
+              // @ts-ignore
+              element.style.overscrollBehavior = 'none';
+              // @ts-ignore
+              element.style.overflow = 'visible';
+            }
+          }
+        }
+      }, 100);
+      return () => clearTimeout(timeout);
+    }
+  }, [numColumns, versesLength]);
+
   return (
     <SafeAreaView className='flex-1'>
       <BackHeader
@@ -169,13 +207,29 @@ export default function SelectVerses() {
                 className='w-full'
               >
                 <FlatList
+                  ref={flatListRef}
                   key={`verses-${numColumns}`}
                   data={Array.from({ length: versesLength }, (_, i) => i + 1)}
                   numColumns={numColumns}
                   scrollEnabled={false}
+                  nestedScrollEnabled={false}
+                  removeClippedSubviews={false}
                   keyExtractor={item => item.toString()}
                   columnWrapperStyle={numColumns > 1 ? { gap } : undefined}
                   contentContainerStyle={{ gap }}
+                  style={Platform.select({
+                    web: {
+                      // @ts-ignore - web-specific style
+                      touchAction: 'pan-y',
+                      // @ts-ignore - web-specific style
+                      overscrollBehavior: 'none',
+                    },
+                    default: {},
+                  })}
+                  className={Platform.select({
+                    web: '[&>div]:!touch-action-pan-y [&>div]:!overflow-visible',
+                    default: undefined,
+                  })}
                   renderItem={({ item: verseNumber }) => {
                     const verseValue = `${verseNumber}`;
                     const isActive = localVerses.includes(verseValue);
