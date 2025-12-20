@@ -30,8 +30,13 @@ export default function VersesLayout() {
         options={{ headerShown: false }}
       />
       <Stack.Screen name='create-collection' options={{ headerShown: false }} />
+      <Stack.Screen
+        name='create-affirmation'
+        options={{ headerShown: false }}
+      />
       <Stack.Screen name='all-verses' options={{ headerShown: false }} />
       <Stack.Screen name='all-collections' options={{ headerShown: false }} />
+      <Stack.Screen name='all-affirmations' options={{ headerShown: false }} />
       <Stack.Screen name='[verseId]' options={{ headerShown: false }} />
       <Stack.Screen name='[collectionId]' options={{ headerShown: false }} />
     </Stack>

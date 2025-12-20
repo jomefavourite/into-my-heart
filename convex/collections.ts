@@ -229,14 +229,33 @@ export const addVersesToCollection = mutation({
       throw new Error('No valid verses found to add');
     }
 
-    // Convert verses to collection format
-    const newCollectionVerses = validVerses.map(verse => ({
-      bookName: verse!.bookName,
-      chapter: verse!.chapter,
-      verses: verse!.verses,
-      reviewFreq: verse!.reviewFreq ?? '',
-      verseTexts: verse!.verseTexts,
-    }));
+    // Convert verses to collection format and filter out duplicates
+    const newCollectionVerses = validVerses
+      .map(verse => ({
+        bookName: verse!.bookName,
+        chapter: verse!.chapter,
+        verses: verse!.verses,
+        reviewFreq: verse!.reviewFreq ?? '',
+        verseTexts: verse!.verseTexts,
+      }))
+      .filter(newVerse => {
+        // Check if this verse already exists in the collection
+        return !collection.collectionVerses.some(existingVerse => {
+          // Check if bookName and chapter match
+          if (
+            existingVerse.bookName === newVerse.bookName &&
+            existingVerse.chapter === newVerse.chapter
+          ) {
+            // Check if any verse numbers overlap
+            return newVerse.verses.some(v => existingVerse.verses.includes(v));
+          }
+          return false;
+        });
+      });
+
+    if (newCollectionVerses.length === 0) {
+      throw new Error('All selected verses already exist in this collection');
+    }
 
     // Add new verses to existing collection
     const updatedCollectionVerses = [
@@ -250,6 +269,6 @@ export const addVersesToCollection = mutation({
       versesLength: updatedCollectionVerses.length,
     });
 
-    return { success: true, addedCount: validVerses.length };
+    return { success: true, addedCount: newCollectionVerses.length };
   },
 });

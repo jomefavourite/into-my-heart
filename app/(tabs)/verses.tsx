@@ -3,6 +3,7 @@ import { FlatList, View, Platform } from 'react-native';
 import ThemedText from '@/components/ThemedText';
 import VersesTab from '@/components/Verses/versesTab';
 import CollectionsTab from '@/components/Verses/CollectionsTab';
+import AffirmationsTab from '@/components/Affirmations/AffirmationsTab';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { Animated } from 'react-native';
@@ -24,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import PageHeader from '@/components/PageHeader';
+import WithTooltip from '@/components/WithTooltip';
 
 export default function VersesHomeScreen() {
   const { activeTab, setActiveTab } = useVersesTabStore();
@@ -35,7 +37,7 @@ export default function VersesHomeScreen() {
   // console.log(activeTab, 'activeTab in verses home screen');
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} className='flex-1 gap-5'>
+    <SafeAreaView edges={['top', 'left', 'right']} className='flex-1'>
       {Platform.OS === 'web' && (
         <>
           <title>My Verses - Into My Heart</title>
@@ -65,7 +67,7 @@ export default function VersesHomeScreen() {
         onValueChange={setActiveTab}
         className='mx-auto w-full flex-1 flex-col gap-1.5'
       >
-        <View className='flex-row justify-between px-[18px]'>
+        <View className='flex-row flex-wrap items-center justify-between px-[18px]'>
           <TabsList className='flex-row'>
             <TabsTrigger value='verses' className='' id='verses'>
               <ThemedText
@@ -146,6 +148,16 @@ export default function VersesHomeScreen() {
                     Add Collection
                   </ThemedText>
                 </DropdownMenuItem>
+
+                <DropdownMenuItem
+                  onPress={() => {
+                    router.push('/verses/create-affirmation');
+                  }}
+                >
+                  <ThemedText className='text-sm font-medium'>
+                    Add Affirmation
+                  </ThemedText>
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   onPress={() => {
                     router.push('/verses/import-verses');
@@ -157,6 +169,7 @@ export default function VersesHomeScreen() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+
             <Button
               size={'icon'}
               variant={'ghost'}
@@ -195,6 +208,19 @@ export default function VersesHomeScreen() {
                 >
                   <TabsContent value='collections' className='flex-1'>
                     <CollectionsTab gridView={gridView} />
+                  </TabsContent>
+                </Animated.View>
+              )}
+
+              {activeTab === 'affirmations' && (
+                <Animated.View
+                  style={{
+                    opacity: 1,
+                    flex: 1,
+                  }}
+                >
+                  <TabsContent value='affirmations' className='flex-1'>
+                    <AffirmationsTab gridView={gridView} />
                   </TabsContent>
                 </Animated.View>
               )}

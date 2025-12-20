@@ -62,7 +62,7 @@ export function ErrorAlert({
       }}
     >
       <View
-        className='flex-1 bg-black/50 items-center justify-center p-4'
+        className='flex-1 items-center justify-center bg-black/50 p-4'
         style={{
           position: 'fixed',
           top: 0,
@@ -72,14 +72,12 @@ export function ErrorAlert({
           zIndex: 10000,
         }}
       >
-        <View className='bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl max-w-md w-full'>
+        <View className='w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800'>
           {/* Header */}
-          <View className='flex-row items-center justify-between mb-4'>
+          <View className='mb-4 flex-row items-center justify-between'>
             <View className='flex-row items-center'>
-              <AlertCircle size={24} color='#DC2626' />
-              <Text className='text-xl font-bold text-red-600 ml-2'>
-                {title}
-              </Text>
+              <AlertCircle size={24} />
+              <Text className='ml-2 text-xl font-bold'>{title}</Text>
             </View>
             <TouchableOpacity
               onPress={onClose}
@@ -91,15 +89,15 @@ export function ErrorAlert({
           </View>
 
           {/* Message */}
-          <Text className='text-gray-600 mb-6 leading-5'>{message}</Text>
+          <Text className='mb-6 leading-5 text-gray-600'>{message}</Text>
 
           {/* Actions */}
           <View className='flex-row space-x-3'>
             <TouchableOpacity
               onPress={onClose}
-              className='flex-1 bg-gray-100 py-3 px-4 rounded-md'
+              className='flex-1 rounded-md bg-gray-100 px-4 py-3'
             >
-              <Text className='text-gray-700 font-medium text-center'>
+              <Text className='text-center font-medium text-gray-700'>
                 Close
               </Text>
             </TouchableOpacity>
@@ -107,9 +105,9 @@ export function ErrorAlert({
             {showRetry && onRetry && (
               <TouchableOpacity
                 onPress={onRetry}
-                className='flex-1 bg-blue-600 py-3 px-4 rounded-md'
+                className='flex-1 rounded-md bg-blue-600 px-4 py-3'
               >
-                <Text className='text-white font-medium text-center'>
+                <Text className='text-center font-medium text-white'>
                   Try Again
                 </Text>
               </TouchableOpacity>

@@ -135,7 +135,7 @@ const CreateCollection = () => {
           id: collectionId as Id<'collections'>,
           collectionName,
           collectionVerses: mappedCollectionVerses,
-          versesLength: mappedCollectionVerses.length,
+          // versesLength: mappedCollectionVerses.length,
         });
         resetAll();
         router.push('/verses#collections');
@@ -150,7 +150,7 @@ const CreateCollection = () => {
           id: collectionId as Id<'collections'>,
           collectionName,
           collectionVerses: mappedCollectionVerses,
-          versesLength: mappedCollectionVerses.length,
+          // versesLength: mappedCollectionVerses.length,
         });
         resetAll();
         router.push('/verses#collections');
@@ -164,7 +164,6 @@ const CreateCollection = () => {
         const payload = {
           collectionName,
           collectionVerses: mappedCollectionVerses,
-          versesLength: mappedCollectionVerses.length,
         };
 
         await addCollection(payload);

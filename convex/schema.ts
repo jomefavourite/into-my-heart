@@ -90,6 +90,13 @@ export const VerseNote = {
   updatedAt: v.number(),
 };
 
+export const Affirmation = {
+  userId: v.id('users'),
+  content: v.string(),
+  createdAt: v.number(),
+  updatedAt: v.number(),
+};
+
 export default defineSchema({
   users: defineTable(User).index('byClerkId', ['clerkId']),
   verses: defineTable(Verse),
@@ -102,4 +109,5 @@ export default defineSchema({
   verseNotes: defineTable(VerseNote)
     .index('byVerseId', ['verseId'])
     .index('byUserId', ['userId']),
+  affirmations: defineTable(Affirmation).index('byUserId', ['userId']),
 });

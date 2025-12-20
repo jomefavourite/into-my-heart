@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import React, { useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from 'convex-helpers/react/cache';
@@ -101,29 +101,61 @@ export default function CollectionPage() {
     router.push(`/verses/create-collection?id=${collectionId}`);
   };
 
-  const RightComponent = (
-    <>
-      {!shouldDelete && (
+  const RightComponent = shouldDelete ? (
+    <View className='flex flex-row gap-2'>
+      <Button
+        size={'icon'}
+        variant={'ghost'}
+        disabled={selectedToDelete?.length === 0}
+        onPress={() => setBottomSheetIndex(1)}
+      >
+        <DeleteIcon />
+      </Button>
+      {Platform.OS === 'web' && (
         <Button
           size={'icon'}
           variant={'ghost'}
-          onPress={() => setShouldDelete(true)}
+          onPress={() => {
+            setShouldDelete(false);
+            setSelectedToDelete([]);
+          }}
         >
-          <RemoveCircleIcon />
+          <CancelIcon />
         </Button>
       )}
-
-      {shouldDelete && (
-        <Button
-          size={'icon'}
-          variant={'ghost'}
-          disabled={selectedToDelete?.length === 0}
-          onPress={() => setBottomSheetIndex(1)}
-        >
-          <DeleteIcon />
+    </View>
+  ) : (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button size={'icon'} variant={'ghost'}>
+          <MoreVerticalIcon stroke='white' />
         </Button>
-      )}
-    </>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className='mr-4'>
+        <DropdownMenuItem
+          onPress={() => {
+            router.push(
+              `/verses/add-verses-to-collection?collectionId=${collectionId}`
+            );
+          }}
+        >
+          <ThemedText className='text-sm font-medium'>Add verses</ThemedText>
+        </DropdownMenuItem>
+        <DropdownMenuItem onPress={handleAddVerses}>
+          <ThemedText className='text-sm font-medium'>
+            Edit collection
+          </ThemedText>
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onPress={() => {
+            setShouldDelete(true);
+            setSelectedToDelete([]);
+          }}
+        >
+          <ThemedText className='text-sm font-medium'>Delete Verses</ThemedText>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 
   return (
@@ -136,39 +168,16 @@ export default function CollectionPage() {
             <Button
               size={'icon'}
               variant={'ghost'}
-              onPress={() => setShouldDelete(false)}
+              onPress={() => {
+                setShouldDelete(false);
+                setSelectedToDelete([]);
+              }}
             >
               <CancelIcon />
             </Button>
           ) : null
         }
-        RightComponent={
-          <>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button size={'icon'} variant={'ghost'}>
-                  <MoreVerticalIcon stroke='white' />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className='mr-4'>
-                <DropdownMenuItem onPress={handleAddVerses}>
-                  <ThemedText className='text-sm font-medium'>
-                    Edit collection
-                  </ThemedText>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onPress={() => {
-                    // setIsCollOrVerse('collections');
-                  }}
-                >
-                  <ThemedText className='text-sm font-medium'>
-                    Delete Verses
-                  </ThemedText>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </>
-        }
+        RightComponent={RightComponent}
         items={[
           { label: 'Verses', href: '/verses' },
           { label: 'All collections', href: '/verses/all-collections' },

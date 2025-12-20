@@ -331,71 +331,71 @@ export default function VersePage() {
           </Card>
 
           <View className='my-4 flex-row justify-center gap-3'>
-            <WithTooltip
+            {/* <WithTooltip
               tooltipContents={isPlaying ? 'Pause audio' : 'Play audio'}
-            >
-              <Button size={'icon'} onPress={handleSpeakVerse} className='w-10'>
-                {isPlaying ? (
-                  <Pause
-                    size={24}
-                    color={Platform.OS === 'web' ? '#fff' : undefined}
-                  />
-                ) : (
-                  <VolumeHighIcon />
-                )}
-              </Button>
-            </WithTooltip>
-
+            > */}
+            <Button size={'icon'} onPress={handleSpeakVerse} className='w-10'>
+              {isPlaying ? (
+                <Pause
+                  size={24}
+                  color={Platform.OS === 'web' ? '#fff' : undefined}
+                />
+              ) : (
+                <VolumeHighIcon />
+              )}
+            </Button>
+            {/* </WithTooltip> */}
+            {/* 
             <WithTooltip
               tooltipContents={
                 verse?.isFeatured ? 'Remove from featured' : 'Mark as featured'
               }
+            > */}
+            <Button
+              size={'icon'}
+              onPress={handleToggleFeatured}
+              className='w-10'
+              // variant={verse?.isFeatured ? 'default' : 'outline'}
             >
-              <Button
-                size={'icon'}
-                onPress={handleToggleFeatured}
-                className='w-10'
-                // variant={verse?.isFeatured ? 'default' : 'outline'}
-              >
-                <Star
-                  size={24}
-                  strokeWidth={1.5}
-                  fill={
-                    verse?.isFeatured ? (isDarkMode ? '#000' : '#fff') : 'none'
-                  }
-                  stroke={
-                    verse?.isFeatured
-                      ? isDarkMode
-                        ? '#000'
-                        : '#fff'
-                      : isDarkMode
-                        ? '#000'
-                        : '#fff'
-                  }
-                  color='currentColor'
-                />
-              </Button>
-            </WithTooltip>
+              <Star
+                size={24}
+                strokeWidth={1.5}
+                fill={
+                  verse?.isFeatured ? (isDarkMode ? '#000' : '#fff') : 'none'
+                }
+                stroke={
+                  verse?.isFeatured
+                    ? isDarkMode
+                      ? '#000'
+                      : '#fff'
+                    : isDarkMode
+                      ? '#000'
+                      : '#fff'
+                }
+                color='currentColor'
+              />
+            </Button>
+            {/* </WithTooltip> */}
 
-            <WithTooltip tooltipContents='Add to notes'>
-              <Button size={'icon'} onPress={handleNotesPress} className='w-10'>
-                <NoteIcon />
-              </Button>
-            </WithTooltip>
+            {/* <WithTooltip tooltipContents='Add to notes'> */}
+            <Button size={'icon'} onPress={handleNotesPress} className='w-10'>
+              <NoteIcon />
+            </Button>
+            {/* </WithTooltip> */}
 
             {/* <Button size={'icon'}>
               <TimeScheduleIcon />
             </Button> */}
 
-            <WithTooltip tooltipContents='Download image'>
-              <Button
-                size={'icon'}
-                className='w-10'
-                onPress={handleDownloadImage}
-              >
-                <ImageIcon />
-              </Button>
-            </WithTooltip>
+            {/* <WithTooltip tooltipContents='Download image'> */}
+            <Button
+              size={'icon'}
+              className='w-10'
+              onPress={handleDownloadImage}
+            >
+              <ImageIcon />
+            </Button>
+            {/* </WithTooltip> */}
           </View>
 
           <View className='rounded-md bg-container p-3'>
