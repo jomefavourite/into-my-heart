@@ -5,13 +5,13 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  Alert,
   Modal,
   ActivityIndicator,
 } from 'react-native';
 import { useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { BOOKS } from '../../lib/books';
+import { useAlert } from '@/hooks/useAlert';
 
 interface AddVerseFormProps {
   type: 'verse' | 'collection';
@@ -91,10 +91,11 @@ export function AddVerseForm({ type, onClose, onSuccess }: AddVerseFormProps) {
   const addCollectionSuggestion = useMutation(
     api.collectionSuggestions.addCollectionSuggestion
   );
+  const { alert } = useAlert();
 
   const handleFetchVerses = async () => {
     if (!bookName.trim() || !chapter.trim() || !verses.trim()) {
-      Alert.alert(
+      alert(
         'Error',
         'Please fill in book name, chapter, and verse numbers first'
       );
@@ -109,7 +110,7 @@ export function AddVerseForm({ type, onClose, onSuccess }: AddVerseFormProps) {
         .filter(n => !isNaN(n));
 
       if (verseNumbers.length === 0) {
-        Alert.alert('Error', 'Please enter valid verse numbers');
+        alert('Error', 'Please enter valid verse numbers');
         return;
       }
 
@@ -123,9 +124,9 @@ export function AddVerseForm({ type, onClose, onSuccess }: AddVerseFormProps) {
       const formattedTexts = fetchedTexts.map(vt => vt.text).join('\n');
       setVerseTexts(formattedTexts);
 
-      Alert.alert('Success', 'Verse texts fetched successfully!');
+      alert('Success', 'Verse texts fetched successfully!');
     } catch (error) {
-      Alert.alert('Error', `Failed to fetch verse texts: ${error}`);
+      alert('Error', `Failed to fetch verse texts: ${error}`);
     } finally {
       setIsLoadingVerses(false);
     }
@@ -135,23 +136,23 @@ export function AddVerseForm({ type, onClose, onSuccess }: AddVerseFormProps) {
     try {
       // Validate inputs
       if (type === 'collection' && !collectionName.trim()) {
-        Alert.alert('Error', 'Please enter a collection name');
+        alert('Error', 'Please enter a collection name');
         return;
       }
       if (!bookName.trim()) {
-        Alert.alert('Error', 'Please enter a book name');
+        alert('Error', 'Please enter a book name');
         return;
       }
       if (!chapter.trim()) {
-        Alert.alert('Error', 'Please enter a chapter number');
+        alert('Error', 'Please enter a chapter number');
         return;
       }
       if (!verses.trim()) {
-        Alert.alert('Error', 'Please enter verse numbers');
+        alert('Error', 'Please enter verse numbers');
         return;
       }
       if (!verseTexts.trim()) {
-        Alert.alert('Error', 'Please enter verse texts');
+        alert('Error', 'Please enter verse texts');
         return;
       }
 
@@ -162,10 +163,7 @@ export function AddVerseForm({ type, onClose, onSuccess }: AddVerseFormProps) {
       const texts = verseTexts.split('\n').filter(text => text.trim());
 
       if (texts.length !== verseNumbers.length) {
-        Alert.alert(
-          'Error',
-          'Number of verse texts must match number of verses'
-        );
+        alert('Error', 'Number of verse texts must match number of verses');
         return;
       }
 
@@ -183,7 +181,7 @@ export function AddVerseForm({ type, onClose, onSuccess }: AddVerseFormProps) {
           reviewFreq,
         };
         await addVerseSuggestion(args);
-        Alert.alert('Success', 'Verse suggestion added successfully!');
+        alert('Success', 'Verse suggestion added successfully!');
       } else {
         const args = {
           collectionName: collectionName.trim(),
@@ -199,13 +197,13 @@ export function AddVerseForm({ type, onClose, onSuccess }: AddVerseFormProps) {
           ],
         };
         await addCollectionSuggestion(args);
-        Alert.alert('Success', 'Collection suggestion added successfully!');
+        alert('Success', 'Collection suggestion added successfully!');
       }
 
       onSuccess();
       onClose();
     } catch (error) {
-      Alert.alert('Error', `Failed to add ${type} suggestion: ${error}`);
+      alert('Error', `Failed to add ${type} suggestion: ${error}`);
     }
   };
 

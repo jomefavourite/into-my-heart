@@ -18,7 +18,6 @@ import CustomButton from '@/components/CustomButton';
 import { useMutation, useQuery } from 'convex/react';
 import CancelIcon from '@/components/icons/CancelIcon';
 import { useGridListView } from '@/store/tab-store';
-import { FlashList } from '@shopify/flash-list';
 import { useAuth } from '@clerk/clerk-expo';
 import FlashListSkeletonLoader from '@/components/FlashListSkeletonLoader';
 

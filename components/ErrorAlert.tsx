@@ -1,13 +1,7 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Modal,
-  Platform,
-  Alert,
-} from 'react-native';
+import { View, Text, TouchableOpacity, Modal, Platform } from 'react-native';
 import { AlertCircle, X } from 'lucide-react-native';
+import { useAlert } from '@/hooks/useAlert';
 
 interface ErrorAlertProps {
   visible: boolean;
@@ -26,9 +20,11 @@ export function ErrorAlert({
   onRetry,
   showRetry = false,
 }: ErrorAlertProps) {
+  const { alert } = useAlert();
+
   if (!visible) return null;
 
-  // Use native Alert on mobile
+  // Use BottomSheet on mobile
   if (Platform.OS !== 'web') {
     React.useEffect(() => {
       if (!visible) return;
@@ -39,8 +35,8 @@ export function ErrorAlert({
         buttons.unshift({ text: 'Try Again', onPress: onRetry });
       }
 
-      Alert.alert(title, message, buttons);
-    }, [visible, title, message, onClose, onRetry, showRetry]);
+      alert(title, message, buttons);
+    }, [visible, title, message, onClose, onRetry, showRetry, alert]);
 
     return null;
   }
@@ -131,11 +127,13 @@ export function useErrorAlert() {
     message: '',
   });
 
+  const { alert } = useAlert();
+
   const showError = (title: string, message: string) => {
-    // On mobile, show native alert immediately
+    // On mobile, show BottomSheet alert
     if (Platform.OS !== 'web') {
       const buttons = [{ text: 'Close', style: 'default' as const }];
-      Alert.alert(title, message, buttons);
+      alert(title, message, buttons);
       return;
     }
 

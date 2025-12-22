@@ -14,11 +14,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useMutation } from 'convex/react';
+import { useMutation, useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
+import { Id } from '@/convex/_generated/dataModel';
 import { useIsCollOrVerse } from '@/store/tab-store';
 import { ActivityIndicator } from 'react-native';
-import { useQueries, useQuery } from '@tanstack/react-query';
+import { useQueries } from '@tanstack/react-query';
 import { BOOKS } from '@/lib/books';
 import SplitVersesBottomSheet, {
   SplitVersesBottomSheetRef,
@@ -83,6 +84,7 @@ export default function VerseSummary() {
     chapter: chapterURL,
     verses: versesURL,
     verseLength: verseLengthURL,
+    verseId: verseIdURL,
   } = useLocalSearchParams();
   const [reviewFreqValue, setReviewFreqValue] = React.useState('Daily');
   const {
@@ -114,6 +116,24 @@ export default function VerseSummary() {
     useDuplicateVersesAlert();
 
   const addVerse = useMutation(api.verses.addVerse);
+  const updateVerse = useMutation(api.verses.updateVerse);
+
+  // Check if we're in edit mode
+  const isEditMode = !!verseIdURL;
+  const verseId = verseIdURL as Id<'verses'> | undefined;
+
+  // Load existing verse if editing
+  const existingVerse = useQuery(
+    api.verses.getVerseById,
+    isEditMode && verseId ? { id: verseId } : 'skip'
+  );
+
+  // Load reviewFreq from existing verse when editing
+  React.useEffect(() => {
+    if (existingVerse && isEditMode) {
+      setReviewFreqValue(existingVerse.reviewFreq);
+    }
+  }, [existingVerse, isEditMode]);
 
   // Restore store state from URL parameters on mount
   useEffect(() => {
@@ -182,50 +202,6 @@ export default function VerseSummary() {
     setVerses([]);
   }, [router, setVerses]);
 
-  const handleAddVerse = useCallback(async () => {
-    if (versesList.length === 0) return;
-
-    if (!bookName || !chapter) {
-      console.error('Book name or chapter is not set');
-      return;
-    }
-
-    // Check if verse texts are still loading
-    if (isVerseTextsListLoading) {
-      console.log('⏳ Verse texts are still loading, please wait...');
-      return;
-    }
-
-    // Check if we have verse texts for all verses
-    if (verseTexts.length !== versesList.length) {
-      console.log('⚠️ Verse texts not fully loaded yet');
-      console.log('Expected:', versesList.length, 'Got:', verseTexts.length);
-      return;
-    }
-
-    // For collections, always split individually and handle duplicates
-    if (isCollOrVerse === 'collections') {
-      await processAddVerse(true); // Force individual splitting for collections
-      return;
-    }
-
-    // For regular verses, show bottom sheet if there are multiple verses
-    if (versesList.length > 1) {
-      splitVersesBottomSheetRef.current?.open();
-      return;
-    }
-
-    // If only one verse, proceed directly
-    await processAddVerse();
-  }, [
-    versesList,
-    bookName,
-    chapter,
-    isVerseTextsListLoading,
-    verseTexts.length,
-    isCollOrVerse,
-  ]);
-
   const processAddVerse = useCallback(
     async (splitIntoIndividual = false) => {
       setIsLoading(true);
@@ -292,6 +268,30 @@ export default function VerseSummary() {
       }
 
       try {
+        // If editing, use updateVerse instead of addVerse
+        if (isEditMode && verseId) {
+          // Update existing verse
+          const payload = {
+            id: verseId,
+            bookName: bookName,
+            chapter: chapter,
+            verses: versesList.map(v => v.toString()),
+            reviewFreq: reviewFreqValue,
+            verseTexts: verseTexts.map(text => ({
+              verse: `${text?.verse || ''}`,
+              text: text?.text || '',
+            })),
+          };
+          console.log('📝 Updating verse:', payload);
+          await updateVerse(payload);
+
+          setIsLoading(false);
+          resetAll();
+          router.push(`/verses/${verseId}`);
+          return;
+        }
+
+        // Original add logic for new verses
         if (splitIntoIndividual) {
           // Add each verse individually
           for (const verse of versesList) {
@@ -377,6 +377,7 @@ export default function VerseSummary() {
     },
     [
       addVerse,
+      updateVerse,
       bookName,
       chapter,
       versesList,
@@ -387,8 +388,62 @@ export default function VerseSummary() {
       setVerses,
       resetAll,
       verseTexts,
+      isEditMode,
+      verseId,
     ]
   );
+
+  const handleAddVerse = useCallback(async () => {
+    if (versesList.length === 0) return;
+
+    if (!bookName || !chapter) {
+      console.error('Book name or chapter is not set');
+      return;
+    }
+
+    // Check if verse texts are still loading
+    if (isVerseTextsListLoading) {
+      console.log('⏳ Verse texts are still loading, please wait...');
+      return;
+    }
+
+    // Check if we have verse texts for all verses
+    if (verseTexts.length !== versesList.length) {
+      console.log('⚠️ Verse texts not fully loaded yet');
+      console.log('Expected:', versesList.length, 'Got:', verseTexts.length);
+      return;
+    }
+
+    // If editing, proceed directly without showing split bottom sheet
+    if (isEditMode) {
+      await processAddVerse();
+      return;
+    }
+
+    // For collections, always split individually and handle duplicates
+    if (isCollOrVerse === 'collections') {
+      await processAddVerse(true); // Force individual splitting for collections
+      return;
+    }
+
+    // For regular verses, show bottom sheet if there are multiple verses
+    if (versesList.length > 1) {
+      splitVersesBottomSheetRef.current?.open();
+      return;
+    }
+
+    // If only one verse, proceed directly
+    await processAddVerse();
+  }, [
+    versesList,
+    bookName,
+    chapter,
+    isVerseTextsListLoading,
+    verseTexts.length,
+    isCollOrVerse,
+    isEditMode,
+    processAddVerse,
+  ]);
 
   const handleSplitIntoIndividual = useCallback(() => {
     processAddVerse(true);
@@ -441,10 +496,16 @@ export default function VerseSummary() {
     <SafeAreaView className='flex-1'>
       {Platform.OS === 'web' && (
         <>
-          <title>Add Verse - Into My Heart</title>
+          <title>
+            {isEditMode ? 'Edit Verse' : 'Add Verse'} - Into My Heart
+          </title>
           <meta
             name='description'
-            content='Add a new Bible verse to your memorization collection. Select book, chapter, and verses to memorize.'
+            content={
+              isEditMode
+                ? 'Edit your Bible verse. Update book, chapter, and verses.'
+                : 'Add a new Bible verse to your memorization collection. Select book, chapter, and verses to memorize.'
+            }
           />
           <meta
             name='keywords'
@@ -462,7 +523,7 @@ export default function VerseSummary() {
       )}
 
       <BackHeader
-        title='Add Verse'
+        title={isEditMode ? 'Edit Verse' : 'Add Verse'}
         items={
           isCollOrVerse === 'collections'
             ? [
@@ -531,6 +592,7 @@ export default function VerseSummary() {
                   size={'sm'}
                   variant={'ghost'}
                   className='flex-row items-center text-sm'
+                  disabled={isEditMode}
                   onPress={handleBookChange}
                 >
                   <ThemedText className='text-sm'>
@@ -545,6 +607,7 @@ export default function VerseSummary() {
                   size={'sm'}
                   variant={'ghost'}
                   className='flex-row items-center text-sm'
+                  disabled={isEditMode}
                   onPress={() =>
                     router.replace(
                       `/verses/select-verses?book=${bookName}&chapter=${chapter}`
@@ -632,9 +695,11 @@ export default function VerseSummary() {
             isLoading={isLoading}
             onPress={handleAddVerse}
           >
-            {isCollOrVerse === 'collections'
-              ? 'Add Verse(s) To Collection'
-              : 'Add Verse(s)'}
+            {isEditMode
+              ? 'Update Verse'
+              : isCollOrVerse === 'collections'
+                ? 'Add Verse(s) To Collection'
+                : 'Add Verse(s)'}
           </CustomButton>
         </View>
       </View>

@@ -11,6 +11,7 @@ import { useMutation, useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
 import { useToast } from 'react-native-toast-notifications';
+import { useAlert } from '@/hooks/useAlert';
 
 const CreateAffirmation = () => {
   const router = useRouter();
@@ -33,6 +34,8 @@ const CreateAffirmation = () => {
 
   const addAffirmation = useMutation(api.affirmations.addAffirmation);
   const updateAffirmation = useMutation(api.affirmations.updateAffirmation);
+  const deleteAffirmation = useMutation(api.affirmations.deleteAffirmation);
+  const { alert } = useAlert();
 
   // Load existing affirmation data when editing
   useEffect(() => {
@@ -72,6 +75,42 @@ const CreateAffirmation = () => {
     }
   };
 
+  const handleDelete = () => {
+    if (!isEditMode || !affirmationId) return;
+
+    alert(
+      'Delete Affirmation',
+      'Are you sure you want to delete this affirmation? This action cannot be undone.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setIsLoading(true);
+              await deleteAffirmation({
+                id: affirmationId as Id<'affirmations'>,
+              });
+              toast.show('Affirmation deleted successfully', {
+                type: 'success',
+              });
+              router.back();
+            } catch (error) {
+              console.error('Error deleting affirmation:', error);
+              toast.show('Failed to delete affirmation', { type: 'error' });
+            } finally {
+              setIsLoading(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <SafeAreaView className='flex-1'>
       <BackHeader
@@ -108,7 +147,7 @@ const CreateAffirmation = () => {
           )}
         </View>
 
-        <View className='my-5'>
+        <View className='my-5 gap-3'>
           <CustomButton
             disabled={!content.trim() || isLoading}
             onPress={handleSave}
@@ -119,6 +158,16 @@ const CreateAffirmation = () => {
                 ? 'Update Affirmation'
                 : 'Save Affirmation'}
           </CustomButton>
+
+          {isEditMode && (
+            <CustomButton
+              variant='outline'
+              disabled={isLoading}
+              onPress={handleDelete}
+            >
+              Delete Affirmation
+            </CustomButton>
+          )}
         </View>
       </View>
     </SafeAreaView>

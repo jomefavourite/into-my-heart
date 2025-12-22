@@ -1,4 +1,4 @@
-import { View, Platform, Alert } from 'react-native';
+import { View, Platform } from 'react-native';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import ThemedText from '@/components/ThemedText';
 import CustomButton from '@/components/CustomButton';
@@ -8,6 +8,7 @@ import { useSSO } from '@clerk/clerk-expo';
 import Logo from '@/components/icons/logo/Logo';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
+import { useAlert } from '@/hooks/useAlert';
 
 export const useWarmUpBrowser = () => {
   useEffect(() => {
@@ -45,6 +46,7 @@ export default function CreateAccount() {
 
   const { startSSOFlow } = useSSO();
   const isSafari = useIsSafari();
+  const { alert } = useAlert();
 
   // Guard against double-taps and let us show retry UI if popup was blocked.
   const inFlight = useRef(false);
@@ -86,7 +88,7 @@ export default function CreateAccount() {
     // Optional, friendly heads-up for Safari users.
     if (isSafari) {
       // Non-blocking: we *don't* await this; we still kick SSO immediately.
-      Alert.alert(
+      alert(
         'Allow pop-ups for Google sign-in',
         'Safari may block the sign-in window. If nothing opens, enable pop-ups for this site and tap Retry.'
       );
@@ -124,7 +126,7 @@ export default function CreateAccount() {
         setShowSafariPopupHelp(true);
       } else {
         console.error('Google SSO error:', err);
-        Alert.alert('Sign-in failed', 'Please try again.');
+        alert('Sign-in failed', 'Please try again.');
       }
     }
   }, []);

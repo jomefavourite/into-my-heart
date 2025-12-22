@@ -1,18 +1,12 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Modal,
-  Platform,
-  Alert,
-} from 'react-native';
+import { View, Text, TouchableOpacity, Modal, Platform } from 'react-native';
 import { AlertTriangle, X } from 'lucide-react-native';
 import CustomBottomSheet from './CustomBottomSheet';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 import ThemedText from './ThemedText';
 import { Button } from './ui/button';
 import CustomButton from './CustomButton';
+import { useAlert } from '@/hooks/useAlert';
 
 interface DuplicateVersesAlertProps {
   visible: boolean;
@@ -31,20 +25,22 @@ export function DuplicateVersesAlert({
   onClose,
   onContinue,
 }: DuplicateVersesAlertProps) {
+  const { alert } = useAlert();
+
   if (!visible) return null;
 
   const message = `The following verses from ${bookName} ${chapter} already exist in your collection:\n\n${duplicateVerses.join(', ')}\n\nThese verses will be skipped. Do you want to continue adding the remaining verses?`;
 
-  // Use native Alert on mobile
+  // Use BottomSheet on mobile
   if (Platform.OS !== 'web') {
     React.useEffect(() => {
       if (!visible) return;
 
-      Alert.alert('Duplicate Verses Found', message, [
+      alert('Duplicate Verses Found', message, [
         { text: 'Cancel', onPress: onClose, style: 'cancel' },
         { text: 'Continue', onPress: onContinue, style: 'default' },
       ]);
-    }, [visible, message, onClose, onContinue]);
+    }, [visible, message, onClose, onContinue, alert]);
 
     return null;
   }
@@ -136,7 +132,7 @@ export function DuplicateVersesAlert({
 
 // Hook for managing duplicate verses state
 export function useDuplicateVersesAlert() {
-  const [alert, setAlert] = React.useState<{
+  const [alertState, setAlertState] = React.useState<{
     visible: boolean;
     duplicateVerses: number[];
     bookName: string;
@@ -153,7 +149,7 @@ export function useDuplicateVersesAlert() {
     bookName: string,
     chapter: number
   ) => {
-    setAlert({
+    setAlertState({
       visible: true,
       duplicateVerses,
       bookName,
@@ -162,7 +158,7 @@ export function useDuplicateVersesAlert() {
   };
 
   const hideDuplicateAlert = () => {
-    setAlert(prev => ({ ...prev, visible: false }));
+    setAlertState(prev => ({ ...prev, visible: false }));
   };
 
   const DuplicateVersesAlertComponent = ({
@@ -170,7 +166,7 @@ export function useDuplicateVersesAlert() {
   }: {
     onContinue: () => void;
   }) => {
-    // On mobile, return null since we use native Alert
+    // On mobile, return null since we use BottomSheet
     if (Platform.OS !== 'web') {
       return null;
     }
@@ -178,10 +174,10 @@ export function useDuplicateVersesAlert() {
     // On web, return custom modal
     return (
       <DuplicateVersesAlert
-        visible={alert.visible}
-        duplicateVerses={alert.duplicateVerses}
-        bookName={alert.bookName}
-        chapter={alert.chapter}
+        visible={alertState.visible}
+        duplicateVerses={alertState.duplicateVerses}
+        bookName={alertState.bookName}
+        chapter={alertState.chapter}
         onClose={hideDuplicateAlert}
         onContinue={onContinue}
       />

@@ -4,7 +4,6 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
-  Alert,
   ActivityIndicator,
   Platform,
   Modal,
@@ -13,6 +12,7 @@ import {
 import { useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { BOOKS } from '../../lib/books';
+import { useAlert } from '@/hooks/useAlert';
 
 // Helper function to parse verse reference
 function parseVerseReference(verseRef: string) {
@@ -151,6 +151,7 @@ export function BulkAddVerses() {
   const addCollectionSuggestion = useMutation(
     api.collectionSuggestions.addCollectionSuggestion
   );
+  const { alert } = useAlert();
 
   // Function to parse custom bulk text input
   const parseCustomBulkText = (text: string): string[] => {
@@ -177,19 +178,13 @@ export function BulkAddVerses() {
     const versesToProcess = parseCustomBulkText(customBulkText);
 
     if (versesToProcess.length === 0) {
-      Alert.alert(
-        'Error',
-        'No verses to process. Please add some verse references.'
-      );
+      alert('Error', 'No verses to process. Please add some verse references.');
       return;
     }
 
     // Validate collection name if in collection mode
     if (addMode === 'collections' && !collectionName.trim()) {
-      Alert.alert(
-        'Error',
-        'Please enter a collection name for collection mode.'
-      );
+      alert('Error', 'Please enter a collection name for collection mode.');
       return;
     }
 
@@ -198,9 +193,9 @@ export function BulkAddVerses() {
       versesToProcess
     );
 
-    // Use native Alert on mobile, custom modal on web
+    // Use BottomSheet on mobile, custom modal on web
     if (Platform.OS !== 'web') {
-      Alert.alert(
+      alert(
         'Bulk Add Bible Verses',
         `This will add ${versesToProcess.length} Bible verses to ${addMode === 'verses' ? 'verse suggestions' : 'collection suggestions'}. Continue?`,
         [
@@ -365,9 +360,9 @@ export function BulkAddVerses() {
     setResults({ success: successList, failed: failedList });
     setIsLoading(false);
 
-    // Use native Alert on mobile, custom modal on web
+    // Use BottomSheet on mobile, custom modal on web
     if (Platform.OS !== 'web') {
-      Alert.alert(
+      alert(
         'Bulk Add Complete',
         `Successfully added: ${successList.length}\nFailed: ${failedList.length}`,
         [{ text: 'OK' }]

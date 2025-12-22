@@ -1,4 +1,4 @@
-import { View, Alert } from 'react-native';
+import { View } from 'react-native';
 import React, { useState } from 'react';
 import BackHeader from '@/components/BackHeader';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -16,6 +16,7 @@ import { Stack } from 'expo-router';
 import { useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { useToast } from 'react-native-toast-notifications';
+import { useAlert } from '@/hooks/useAlert';
 
 export const metadata = {
   title: 'Edit Profile',
@@ -28,6 +29,7 @@ export default function EditProfile() {
   const bottomSheetRef = React.useRef<BottomSheet>(null);
   const updateUserProfile = useMutation(api.users.updateUserProfile);
   const toast = useToast();
+  const { alert } = useAlert();
 
   const [selectedImage, setSelectedImage] = useState<string | undefined>(
     undefined
@@ -46,7 +48,7 @@ export default function EditProfile() {
     if (!result.canceled) {
       setSelectedImage(result.assets[0].uri);
     } else {
-      Alert.alert('No image selected', 'You did not select any image.');
+      alert('No image selected', 'You did not select any image.');
     }
   };
 

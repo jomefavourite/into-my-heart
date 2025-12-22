@@ -11,7 +11,7 @@ import ArrowRightIcon from '../icons/ArrowRightIcon';
 import FlashListSkeletonLoader from '../FlashListSkeletonLoader';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useMutation } from 'convex/react';
-import { Alert } from 'react-native';
+import { useAlert } from '@/hooks/useAlert';
 
 type AffirmationsTabProps = {
   gridView: boolean;
@@ -27,9 +27,10 @@ const AffirmationsTab = ({ gridView }: AffirmationsTabProps) => {
   );
 
   const deleteAffirmation = useMutation(api.affirmations.deleteAffirmation);
+  const { alert } = useAlert();
 
   const handleDelete = async (id: string) => {
-    Alert.alert(
+    alert(
       'Delete Affirmation',
       'Are you sure you want to delete this affirmation?',
       [
@@ -45,7 +46,7 @@ const AffirmationsTab = ({ gridView }: AffirmationsTabProps) => {
               await deleteAffirmation({ id: id as any });
             } catch (error) {
               console.error('Error deleting affirmation:', error);
-              Alert.alert('Error', 'Failed to delete affirmation');
+              alert('Error', 'Failed to delete affirmation');
             }
           },
         },

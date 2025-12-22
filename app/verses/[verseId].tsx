@@ -1,4 +1,4 @@
-import { View, ScrollView, Platform, Alert } from 'react-native';
+import { View, ScrollView, Platform } from 'react-native';
 import React, { useRef, useState, useEffect } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from 'convex-helpers/react/cache';
@@ -24,7 +24,16 @@ import Logo from '@/components/icons/logo/Logo';
 import WithTooltip from '@/components/WithTooltip';
 import VolumeHighIcon from '@/components/icons/VolumeHighIcon';
 import { Pause, Star } from 'lucide-react-native';
+import MoreVerticalIcon from '@/components/icons/MoreVerticalIcon';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useAlert } from '@/hooks/useAlert';
+import { BOOKS } from '@/lib/books';
 
 export default function VersePage() {
   const router = useRouter();
@@ -42,8 +51,9 @@ export default function VersePage() {
   const [isPlaying, setIsPlaying] = useState(false);
   const speechUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const setFeaturedVerse = useMutation(api.verses.setFeaturedVerse);
-
+  const deleteVerse = useMutation(api.verses.deleteVerses);
   const { isDarkMode } = useColorScheme();
+  const { alert } = useAlert();
 
   // Cleanup on unmount
   useEffect(() => {
@@ -76,10 +86,7 @@ export default function VersePage() {
       });
     } catch (error) {
       console.error('Error toggling featured verse:', error);
-      Alert.alert(
-        'Error',
-        'Failed to update featured verse. Please try again.'
-      );
+      alert('Error', 'Failed to update featured verse. Please try again.');
     }
   };
 
@@ -88,7 +95,7 @@ export default function VersePage() {
 
     try {
       if (!viewShotRef.current.capture) {
-        Alert.alert('Error', 'Capture method is not available.');
+        alert('Error', 'Capture method is not available.');
         return;
       }
       const uri = await viewShotRef.current.capture();
@@ -102,18 +109,18 @@ export default function VersePage() {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        Alert.alert('Success', 'Image downloaded successfully!');
+        alert('Success', 'Image downloaded successfully!');
       } else {
         // For mobile, share the image
         if (await Sharing.isAvailableAsync()) {
           await Sharing.shareAsync(uri);
         } else {
-          Alert.alert('Error', 'Sharing is not available on this device');
+          alert('Error', 'Sharing is not available on this device');
         }
       }
     } catch (error) {
       console.error('Error downloading image:', error);
-      Alert.alert('Error', 'Failed to download image. Please try again.');
+      alert('Error', 'Failed to download image. Please try again.');
     }
   };
 
@@ -164,10 +171,7 @@ export default function VersePage() {
           setIsPlaying(true);
         }
       } else {
-        Alert.alert(
-          'Error',
-          'Speech synthesis is not supported in this browser.'
-        );
+        alert('Error', 'Speech synthesis is not supported in this browser.');
       }
     } else {
       // Use expo-speech for native platforms
@@ -191,6 +195,68 @@ export default function VersePage() {
       setIsPlaying(true);
     }
   };
+
+  const handleEditVerse = () => {
+    if (!verse) return;
+
+    // Find the book in BOOKS array
+    const book = BOOKS.find(b => b.name === verse.bookName);
+    if (!book) {
+      alert('Error', 'Book not found. Please try again.');
+      return;
+    }
+
+    // Find the chapter in the book
+    const chapterData = book.chapters.find(
+      ch => ch.chapterNumber === verse.chapter
+    );
+    if (!chapterData) {
+      alert('Error', 'Chapter not found. Please try again.');
+      return;
+    }
+
+    // Get the verseLength for this chapter
+    const verseLength = chapterData.versesLength;
+
+    // Navigate to select-verses page with book, chapter, verseLength, current verses, and verseId for editing
+    router.push(
+      `/verses/select-verses?book=${encodeURIComponent(verse.bookName)}&chapter=${verse.chapter}&verseLength=${verseLength}&verses=${verse.verses.join(',')}&verseId=${verseId}`
+    );
+  };
+
+  const handleDeleteVerse = () => {
+    alert('Delete Verse', 'Are you sure you want to delete this verse?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => {
+          deleteVerse({
+            ids: [verseId as Id<'verses'>],
+          });
+          router.back();
+        },
+      },
+    ]);
+  };
+
+  const RightComponent = (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button size={'icon'} variant={'ghost'}>
+          <MoreVerticalIcon color={isDarkMode ? '#fff' : '#303030'} />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className='mr-4'>
+        <DropdownMenuItem onPress={handleEditVerse}>
+          <ThemedText className='text-sm font-medium'>Edit Verse</ThemedText>
+        </DropdownMenuItem>
+        <DropdownMenuItem onPress={handleDeleteVerse}>
+          <ThemedText className='text-sm font-medium'>Delete Verse</ThemedText>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 
   return (
     <SafeAreaView className='flex-1'>
@@ -220,6 +286,8 @@ export default function VersePage() {
             href: `/verses/${verseId}`,
           },
         ]}
+        BreadcrumbRightComponent={RightComponent}
+        RightComponent={RightComponent}
       />
 
       {/* Hidden view for capturing */}

@@ -47,7 +47,7 @@ const FlashListSkeletonLoader: React.FC<FlashListSkeletonLoaderProps> = ({
       ItemSeparatorComponent={ItemSeparator}
       scrollEnabled={false}
       style={{ flex: 1 }}
-      contentContainerStyle={{ flexGrow: 1 }}
+      contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 18 }}
     />
   );
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { usePersistence, useStorageInfo } from '@/hooks/usePersistence';
 import { useBookStore } from '@/store/bookStore';
 import { useVersesTabStore } from '@/store/tab-store';
@@ -7,6 +7,7 @@ import { useIsCollOrVerse } from '@/store/tab-store';
 import { useGridListView } from '@/store/tab-store';
 import ThemedText from './ThemedText';
 import CustomButton from './CustomButton';
+import { useAlert } from '@/hooks/useAlert';
 
 /**
  * Debug component for monitoring and managing persistence
@@ -16,6 +17,7 @@ export default function PersistenceDebug() {
   const [isVisible, setIsVisible] = useState(false);
   const { isLoading, error, clearAllData } = usePersistence();
   const storageInfo = useStorageInfo();
+  const { alert } = useAlert();
 
   // Get current store states
   const bookStore = useBookStore();
@@ -29,7 +31,7 @@ export default function PersistenceDebug() {
   }
 
   const handleClearAll = async () => {
-    Alert.alert(
+    alert(
       'Clear All Data',
       'This will clear all saved data including collections. Are you sure?',
       [
@@ -40,9 +42,9 @@ export default function PersistenceDebug() {
           onPress: async () => {
             const success = await clearAllData();
             if (success) {
-              Alert.alert('Success', 'All data cleared');
+              alert('Success', 'All data cleared');
             } else {
-              Alert.alert('Error', 'Failed to clear data');
+              alert('Error', 'Failed to clear data');
             }
           },
         },

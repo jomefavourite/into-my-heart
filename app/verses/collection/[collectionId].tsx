@@ -44,13 +44,14 @@ export default function CollectionPage() {
   const {
     setCollectionName,
     setCollectionVerses,
+    setCollectionVersesArray,
     setVerses,
     setIsCollectionUpdate,
   } = useBookStore();
 
   const collection = useQuery(
     api.collections.getCollectionById,
-    isSignedIn && isLoaded
+    isSignedIn && isLoaded && collectionId
       ? {
           id: collectionId as Id<'collections'>,
         }
@@ -87,15 +88,18 @@ export default function CollectionPage() {
     setCollectionName(collection?.collectionName ?? '');
     setVerses([]); // Clear any existing verses before loading collection verses
 
-    collection?.collectionVerses.forEach(verse => {
-      setCollectionVerses({
+    // Use setCollectionVersesArray to replace the entire array instead of adding to it
+    // This prevents duplicates when editing the same collection multiple times
+    const versesArray =
+      collection?.collectionVerses.map(verse => ({
         bookName: verse.bookName,
         chapter: verse.chapter,
         verses: verse.verses,
         reviewFreq: verse.reviewFreq,
         verseTexts: verse.verseTexts,
-      });
-    });
+      })) ?? [];
+
+    setCollectionVersesArray(versesArray);
 
     setIsCollectionUpdate(true);
     router.push(`/verses/create-collection?id=${collectionId}`);

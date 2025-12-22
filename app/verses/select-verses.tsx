@@ -29,6 +29,7 @@ export default function SelectVerses() {
     chapter: chapterURL,
     verseLength: verseLengthURL,
     verses: versesURL,
+    verseId: verseIdURL,
   } = useLocalSearchParams();
 
   let {
@@ -87,10 +88,10 @@ export default function SelectVerses() {
   }, []);
 
   const handlePress = useCallback(() => {
-    router.push(
-      `/verses/verse-summary?book=${bookName}&chapter=${chapter}&verseLength=${versesLength}&verses=${localVerses.join(',')}`
-    );
-  }, [bookName, chapter, versesLength, localVerses, router]);
+    const url = `/verses/verse-summary?book=${bookName}&chapter=${chapter}&verseLength=${versesLength}&verses=${localVerses.join(',')}`;
+    const urlWithVerseId = verseIdURL ? `${url}&verseId=${verseIdURL}` : url;
+    router.push(urlWithVerseId);
+  }, [bookName, chapter, versesLength, localVerses, verseIdURL, router]);
 
   const handleAddAllVerse = useCallback(() => {
     const newVerses = Array.from(

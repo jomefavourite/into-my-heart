@@ -4,7 +4,6 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  Alert,
   TextInput,
   Platform,
   Modal,
@@ -16,6 +15,7 @@ import { AdminOnly } from './AdminOnly';
 import { AddVerseForm } from './AddVerseForm';
 import { BulkAddVerses } from './BulkAddVerses';
 import { useAuth } from '@clerk/clerk-expo';
+import { useAlert } from '@/hooks/useAlert';
 
 interface VerseSuggestion {
   _id: Id<'versesSuggestions'>;
@@ -47,6 +47,7 @@ interface CollectionSuggestion {
 
 export function AdminSuggestions() {
   const { isSignedIn, isLoaded } = useAuth();
+  const { alert } = useAlert();
   const [activeTab, setActiveTab] = useState<'verses' | 'collections'>(
     'verses'
   );
@@ -85,9 +86,9 @@ export function AdminSuggestions() {
       ? `${suggestion.bookName} ${suggestion.chapter}:${suggestion.verses.join(',')}`
       : 'Verse Suggestion';
 
-    // Use native Alert on mobile, custom modal on web
+    // Use BottomSheet on mobile, custom modal on web
     if (Platform.OS !== 'web') {
-      Alert.alert(
+      alert(
         'Delete Verse Suggestion',
         'Are you sure you want to delete this verse suggestion?',
         [
@@ -117,9 +118,9 @@ export function AdminSuggestions() {
       ? suggestion.collectionName
       : 'Collection Suggestion';
 
-    // Use native Alert on mobile, custom modal on web
+    // Use BottomSheet on mobile, custom modal on web
     if (Platform.OS !== 'web') {
-      Alert.alert(
+      alert(
         'Delete Collection Suggestion',
         'Are you sure you want to delete this collection suggestion?',
         [
@@ -154,9 +155,9 @@ export function AdminSuggestions() {
         });
       }
 
-      // Use native Alert on mobile, custom modal on web
+      // Use BottomSheet on mobile, custom modal on web
       if (Platform.OS !== 'web') {
-        Alert.alert(
+        alert(
           'Success',
           `${type === 'verse' ? 'Verse' : 'Collection'} suggestion deleted successfully!`
         );
@@ -166,9 +167,9 @@ export function AdminSuggestions() {
         setDeleteItem(null);
       }
     } catch (error) {
-      // Use native Alert on mobile, custom modal on web
+      // Use BottomSheet on mobile, custom modal on web
       if (Platform.OS !== 'web') {
-        Alert.alert('Error', `Failed to delete ${type} suggestion: ${error}`);
+        alert('Error', `Failed to delete ${type} suggestion: ${error}`);
       } else {
         // For web, we could show an error toast or modal
         console.error(`Failed to delete ${type} suggestion:`, error);

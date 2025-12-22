@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { Id } from '../../convex/_generated/dataModel';
 import { AdminOnly } from './AdminOnly';
 import { useAuth } from '@clerk/clerk-expo';
+import { useAlert } from '@/hooks/useAlert';
 
 interface User {
   _id: Id<'users'>;
@@ -27,22 +28,23 @@ export function AdminPanel() {
   const promoteToAdmin = useMutation(api.users.promoteToAdmin);
   const demoteFromAdmin = useMutation(api.users.demoteFromAdmin);
   const setUserRole = useMutation(api.users.setUserRole);
+  const { alert } = useAlert();
 
   const handlePromoteToAdmin = async (userId: Id<'users'>) => {
     try {
       await promoteToAdmin({ userId });
-      Alert.alert('Success', 'User promoted to admin successfully!');
+      alert('Success', 'User promoted to admin successfully!');
     } catch (error) {
-      Alert.alert('Error', `Error: ${error}`);
+      alert('Error', `Error: ${error}`);
     }
   };
 
   const handleDemoteFromAdmin = async (userId: Id<'users'>) => {
     try {
       await demoteFromAdmin({ userId });
-      Alert.alert('Success', 'User demoted from admin successfully!');
+      alert('Success', 'User demoted from admin successfully!');
     } catch (error) {
-      Alert.alert('Error', `Error: ${error}`);
+      alert('Error', `Error: ${error}`);
     }
   };
 
@@ -51,10 +53,10 @@ export function AdminPanel() {
 
     try {
       await setUserRole({ userId: selectedUserId, role: newRole });
-      Alert.alert('Success', `User role updated to ${newRole} successfully!`);
+      alert('Success', `User role updated to ${newRole} successfully!`);
       setSelectedUserId(null);
     } catch (error) {
-      Alert.alert('Error', `Error: ${error}`);
+      alert('Error', `Error: ${error}`);
     }
   };
 

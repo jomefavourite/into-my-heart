@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity, View, Platform } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { cn, useBottomSheetStore } from '@/lib/utils';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -90,13 +90,23 @@ const CheckboxItem = ({ title }: { title: string }) => {
   const { isDarkMode, setColorScheme } = useColorScheme();
   const [isEnabled, setIsEnabled] = useState(isDarkMode);
 
+  // Sync local state with actual theme value to prevent desync
+  useEffect(() => {
+    if (title === 'Dark mode') {
+      setIsEnabled(isDarkMode);
+    }
+  }, [isDarkMode, title]);
+
   const toggleSwitch = () => {
     if (title === 'Dark mode') {
       const newTheme = isDarkMode ? 'light' : 'dark';
       setColorScheme(newTheme);
       AsyncStorage.setItem('theme', newTheme);
+      // Update local state immediately for responsive UI
+      setIsEnabled(newTheme === 'dark');
+    } else {
+      setIsEnabled(previousState => !previousState);
     }
-    setIsEnabled(previousState => !previousState);
   };
 
   return (

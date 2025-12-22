@@ -20,10 +20,12 @@ import { api } from '@/convex/_generated/api';
 import { useIsCollOrVerse } from '@/store/tab-store';
 import { Id } from '@/convex/_generated/dataModel';
 import { useLocalSearchParams } from 'expo-router';
+import { useAuth } from '@clerk/clerk-expo';
 
 const CreateCollection = () => {
   const router = useRouter();
   const { collectionId, moveVerses } = useLocalSearchParams();
+  const { isSignedIn, isLoaded } = useAuth();
 
   const {
     collectionName,
@@ -51,7 +53,7 @@ const CreateCollection = () => {
   // If we're moving verses to an existing collection, fetch the collection data
   const existingCollection = useQuery(
     api.collections.getCollectionById,
-    collectionId && moveVerses
+    isSignedIn && isLoaded && collectionId && moveVerses
       ? { id: collectionId as Id<'collections'> }
       : 'skip'
   );

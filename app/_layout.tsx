@@ -41,6 +41,7 @@ import {
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
 import { ToastProvider } from 'react-native-toast-notifications';
+import { AlertProvider } from '@/hooks/useAlert';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -104,11 +105,14 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
   const [isCheckingAuth, setIsCheckingAuth] = React.useState(false);
 
   // This prevent flash of white on navigation
-  SystemUI.setBackgroundColorAsync(
-    isDarkMode
-      ? NAV_THEME.dark.colors.background
-      : NAV_THEME.light.colors.background
-  );
+  // Use useEffect to prevent infinite loops
+  useEffect(() => {
+    SystemUI.setBackgroundColorAsync(
+      isDarkMode
+        ? NAV_THEME.dark.colors.background
+        : NAV_THEME.light.colors.background
+    );
+  }, [isDarkMode]);
 
   useFrameworkReady();
 
@@ -263,16 +267,23 @@ function RootLayout() {
 }
 
 function ThemeProviderWrapper() {
-  // Temporarily hardcode dark mode to debug infinite loop
   const { isDarkMode } = useColorScheme();
 
+  // Memoize the theme to prevent unnecessary re-renders
+  const theme = React.useMemo(
+    () => (isDarkMode ? DARK_THEME : LIGHT_THEME),
+    [isDarkMode]
+  );
+
   return (
-    <ThemeProvider value={isDarkMode ? DARK_THEME : LIGHT_THEME}>
+    <ThemeProvider value={theme}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-          <ToastProvider>
-            <InitialLayout isDarkMode={isDarkMode} />
-          </ToastProvider>
+          <AlertProvider>
+            <ToastProvider>
+              <InitialLayout isDarkMode={isDarkMode} />
+            </ToastProvider>
+          </AlertProvider>
           <PortalHost />
           <StatusBar style='auto' />
         </SafeAreaProvider>

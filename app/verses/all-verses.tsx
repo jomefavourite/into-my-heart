@@ -12,13 +12,13 @@ import ItemSeparator from '@/components/ItemSeparator';
 import ThemedText from '@/components/ThemedText';
 import DeleteIcon from '@/components/icons/DeleteIcon';
 import { Id } from '@/convex/_generated/dataModel';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet from '@gorhom/bottom-sheet';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import CustomButton from '@/components/CustomButton';
 import { useMutation } from 'convex/react';
 import CancelIcon from '@/components/icons/CancelIcon';
+import { useAlert } from '@/hooks/useAlert';
 import { useGridListView } from '@/store/tab-store';
-import { FlashList } from '@shopify/flash-list';
 import { useAuth } from '@clerk/clerk-expo';
 import FlashListSkeletonLoader from '@/components/FlashListSkeletonLoader';
 import MoveCollectionIcon from '@/components/icons/MoveCollectionIcon';
@@ -30,11 +30,10 @@ const AllVersesScreen = () => {
   const { gridView } = useGridListView();
   const [shouldSelect, setShouldSelect] = useState(false);
   const [selectedVerses, setSelectedVerses] = useState<Id<'verses'>[]>([]);
-  const [bottomSheetIndex, setBottomSheetIndex] = useState(-1);
   const [moveBottomSheetIndex, setMoveBottomSheetIndex] = useState(-1);
-  const bottomSheetRef = useRef<BottomSheet>(null);
   const moveBottomSheetRef = useRef<BottomSheet>(null);
   const { isDarkMode } = useColorScheme();
+  const { alert } = useAlert();
 
   const { results, status, loadMore, isLoading } = usePaginatedQuery(
     api.verses.getAllVerses,
@@ -55,9 +54,7 @@ const AllVersesScreen = () => {
     // toast is needed here
 
     setSelectedVerses([]);
-    setBottomSheetIndex(-1);
     setShouldSelect(false);
-    bottomSheetRef.current?.close();
   };
 
   const RightComponent = (
@@ -95,7 +92,20 @@ const AllVersesScreen = () => {
           size={'icon'}
           variant={'ghost'}
           disabled={selectedVerses?.length === 0}
-          onPress={() => setBottomSheetIndex(1)}
+          onPress={() => {
+            alert(
+              'Delete Verses',
+              'These verses will be removed and all progress. This action cannot be undone.',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: 'Remove verses',
+                  style: 'destructive',
+                  onPress: handleDeleteVerses,
+                },
+              ]
+            );
+          }}
         >
           <DeleteIcon />
         </Button>
@@ -194,38 +204,6 @@ const AllVersesScreen = () => {
           />
         )}
       </View>
-
-      <BottomSheet
-        ref={bottomSheetRef}
-        index={bottomSheetIndex}
-        snapPoints={['25%']}
-        enablePanDownToClose={true}
-        onChange={index => setBottomSheetIndex(index)}
-        backgroundStyle={{
-          backgroundColor: isDarkMode ? '#313131' : '#fff',
-        }}
-        style={{
-          boxShadow: isDarkMode
-            ? '0px -4px 26px rgba(0,0,0, 0.5)'
-            : '0px -4px 26px rgba(0,0,0, 0.1)',
-          borderRadius: 30,
-        }}
-      >
-        <BottomSheetView className='flex-1 p-4'>
-          <View className='mx-auto mb-6 mt-6'>
-            <ThemedText className='mb-6 text-center font-medium text-black dark:text-white'>
-              These verses will be removed
-            </ThemedText>
-            <ThemedText className='mb-6 text-center font-medium text-black dark:text-white'>
-              These verses will be removed and all progress. This action cannot
-              be undone.
-            </ThemedText>
-            <CustomButton onPress={handleDeleteVerses}>
-              Remove verses
-            </CustomButton>
-          </View>
-        </BottomSheetView>
-      </BottomSheet>
 
       {/* Move to Collection Bottom Sheet - Mobile Only */}
       {Platform.OS !== 'web' && (
