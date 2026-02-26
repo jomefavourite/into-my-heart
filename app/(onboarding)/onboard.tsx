@@ -293,12 +293,13 @@ export default function CreateAccount() {
     if (!isDevEmailAuthEnabled) return;
 
     const normalizedCode = verificationCode.trim();
+    const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedCode) {
       alert('Missing verification code', 'Enter the code sent to your email.');
       return;
     }
 
-    if (!signUpLoaded || !setSignUpActive) {
+    if (!signUpLoaded) {
       alert('Auth loading', 'Please wait a moment and try again.');
       return;
     }
@@ -314,10 +315,18 @@ export default function CreateAccount() {
       const signUpAttempt = completedSignUp as unknown as SignUpAttemptLike;
       if (
         signUpAttempt.status === 'complete' &&
-        signUpAttempt.createdSessionId &&
-        setSignUpActive
+        signUpAttempt.createdSessionId
       ) {
-        await setSignUpActive({ session: signUpAttempt.createdSessionId });
+        // After successful verification, send user back to sign-in with
+        // prefilled credentials so the login step is explicit.
+        setAuthMode('signIn');
+        setDevAuthStep('credentials');
+        setEmail(normalizedEmail);
+        setConfirmPassword('');
+        setVerificationCode('');
+        setDevAuthMessage(
+          'Email verified. Use the prefilled credentials and tap Sign in with Email.'
+        );
         return;
       }
 
@@ -331,8 +340,14 @@ export default function CreateAccount() {
     }
   }, [
     alert,
+    email,
     isDevEmailAuthEnabled,
-    setSignUpActive,
+    setAuthMode,
+    setConfirmPassword,
+    setDevAuthMessage,
+    setDevAuthStep,
+    setEmail,
+    setVerificationCode,
     signUp,
     signUpLoaded,
     verificationCode,
