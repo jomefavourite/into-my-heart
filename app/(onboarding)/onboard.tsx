@@ -34,6 +34,10 @@ const getClerkErrorMessage = (error: unknown) => {
   return 'Please try again.';
 };
 
+const isIdentifierInvalidError = (error: unknown) => {
+  return /identifier is invalid/i.test(getClerkErrorMessage(error));
+};
+
 export const useWarmUpBrowser = () => {
   useEffect(() => {
     if (Platform.OS !== 'android') return;
@@ -193,6 +197,12 @@ export default function CreateAccount() {
 
       setDevAuthMessage('Additional sign-in steps are required in Clerk.');
     } catch (error) {
+      if (isDevEmailAuthEnabled && isIdentifierInvalidError(error)) {
+        setDevAuthMessage(
+          'Clerk is still rejecting this identifier. In Clerk Dashboard, disable email verification for email/password sign-up to make immediate login work consistently.'
+        );
+        return;
+      }
       alert('Email sign-in failed', getClerkErrorMessage(error));
     } finally {
       setIsDevAuthLoading(false);
@@ -300,6 +310,14 @@ export default function CreateAccount() {
         'Account created. Sign in with your email and password.'
       );
     } catch (error) {
+      if (isDevEmailAuthEnabled && isIdentifierInvalidError(error)) {
+        setAuthMode('signIn');
+        setConfirmPassword('');
+        setDevAuthMessage(
+          'Account created, but Clerk still flags the identifier as invalid for sign-in. Disable email verification in Clerk Dashboard for immediate email/password logins.'
+        );
+        return;
+      }
       alert('Create account failed', getClerkErrorMessage(error));
     } finally {
       setIsDevAuthLoading(false);
