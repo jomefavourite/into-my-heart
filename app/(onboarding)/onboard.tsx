@@ -322,6 +322,7 @@ export default function CreateAccount() {
         setAuthMode('signIn');
         setDevAuthStep('credentials');
         setEmail(normalizedEmail);
+        setPassword(password);
         setConfirmPassword('');
         setVerificationCode('');
         setDevAuthMessage(
@@ -347,7 +348,9 @@ export default function CreateAccount() {
     setDevAuthMessage,
     setDevAuthStep,
     setEmail,
+    setPassword,
     setVerificationCode,
+    password,
     signUp,
     signUpLoaded,
     verificationCode,
