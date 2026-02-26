@@ -14,8 +14,13 @@ import * as React from 'react';
 import { Platform, useWindowDimensions, View } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
-import { ConvexReactClient } from 'convex/react';
-import { ClerkLoaded, ClerkProvider, useAuth } from '@clerk/clerk-expo';
+import { ConvexReactClient, useConvexAuth, useMutation } from 'convex/react';
+import {
+  ClerkLoaded,
+  ClerkProvider,
+  useAuth,
+  useUser,
+} from '@clerk/clerk-expo';
 // import { tokenCache } from '@/cache';
 import { tokenCache } from '@clerk/clerk-expo/token-cache';
 import { ConvexProviderWithClerk } from 'convex/react-clerk';
@@ -42,6 +47,7 @@ import {
 } from 'react-native-safe-area-context';
 import { ToastProvider } from 'react-native-toast-notifications';
 import { AlertProvider } from '@/hooks/useAlert';
+import { api } from '@/convex/_generated/api';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -97,6 +103,10 @@ export {
 
 function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
   const { isLoaded, isSignedIn } = useAuth();
+  const { user } = useUser();
+  const { isAuthenticated: isConvexAuthenticated } = useConvexAuth();
+  const ensureCurrentUser = useMutation(api.users.ensureCurrentUser);
+  const syncedClerkId = React.useRef<string | null>(null);
   const segments = useSegments();
   const router = useRouter();
   const navigationAttempted = React.useRef(false);
@@ -115,6 +125,46 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
   }, [isDarkMode]);
 
   useFrameworkReady();
+
+  useEffect(() => {
+    if (!isSignedIn) {
+      syncedClerkId.current = null;
+    }
+  }, [isSignedIn]);
+
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn || !isConvexAuthenticated || !user) return;
+    if (syncedClerkId.current === user.id) return;
+
+    const primaryEmail =
+      user.primaryEmailAddress?.emailAddress ??
+      user.emailAddresses[0]?.emailAddress;
+    if (!primaryEmail) return;
+
+    let cancelled = false;
+
+    const syncCurrentUser = async () => {
+      try {
+        await ensureCurrentUser({
+          email: primaryEmail,
+          first_name: user.firstName ?? undefined,
+          last_name: user.lastName ?? undefined,
+          imageUrl: user.imageUrl ?? undefined,
+        });
+        if (!cancelled) {
+          syncedClerkId.current = user.id;
+        }
+      } catch (error) {
+        console.warn('InitialLayout - Failed to ensure current user', error);
+      }
+    };
+
+    syncCurrentUser();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [ensureCurrentUser, isConvexAuthenticated, isLoaded, isSignedIn, user]);
 
   useEffect(() => {
     if (!isLoaded || isCheckingAuth) return;

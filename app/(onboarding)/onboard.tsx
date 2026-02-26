@@ -12,10 +12,17 @@ import { useAlert } from '@/hooks/useAlert';
 import { Input } from '@/components/ui/input';
 
 type ClerkErrorLike = {
-  errors?: Array<{
+  errors?: {
     message?: string;
     longMessage?: string;
-  }>;
+  }[];
+};
+
+type SignUpAttemptLike = {
+  status?: string;
+  createdSessionId?: string | null;
+  missingFields?: string[];
+  unverifiedFields?: string[];
 };
 
 const getClerkErrorMessage = (error: unknown) => {
@@ -63,10 +70,16 @@ export default function CreateAccount() {
   useWarmUpBrowser();
 
   const { startSSOFlow } = useSSO();
-  const { isLoaded: signInLoaded, signIn, setActive: setSignInActive } =
-    useSignIn();
-  const { isLoaded: signUpLoaded, signUp, setActive: setSignUpActive } =
-    useSignUp();
+  const {
+    isLoaded: signInLoaded,
+    signIn,
+    setActive: setSignInActive,
+  } = useSignIn();
+  const {
+    isLoaded: signUpLoaded,
+    signUp,
+    setActive: setSignUpActive,
+  } = useSignUp();
   const isSafari = useIsSafari();
   const { alert } = useAlert();
 
@@ -204,7 +217,10 @@ export default function CreateAccount() {
 
     const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail || !password.trim() || !confirmPassword.trim()) {
-      alert('Missing details', 'Fill in email, password, and confirm password.');
+      alert(
+        'Missing details',
+        'Fill in email, password, and confirm password.'
+      );
       return;
     }
 
@@ -222,10 +238,33 @@ export default function CreateAccount() {
     setDevAuthMessage('');
 
     try {
-      await signUp.create({
+      const createdSignUp = (await signUp.create({
         emailAddress: normalizedEmail,
         password,
-      });
+      })) as unknown as SignUpAttemptLike;
+
+      if (
+        createdSignUp.status === 'complete' &&
+        createdSignUp.createdSessionId &&
+        setSignUpActive
+      ) {
+        await setSignUpActive({ session: createdSignUp.createdSessionId });
+        return;
+      }
+
+      const needsEmailVerification = Boolean(
+        createdSignUp.unverifiedFields?.includes('email_address')
+      );
+
+      if (
+        !needsEmailVerification &&
+        createdSignUp.status !== 'missing_requirements'
+      ) {
+        setDevAuthMessage(
+          'Unable to complete sign-up right now. Please try again.'
+        );
+        return;
+      }
 
       await signUp.prepareEmailAddressVerification({
         strategy: 'email_code',
@@ -245,6 +284,7 @@ export default function CreateAccount() {
     email,
     isDevEmailAuthEnabled,
     password,
+    setSignUpActive,
     signUp,
     signUpLoaded,
   ]);
@@ -271,12 +311,19 @@ export default function CreateAccount() {
         code: normalizedCode,
       });
 
-      if (completedSignUp.status === 'complete' && completedSignUp.createdSessionId) {
-        await setSignUpActive({ session: completedSignUp.createdSessionId });
+      const signUpAttempt = completedSignUp as unknown as SignUpAttemptLike;
+      if (
+        signUpAttempt.status === 'complete' &&
+        signUpAttempt.createdSessionId &&
+        setSignUpActive
+      ) {
+        await setSignUpActive({ session: signUpAttempt.createdSessionId });
         return;
       }
 
-      setDevAuthMessage('Verification is not complete yet. Try the latest code.');
+      setDevAuthMessage(
+        'Invalid or expired verification code. Please try again.'
+      );
     } catch (error) {
       alert('Email verification failed', getClerkErrorMessage(error));
     } finally {
@@ -338,7 +385,10 @@ export default function CreateAccount() {
               </CustomButton>
 
               {showSafariPopupHelp && (
-                <ThemedText size={12} className='text-center text-sm text-[#ff6464]'>
+                <ThemedText
+                  size={12}
+                  className='text-center text-sm text-[#ff6464]'
+                >
                   Pop-up was blocked. Allow pop-ups for this site and try again.
                 </ThemedText>
               )}
@@ -348,7 +398,10 @@ export default function CreateAccount() {
                   <ThemedText variant='medium' className='text-center'>
                     Development only: Email + Password
                   </ThemedText>
-                  <ThemedText size={12} className='mt-1 text-center text-[#909090]'>
+                  <ThemedText
+                    size={12}
+                    className='mt-1 text-center text-[#909090]'
+                  >
                     This auth method is hidden in production builds.
                   </ThemedText>
 
@@ -436,7 +489,10 @@ export default function CreateAccount() {
                   )}
 
                   {devAuthMessage ? (
-                    <ThemedText size={12} className='mt-2 text-center text-[#909090]'>
+                    <ThemedText
+                      size={12}
+                      className='mt-2 text-center text-[#909090]'
+                    >
                       {devAuthMessage}
                     </ThemedText>
                   ) : null}
