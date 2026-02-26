@@ -22,7 +22,6 @@ type SignUpAttemptLike = {
   status?: string;
   createdSessionId?: string | null;
   missingFields?: string[];
-  unverifiedFields?: string[];
 };
 
 const getClerkErrorMessage = (error: unknown) => {
@@ -89,13 +88,9 @@ export default function CreateAccount() {
   const inFlight = useRef(false);
   const [showSafariPopupHelp, setShowSafariPopupHelp] = React.useState(false);
   const [authMode, setAuthMode] = React.useState<'signIn' | 'signUp'>('signIn');
-  const [devAuthStep, setDevAuthStep] = React.useState<
-    'credentials' | 'verifyEmail'
-  >('credentials');
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [confirmPassword, setConfirmPassword] = React.useState('');
-  const [verificationCode, setVerificationCode] = React.useState('');
   const [isDevAuthLoading, setIsDevAuthLoading] = React.useState(false);
   const [devAuthMessage, setDevAuthMessage] = React.useState('');
 
@@ -229,7 +224,7 @@ export default function CreateAccount() {
       return;
     }
 
-    if (!signUpLoaded) {
+    if (!signUpLoaded || !signInLoaded) {
       alert('Auth loading', 'Please wait a moment and try again.');
       return;
     }
@@ -238,10 +233,44 @@ export default function CreateAccount() {
     setDevAuthMessage('');
 
     try {
-      const createdSignUp = (await signUp.create({
+      let createdSignUp = (await signUp.create({
         emailAddress: normalizedEmail,
         password,
       })) as unknown as SignUpAttemptLike;
+
+      // Keep the dev flow simple by auto-filling common Clerk requirements.
+      if (
+        createdSignUp.status === 'missing_requirements' &&
+        createdSignUp.missingFields?.length
+      ) {
+        const localPart = normalizedEmail.split('@')[0] ?? 'devuser';
+        const sanitizedUsername =
+          localPart.replace(/[^a-zA-Z0-9_]/g, '').slice(0, 16) || 'devuser';
+        const updatePayload: {
+          firstName?: string;
+          lastName?: string;
+          username?: string;
+          password?: string;
+          emailAddress?: string;
+        } = {};
+
+        for (const field of createdSignUp.missingFields) {
+          if (field === 'first_name')
+            updatePayload.firstName = sanitizedUsername;
+          if (field === 'last_name') updatePayload.lastName = 'user';
+          if (field === 'username') updatePayload.username = sanitizedUsername;
+          if (field === 'password') updatePayload.password = password;
+          if (field === 'email_address') {
+            updatePayload.emailAddress = normalizedEmail;
+          }
+        }
+
+        if (Object.keys(updatePayload).length > 0) {
+          createdSignUp = (await signUp.update(
+            updatePayload
+          )) as unknown as SignUpAttemptLike;
+        }
+      }
 
       if (
         createdSignUp.status === 'complete' &&
@@ -252,27 +281,24 @@ export default function CreateAccount() {
         return;
       }
 
-      const needsEmailVerification = Boolean(
-        createdSignUp.unverifiedFields?.includes('email_address')
-      );
-
+      // Fallback: immediately try sign-in with the same credentials.
+      const signInAttempt = await signIn.create({
+        identifier: normalizedEmail,
+        password,
+      });
       if (
-        !needsEmailVerification &&
-        createdSignUp.status !== 'missing_requirements'
+        signInAttempt.status === 'complete' &&
+        signInAttempt.createdSessionId
       ) {
-        setDevAuthMessage(
-          'Unable to complete sign-up right now. Please try again.'
-        );
+        await setSignInActive?.({ session: signInAttempt.createdSessionId });
         return;
       }
 
-      await signUp.prepareEmailAddressVerification({
-        strategy: 'email_code',
-      });
-
-      setDevAuthStep('verifyEmail');
-      setVerificationCode('');
-      setDevAuthMessage(`Verification code sent to ${normalizedEmail}.`);
+      setAuthMode('signIn');
+      setConfirmPassword('');
+      setDevAuthMessage(
+        'Account created. Sign in with your email and password.'
+      );
     } catch (error) {
       alert('Create account failed', getClerkErrorMessage(error));
     } finally {
@@ -284,91 +310,19 @@ export default function CreateAccount() {
     email,
     isDevEmailAuthEnabled,
     password,
+    setSignInActive,
     setSignUpActive,
+    signIn,
+    signInLoaded,
     signUp,
     signUpLoaded,
-  ]);
-
-  const onDevVerifyEmailPress = useCallback(async () => {
-    if (!isDevEmailAuthEnabled) return;
-
-    const normalizedCode = verificationCode.trim();
-    const normalizedEmail = email.trim().toLowerCase();
-    if (!normalizedCode) {
-      alert('Missing verification code', 'Enter the code sent to your email.');
-      return;
-    }
-
-    if (!signUpLoaded) {
-      alert('Auth loading', 'Please wait a moment and try again.');
-      return;
-    }
-
-    setIsDevAuthLoading(true);
-    setDevAuthMessage('');
-
-    try {
-      const completedSignUp = await signUp.attemptEmailAddressVerification({
-        code: normalizedCode,
-      });
-
-      const signUpAttempt = completedSignUp as unknown as SignUpAttemptLike;
-      if (
-        signUpAttempt.status === 'complete' &&
-        signUpAttempt.createdSessionId
-      ) {
-        // After successful verification, send user back to sign-in with
-        // prefilled credentials so the login step is explicit.
-        setAuthMode('signIn');
-        setDevAuthStep('credentials');
-        setEmail(normalizedEmail);
-        setPassword(password);
-        setConfirmPassword('');
-        setVerificationCode('');
-        setDevAuthMessage(
-          'Email verified. Use the prefilled credentials and tap Sign in with Email.'
-        );
-        return;
-      }
-
-      setDevAuthMessage(
-        'Invalid or expired verification code. Please try again.'
-      );
-    } catch (error) {
-      alert('Email verification failed', getClerkErrorMessage(error));
-    } finally {
-      setIsDevAuthLoading(false);
-    }
-  }, [
-    alert,
-    email,
-    isDevEmailAuthEnabled,
-    setAuthMode,
-    setConfirmPassword,
-    setDevAuthMessage,
-    setDevAuthStep,
-    setEmail,
-    setPassword,
-    setVerificationCode,
-    password,
-    signUp,
-    signUpLoaded,
-    verificationCode,
   ]);
 
   const onDevSwitchMode = useCallback(() => {
     setAuthMode(prev => (prev === 'signIn' ? 'signUp' : 'signIn'));
-    setDevAuthStep('credentials');
     setDevAuthMessage('');
-    setVerificationCode('');
     setPassword('');
     setConfirmPassword('');
-  }, []);
-
-  const onDevStartOver = useCallback(() => {
-    setDevAuthStep('credentials');
-    setVerificationCode('');
-    setDevAuthMessage('');
   }, []);
 
   return (
@@ -422,89 +376,68 @@ export default function CreateAccount() {
                   >
                     This auth method is hidden in production builds.
                   </ThemedText>
+                  <ThemedText
+                    size={12}
+                    className='mt-1 text-center text-[#909090]'
+                  >
+                    Email verification code is disabled in this dev flow.
+                  </ThemedText>
 
-                  {devAuthStep === 'credentials' ? (
-                    <View className='mt-3 gap-2'>
+                  <View className='mt-3 gap-2'>
+                    <Input
+                      autoCapitalize='none'
+                      autoCorrect={false}
+                      keyboardType='email-address'
+                      placeholder='Email'
+                      value={email}
+                      onChangeText={setEmail}
+                      textContentType='emailAddress'
+                    />
+                    <Input
+                      autoCapitalize='none'
+                      autoCorrect={false}
+                      placeholder='Password'
+                      secureTextEntry
+                      value={password}
+                      onChangeText={setPassword}
+                      textContentType='password'
+                    />
+
+                    {authMode === 'signUp' && (
                       <Input
                         autoCapitalize='none'
                         autoCorrect={false}
-                        keyboardType='email-address'
-                        placeholder='Email'
-                        value={email}
-                        onChangeText={setEmail}
-                        textContentType='emailAddress'
-                      />
-                      <Input
-                        autoCapitalize='none'
-                        autoCorrect={false}
-                        placeholder='Password'
+                        placeholder='Confirm Password'
                         secureTextEntry
-                        value={password}
-                        onChangeText={setPassword}
+                        value={confirmPassword}
+                        onChangeText={setConfirmPassword}
                         textContentType='password'
                       />
+                    )}
 
-                      {authMode === 'signUp' && (
-                        <Input
-                          autoCapitalize='none'
-                          autoCorrect={false}
-                          placeholder='Confirm Password'
-                          secureTextEntry
-                          value={confirmPassword}
-                          onChangeText={setConfirmPassword}
-                          textContentType='password'
-                        />
-                      )}
+                    <CustomButton
+                      isLoading={isDevAuthLoading}
+                      onPress={
+                        authMode === 'signIn'
+                          ? onDevSignInPress
+                          : onDevCreateAccountPress
+                      }
+                    >
+                      {authMode === 'signIn'
+                        ? 'Sign in with Email'
+                        : 'Create account with Email'}
+                    </CustomButton>
 
-                      <CustomButton
-                        isLoading={isDevAuthLoading}
-                        onPress={
-                          authMode === 'signIn'
-                            ? onDevSignInPress
-                            : onDevCreateAccountPress
-                        }
-                      >
-                        {authMode === 'signIn'
-                          ? 'Sign in with Email'
-                          : 'Create account with Email'}
-                      </CustomButton>
-
-                      <CustomButton
-                        variant='ghost'
-                        className='rounded-lg'
-                        onPress={onDevSwitchMode}
-                      >
-                        {authMode === 'signIn'
-                          ? "Don't have an account? Create one"
-                          : 'Already have an account? Sign in'}
-                      </CustomButton>
-                    </View>
-                  ) : (
-                    <View className='mt-3 gap-2'>
-                      <Input
-                        autoCapitalize='none'
-                        autoCorrect={false}
-                        keyboardType='number-pad'
-                        placeholder='Email verification code'
-                        value={verificationCode}
-                        onChangeText={setVerificationCode}
-                        textContentType='oneTimeCode'
-                      />
-                      <CustomButton
-                        isLoading={isDevAuthLoading}
-                        onPress={onDevVerifyEmailPress}
-                      >
-                        Verify email code
-                      </CustomButton>
-                      <CustomButton
-                        variant='ghost'
-                        className='rounded-lg'
-                        onPress={onDevStartOver}
-                      >
-                        Start over
-                      </CustomButton>
-                    </View>
-                  )}
+                    <CustomButton
+                      variant='ghost'
+                      className='rounded-lg'
+                      onPress={onDevSwitchMode}
+                    >
+                      {authMode === 'signIn'
+                        ? "Don't have an account? Create one"
+                        : 'Already have an account? Sign in'}
+                    </CustomButton>
+                  </View>
 
                   {devAuthMessage ? (
                     <ThemedText
