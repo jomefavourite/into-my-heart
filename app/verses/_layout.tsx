@@ -6,7 +6,11 @@ export default function VersesLayout() {
   const { isLoaded, isSignedIn } = useAuth();
   const { isDarkMode } = useColorScheme();
 
-  if (isLoaded && !isSignedIn) {
+  if (!isLoaded) {
+    return null;
+  }
+
+  if (!isSignedIn) {
     return <Redirect href='/(onboarding)/onboard' />;
   }
 

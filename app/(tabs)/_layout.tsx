@@ -11,7 +11,11 @@ export default function TabLayout() {
   const { width } = useWindowDimensions();
   const { isLoaded, isSignedIn } = useAuth();
 
-  if (isLoaded && !isSignedIn) {
+  if (!isLoaded) {
+    return null;
+  }
+
+  if (!isSignedIn) {
     return <Redirect href='/(onboarding)/onboard' />;
   }
 

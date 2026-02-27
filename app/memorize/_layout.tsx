@@ -5,7 +5,11 @@ import { useAuth } from '@clerk/clerk-expo';
 const MemorizeLayout = () => {
   const { isLoaded, isSignedIn } = useAuth();
 
-  if (isLoaded && !isSignedIn) {
+  if (!isLoaded) {
+    return null;
+  }
+
+  if (!isSignedIn) {
     return <Redirect href='/(onboarding)/onboard' />;
   }
 

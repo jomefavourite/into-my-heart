@@ -53,6 +53,16 @@ const AllVersesScreen = () => {
     return () => clearTimeout(timeoutId);
   }, [isLoaded, isSignedIn, router]);
 
+  if (!isLoaded) {
+    return (
+      <SafeAreaView className='flex-1 items-center justify-center px-[18px]'>
+        <ThemedText className='text-center text-base text-[#909090]'>
+          Checking your session…
+        </ThemedText>
+      </SafeAreaView>
+    );
+  }
+
   const toggleSelectedVerse = (_id: Id<'verses'>) => {
     setSelectedVerses(prev =>
       prev.includes(_id) ? prev.filter(id => id !== _id) : [...prev, _id]
@@ -135,7 +145,7 @@ const AllVersesScreen = () => {
 
   return (
     <SafeAreaView className='flex-1'>
-      {isLoaded && !isSignedIn ? (
+      {!isSignedIn ? (
         <View className='flex-1 items-center justify-center gap-3 px-[18px]'>
           <ThemedText className='text-center text-xl font-semibold'>
             Sign in required
