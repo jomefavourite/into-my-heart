@@ -109,10 +109,7 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
   const syncedClerkId = React.useRef<string | null>(null);
   const segments = useSegments();
   const router = useRouter();
-  const navigationAttempted = React.useRef(false);
-  const currentRoute = React.useRef<string>('');
-  const authCheckAttempted = React.useRef(false);
-  const [isCheckingAuth, setIsCheckingAuth] = React.useState(false);
+  const inOnboardingGroup = segments[0] === '(onboarding)';
 
   // This prevent flash of white on navigation
   // Use useEffect to prevent infinite loops
@@ -167,84 +164,21 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
   }, [ensureCurrentUser, isConvexAuthenticated, isLoaded, isSignedIn, user]);
 
   useEffect(() => {
-    if (!isLoaded || isCheckingAuth) return;
+    if (!isLoaded) return;
 
-    const currentPath = segments.join('/');
-    const inAuthGroup = segments[0] === '(onboarding)';
-
-    // Add development mode guard to prevent redirects during hot reloads
-    if (__DEV__) {
-      // In development, only redirect from root path or when explicitly needed
-      if (currentPath === '' || currentPath === '/') {
-        if (isSignedIn) {
-          router.replace('/(tabs)');
-        } else {
-          router.replace('/(onboarding)/onboard');
-        }
-      }
+    if (!isSignedIn && !inOnboardingGroup) {
+      router.replace('/(onboarding)/onboard');
       return;
     }
 
-    // Only run auth check on initial load or auth state changes
-    const shouldRedirect =
-      (isSignedIn && inAuthGroup && !navigationAttempted.current) ||
-      (!isSignedIn && !inAuthGroup && !navigationAttempted.current);
-
-    if (!shouldRedirect) return;
-
-    // Prevent navigation loops
-    if (currentRoute.current === currentPath && navigationAttempted.current) {
-      return;
+    if (isSignedIn && inOnboardingGroup) {
+      router.replace('/(tabs)');
     }
-
-    currentRoute.current = currentPath;
-
-    // Add debounce to prevent rapid auth checks during development
-    setIsCheckingAuth(true);
-    const timeoutId = setTimeout(() => {
-      setIsCheckingAuth(false);
-    }, 300);
-
-    // Add delay to ensure authentication state is stable
-    const authCheck = async () => {
-      if (authCheckAttempted.current) return;
-      authCheckAttempted.current = true;
-
-      // Wait a bit for authentication state to stabilize
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      // Only redirect if necessary and safe to do so
-      if (isSignedIn && inAuthGroup) {
-        try {
-          navigationAttempted.current = true;
-          console.log('InitialLayout - Redirecting to tabs');
-          router.replace('/(tabs)');
-        } catch (error) {
-          console.warn('Navigation error:', error);
-          navigationAttempted.current = false;
-        }
-      } else if (!isSignedIn && !inAuthGroup) {
-        try {
-          navigationAttempted.current = true;
-          console.log('InitialLayout - Redirecting to onboarding');
-          router.replace('/(onboarding)/onboard');
-        } catch (error) {
-          console.warn('Navigation error:', error);
-          navigationAttempted.current = false;
-        }
-      }
-    };
-
-    authCheck();
-
-    return () => clearTimeout(timeoutId);
-  }, [isLoaded, isSignedIn]);
+  }, [inOnboardingGroup, isLoaded, isSignedIn, router]);
 
   const { width } = useWindowDimensions();
 
   if (Platform.OS === 'web' && width > 768) {
-    const inOnboardingGroup = segments[0] === '(onboarding)';
-
     if (!inOnboardingGroup) {
       return <TabBarSidebar />;
     }

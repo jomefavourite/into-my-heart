@@ -1,7 +1,14 @@
 import React from 'react';
-import { Stack } from 'expo-router';
+import { Redirect, Stack } from 'expo-router';
+import { useAuth } from '@clerk/clerk-expo';
 
 const MemorizeLayout = () => {
+  const { isLoaded, isSignedIn } = useAuth();
+
+  if (isLoaded && !isSignedIn) {
+    return <Redirect href='/(onboarding)/onboard' />;
+  }
+
   return (
     <>
       <Stack>

@@ -21,6 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { useAuth } from '@clerk/clerk-expo';
 
 interface MoveToCollectionModalProps {
   selectedVerses: Id<'verses'>[];
@@ -34,6 +35,7 @@ const MoveToCollectionModal: React.FC<MoveToCollectionModalProps> = ({
   onClose,
 }) => {
   const router = useRouter();
+  const { isSignedIn, isLoaded } = useAuth();
   const [showCreateNew, setShowCreateNew] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState('');
   const [hasInputError, setHasInputError] = useState(false);
@@ -42,7 +44,10 @@ const MoveToCollectionModal: React.FC<MoveToCollectionModalProps> = ({
   const { setIsCollOrVerse: setTabStore } = useIsCollOrVerse();
 
   // Fetch existing collections
-  const collections = useQuery(api.collections.getCollections, {});
+  const collections = useQuery(
+    api.collections.getCollections,
+    isOpen && isLoaded && isSignedIn ? {} : 'skip'
+  );
 
   const handleSelectExistingCollection = (collectionId: Id<'collections'>) => {
     // Store the selected verse IDs in the store

@@ -1,14 +1,14 @@
 import { Redirect, Stack } from 'expo-router';
-import { useConvexAuth } from 'convex/react';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useAuth } from '@clerk/clerk-expo';
 
 export default function VersesLayout() {
-  const { isAuthenticated } = useConvexAuth();
+  const { isLoaded, isSignedIn } = useAuth();
   const { isDarkMode } = useColorScheme();
 
-  // if (isAuthenticated) {
-  //   return <Redirect href={'/'} />;
-  // }
+  if (isLoaded && !isSignedIn) {
+    return <Redirect href='/(onboarding)/onboard' />;
+  }
 
   return (
     <Stack
@@ -38,7 +38,10 @@ export default function VersesLayout() {
       <Stack.Screen name='all-collections' options={{ headerShown: false }} />
       <Stack.Screen name='all-affirmations' options={{ headerShown: false }} />
       <Stack.Screen name='[verseId]' options={{ headerShown: false }} />
-      <Stack.Screen name='[collectionId]' options={{ headerShown: false }} />
+      <Stack.Screen
+        name='collection/[collectionId]'
+        options={{ headerShown: false }}
+      />
     </Stack>
   );
 }

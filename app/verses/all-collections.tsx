@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, Platform } from 'react-native';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'expo-router';
 import RemoveCircleIcon from '@/components/icons/RemoveCircleIcon';
@@ -46,6 +46,14 @@ const AllCollectionScreen = () => {
   );
 
   const deleteCollections = useMutation(api.collections.deleteCollections);
+
+  useEffect(() => {
+    if (!isLoaded || isSignedIn) return;
+    const timeoutId = setTimeout(() => {
+      router.replace('/(onboarding)/onboard');
+    }, 1200);
+    return () => clearTimeout(timeoutId);
+  }, [isLoaded, isSignedIn, router]);
 
   const toggleSelectedVerse = (_id: Id<'collections'>) => {
     setSelectedToDelete(prev =>
@@ -97,117 +105,133 @@ const AllCollectionScreen = () => {
 
   return (
     <SafeAreaView className='flex-1'>
-      {Platform.OS === 'web' && (
+      {isLoaded && !isSignedIn ? (
+        <View className='flex-1 items-center justify-center gap-3 px-[18px]'>
+          <ThemedText className='text-center text-xl font-semibold'>
+            Sign in required
+          </ThemedText>
+          <ThemedText className='max-w-sm text-center text-[#909090]'>
+            Redirecting to sign in so you can access all collections.
+          </ThemedText>
+          <CustomButton onPress={() => router.replace('/(onboarding)/onboard')}>
+            Go to Sign in
+          </CustomButton>
+        </View>
+      ) : (
         <>
-          <title>All Collections - Into My Heart</title>
-          <meta
-            name='description'
-            content='View and manage all your Bible verse collections. Organize verses by theme, topic, or study plan.'
-          />
-          <meta
-            name='keywords'
-            content='Bible, memorization, verses, flashcards, practice, Christian, faith, scripture'
-          />
-          <meta name='author' content='Into My Heart' />
-          <meta name='robots' content='index, follow' />
-          <meta property='og:type' content='website' />
-          <meta property='og:site_name' content='Into My Heart' />
-          <meta property='og:locale' content='en_US' />
-          <meta name='twitter:card' content='summary_large_image' />
-          <meta name='theme-color' content='#313131' />
-          <meta name='msapplication-TileColor' content='#313131' />
-        </>
-      )}
+          {Platform.OS === 'web' && (
+            <>
+              <title>All Collections - Into My Heart</title>
+              <meta
+                name='description'
+                content='View and manage all your Bible verse collections. Organize verses by theme, topic, or study plan.'
+              />
+              <meta
+                name='keywords'
+                content='Bible, memorization, verses, flashcards, practice, Christian, faith, scripture'
+              />
+              <meta name='author' content='Into My Heart' />
+              <meta name='robots' content='index, follow' />
+              <meta property='og:type' content='website' />
+              <meta property='og:site_name' content='Into My Heart' />
+              <meta property='og:locale' content='en_US' />
+              <meta name='twitter:card' content='summary_large_image' />
+              <meta name='theme-color' content='#313131' />
+              <meta name='msapplication-TileColor' content='#313131' />
+            </>
+          )}
 
-      <BackHeader
-        title={shouldSelect ? 'Delete Collections' : 'All Collections'}
-        BreadcrumbRightComponent={RightComponent}
-        LiftComponent={
-          shouldSelect ? (
-            <Button
-              size={'icon'}
-              variant={'ghost'}
-              onPress={() => setShouldSelect(false)}
-            >
-              <CancelIcon />
-            </Button>
-          ) : null
-        }
-        RightComponent={RightComponent}
-        items={[
-          { label: 'Verses', href: '/verses' },
-          { label: 'All Collections', href: '/verses/all-collections' },
-        ]}
-      />
+          <BackHeader
+            title={shouldSelect ? 'Delete Collections' : 'All Collections'}
+            BreadcrumbRightComponent={RightComponent}
+            LiftComponent={
+              shouldSelect ? (
+                <Button
+                  size={'icon'}
+                  variant={'ghost'}
+                  onPress={() => setShouldSelect(false)}
+                >
+                  <CancelIcon />
+                </Button>
+              ) : null
+            }
+            RightComponent={RightComponent}
+            items={[
+              { label: 'Verses', href: '/verses' },
+              { label: 'All Collections', href: '/verses/all-collections' },
+            ]}
+          />
 
-      <View className='flex-1 pb-[18px]'>
-        {isLoading && results?.length === 0 ? (
-          <FlashListSkeletonLoader type='collections' gridView={gridView} />
-        ) : (
-          <FlatList
-            key={gridView ? 'grid-myverses' : 'list-myverses'}
-            data={results}
-            keyExtractor={(item, index) => index.toString()}
-            contentContainerStyle={{ paddingHorizontal: 18 }}
-            numColumns={gridView ? 2 : 1}
-            ListEmptyComponent={() => (
-              <>
-                <AddVersesEmpty />
-              </>
-            )}
-            renderItem={({ item }) => (
-              <CollectionCard
-                _id={item._id}
-                collectionName={item.collectionName}
-                versesLength={item.versesLength}
-                onAddPress={() => console.log(`${item} pressed`)}
-                containerClassName={gridView ? 'flex-1' : 'w-full'}
-                canCheck={false}
-                canDelete={shouldSelect}
-                onDeletePress={() => toggleSelectedVerse(item._id)}
-                isSelectedForDelete={selectedToDelete.includes(item._id)}
+          <View className='flex-1 pb-[18px]'>
+            {isLoading && results?.length === 0 ? (
+              <FlashListSkeletonLoader type='collections' gridView={gridView} />
+            ) : (
+              <FlatList
+                key={gridView ? 'grid-myverses' : 'list-myverses'}
+                data={results}
+                keyExtractor={(item, index) => index.toString()}
+                contentContainerStyle={{ paddingHorizontal: 18 }}
+                numColumns={gridView ? 2 : 1}
+                ListEmptyComponent={() => (
+                  <>
+                    <AddVersesEmpty />
+                  </>
+                )}
+                renderItem={({ item }) => (
+                  <CollectionCard
+                    _id={item._id}
+                    collectionName={item.collectionName}
+                    versesLength={item.versesLength}
+                    onAddPress={() => console.log(`${item} pressed`)}
+                    containerClassName={gridView ? 'flex-1' : 'w-full'}
+                    canCheck={false}
+                    canDelete={shouldSelect}
+                    onDeletePress={() => toggleSelectedVerse(item._id)}
+                    isSelectedForDelete={selectedToDelete.includes(item._id)}
+                  />
+                )}
+                columnWrapperStyle={
+                  gridView ? { gap: 8, width: '100%' } : undefined
+                }
+                ItemSeparatorComponent={ItemSeparator}
+                scrollEnabled={false}
               />
             )}
-            columnWrapperStyle={
-              gridView ? { gap: 8, width: '100%' } : undefined
-            }
-            ItemSeparatorComponent={ItemSeparator}
-            scrollEnabled={false}
-          />
-        )}
-      </View>
-
-      <BottomSheet
-        ref={bottomSheetRef}
-        index={bottomSheetIndex}
-        snapPoints={['25%']}
-        enablePanDownToClose={true}
-        onChange={index => setBottomSheetIndex(index)}
-        backgroundStyle={{
-          backgroundColor: isDarkMode ? '#313131' : '#fff',
-        }}
-        style={{
-          boxShadow: isDarkMode
-            ? '0px -4px 26px rgba(0,0,0, 0.5)'
-            : '0px -4px 26px rgba(0,0,0, 0.1)',
-          borderRadius: 30,
-        }}
-      >
-        <BottomSheetView className='flex-1 p-4'>
-          <View className='mx-auto mb-6 mt-6'>
-            <ThemedText className='mb-6 text-center font-medium text-black dark:text-white'>
-              These collections will be removed
-            </ThemedText>
-            <ThemedText className='mb-6 text-center font-medium text-black dark:text-white'>
-              These collections will be removed and all progress. This action
-              cannot be undone.
-            </ThemedText>
-            <CustomButton onPress={handleDeleteCollections}>
-              Remove collections
-            </CustomButton>
           </View>
-        </BottomSheetView>
-      </BottomSheet>
+
+          <BottomSheet
+            ref={bottomSheetRef}
+            index={bottomSheetIndex}
+            snapPoints={['25%']}
+            enablePanDownToClose={true}
+            onChange={index => setBottomSheetIndex(index)}
+            backgroundStyle={{
+              backgroundColor: isDarkMode ? '#313131' : '#fff',
+            }}
+            style={{
+              boxShadow: isDarkMode
+                ? '0px -4px 26px rgba(0,0,0, 0.5)'
+                : '0px -4px 26px rgba(0,0,0, 0.1)',
+              borderRadius: 30,
+            }}
+          >
+            <BottomSheetView className='flex-1 p-4'>
+              <View className='mx-auto mb-6 mt-6'>
+                <ThemedText className='mb-6 text-center font-medium text-black dark:text-white'>
+                  These collections will be removed
+                </ThemedText>
+                <ThemedText className='mb-6 text-center font-medium text-black dark:text-white'>
+                  These collections will be removed and all progress. This
+                  action cannot be undone.
+                </ThemedText>
+                <CustomButton onPress={handleDeleteCollections}>
+                  Remove collections
+                </CustomButton>
+              </View>
+            </BottomSheetView>
+          </BottomSheet>
+        </>
+      )}
     </SafeAreaView>
   );
 };

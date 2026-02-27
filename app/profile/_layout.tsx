@@ -3,11 +3,11 @@ import { Redirect, Stack } from 'expo-router';
 import { useAuth } from '@clerk/clerk-expo';
 
 const ProfileLayout = () => {
-  // const { isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn } = useAuth();
 
-  // if (!isSignedIn) {
-  //   return <Redirect href='/(onboarding)/onboard' />;
-  // }
+  if (isLoaded && !isSignedIn) {
+    return <Redirect href='/(onboarding)/onboard' />;
+  }
 
   return (
     <>
