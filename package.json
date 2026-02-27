@@ -16,7 +16,10 @@
     "format:check": "prettier --check ."
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "testPathIgnorePatterns": [
+      "/e2e/"
+    ]
   },
   "dependencies": {
     "@babel/plugin-proposal-export-namespace-from": "^7.18.9",
