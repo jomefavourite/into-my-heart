@@ -1,239 +1,252 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useEffect, useMemo, useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { View } from 'react-native';
 import ThemedText from '@/components/ThemedText';
 import { ScrollView } from 'react-native-gesture-handler';
 import CustomButton from '@/components/CustomButton';
-import { usePracticeStore, PracticeVerse } from '@/store/practiceStore';
+import { usePracticeStore } from '@/store/practiceStore';
 import { useRouter } from 'expo-router';
 import BackHeader from '@/components/BackHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { formatVerseDisplay } from '@/lib/utils';
 
 interface BlankData {
-  id: number;
+  id: string;
   correctAnswer: string;
   selectedAnswer: string | null;
+  selectedOptionId: string | null;
 }
 
 interface OptionData {
   id: string;
   text: string;
-  used: boolean;
 }
+
+interface VerseData {
+  verseNumber: string;
+  words: string[];
+  blankIdByWordIndex: Record<number, string>;
+}
+
+interface WordCandidate {
+  index: number;
+  cleanedWord: string;
+}
+
+const cleanWord = (word: string) =>
+  word.replace(/^[^A-Za-z0-9']+|[^A-Za-z0-9']+$/g, '');
+
+const shuffleArray = <T,>(array: T[]) => {
+  const copy = [...array];
+  for (let index = copy.length - 1; index > 0; index--) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [copy[index], copy[randomIndex]] = [copy[randomIndex], copy[index]];
+  }
+  return copy;
+};
 
 export default function FillInTheBlanks() {
   const { currentSession, clearPracticeSession } = usePracticeStore();
   const router = useRouter();
 
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
-  const [verseData, setVerseData] = useState<
-    { verseNumber: string; text: string; blanks: BlankData[] }[]
-  >([]);
+  const [verseData, setVerseData] = useState<VerseData[]>([]);
   const [blanks, setBlanks] = useState<BlankData[]>([]);
   const [options, setOptions] = useState<OptionData[]>([]);
-  const [selectedBlankId, setSelectedBlankId] = useState<number | null>(null);
+  const [selectedBlankId, setSelectedBlankId] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
 
-  // Get current verse data
   const verses = currentSession?.verses || [];
   const currentVerse = verses[currentVerseIndex];
   const isCollectionsPractice = currentSession?.practiceType === 'collections';
 
-  // Generate fill-in-blanks from verse texts (verse by verse)
+  const blankMap = useMemo(
+    () => new Map(blanks.map(blank => [blank.id, blank])),
+    [blanks]
+  );
+
+  const selectedBlank = useMemo(
+    () => blanks.find(blank => blank.id === selectedBlankId) ?? null,
+    [blanks, selectedBlankId]
+  );
+
+  const usedOptionIds = useMemo(() => {
+    return new Set(
+      blanks
+        .map(blank => blank.selectedOptionId)
+        .filter((optionId): optionId is string => optionId !== null)
+    );
+  }, [blanks]);
+
   const generateFillInBlanks = (
     verseTexts: { verse: string; text: string }[]
   ) => {
-    const allBlanksData: BlankData[] = [];
-    const allOptionsData: OptionData[] = [];
-    const verseData: {
-      verseNumber: string;
-      text: string;
-      blanks: BlankData[];
-    }[] = [];
-    let globalBlankId = 1;
+    const generatedVerseData: VerseData[] = [];
+    const generatedBlanks: BlankData[] = [];
+    const optionWordPool: string[] = [];
 
     verseTexts.forEach((verseText, verseIndex) => {
-      // Split verse text into words
-      const words = verseText.text.split(/\s+/).filter(word => word.length > 2);
+      const words = verseText.text.split(/\s+/).filter(Boolean);
+      const candidates: WordCandidate[] = words
+        .map((word, index) => ({
+          index,
+          cleanedWord: cleanWord(word),
+        }))
+        .filter(candidate => candidate.cleanedWord.length > 2);
 
-      // Select 1-3 random words to be blanks per verse (but not too many)
-      const numBlanks = Math.min(
-        Math.max(1, Math.floor(words.length * 0.15)),
-        3
-      );
-      const blankIndices = new Set<number>();
-
-      while (blankIndices.size < numBlanks) {
-        const randomIndex = Math.floor(Math.random() * words.length);
-        blankIndices.add(randomIndex);
+      if (candidates.length === 0) {
+        generatedVerseData.push({
+          verseNumber: verseText.verse,
+          words,
+          blankIdByWordIndex: {},
+        });
+        return;
       }
 
-      // Create blanks data for this verse
-      const verseBlanksData: BlankData[] = [];
-      const verseOptionsData: OptionData[] = [];
+      const blanksForVerse = Math.min(
+        3,
+        Math.max(1, Math.floor(candidates.length * 0.2))
+      );
 
-      words.forEach((word, index) => {
-        if (blankIndices.has(index)) {
-          const cleanWord = word.replace(/[^\w]/g, ''); // Remove punctuation
+      const selectedCandidates = shuffleArray(candidates).slice(
+        0,
+        blanksForVerse
+      );
+      const blankIdByWordIndex: Record<number, string> = {};
 
-          verseBlanksData.push({
-            id: globalBlankId++,
-            correctAnswer: cleanWord,
-            selectedAnswer: null,
-          });
-
-          // Add correct answer to options
-          verseOptionsData.push({
-            id: `opt-${cleanWord}-${verseIndex}-${index}`,
-            text: cleanWord,
-            used: false,
-          });
-        }
-      });
-
-      // Add some incorrect options from this verse
-      const incorrectWords = words
-        .filter((_, index) => !blankIndices.has(index))
-        .map(word => word.replace(/[^\w]/g, ''))
-        .filter(word => word.length > 2)
-        .slice(0, Math.min(2, verseBlanksData.length));
-
-      incorrectWords.forEach((word, index) => {
-        verseOptionsData.push({
-          id: `opt-incorrect-${word}-${verseIndex}-${index}`,
-          text: word,
-          used: false,
+      selectedCandidates.forEach((candidate, candidateIndex) => {
+        const blankId = `${verseIndex}-${candidate.index}-${candidateIndex}`;
+        blankIdByWordIndex[candidate.index] = blankId;
+        generatedBlanks.push({
+          id: blankId,
+          correctAnswer: candidate.cleanedWord,
+          selectedAnswer: null,
+          selectedOptionId: null,
         });
       });
 
-      // Store verse data
-      verseData.push({
-        verseNumber: verseText.verse,
-        text: verseText.text,
-        blanks: verseBlanksData,
-      });
+      optionWordPool.push(...candidates.map(candidate => candidate.cleanedWord));
 
-      // Add to global arrays
-      allBlanksData.push(...verseBlanksData);
-      allOptionsData.push(...verseOptionsData);
+      generatedVerseData.push({
+        verseNumber: verseText.verse,
+        words,
+        blankIdByWordIndex,
+      });
     });
 
-    // Shuffle all options together
-    const shuffledOptions = allOptionsData.sort(() => Math.random() - 0.5);
+    const correctOptions: OptionData[] = generatedBlanks.map(blank => ({
+      id: `correct-${blank.id}`,
+      text: blank.correctAnswer,
+    }));
+
+    const uniquePoolWords = Array.from(new Set(optionWordPool));
+    const correctWordSet = new Set(
+      correctOptions.map(option => option.text.toLowerCase())
+    );
+
+    const distractorWords = shuffleArray(
+      uniquePoolWords.filter(word => !correctWordSet.has(word.toLowerCase()))
+    ).slice(0, generatedBlanks.length);
+
+    const distractorOptions: OptionData[] = distractorWords.map(
+      (word, index) => ({
+        id: `distractor-${index}-${word.toLowerCase()}`,
+        text: word,
+      })
+    );
 
     return {
-      verseData,
-      blanks: allBlanksData,
-      options: shuffledOptions,
+      verseData: generatedVerseData,
+      blanks: generatedBlanks,
+      options: shuffleArray([...correctOptions, ...distractorOptions]),
     };
   };
 
-  // Initialize fill-in-blanks when verse changes
   useEffect(() => {
-    if (currentVerse) {
-      const {
-        verseData: newVerseData,
-        blanks: newBlanks,
-        options: newOptions,
-      } = generateFillInBlanks(currentVerse.verseTexts);
-
-      setVerseData(newVerseData);
-      setBlanks(newBlanks);
-      setOptions(newOptions);
+    if (!currentVerse) {
+      setVerseData([]);
+      setBlanks([]);
+      setOptions([]);
       setSelectedBlankId(null);
       setShowResults(false);
+      return;
     }
-  }, [currentVerseIndex, currentVerse]);
 
-  // Handle navigation back if no practice session
+    const generated = generateFillInBlanks(currentVerse.verseTexts);
+    setVerseData(generated.verseData);
+    setBlanks(generated.blanks);
+    setOptions(generated.options);
+    setSelectedBlankId(null);
+    setShowResults(false);
+  }, [currentVerse]);
+
   useEffect(() => {
     if (!currentSession) {
       router.replace('/memorize/fill-in-blanks');
     }
   }, [currentSession, router]);
 
-  const handleBlankClick = (blankId: number) => {
+  const handleBlankClick = (blankId: string) => {
     if (showResults) return;
     setSelectedBlankId(blankId);
   };
 
   const handleOptionClick = (option: OptionData) => {
-    if (selectedBlankId === null || option.used || showResults) return;
+    if (selectedBlankId === null || showResults) return;
 
-    // Update blanks
-    setBlanks(prev =>
-      prev.map(blank =>
+    const isUsedByAnotherBlank =
+      usedOptionIds.has(option.id) && selectedBlank?.selectedOptionId !== option.id;
+
+    if (isUsedByAnotherBlank) {
+      return;
+    }
+
+    setBlanks(previous =>
+      previous.map(blank =>
         blank.id === selectedBlankId
-          ? { ...blank, selectedAnswer: option.text }
+          ? {
+              ...blank,
+              selectedAnswer: option.text,
+              selectedOptionId: option.id,
+            }
           : blank
       )
     );
-
-    // Update verseData to reflect the change
-    setVerseData(prev =>
-      prev.map(verse => ({
-        ...verse,
-        blanks: verse.blanks.map(blank =>
-          blank.id === selectedBlankId
-            ? { ...blank, selectedAnswer: option.text }
-            : blank
-        ),
-      }))
-    );
-
-    // Mark option as used
-    setOptions(prev =>
-      prev.map(opt => (opt.id === option.id ? { ...opt, used: true } : opt))
-    );
-
-    // If there was a previous answer for this blank, mark that option as unused
-    const currentBlank = blanks.find(b => b.id === selectedBlankId);
-    if (currentBlank?.selectedAnswer) {
-      setOptions(prev =>
-        prev.map(opt =>
-          opt.text === currentBlank.selectedAnswer
-            ? { ...opt, used: false }
-            : opt
-        )
-      );
-    }
 
     setSelectedBlankId(null);
   };
 
   const handleReset = () => {
-    setBlanks(prev => prev.map(blank => ({ ...blank, selectedAnswer: null })));
-    setVerseData(prev =>
-      prev.map(verse => ({
-        ...verse,
-        blanks: verse.blanks.map(blank => ({ ...blank, selectedAnswer: null })),
+    setBlanks(previous =>
+      previous.map(blank => ({
+        ...blank,
+        selectedAnswer: null,
+        selectedOptionId: null,
       }))
     );
-    setOptions(prev => prev.map(opt => ({ ...opt, used: false })));
     setSelectedBlankId(null);
     setShowResults(false);
   };
 
   const handleCheckAnswers = () => {
+    if (!allBlanksCompleted) return;
     setShowResults(true);
     setSelectedBlankId(null);
   };
 
   const handleNextVerse = () => {
     if (currentVerseIndex < verses.length - 1) {
-      setCurrentVerseIndex(prev => prev + 1);
+      setCurrentVerseIndex(previous => previous + 1);
     } else {
-      // Practice session complete - navigate to practice complete screen
       router.replace('./practice-complete');
     }
   };
 
   const handlePreviousVerse = () => {
     if (currentVerseIndex > 0) {
-      setCurrentVerseIndex(prev => prev - 1);
+      setCurrentVerseIndex(previous => previous - 1);
     }
   };
 
@@ -242,56 +255,45 @@ export default function FillInTheBlanks() {
     router.replace('/memorize/fill-in-blanks');
   };
 
-  const renderVerseWithBlanks = (
-    verse: {
-      verseNumber: string;
-      text: string;
-      blanks: BlankData[];
-    },
-    verseIndex: number
-  ) => {
-    const words = verse.text.split(/\s+/);
-    const result = [];
-
-    for (let i = 0; i < words.length; i++) {
-      const word = words[i];
-      const cleanWord = word.replace(/[^\w]/g, '');
-
-      // Check if this word should be a blank
-      const blank = verse.blanks.find(b => b.correctAnswer === cleanWord);
-
-      if (blank) {
-        const isSelected = selectedBlankId === blank.id;
-        const isCorrect =
-          showResults && blank.selectedAnswer === blank.correctAnswer;
-        const isIncorrect =
-          showResults &&
-          blank.selectedAnswer !== blank.correctAnswer &&
-          blank.selectedAnswer !== null;
-
-        result.push(
-          <Button
-            key={`blank-${verseIndex}-${i}-${blank.id}`}
-            size={'sm'}
-            onPress={() => handleBlankClick(blank.id)}
-            className={`mx-1 inline-flex h-6 w-fit min-w-[80px] items-center justify-center rounded-md text-sm font-medium transition-all duration-200 ${isSelected ? 'border-blue-500 bg-gray-500' : 'border-gray-300'} ${isCorrect ? 'border-green-500 bg-green-50' : ''} ${isIncorrect ? 'border-red-500 bg-red-50 text-red-700' : ''} ${!showResults ? 'hover:bg-blue-25 hover:border-blue-400' : ''} mb-1 sm:h-6`}
-            disabled={showResults}
-          >
-            <ThemedText className='text-sm'>
-              {blank.selectedAnswer || '____'}
-            </ThemedText>
-          </Button>
-        );
-      } else {
-        result.push(
-          <ThemedText key={`word-${verseIndex}-${i}`} className='text-base'>
+  const renderVerseWithBlanks = (verse: VerseData, verseIndex: number) => {
+    return verse.words.map((word, index) => {
+      const blankId = verse.blankIdByWordIndex[index];
+      if (!blankId) {
+        return (
+          <ThemedText key={`word-${verseIndex}-${index}`} className='text-base'>
             {word}{' '}
           </ThemedText>
         );
       }
-    }
 
-    return result;
+      const blank = blankMap.get(blankId);
+      if (!blank) {
+        return (
+          <ThemedText key={`word-fallback-${verseIndex}-${index}`} className='text-base'>
+            {word}{' '}
+          </ThemedText>
+        );
+      }
+
+      const isSelected = selectedBlankId === blank.id;
+      const isCorrect = showResults && blank.selectedAnswer === blank.correctAnswer;
+      const isIncorrect =
+        showResults &&
+        blank.selectedAnswer !== blank.correctAnswer &&
+        blank.selectedAnswer !== null;
+
+      return (
+        <Button
+          key={`blank-${verseIndex}-${index}-${blank.id}`}
+          size={'sm'}
+          onPress={() => handleBlankClick(blank.id)}
+          className={`mb-1 mx-1 inline-flex h-6 w-fit min-w-[80px] items-center justify-center rounded-md border text-sm font-medium transition-all duration-200 sm:h-6 ${isSelected ? 'border-blue-500 bg-gray-500' : 'border-gray-300'} ${isCorrect ? 'border-green-500 bg-green-50' : ''} ${isIncorrect ? 'border-red-500 bg-red-50 text-red-700' : ''}`}
+          disabled={showResults}
+        >
+          <ThemedText className='text-sm'>{blank.selectedAnswer || '____'}</ThemedText>
+        </Button>
+      );
+    });
   };
 
   const renderVersesWithBlanks = () => {
@@ -309,22 +311,19 @@ export default function FillInTheBlanks() {
     ));
   };
 
-  const allBlanksCompleted = blanks.every(
-    blank => blank.selectedAnswer !== null
-  );
+  const totalBlanks = blanks.length;
+  const allBlanksCompleted =
+    totalBlanks > 0 && blanks.every(blank => blank.selectedAnswer !== null);
   const correctAnswers = blanks.filter(
     blank => blank.selectedAnswer === blank.correctAnswer
   ).length;
-  const totalBlanks = blanks.length;
 
   if (!currentSession || !currentVerse) {
     return (
       <SafeAreaView className='flex-1'>
         <BackHeader items={[{ label: 'Memorize', href: '/memorize' }]} />
         <View className='flex-1 items-center justify-center p-4'>
-          <ThemedText className='text-base'>
-            No memorize session found
-          </ThemedText>
+          <ThemedText className='text-base'>No memorize session found</ThemedText>
           <CustomButton
             onPress={() => router.replace('/memorize/fill-in-blanks')}
             className='mt-4'
@@ -366,58 +365,69 @@ export default function FillInTheBlanks() {
 
             <Card className='border-0 border-gray-200 bg-container p-2'>
               <ThemedText className='text-sm text-muted-foreground'>
-                Click on a blank space, then select the correct word from the
-                options below
+                Click a blank, then select the correct word from the options.
               </ThemedText>
             </Card>
 
             <View className='mt-4 space-y-6'>
-              {/* Verses with blanks */}
               <View className='w-full rounded-lg bg-container p-6 leading-relaxed'>
                 {renderVersesWithBlanks()}
               </View>
 
-              {/* Selected blank indicator */}
-              {/* {selectedBlankId && !showResults && (
-                <View className='text-center'>
-                  <Badge variant='outline' className='bg-blue-50 text-blue-700'>
-                    <ThemedText className='text-sm'>
-                      Filling blank #{selectedBlankId}
+              {selectedBlankId && !showResults && (
+                <View className='items-center'>
+                  <Badge variant='outline' className='border-blue-200 bg-blue-50'>
+                    <ThemedText className='text-sm text-blue-700'>
+                      Select the word for the highlighted blank.
                     </ThemedText>
                   </Badge>
                 </View>
-              )} */}
+              )}
             </View>
           </View>
 
-          <View className=''>
-            {/* Options */}
+          <View>
             <View className='space-y-3'>
               <ThemedText className='text-base font-semibold'>
                 Choose the correct words:
               </ThemedText>
-              <View className='flex-row flex-wrap justify-center gap-3'>
-                {options.map(option => (
-                  <Button
-                    key={option.id}
-                    variant={option.used ? 'secondary' : 'outline'}
-                    onPress={() => handleOptionClick(option)}
-                    disabled={option.used || showResults}
-                    className={`h-10 rounded-full !px-4 !py-2 text-sm transition-all duration-200 ${option.used ? 'cursor-not-allowed opacity-50' : ''} ${!option.used && !showResults ? 'hover:border-blue-300 hover:bg-blue-50' : ''} `}
-                  >
-                    <ThemedText className='text-sm'>{option.text}</ThemedText>
-                  </Button>
-                ))}
-              </View>
+
+              {options.length > 0 ? (
+                <View className='flex-row flex-wrap justify-center gap-3'>
+                  {options.map(option => {
+                    const isOptionUsedByAnotherBlank =
+                      usedOptionIds.has(option.id) &&
+                      selectedBlank?.selectedOptionId !== option.id;
+                    const isDisabled =
+                      showResults ||
+                      selectedBlankId === null ||
+                      isOptionUsedByAnotherBlank;
+
+                    return (
+                      <Button
+                        key={option.id}
+                        variant={isOptionUsedByAnotherBlank ? 'secondary' : 'outline'}
+                        onPress={() => handleOptionClick(option)}
+                        disabled={isDisabled}
+                        className={`h-10 rounded-full !px-4 !py-2 text-sm transition-all duration-200 ${isDisabled ? 'cursor-not-allowed opacity-50' : ''}`}
+                      >
+                        <ThemedText className='text-sm'>{option.text}</ThemedText>
+                      </Button>
+                    );
+                  })}
+                </View>
+              ) : (
+                <ThemedText className='text-sm text-muted-foreground'>
+                  No eligible words were found for this verse.
+                </ThemedText>
+              )}
             </View>
 
-            {/* Results */}
             {showResults && (
               <Card className='border-blue-200 bg-blue-50'>
                 <CardContent className='pt-6'>
                   <View className='space-y-2 text-center'>
                     <View className='flex items-center justify-center gap-2'>
-                      {/* <Check className='h-5 w-5 text-green-600' /> */}
                       <ThemedText className='text-lg font-semibold'>
                         Results: {correctAnswers}/{totalBlanks} correct
                       </ThemedText>
@@ -432,9 +442,8 @@ export default function FillInTheBlanks() {
               </Card>
             )}
 
-            {/* Action buttons */}
             <View className='space-y-3'>
-              {/* {!showResults && (
+              {!showResults && (
                 <View className='flex justify-center'>
                   <CustomButton
                     onPress={handleCheckAnswers}
@@ -444,7 +453,7 @@ export default function FillInTheBlanks() {
                     Check Answers
                   </CustomButton>
                 </View>
-              )} */}
+              )}
 
               {showResults && (
                 <View className='flex-row justify-center gap-3'>
@@ -471,7 +480,7 @@ export default function FillInTheBlanks() {
                   variant='outline'
                   onPress={handleReset}
                   className='bg-transparent px-6'
-                  disabled={showResults}
+                  disabled={totalBlanks === 0}
                 >
                   Reset
                 </CustomButton>
