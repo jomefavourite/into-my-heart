@@ -1,9 +1,8 @@
-import { View, Platform } from 'react-native';
+import { View, Platform, FlatList } from 'react-native';
 import React, { useMemo, useState } from 'react';
 import ThemedText from '../ThemedText';
 import { Tabs, TabsContent, TabsList } from '../ui/tabs';
 import CustomTabsTrigger from '../CustomTabsTrigger';
-import { FlatList } from 'react-native';
 import CustomButton from '../CustomButton';
 import { useRouter } from 'expo-router';
 import { useGridListView } from '@/store/tab-store';
@@ -14,6 +13,7 @@ import ItemSeparator from '../ItemSeparator';
 import VerseCard from '../Verses/VerseCard';
 import FlashCardIcon from '../icons/practice/FlashCardIcon';
 import { api } from '@/convex/_generated/api';
+import type { Id } from '@/convex/_generated/dataModel';
 import { useQuery } from 'convex-helpers/react/cache';
 import { useAuth } from '@clerk/clerk-expo';
 import FillInBlanksIcon from '../icons/practice/FillInBlanksIcon';
@@ -154,17 +154,27 @@ export default function PracticeComp({ name }: { name: string }) {
                       <AddVersesEmpty />
                     </>
                   )}
-                  renderItem={({ item }) => (
-                    <VerseCard
-                      _id={'_id' in item ? item._id : undefined}
-                      bookName={item.bookName}
-                      chapter={item.chapter}
-                      verses={item.verses}
-                      verseTexts={item.verseTexts}
-                      containerClassName={gridView ? 'flex-1' : 'w-full'}
-                      canCheck={false}
-                    />
-                  )}
+                  renderItem={({ item }) => {
+                    const verseId =
+                      typeof item === 'object' &&
+                      item !== null &&
+                      '_id' in item &&
+                      typeof item._id === 'string'
+                        ? (item._id as Id<'verses'>)
+                        : undefined;
+
+                    return (
+                      <VerseCard
+                        _id={verseId}
+                        bookName={item.bookName}
+                        chapter={item.chapter}
+                        verses={item.verses}
+                        verseTexts={item.verseTexts}
+                        containerClassName={gridView ? 'flex-1' : 'w-full'}
+                        canCheck={false}
+                      />
+                    );
+                  }}
                   columnWrapperStyle={
                     gridView ? { gap: 8, width: '100%' } : undefined
                   }
