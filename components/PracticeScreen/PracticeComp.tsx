@@ -1,10 +1,8 @@
-import { View, Text, Platform } from 'react-native';
-import React, { useState } from 'react';
+import { View, Platform, FlatList } from 'react-native';
+import React, { useMemo, useState } from 'react';
 import ThemedText from '../ThemedText';
 import { Tabs, TabsContent, TabsList } from '../ui/tabs';
 import CustomTabsTrigger from '../CustomTabsTrigger';
-import { FlatList } from 'react-native';
-import { ActivityIndicator } from 'react-native';
 import CustomButton from '../CustomButton';
 import { useRouter } from 'expo-router';
 import { useGridListView } from '@/store/tab-store';
@@ -15,11 +13,12 @@ import ItemSeparator from '../ItemSeparator';
 import VerseCard from '../Verses/VerseCard';
 import FlashCardIcon from '../icons/practice/FlashCardIcon';
 import { api } from '@/convex/_generated/api';
-import { usePaginatedQuery, useQuery } from 'convex-helpers/react/cache';
+import type { Id } from '@/convex/_generated/dataModel';
+import { useQuery } from 'convex-helpers/react/cache';
 import { useAuth } from '@clerk/clerk-expo';
 import FillInBlanksIcon from '../icons/practice/FillInBlanksIcon';
-import { SvgProps } from 'react-native-svg';
 import FlashListSkeletonLoader from '../FlashListSkeletonLoader';
+import { STARTER_FILL_IN_THE_BLANKS_VERSES } from '@/lib/starterVerses';
 
 export default function PracticeComp({ name }: { name: string }) {
   const { isSignedIn, isLoaded } = useAuth();
@@ -50,8 +49,30 @@ export default function PracticeComp({ name }: { name: string }) {
   );
   const [value, setValue] = useState('verses');
   const router = useRouter();
-  const { gridView, setGridView } = useGridListView();
+  const { gridView } = useGridListView();
   const { setPracticeSession } = usePracticeStore();
+
+  const versesForCurrentTechnique = useMemo(() => {
+    if (verses === undefined) {
+      return undefined;
+    }
+
+    if (name !== 'fillInBlanks') {
+      return verses;
+    }
+
+    if (verses.length > 0) {
+      return verses.slice(0, 10);
+    }
+
+    return STARTER_FILL_IN_THE_BLANKS_VERSES.slice(0, 10);
+  }, [name, verses]);
+
+  const usingStarterVerses =
+    name === 'fillInBlanks' && verses !== undefined && verses.length === 0;
+
+  const isFillInBlanksLimited =
+    name === 'fillInBlanks' && verses !== undefined && verses.length > 10;
 
   // const handleLoadMore = () => {
   //   if (!isLoading) {
@@ -99,8 +120,22 @@ export default function PracticeComp({ name }: { name: string }) {
         <TabsContent value='verses' className='flex-1'>
           <View className='flex-1 gap-3'>
             <ThemedText className='text-[13px]'>
-              {totalVersesCount ?? 0} verses
+              {name === 'fillInBlanks'
+                ? `${versesForCurrentTechnique?.length ?? 0} verses`
+                : `${totalVersesCount ?? 0} verses`}
             </ThemedText>
+
+            {usingStarterVerses && (
+              <ThemedText className='text-xs text-muted-foreground'>
+                Using starter verses so you can practice right away.
+              </ThemedText>
+            )}
+
+            {isFillInBlanksLimited && (
+              <ThemedText className='text-xs text-muted-foreground'>
+                Fill in the blanks currently uses up to 10 verses per session.
+              </ThemedText>
+            )}
 
             <View
               className='flex-1'
@@ -111,7 +146,7 @@ export default function PracticeComp({ name }: { name: string }) {
               ) : (
                 <FlatList
                   key={gridView ? 'grid-myverses' : 'list-myverses'}
-                  data={verses}
+                  data={versesForCurrentTechnique}
                   keyExtractor={(item, index) => index.toString()}
                   numColumns={gridView ? 2 : 1}
                   ListEmptyComponent={() => (
@@ -119,17 +154,27 @@ export default function PracticeComp({ name }: { name: string }) {
                       <AddVersesEmpty />
                     </>
                   )}
-                  renderItem={({ item }) => (
-                    <VerseCard
-                      _id={item._id}
-                      bookName={item.bookName}
-                      chapter={item.chapter}
-                      verses={item.verses}
-                      verseTexts={item.verseTexts}
-                      containerClassName={gridView ? 'flex-1' : 'w-full'}
-                      canCheck={false}
-                    />
-                  )}
+                  renderItem={({ item }) => {
+                    const verseId =
+                      typeof item === 'object' &&
+                      item !== null &&
+                      '_id' in item &&
+                      typeof item._id === 'string'
+                        ? (item._id as Id<'verses'>)
+                        : undefined;
+
+                    return (
+                      <VerseCard
+                        _id={verseId}
+                        bookName={item.bookName}
+                        chapter={item.chapter}
+                        verses={item.verses}
+                        verseTexts={item.verseTexts}
+                        containerClassName={gridView ? 'flex-1' : 'w-full'}
+                        canCheck={false}
+                      />
+                    );
+                  }}
                   columnWrapperStyle={
                     gridView ? { gap: 8, width: '100%' } : undefined
                   }
@@ -148,8 +193,11 @@ export default function PracticeComp({ name }: { name: string }) {
 
             <CustomButton
               onPress={() => {
-                if (verses && verses.length > 0) {
-                  setPracticeSession(verses, 'verses');
+                if (
+                  versesForCurrentTechnique &&
+                  versesForCurrentTechnique.length > 0
+                ) {
+                  setPracticeSession(versesForCurrentTechnique, 'verses');
                   router.push(
                     name === 'flashcards'
                       ? '/memorize/flashcards/practice'
@@ -157,7 +205,10 @@ export default function PracticeComp({ name }: { name: string }) {
                   );
                 }
               }}
-              disabled={!verses || verses.length === 0}
+              disabled={
+                !versesForCurrentTechnique ||
+                versesForCurrentTechnique.length === 0
+              }
             >
               Start Verses Practice
             </CustomButton>
