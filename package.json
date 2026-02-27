@@ -9,12 +9,17 @@
     "ios": "DARK_MODE=media expo start --ios",
     "web": "DARK_MODE=media expo start --web",
     "test": "jest --watchAll",
+    "test:e2e": "playwright test",
+    "test:e2e:smoke": "playwright test e2e/auth-protection.spec.ts",
     "lint": "expo lint",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "testPathIgnorePatterns": [
+      "/e2e/"
+    ]
   },
   "dependencies": {
     "@babel/plugin-proposal-export-namespace-from": "^7.18.9",
@@ -110,6 +115,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@playwright/test": "^1.58.2",
     "@react-native-community/cli": "^18.0.0",
     "@types/jest": "^29.5.12",
     "@types/react": "^19.1.10",

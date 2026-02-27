@@ -185,7 +185,10 @@ export default function CollectionPage() {
         items={[
           { label: 'Verses', href: '/verses' },
           { label: 'All collections', href: '/verses/all-collections' },
-          { label: 'Collection Page', href: `/verses/${collectionId}` },
+          {
+            label: 'Collection Page',
+            href: `/verses/collection/${collectionId}`,
+          },
         ]}
       />
       <View className='flex-1 justify-between px-[18px] pb-[18px]'>

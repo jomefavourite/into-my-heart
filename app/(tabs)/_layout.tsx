@@ -1,14 +1,23 @@
-import { Slot, Tabs } from 'expo-router';
+import { Redirect, Slot, Tabs } from 'expo-router';
 import React from 'react';
 import { Platform, useWindowDimensions } from 'react-native';
-import GoalsIcon from '@/components/icons/tabs/GoalsIcon';
 import HomeIcon from '@/components/icons/tabs/HomeIcon';
 import PracticeIcon from '@/components/icons/tabs/PracticeIcon';
 import ProfileIcon from '@/components/icons/tabs/ProfileIcon';
 import VersesIcon from '@/components/icons/tabs/VersesIcon';
+import { useAuth } from '@clerk/clerk-expo';
 
 export default function TabLayout() {
   const { width } = useWindowDimensions();
+  const { isLoaded, isSignedIn } = useAuth();
+
+  if (!isLoaded) {
+    return null;
+  }
+
+  if (!isSignedIn) {
+    return <Redirect href='/(onboarding)/onboard' />;
+  }
 
   if (Platform.OS === 'web' && width > 720) {
     return <Slot />;
@@ -56,13 +65,6 @@ export default function TabLayout() {
           options={{
             title: 'Memorize',
             tabBarIcon: ({ focused }) => <PracticeIcon focused={focused} />,
-          }}
-        />
-        <Tabs.Screen
-          name='goals'
-          options={{
-            title: 'Goals',
-            tabBarIcon: ({ focused }) => <GoalsIcon focused={focused} />,
           }}
         />
         <Tabs.Screen

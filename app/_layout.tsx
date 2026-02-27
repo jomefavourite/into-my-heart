@@ -14,8 +14,13 @@ import * as React from 'react';
 import { Platform, useWindowDimensions, View } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
-import { ConvexReactClient } from 'convex/react';
-import { ClerkLoaded, ClerkProvider, useAuth } from '@clerk/clerk-expo';
+import { ConvexReactClient, useConvexAuth, useMutation } from 'convex/react';
+import {
+  ClerkLoaded,
+  ClerkProvider,
+  useAuth,
+  useUser,
+} from '@clerk/clerk-expo';
 // import { tokenCache } from '@/cache';
 import { tokenCache } from '@clerk/clerk-expo/token-cache';
 import { ConvexProviderWithClerk } from 'convex/react-clerk';
@@ -42,6 +47,7 @@ import {
 } from 'react-native-safe-area-context';
 import { ToastProvider } from 'react-native-toast-notifications';
 import { AlertProvider } from '@/hooks/useAlert';
+import { api } from '@/convex/_generated/api';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -97,12 +103,13 @@ export {
 
 function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
   const { isLoaded, isSignedIn } = useAuth();
+  const { user } = useUser();
+  const { isAuthenticated: isConvexAuthenticated } = useConvexAuth();
+  const ensureCurrentUser = useMutation(api.users.ensureCurrentUser);
+  const syncedClerkId = React.useRef<string | null>(null);
   const segments = useSegments();
   const router = useRouter();
-  const navigationAttempted = React.useRef(false);
-  const currentRoute = React.useRef<string>('');
-  const authCheckAttempted = React.useRef(false);
-  const [isCheckingAuth, setIsCheckingAuth] = React.useState(false);
+  const inOnboardingGroup = segments[0] === '(onboarding)';
 
   // This prevent flash of white on navigation
   // Use useEffect to prevent infinite loops
@@ -117,84 +124,61 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
   useFrameworkReady();
 
   useEffect(() => {
-    if (!isLoaded || isCheckingAuth) return;
-
-    const currentPath = segments.join('/');
-    const inAuthGroup = segments[0] === '(onboarding)';
-
-    // Add development mode guard to prevent redirects during hot reloads
-    if (__DEV__) {
-      // In development, only redirect from root path or when explicitly needed
-      if (currentPath === '' || currentPath === '/') {
-        if (isSignedIn) {
-          router.replace('/(tabs)');
-        } else {
-          router.replace('/(onboarding)/onboard');
-        }
-      }
-      return;
+    if (!isSignedIn) {
+      syncedClerkId.current = null;
     }
+  }, [isSignedIn]);
 
-    // Only run auth check on initial load or auth state changes
-    const shouldRedirect =
-      (isSignedIn && inAuthGroup && !navigationAttempted.current) ||
-      (!isSignedIn && !inAuthGroup && !navigationAttempted.current);
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn || !isConvexAuthenticated || !user) return;
+    if (syncedClerkId.current === user.id) return;
 
-    if (!shouldRedirect) return;
+    const primaryEmail =
+      user.primaryEmailAddress?.emailAddress ??
+      user.emailAddresses[0]?.emailAddress;
+    if (!primaryEmail) return;
 
-    // Prevent navigation loops
-    if (currentRoute.current === currentPath && navigationAttempted.current) {
-      return;
-    }
+    let cancelled = false;
 
-    currentRoute.current = currentPath;
-
-    // Add debounce to prevent rapid auth checks during development
-    setIsCheckingAuth(true);
-    const timeoutId = setTimeout(() => {
-      setIsCheckingAuth(false);
-    }, 300);
-
-    // Add delay to ensure authentication state is stable
-    const authCheck = async () => {
-      if (authCheckAttempted.current) return;
-      authCheckAttempted.current = true;
-
-      // Wait a bit for authentication state to stabilize
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      // Only redirect if necessary and safe to do so
-      if (isSignedIn && inAuthGroup) {
-        try {
-          navigationAttempted.current = true;
-          console.log('InitialLayout - Redirecting to tabs');
-          router.replace('/(tabs)');
-        } catch (error) {
-          console.warn('Navigation error:', error);
-          navigationAttempted.current = false;
+    const syncCurrentUser = async () => {
+      try {
+        await ensureCurrentUser({
+          email: primaryEmail,
+          first_name: user.firstName ?? undefined,
+          last_name: user.lastName ?? undefined,
+          imageUrl: user.imageUrl ?? undefined,
+        });
+        if (!cancelled) {
+          syncedClerkId.current = user.id;
         }
-      } else if (!isSignedIn && !inAuthGroup) {
-        try {
-          navigationAttempted.current = true;
-          console.log('InitialLayout - Redirecting to onboarding');
-          router.replace('/(onboarding)/onboard');
-        } catch (error) {
-          console.warn('Navigation error:', error);
-          navigationAttempted.current = false;
-        }
+      } catch (error) {
+        console.warn('InitialLayout - Failed to ensure current user', error);
       }
     };
 
-    authCheck();
+    syncCurrentUser();
 
-    return () => clearTimeout(timeoutId);
-  }, [isLoaded, isSignedIn]);
+    return () => {
+      cancelled = true;
+    };
+  }, [ensureCurrentUser, isConvexAuthenticated, isLoaded, isSignedIn, user]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    if (!isSignedIn && !inOnboardingGroup) {
+      router.replace('/(onboarding)/onboard');
+      return;
+    }
+
+    if (isSignedIn && inOnboardingGroup) {
+      router.replace('/(tabs)');
+    }
+  }, [inOnboardingGroup, isLoaded, isSignedIn, router]);
 
   const { width } = useWindowDimensions();
 
   if (Platform.OS === 'web' && width > 768) {
-    const inOnboardingGroup = segments[0] === '(onboarding)';
-
     if (!inOnboardingGroup) {
       return <TabBarSidebar />;
     }

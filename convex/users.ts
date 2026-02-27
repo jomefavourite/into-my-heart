@@ -119,6 +119,40 @@ export const current = query({
   },
 });
 
+export const ensureCurrentUser = mutation({
+  args: {
+    email: v.string(),
+    first_name: v.optional(v.string()),
+    last_name: v.optional(v.string()),
+    imageUrl: v.optional(v.string()),
+  },
+  handler: async (ctx, { email, first_name, last_name, imageUrl }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error('Authentication required');
+    }
+
+    const userAttributes = {
+      email,
+      first_name,
+      last_name,
+      imageUrl,
+      clerkId: identity.subject,
+    };
+
+    const existingUser = await userByExternalId(ctx, identity.subject);
+    if (existingUser) {
+      await ctx.db.patch(existingUser._id, userAttributes);
+      return existingUser._id;
+    }
+
+    return await ctx.db.insert('users', {
+      ...userAttributes,
+      role: 'user',
+    });
+  },
+});
+
 export const upsertFromClerk = internalMutation({
   args: { data: v.any() as Validator<UserJSON> }, // no runtime validation, trust Clerk
   async handler(ctx, { data }) {

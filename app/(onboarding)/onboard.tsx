@@ -4,11 +4,39 @@ import ThemedText from '@/components/ThemedText';
 import CustomButton from '@/components/CustomButton';
 import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
-import { useSSO } from '@clerk/clerk-expo';
+import { useSSO, useSignIn, useSignUp } from '@clerk/clerk-expo';
 import Logo from '@/components/icons/logo/Logo';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
 import { useAlert } from '@/hooks/useAlert';
+import { Input } from '@/components/ui/input';
+
+type ClerkErrorLike = {
+  errors?: {
+    message?: string;
+    longMessage?: string;
+  }[];
+};
+
+type SignUpAttemptLike = {
+  status?: string;
+  createdSessionId?: string | null;
+  missingFields?: string[];
+};
+
+const getClerkErrorMessage = (error: unknown) => {
+  const clerkError = error as ClerkErrorLike;
+  const firstError = clerkError?.errors?.[0];
+
+  if (firstError?.longMessage) return firstError.longMessage;
+  if (firstError?.message) return firstError.message;
+  if (error instanceof Error && error.message) return error.message;
+  return 'Please try again.';
+};
+
+const isIdentifierInvalidError = (error: unknown) => {
+  return /identifier is invalid/i.test(getClerkErrorMessage(error));
+};
 
 export const useWarmUpBrowser = () => {
   useEffect(() => {
@@ -45,12 +73,30 @@ export default function CreateAccount() {
   useWarmUpBrowser();
 
   const { startSSOFlow } = useSSO();
+  const {
+    isLoaded: signInLoaded,
+    signIn,
+    setActive: setSignInActive,
+  } = useSignIn();
+  const {
+    isLoaded: signUpLoaded,
+    signUp,
+    setActive: setSignUpActive,
+  } = useSignUp();
   const isSafari = useIsSafari();
   const { alert } = useAlert();
+
+  const isDevEmailAuthEnabled = __DEV__;
 
   // Guard against double-taps and let us show retry UI if popup was blocked.
   const inFlight = useRef(false);
   const [showSafariPopupHelp, setShowSafariPopupHelp] = React.useState(false);
+  const [authMode, setAuthMode] = React.useState<'signIn' | 'signUp'>('signIn');
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [confirmPassword, setConfirmPassword] = React.useState('');
+  const [isDevAuthLoading, setIsDevAuthLoading] = React.useState(false);
+  const [devAuthMessage, setDevAuthMessage] = React.useState('');
 
   // Use a stable redirect URL. Prefer no proxy on web; proxy is fine on native.
   // const redirectUrl = useMemo(
@@ -69,17 +115,6 @@ export default function CreateAccount() {
     preferLocalhost: Platform.OS === 'web',
   });
 
-  const runGoogleSSO = useCallback(async () => {
-    const { createdSessionId, setActive /* signIn, signUp */ } =
-      await startSSOFlow({
-        strategy: 'oauth_google',
-        redirectUrl,
-      });
-    if (createdSessionId) {
-      await setActive!({ session: createdSessionId });
-    }
-  }, [redirectUrl, startSSOFlow]);
-
   const onGooglePress = useCallback(async () => {
     if (inFlight.current) return;
     inFlight.current = true;
@@ -95,11 +130,10 @@ export default function CreateAccount() {
     }
 
     try {
-      const { createdSessionId, setActive, signIn, signUp } =
-        await startSSOFlow({
-          strategy: 'oauth_google',
-          redirectUrl: AuthSession.makeRedirectUri(),
-        });
+      const { createdSessionId, setActive } = await startSSOFlow({
+        strategy: 'oauth_google',
+        redirectUrl,
+      });
 
       if (createdSessionId) {
         setActive!({ session: createdSessionId });
@@ -128,24 +162,185 @@ export default function CreateAccount() {
         console.error('Google SSO error:', err);
         alert('Sign-in failed', 'Please try again.');
       }
+    } finally {
+      inFlight.current = false;
     }
-  }, []);
+  }, [alert, isSafari, redirectUrl, startSSOFlow]);
 
-  const onApplePress = useCallback(async () => {
+  const onDevSignInPress = useCallback(async () => {
+    if (!isDevEmailAuthEnabled) return;
+
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail || !password.trim()) {
+      alert('Missing details', 'Enter both email and password.');
+      return;
+    }
+
+    if (!signInLoaded || !setSignInActive) {
+      alert('Auth loading', 'Please wait a moment and try again.');
+      return;
+    }
+
+    setIsDevAuthLoading(true);
+    setDevAuthMessage('');
+
     try {
-      const { createdSessionId, setActive, signIn, signUp } =
-        await startSSOFlow({
-          strategy: 'oauth_apple',
-          redirectUrl: AuthSession.makeRedirectUri(),
-        });
+      const attempt = await signIn.create({
+        identifier: normalizedEmail,
+        password,
+      });
 
-      if (createdSessionId) {
-        setActive!({ session: createdSessionId });
-      } else {
+      if (attempt.status === 'complete' && attempt.createdSessionId) {
+        await setSignInActive({ session: attempt.createdSessionId });
+        return;
       }
-    } catch (err) {
-      console.error(JSON.stringify(err, null, 2));
+
+      setDevAuthMessage('Additional sign-in steps are required in Clerk.');
+    } catch (error) {
+      if (isDevEmailAuthEnabled && isIdentifierInvalidError(error)) {
+        setDevAuthMessage(
+          'Clerk is still rejecting this identifier. In Clerk Dashboard, disable email verification for email/password sign-up to make immediate login work consistently.'
+        );
+        return;
+      }
+      alert('Email sign-in failed', getClerkErrorMessage(error));
+    } finally {
+      setIsDevAuthLoading(false);
     }
+  }, [
+    alert,
+    email,
+    isDevEmailAuthEnabled,
+    password,
+    setSignInActive,
+    signIn,
+    signInLoaded,
+  ]);
+
+  const onDevCreateAccountPress = useCallback(async () => {
+    if (!isDevEmailAuthEnabled) return;
+
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail || !password.trim() || !confirmPassword.trim()) {
+      alert(
+        'Missing details',
+        'Fill in email, password, and confirm password.'
+      );
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert('Password mismatch', 'Password and confirm password must match.');
+      return;
+    }
+
+    if (!signUpLoaded || !signInLoaded) {
+      alert('Auth loading', 'Please wait a moment and try again.');
+      return;
+    }
+
+    setIsDevAuthLoading(true);
+    setDevAuthMessage('');
+
+    try {
+      let createdSignUp = (await signUp.create({
+        emailAddress: normalizedEmail,
+        password,
+      })) as unknown as SignUpAttemptLike;
+
+      // Keep the dev flow simple by auto-filling common Clerk requirements.
+      if (
+        createdSignUp.status === 'missing_requirements' &&
+        createdSignUp.missingFields?.length
+      ) {
+        const localPart = normalizedEmail.split('@')[0] ?? 'devuser';
+        const sanitizedUsername =
+          localPart.replace(/[^a-zA-Z0-9_]/g, '').slice(0, 16) || 'devuser';
+        const updatePayload: {
+          firstName?: string;
+          lastName?: string;
+          username?: string;
+          password?: string;
+          emailAddress?: string;
+        } = {};
+
+        for (const field of createdSignUp.missingFields) {
+          if (field === 'first_name')
+            updatePayload.firstName = sanitizedUsername;
+          if (field === 'last_name') updatePayload.lastName = 'user';
+          if (field === 'username') updatePayload.username = sanitizedUsername;
+          if (field === 'password') updatePayload.password = password;
+          if (field === 'email_address') {
+            updatePayload.emailAddress = normalizedEmail;
+          }
+        }
+
+        if (Object.keys(updatePayload).length > 0) {
+          createdSignUp = (await signUp.update(
+            updatePayload
+          )) as unknown as SignUpAttemptLike;
+        }
+      }
+
+      if (
+        createdSignUp.status === 'complete' &&
+        createdSignUp.createdSessionId &&
+        setSignUpActive
+      ) {
+        await setSignUpActive({ session: createdSignUp.createdSessionId });
+        return;
+      }
+
+      // Fallback: immediately try sign-in with the same credentials.
+      const signInAttempt = await signIn.create({
+        identifier: normalizedEmail,
+        password,
+      });
+      if (
+        signInAttempt.status === 'complete' &&
+        signInAttempt.createdSessionId
+      ) {
+        await setSignInActive?.({ session: signInAttempt.createdSessionId });
+        return;
+      }
+
+      setAuthMode('signIn');
+      setConfirmPassword('');
+      setDevAuthMessage(
+        'Account created. Sign in with your email and password.'
+      );
+    } catch (error) {
+      if (isDevEmailAuthEnabled && isIdentifierInvalidError(error)) {
+        setAuthMode('signIn');
+        setConfirmPassword('');
+        setDevAuthMessage(
+          'Account created, but Clerk still flags the identifier as invalid for sign-in. Disable email verification in Clerk Dashboard for immediate email/password logins.'
+        );
+        return;
+      }
+      alert('Create account failed', getClerkErrorMessage(error));
+    } finally {
+      setIsDevAuthLoading(false);
+    }
+  }, [
+    alert,
+    confirmPassword,
+    email,
+    isDevEmailAuthEnabled,
+    password,
+    setSignInActive,
+    setSignUpActive,
+    signIn,
+    signInLoaded,
+    signUp,
+    signUpLoaded,
+  ]);
+
+  const onDevSwitchMode = useCallback(() => {
+    setAuthMode(prev => (prev === 'signIn' ? 'signUp' : 'signIn'));
+    setDevAuthMessage('');
+    setPassword('');
+    setConfirmPassword('');
   }, []);
 
   return (
@@ -178,9 +373,100 @@ export default function CreateAccount() {
               <CustomButton onPress={onGooglePress}>
                 Continue with Google
               </CustomButton>
-              {/* <CustomButton variant='outline' onPress={onApplePress}>
-                Continue with Apple
-              </CustomButton> */}
+
+              {showSafariPopupHelp && (
+                <ThemedText
+                  size={12}
+                  className='text-center text-sm text-[#ff6464]'
+                >
+                  Pop-up was blocked. Allow pop-ups for this site and try again.
+                </ThemedText>
+              )}
+
+              {isDevEmailAuthEnabled && (
+                <View className='mt-3 rounded-2xl border border-border/60 bg-container p-4'>
+                  <ThemedText variant='medium' className='text-center'>
+                    Development only: Email + Password
+                  </ThemedText>
+                  <ThemedText
+                    size={12}
+                    className='mt-1 text-center text-[#909090]'
+                  >
+                    This auth method is hidden in production builds.
+                  </ThemedText>
+                  <ThemedText
+                    size={12}
+                    className='mt-1 text-center text-[#909090]'
+                  >
+                    Email verification code is disabled in this dev flow.
+                  </ThemedText>
+
+                  <View className='mt-3 gap-2'>
+                    <Input
+                      autoCapitalize='none'
+                      autoCorrect={false}
+                      keyboardType='email-address'
+                      placeholder='Email'
+                      value={email}
+                      onChangeText={setEmail}
+                      textContentType='emailAddress'
+                    />
+                    <Input
+                      autoCapitalize='none'
+                      autoCorrect={false}
+                      placeholder='Password'
+                      secureTextEntry
+                      value={password}
+                      onChangeText={setPassword}
+                      textContentType='password'
+                    />
+
+                    {authMode === 'signUp' && (
+                      <Input
+                        autoCapitalize='none'
+                        autoCorrect={false}
+                        placeholder='Confirm Password'
+                        secureTextEntry
+                        value={confirmPassword}
+                        onChangeText={setConfirmPassword}
+                        textContentType='password'
+                      />
+                    )}
+
+                    <CustomButton
+                      isLoading={isDevAuthLoading}
+                      onPress={
+                        authMode === 'signIn'
+                          ? onDevSignInPress
+                          : onDevCreateAccountPress
+                      }
+                    >
+                      {authMode === 'signIn'
+                        ? 'Sign in with Email'
+                        : 'Create account with Email'}
+                    </CustomButton>
+
+                    <CustomButton
+                      variant='ghost'
+                      className='rounded-lg'
+                      onPress={onDevSwitchMode}
+                    >
+                      {authMode === 'signIn'
+                        ? "Don't have an account? Create one"
+                        : 'Already have an account? Sign in'}
+                    </CustomButton>
+                  </View>
+
+                  {devAuthMessage ? (
+                    <ThemedText
+                      size={12}
+                      className='mt-2 text-center text-[#909090]'
+                    >
+                      {devAuthMessage}
+                    </ThemedText>
+                  ) : null}
+                </View>
+              )}
             </View>
           </View>
         </View>

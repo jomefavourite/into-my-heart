@@ -37,3 +37,7 @@ yarn-error.*
 
 app-example
 .vercel
+playwright-report/
+test-results/
+playwright-report/
+test-results/
