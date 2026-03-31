@@ -125,6 +125,7 @@ export default function VerseSummary() {
 
   const addVerse = useMutation(api.verses.addVerse);
   const updateVerse = useMutation(api.verses.updateVerse);
+  const currentUser = useQuery(api.users.current, {});
 
   // Check if we're in edit mode
   const isEditMode = !!verseIdURL;
@@ -358,14 +359,20 @@ export default function VerseSummary() {
             errorMessage = error.message;
           }
 
-          // Determine error type and title
           if (errorMessage.includes('already exist')) {
             errorTitle = 'Duplicate Verses';
-          } else {
-            errorTitle = 'Error';
-            if (!errorMessage.includes('Failed to add verses')) {
-              errorMessage = 'Failed to add verses. Please try again.';
-            }
+          } else if (
+            errorMessage.includes('Authentication required') ||
+            errorMessage.includes('account is still syncing')
+          ) {
+            errorTitle = 'Account Issue';
+          } else if (errorMessage.includes('Mismatch:')) {
+            errorTitle = 'Verse Data Error';
+          } else if (
+            errorMessage.includes('Server Error') ||
+            errorMessage.includes('Called by client')
+          ) {
+            errorMessage = 'Failed to add verses. Please try again.';
           }
         }
 
@@ -395,6 +402,14 @@ export default function VerseSummary() {
 
     if (!bookName || !chapter) {
       console.error('Book name or chapter is not set');
+      return;
+    }
+
+    if (currentUser === null) {
+      showError(
+        'Account Syncing',
+        'Your account is still syncing. Please wait a moment and try again.'
+      );
       return;
     }
 
@@ -440,6 +455,8 @@ export default function VerseSummary() {
     isCollOrVerse,
     isEditMode,
     processAddVerse,
+    currentUser,
+    showError,
   ]);
 
   const handleSplitIntoIndividual = useCallback(() => {
