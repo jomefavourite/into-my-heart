@@ -1,4 +1,4 @@
-import { ScrollView, View, Platform } from 'react-native';
+import { ScrollView, View, Platform, ActivityIndicator } from 'react-native';
 import React, { useCallback, useMemo, useRef, useEffect } from 'react';
 import ThemedText from '@/components/ThemedText';
 import BackHeader from '@/components/BackHeader';
@@ -18,9 +18,6 @@ import { useMutation, useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
 import { useIsCollOrVerse } from '@/store/tab-store';
-import { ActivityIndicator } from 'react-native';
-import { useQueries } from '@tanstack/react-query';
-import { BOOKS } from '@/lib/books';
 import SplitVersesBottomSheet, {
   SplitVersesBottomSheetRef,
 } from '@/components/SplitVersesBottomSheet';
@@ -31,59 +28,7 @@ import {
   normalizeVerseTextEntry,
   normalizeVerseTexts,
 } from '@/lib/verseText';
-
-type GetVerseTextsParams = {
-  bookName: string;
-  chapter: number;
-  verse: number;
-};
-
-function getVerseText(
-  chapterData: {
-    content: { type: string; number: number; content: unknown }[];
-  },
-  verseNumber: number
-) {
-  const verse = chapterData.content.find(
-    i => i.type === 'verse' && i.number === verseNumber
-  );
-
-  if (!verse) {
-    return null;
-  }
-
-  return {
-    text: normalizeBibleText(verse.content),
-    verse: verseNumber,
-  };
-}
-
-const getVerseTexts = async ({
-  bookName,
-  chapter,
-  verse,
-}: GetVerseTextsParams) => {
-  try {
-    const bookId = BOOKS.find(book => book.name === bookName)?.id;
-    const chapterData = await fetch(
-      `https://bible.helloao.org/api/eng-kjv/${bookId}/${chapter}.json`
-    );
-
-    if (!chapterData.ok) {
-      console.error(`Failed to fetch data for ${bookId} ${chapter}`);
-      // Consider throwing an error here if you want the sequence to stop on failure
-      return null; // Or handle the error gracefully
-    }
-    const chapterDataJson = await chapterData.json();
-
-    // console.log(`Fetched ${bookName} ${chapter}:${verse}:`, verseJson);
-
-    return getVerseText(chapterDataJson.chapter, verse); // Return the fetched data if you need it
-  } catch (error) {
-    console.error(`Error fetching ${bookName} ${chapter}:${verse}:`, error);
-    return null;
-  }
-};
+import { getOfflineVerseTexts } from '@/lib/offlineBible';
 
 export default function VerseSummary() {
   const router = useRouter();
@@ -168,40 +113,32 @@ export default function VerseSummary() {
     setVerses,
   ]);
 
-  // Validate that we have the required data
-  const hasValidData = bookName && chapter && verses && verses.length > 0;
-
   const versesList = useMemo(() => {
     return verses ? verses.map(Number) : [];
   }, [verses]);
 
-  const queries = useMemo(() => {
-    return versesList
-      ? versesList
-          .sort((a, b) => a - b)
-          .map(verse => ({
-            queryKey: ['verse', bookName, chapter, verse],
-            queryFn: () => getVerseTexts({ bookName, chapter, verse }),
-            enabled: !!bookName && !!chapter && !!verses,
-          }))
-      : [];
-  }, [versesList, bookName, chapter, verses]);
-
-  const verseTextsList = useQueries({
-    queries,
-  });
+  const sortedVersesList = useMemo(
+    () => [...versesList].sort((a, b) => a - b),
+    [versesList]
+  );
 
   const verseTexts = useMemo(() => {
-    const texts = verseTextsList.map(query => query.data).filter(Boolean);
-    return texts;
-  }, [verseTextsList, versesList.length]);
+    if (!bookName || !chapter || sortedVersesList.length === 0) {
+      return [];
+    }
 
-  const isVerseTextsListLoading = useMemo(() => {
-    return verseTextsList.some(query => query.isLoading);
-  }, [verseTextsList]);
+    try {
+      return getOfflineVerseTexts(bookName, chapter, sortedVersesList);
+    } catch (error) {
+      console.error(
+        `Error loading offline verses for ${bookName} ${chapter}:`,
+        error
+      );
+      return [];
+    }
+  }, [bookName, chapter, sortedVersesList]);
 
-  // const verseTexts = [];
-  // const isVerseTextsListLoading = false;
+  const isVerseTextsListLoading = false;
 
   const minVerse = useMemo(() => Math.min(...versesList), [versesList]);
   const maxVerse = useMemo(() => Math.max(...versesList), [versesList]);
@@ -394,6 +331,8 @@ export default function VerseSummary() {
       verseTexts,
       isEditMode,
       verseId,
+      showDuplicateAlert,
+      showError,
     ]
   );
 

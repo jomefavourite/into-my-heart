@@ -11,9 +11,9 @@ import {
 } from 'react-native';
 import { useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
-import { BOOKS } from '../../lib/books';
 import { useAlert } from '@/hooks/useAlert';
-import { normalizeBibleText, normalizeVerseTexts } from '@/lib/verseText';
+import { normalizeVerseTexts } from '@/lib/verseText';
+import { getOfflineVerseTexts } from '@/lib/offlineBible';
 
 // Helper function to parse verse reference
 function parseVerseReference(verseRef: string) {
@@ -57,68 +57,13 @@ function parseVerseReference(verseRef: string) {
   };
 }
 
-// Function to fetch verse texts from Bible API
-async function fetchVerseTexts(
+function fetchVerseTexts(
   bookName: string,
   chapter: number,
   verseNumbers: number[]
 ) {
   try {
-    console.log(
-      `fetchVerseTexts: Looking for book "${bookName}" in BOOKS database`
-    );
-    const bookId = BOOKS.find(book => book.name === bookName)?.id;
-    console.log(`fetchVerseTexts: Found bookId: ${bookId}`);
-
-    if (!bookId) {
-      console.error(
-        `fetchVerseTexts: Book "${bookName}" not found in BOOKS database`
-      );
-      console.log('Available books:', BOOKS.map(b => b.name).slice(0, 10));
-      throw new Error(`Book "${bookName}" not found in BOOKS database`);
-    }
-
-    const apiUrl = `https://bible.helloao.org/api/eng-kjv/${bookId}/${chapter}.json`;
-    console.log(`fetchVerseTexts: Fetching from ${apiUrl}`);
-
-    const response = await fetch(apiUrl);
-
-    if (!response.ok) {
-      console.error(
-        `fetchVerseTexts: API request failed with status ${response.status}`
-      );
-      throw new Error(
-        `Failed to fetch data for ${bookName} ${chapter} (Status: ${response.status})`
-      );
-    }
-
-    const chapterData = await response.json();
-    console.log(`fetchVerseTexts: Received chapter data:`, chapterData);
-
-    const verseTexts = verseNumbers
-      .map((verseNumber: number) => {
-        const verse = chapterData.chapter.content.find(
-          (i: any) => i.type === 'verse' && i.number === verseNumber
-        );
-        if (verse && verse.content) {
-          // Extract just the text string from the verse content
-          const verseContent = verse.content;
-          console.log(
-            `fetchVerseTexts: Verse ${verseNumber} content:`,
-            verseContent
-          );
-
-          const textString = normalizeBibleText(verseContent);
-
-          console.log(
-            `fetchVerseTexts: Extracted text for verse ${verseNumber}:`,
-            textString
-          );
-          return { text: textString, verse: verseNumber };
-        }
-        return null;
-      })
-      .filter(Boolean);
+    const verseTexts = getOfflineVerseTexts(bookName, chapter, verseNumbers);
 
     console.log(`fetchVerseTexts: Extracted ${verseTexts.length} verse texts`);
     return verseTexts;
