@@ -13,6 +13,7 @@ import { useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { BOOKS } from '../../lib/books';
 import { useAlert } from '@/hooks/useAlert';
+import { normalizeBibleText, normalizeVerseTexts } from '@/lib/verseText';
 
 // Helper function to parse verse reference
 function parseVerseReference(verseRef: string) {
@@ -99,18 +100,15 @@ async function fetchVerseTexts(
         const verse = chapterData.chapter.content.find(
           (i: any) => i.type === 'verse' && i.number === verseNumber
         );
-        if (verse && verse.content && verse.content[0]) {
+        if (verse && verse.content) {
           // Extract just the text string from the verse content
-          const verseContent = verse.content[0];
+          const verseContent = verse.content;
           console.log(
             `fetchVerseTexts: Verse ${verseNumber} content:`,
             verseContent
           );
 
-          const textString =
-            typeof verseContent === 'string'
-              ? verseContent
-              : verseContent.text || verseContent.toString();
+          const textString = normalizeBibleText(verseContent);
 
           console.log(
             `fetchVerseTexts: Extracted text for verse ${verseNumber}:`,
@@ -258,10 +256,12 @@ export function BulkAddVerses() {
             bookName,
             chapter: parseFloat(chapter.toString()),
             verses,
-            verseTexts: verseTexts.map((vt: any) => ({
-              verse: vt.verse.toString(),
-              text: vt.text,
-            })),
+            verseTexts: normalizeVerseTexts(
+              verseTexts.map((vt: any) => ({
+                verse: vt.verse.toString(),
+                text: vt.text,
+              }))
+            ),
             reviewFreq: 'daily',
           });
 
@@ -315,10 +315,12 @@ export function BulkAddVerses() {
             chapter: parseFloat(chapter.toString()),
             verses,
             reviewFreq: 'daily',
-            verseTexts: verseTexts.map((vt: any) => ({
-              verse: vt.verse.toString(),
-              text: vt.text,
-            })),
+            verseTexts: normalizeVerseTexts(
+              verseTexts.map((vt: any) => ({
+                verse: vt.verse.toString(),
+                text: vt.text,
+              }))
+            ),
           });
 
           totalVersesLength += verseNumbers.length;

@@ -26,6 +26,11 @@ import SplitVersesBottomSheet, {
 } from '@/components/SplitVersesBottomSheet';
 import { useErrorAlert } from '@/components/ErrorAlert';
 import { useDuplicateVersesAlert } from '@/components/DuplicateVersesAlert';
+import {
+  normalizeBibleText,
+  normalizeVerseTextEntry,
+  normalizeVerseTexts,
+} from '@/lib/verseText';
 
 type GetVerseTextsParams = {
   bookName: string;
@@ -35,7 +40,7 @@ type GetVerseTextsParams = {
 
 function getVerseText(
   chapterData: {
-    content: { type: string; number: number; content: string[] }[];
+    content: { type: string; number: number; content: unknown }[];
   },
   verseNumber: number
 ) {
@@ -43,11 +48,14 @@ function getVerseText(
     i => i.type === 'verse' && i.number === verseNumber
   );
 
-  return verse
-    ? { text: verse.content[0], verse: verseNumber }
-    : // .join('')
-      // .trim()
-      null;
+  if (!verse) {
+    return null;
+  }
+
+  return {
+    text: normalizeBibleText(verse.content),
+    verse: verseNumber,
+  };
 }
 
 const getVerseTexts = async ({
@@ -277,10 +285,7 @@ export default function VerseSummary() {
             chapter: chapter,
             verses: versesList.map(v => v.toString()),
             reviewFreq: reviewFreqValue,
-            verseTexts: verseTexts.map(text => ({
-              verse: `${text?.verse || ''}`,
-              text: text?.text || '',
-            })),
+            verseTexts: normalizeVerseTexts(verseTexts),
           };
           console.log('📝 Updating verse:', payload);
           await updateVerse(payload);
@@ -303,12 +308,7 @@ export default function VerseSummary() {
                 chapter: chapter,
                 verses: [verse.toString()],
                 reviewFreq: reviewFreqValue,
-                verseTexts: [
-                  {
-                    verse: `${verseText.verse}`,
-                    text: verseText.text || '',
-                  },
-                ],
+                verseTexts: [normalizeVerseTextEntry(verseText)],
                 isGroup: false, // Single verse - check for duplicates
               };
               console.log('📝 Adding individual verse:', payload);
@@ -328,10 +328,7 @@ export default function VerseSummary() {
             chapter: chapter,
             verses: versesList.map(v => v.toString()),
             reviewFreq: reviewFreqValue,
-            verseTexts: verseTexts.map((text, index) => ({
-              verse: `${text?.verse || ''}`,
-              text: text?.text || '',
-            })),
+            verseTexts: normalizeVerseTexts(verseTexts),
             isGroup: isGroup, // Multiple verses = group (allow duplicates), single verse = individual (check duplicates)
           };
           // console.log('📝 Adding verse group:', payload);
@@ -681,7 +678,7 @@ export default function VerseSummary() {
                     size={13}
                     className='block w-full !overflow-hidden !text-ellipsis text-[#707070] dark:text-[#909090]'
                   >
-                    {text?.verse}. {text?.text}
+                    {text?.verse}. {normalizeBibleText(text?.text)}
                   </ThemedText>
                 ))
               )}

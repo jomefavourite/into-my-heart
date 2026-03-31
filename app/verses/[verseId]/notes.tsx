@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import CustomButton from '@/components/CustomButton';
 import { formatVerseDisplay } from '@/lib/utils';
 import { XIcon } from 'lucide-react-native';
+import { normalizeBibleText } from '@/lib/verseText';
 
 export default function VerseNotesPage() {
   const router = useRouter();
@@ -126,7 +127,7 @@ export default function VerseNotesPage() {
                   >
                     {verse.verseTexts.map((text, index) => (
                       <ThemedText key={index} className='text-sm'>
-                        {text.verse}. {text.text}
+                        {text.verse}. {normalizeBibleText(text.text)}
                       </ThemedText>
                     ))}
                   </ScrollView>

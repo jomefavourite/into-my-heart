@@ -22,6 +22,7 @@ import PageHeader from '@/components/PageHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import VersesSuggestion from '@/components/Verses/VersesSuggestion';
 import { formatVerseDisplay } from '@/lib/utils';
+import { normalizeBibleText } from '@/lib/verseText';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -135,7 +136,7 @@ export default function HomeScreen() {
                       className='my-4 text-base text-white dark:text-primary'
                     >
                       {displayVerse.verseTexts
-                        ?.map(text => `${text.verse}. ${text.text}`)
+                        ?.map(text => `${text.verse}. ${normalizeBibleText(text.text)}`)
                         .join(' ') || '...'}
                     </ThemedText>
 

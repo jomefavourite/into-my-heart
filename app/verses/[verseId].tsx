@@ -34,6 +34,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAlert } from '@/hooks/useAlert';
 import { BOOKS } from '@/lib/books';
+import { normalizeBibleText } from '@/lib/verseText';
 
 export default function VersePage() {
   const router = useRouter();
@@ -144,7 +145,7 @@ export default function VersePage() {
     }
 
     // Combine all verse texts into a single string
-    const fullText = `${verse.bookName} ${verse.chapter}:${formatVerseDisplay(verse.verses)}. ${verse.verseTexts.map(text => `${text.verse}. ${text.text}`).join(' ')}`;
+    const fullText = `${verse.bookName} ${verse.chapter}:${formatVerseDisplay(verse.verses)}. ${verse.verseTexts.map(text => `${text.verse}. ${normalizeBibleText(text.text)}`).join(' ')}`;
 
     if (Platform.OS === 'web') {
       // Use Web Speech API for web
@@ -330,7 +331,7 @@ export default function VersePage() {
                       textAlign: 'center',
                     }}
                   >
-                    {text.verse}. {text.text}
+                    {text.verse}. {normalizeBibleText(text.text)}
                   </ThemedText>
                 ))}
               </View>
@@ -369,7 +370,7 @@ export default function VersePage() {
                   {verse && verse?.verseTexts?.length > 0 ? (
                     verse?.verseTexts.map((text, index) => (
                       <ThemedText key={index} className=''>
-                        {text.verse}. {text.text}
+                        {text.verse}. {normalizeBibleText(text.text)}
                       </ThemedText>
                     ))
                   ) : (
@@ -387,7 +388,7 @@ export default function VersePage() {
                   {verse && verse?.verseTexts?.length > 0 ? (
                     verse?.verseTexts.map((text, index) => (
                       <ThemedText key={index} className=''>
-                        {text.verse}. {text.text}
+                        {text.verse}. {normalizeBibleText(text.text)}
                       </ThemedText>
                     ))
                   ) : (

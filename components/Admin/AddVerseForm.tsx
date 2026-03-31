@@ -12,6 +12,7 @@ import { useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { BOOKS } from '../../lib/books';
 import { useAlert } from '@/hooks/useAlert';
+import { normalizeBibleText, normalizeVerseTexts } from '@/lib/verseText';
 
 interface AddVerseFormProps {
   type: 'verse' | 'collection';
@@ -22,7 +23,7 @@ interface AddVerseFormProps {
 // Helper function to get verse text from API response
 function getVerseText(
   chapterData: {
-    content: { type: string; number: number; content: string[] }[];
+    content: { type: string; number: number; content: unknown }[];
   },
   verseNumber: number
 ) {
@@ -30,7 +31,9 @@ function getVerseText(
     i => i.type === 'verse' && i.number === verseNumber
   );
 
-  return verse ? { text: verse.content[0], verse: verseNumber } : null;
+  return verse
+    ? { text: normalizeBibleText(verse.content), verse: verseNumber }
+    : null;
 }
 
 // Function to fetch verse texts from API
@@ -121,7 +124,9 @@ export function AddVerseForm({ type, onClose, onSuccess }: AddVerseFormProps) {
       );
 
       // Format the texts for display
-      const formattedTexts = fetchedTexts.map(vt => vt.text).join('\n');
+      const formattedTexts = fetchedTexts
+        .map(vt => normalizeBibleText(vt.text))
+        .join('\n');
       setVerseTexts(formattedTexts);
 
       alert('Success', 'Verse texts fetched successfully!');
@@ -167,10 +172,12 @@ export function AddVerseForm({ type, onClose, onSuccess }: AddVerseFormProps) {
         return;
       }
 
-      const verseTextsArray = verseNumbers.map((verse, index) => ({
-        verse: verse,
-        text: texts[index]?.trim() || '',
-      }));
+      const verseTextsArray = normalizeVerseTexts(
+        verseNumbers.map((verse, index) => ({
+          verse,
+          text: texts[index]?.trim() || '',
+        }))
+      );
 
       if (type === 'verse') {
         const args = {

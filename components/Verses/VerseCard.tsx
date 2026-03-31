@@ -9,6 +9,7 @@ import CircleIcon from '../icons/CircleIcon';
 import CheckmarkCircleIcon from '../icons/CheckmarkCircleIcon';
 import DeleteIcon from '../icons/DeleteIcon';
 import { formatVerseDisplay } from '@/lib/utils';
+import { normalizeBibleText } from '@/lib/verseText';
 
 interface VerseCardProps {
   _id?: Id<'verses'>;
@@ -88,7 +89,7 @@ const VerseCard: React.FC<VerseCardProps> = ({
           className='w-fit !overflow-hidden !text-ellipsis text-[13px] text-[#707070] dark:text-[#909090]'
         >
           {verseTexts.length > 0
-            ? verseTexts.map((text, index) => `${text.verse}. ${text.text} `)
+            ? verseTexts.map(text => `${text.verse}. ${normalizeBibleText(text.text)} `)
             : '...'}
         </ThemedText>
       </View>
