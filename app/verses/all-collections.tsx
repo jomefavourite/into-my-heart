@@ -1,61 +1,51 @@
-import { View, Text, ScrollView, Platform } from 'react-native';
+import { View, Platform } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'expo-router';
 import RemoveCircleIcon from '@/components/icons/RemoveCircleIcon';
 import BackHeader from '@/components/BackHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { api } from '@/convex/_generated/api';
-import { usePaginatedQuery } from 'convex-helpers/react/cache';
 import { FlatList } from 'react-native-gesture-handler';
 import AddVersesEmpty from '@/components/EmptyScreen/AddVersesEmpty';
-import VerseCard from '@/components/Verses/VerseCard';
 import ItemSeparator from '@/components/ItemSeparator';
 import ThemedText from '@/components/ThemedText';
 import { useGridListView } from '@/store/tab-store';
-import { Id } from '@/convex/_generated/dataModel';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useMutation } from 'convex/react';
 import CancelIcon from '@/components/icons/CancelIcon';
 import DeleteIcon from '@/components/icons/DeleteIcon';
 import CollectionCard from '@/components/Verses/CollectionCard';
 import { useAuth } from '@clerk/clerk-expo';
-import FlashListSkeletonLoader from '@/components/FlashListSkeletonLoader';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import CustomButton from '@/components/CustomButton';
+import { useOfflineCollections, useOfflineSyncStatus } from '@/hooks/useOfflineData';
+import { useOfflineDataStore } from '@/store/offlineDataStore';
 
 const AllCollectionScreen = () => {
   const { isSignedIn, isLoaded } = useAuth();
   const router = useRouter();
   const { gridView } = useGridListView();
   const [shouldSelect, setShouldSelect] = useState(false);
-  const [selectedToDelete, setSelectedToDelete] = useState<Id<'collections'>[]>(
-    []
-  );
+  const [selectedToDelete, setSelectedToDelete] = useState<string[]>([]);
   const [bottomSheetIndex, setBottomSheetIndex] = useState(-1);
   const { isDarkMode } = useColorScheme();
 
-  const [moveBottomSheetIndex, setMoveBottomSheetIndex] = useState(-1);
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const moveBottomSheetRef = useRef<BottomSheet>(null);
-
-  const { results, status, loadMore, isLoading } = usePaginatedQuery(
-    api.collections.getAllCollections,
-    isSignedIn && isLoaded ? {} : 'skip',
-    { initialNumItems: 20 }
+  const results = useOfflineCollections();
+  const deleteCollection = useOfflineDataStore(
+    state => state.deleteCollectionLocal
   );
-
-  const deleteCollections = useMutation(api.collections.deleteCollections);
+  const { hasHydrated, currentUser } = useOfflineSyncStatus();
+  const hasOfflineAccess = Boolean(currentUser);
 
   useEffect(() => {
-    if (!isLoaded || isSignedIn) return;
+    if (!isLoaded || !hasHydrated || isSignedIn || hasOfflineAccess) return;
     const timeoutId = setTimeout(() => {
       router.replace('/(onboarding)/onboard');
     }, 1200);
     return () => clearTimeout(timeoutId);
-  }, [isLoaded, isSignedIn, router]);
+  }, [hasHydrated, hasOfflineAccess, isLoaded, isSignedIn, router]);
 
-  if (!isLoaded) {
+  if (!isLoaded || !hasHydrated) {
     return (
       <SafeAreaView className='flex-1 items-center justify-center px-[18px]'>
         <ThemedText className='text-center text-base text-[#909090]'>
@@ -65,15 +55,14 @@ const AllCollectionScreen = () => {
     );
   }
 
-  const toggleSelectedVerse = (_id: Id<'collections'>) => {
+  const toggleSelectedVerse = (_id: string) => {
     setSelectedToDelete(prev =>
       prev.includes(_id) ? prev.filter(id => id !== _id) : [...prev, _id]
     );
   };
 
   const handleDeleteCollections: () => Promise<void> = async () => {
-    await deleteCollections({ ids: selectedToDelete });
-    // toast is needed here
+    selectedToDelete.forEach(syncId => deleteCollection(syncId));
     setBottomSheetIndex(-1);
     bottomSheetRef.current?.close();
   };
@@ -115,7 +104,7 @@ const AllCollectionScreen = () => {
 
   return (
     <SafeAreaView className='flex-1'>
-      {!isSignedIn ? (
+      {!isSignedIn && !hasOfflineAccess ? (
         <View className='flex-1 items-center justify-center gap-3 px-[18px]'>
           <ThemedText className='text-center text-xl font-semibold'>
             Sign in required
@@ -173,13 +162,11 @@ const AllCollectionScreen = () => {
           />
 
           <View className='flex-1 pb-[18px]'>
-            {isLoading && results?.length === 0 ? (
-              <FlashListSkeletonLoader type='collections' gridView={gridView} />
-            ) : (
+            {results.length === 0 ? (
               <FlatList
                 key={gridView ? 'grid-myverses' : 'list-myverses'}
                 data={results}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(_item, index) => index.toString()}
                 contentContainerStyle={{ paddingHorizontal: 18 }}
                 numColumns={gridView ? 2 : 1}
                 ListEmptyComponent={() => (
@@ -189,15 +176,41 @@ const AllCollectionScreen = () => {
                 )}
                 renderItem={({ item }) => (
                   <CollectionCard
-                    _id={item._id}
+                    _id={item.syncId}
                     collectionName={item.collectionName}
                     versesLength={item.versesLength}
                     onAddPress={() => console.log(`${item} pressed`)}
                     containerClassName={gridView ? 'flex-1' : 'w-full'}
                     canCheck={false}
                     canDelete={shouldSelect}
-                    onDeletePress={() => toggleSelectedVerse(item._id)}
-                    isSelectedForDelete={selectedToDelete.includes(item._id)}
+                    onDeletePress={() => toggleSelectedVerse(item.syncId)}
+                    isSelectedForDelete={selectedToDelete.includes(item.syncId)}
+                  />
+                )}
+                columnWrapperStyle={
+                  gridView ? { gap: 8, width: '100%' } : undefined
+                }
+                ItemSeparatorComponent={ItemSeparator}
+                scrollEnabled={false}
+              />
+            ) : (
+              <FlatList
+                key={gridView ? 'grid-myverses' : 'list-myverses'}
+                data={results}
+                keyExtractor={(_item, index) => index.toString()}
+                contentContainerStyle={{ paddingHorizontal: 18 }}
+                numColumns={gridView ? 2 : 1}
+                renderItem={({ item }) => (
+                  <CollectionCard
+                    _id={item.syncId}
+                    collectionName={item.collectionName}
+                    versesLength={item.versesLength}
+                    onAddPress={() => console.log(`${item} pressed`)}
+                    containerClassName={gridView ? 'flex-1' : 'w-full'}
+                    canCheck={false}
+                    canDelete={shouldSelect}
+                    onDeletePress={() => toggleSelectedVerse(item.syncId)}
+                    isSelectedForDelete={selectedToDelete.includes(item.syncId)}
                   />
                 )}
                 columnWrapperStyle={

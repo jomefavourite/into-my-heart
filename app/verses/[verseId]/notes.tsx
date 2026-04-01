@@ -1,33 +1,24 @@
 import { View, ScrollView, Platform, KeyboardAvoidingView } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useQuery, useMutation } from 'convex/react';
+import { useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ThemedText from '@/components/ThemedText';
 import BackHeader from '@/components/BackHeader';
-import { api } from '@/convex/_generated/api';
-import { Id } from '@/convex/_generated/dataModel';
 import { Textarea } from '@/components/ui/textarea';
 import CustomButton from '@/components/CustomButton';
 import { formatVerseDisplay } from '@/lib/utils';
-import { XIcon } from 'lucide-react-native';
 import { normalizeBibleText } from '@/lib/verseText';
+import { useOfflineNoteForVerse, useOfflineVerse } from '@/hooks/useOfflineData';
+import { useOfflineDataStore } from '@/store/offlineDataStore';
 
 export default function VerseNotesPage() {
-  const router = useRouter();
   const { verseId } = useLocalSearchParams();
   const [noteContent, setNoteContent] = useState('');
   const [hasChanges, setHasChanges] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-
-  const note = useQuery(api.notes.getNoteByVerseId, {
-    verseId: verseId as Id<'verses'>,
-  });
-  const verse = useQuery(api.verses.getVerseById, {
-    id: verseId as Id<'verses'>,
-  });
-
-  const upsertNote = useMutation(api.notes.upsertNote);
+  const note = useOfflineNoteForVerse(verseId);
+  const verse = useOfflineVerse(verseId);
+  const saveNoteLocal = useOfflineDataStore(state => state.saveNoteLocal);
 
   // Load note content when it's fetched
   useEffect(() => {
@@ -48,8 +39,10 @@ export default function VerseNotesPage() {
 
   const handleSave = async () => {
     try {
-      await upsertNote({
-        verseId: verseId as Id<'verses'>,
+      saveNoteLocal({
+        syncId: note?.syncId,
+        remoteId: note?.remoteId,
+        verseSyncId: String(verseId),
         content: noteContent,
       });
       setHasChanges(false);

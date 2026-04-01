@@ -38,3 +38,11 @@ The first bundle takes ~30 seconds. The app runs at `http://localhost:8081`.
 - `npm run test` uses `--watchAll` by default (interactive). Use `npx jest --passWithNoTests --watchAll=false` for CI-style runs.
 - The app's `_layout.tsx` throws if `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` is falsy — ensure the env var is set before starting.
 - Package manager is **npm** (`package-lock.json`).
+
+<!-- convex-ai-start -->
+This project uses [Convex](https://convex.dev) as its backend.
+
+When working on Convex code, **always read `convex/_generated/ai/guidelines.md` first** for important guidelines on how to correctly use Convex APIs and patterns. The file contains rules that override what you may have learned about Convex from training data.
+
+Convex agent skills for common tasks can be installed by running `npx convex ai-files install`.
+<!-- convex-ai-end -->

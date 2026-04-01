@@ -11,39 +11,27 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import BackHeader from '@/components/BackHeader';
 import ThemedText from '@/components/ThemedText';
 import OpenBookIcon from '@/components/icons/OpenBook';
-import { usePaginatedQuery } from 'convex-helpers/react/cache';
-import { api } from '@/convex/_generated/api';
 import CustomButton from '@/components/CustomButton';
 import { useRouter } from 'expo-router';
-import { useAuth } from '@clerk/clerk-expo';
 import { usePracticeStore } from '@/store/practiceStore';
 import Loader from '@/components/Loader';
 import { formatVerseDisplay } from '@/lib/utils';
+import { useOfflineSyncStatus, useOfflineVerses } from '@/hooks/useOfflineData';
 
 export default function FlashcardPractice() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
-  const { isSignedIn, isLoaded } = useAuth();
   const { currentSession, clearPracticeSession } = usePracticeStore();
+  const offlineVerses = useOfflineVerses();
+  const { hasHydrated } = useOfflineSyncStatus();
 
   const router = useRouter();
 
   // Check if this is collections practice
   const isCollectionsPractice = currentSession?.practiceType === 'collections';
 
-  // Fetch all verses for flashcards (only if no practice session is active)
-  const shouldFetchVerses = isSignedIn && isLoaded && !currentSession;
-  const { results: allVerses, isLoading } = usePaginatedQuery(
-    api.verses.getAllVerses,
-    shouldFetchVerses ? {} : 'skip',
-    { initialNumItems: 100 }
-  );
-
-  // Determine if we're actually loading
-  const isActuallyLoading = shouldFetchVerses && isLoading;
-
   // Use practice session verses if available, otherwise use all verses
-  const verses = currentSession?.verses || allVerses;
+  const verses = currentSession?.verses || offlineVerses;
 
   // Reset flip state when moving to next verse
   useEffect(() => {
@@ -88,7 +76,7 @@ export default function FlashcardPractice() {
   //   shouldFetchVerses,
   // });
 
-  if (isActuallyLoading || (shouldFetchVerses && !verses)) {
+  if (!hasHydrated) {
     return (
       <SafeAreaView className='flex-1 items-center justify-center'>
         <Loader />

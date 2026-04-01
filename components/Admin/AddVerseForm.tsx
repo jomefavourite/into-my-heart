@@ -13,6 +13,7 @@ import { api } from '../../convex/_generated/api';
 import { BOOKS } from '../../lib/books';
 import { useAlert } from '@/hooks/useAlert';
 import { normalizeBibleText, normalizeVerseTexts } from '@/lib/verseText';
+import { getOfflineVerseTexts } from '@/lib/offlineBible';
 
 interface AddVerseFormProps {
   type: 'verse' | 'collection';
@@ -20,57 +21,11 @@ interface AddVerseFormProps {
   onSuccess: () => void;
 }
 
-// Helper function to get verse text from API response
-function getVerseText(
-  chapterData: {
-    content: { type: string; number: number; content: unknown }[];
-  },
-  verseNumber: number
-) {
-  const verse = chapterData.content.find(
-    i => i.type === 'verse' && i.number === verseNumber
-  );
-
-  return verse
-    ? { text: normalizeBibleText(verse.content), verse: verseNumber }
-    : null;
-}
-
-// Function to fetch verse texts from API
-const fetchVerseTexts = async (
+const fetchVerseTexts = (
   bookName: string,
   chapter: number,
   verseNumbers: number[]
-) => {
-  try {
-    const bookId = BOOKS.find(book => book.name === bookName)?.id;
-    if (!bookId) {
-      throw new Error(`Book "${bookName}" not found`);
-    }
-
-    const response = await fetch(
-      `https://bible.helloao.org/api/eng-kjv/${bookId}/${chapter}.json`
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch data for ${bookName} ${chapter}`);
-    }
-
-    const chapterData = await response.json();
-
-    const verseTexts = verseNumbers.map(verseNumber => {
-      const verseData = getVerseText(chapterData.chapter, verseNumber);
-      return (
-        verseData || { verse: verseNumber.toString(), text: 'Verse not found' }
-      );
-    });
-
-    return verseTexts;
-  } catch (error) {
-    console.error(`Error fetching ${bookName} ${chapter}:`, error);
-    throw error;
-  }
-};
+) => getOfflineVerseTexts(bookName, chapter, verseNumbers);
 
 export function AddVerseForm({ type, onClose, onSuccess }: AddVerseFormProps) {
   const [collectionName, setCollectionName] = useState('');
@@ -86,7 +41,7 @@ export function AddVerseForm({ type, onClose, onSuccess }: AddVerseFormProps) {
     if (verseTexts) {
       setVerseTexts('');
     }
-  }, [bookName, chapter, verses]);
+  }, [bookName, chapter, verseTexts, verses]);
 
   const addVerseSuggestion = useMutation(
     api.verseSuggestions.addVerseSuggestion

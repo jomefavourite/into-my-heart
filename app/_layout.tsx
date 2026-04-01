@@ -11,7 +11,7 @@ import {
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, useWindowDimensions, View } from 'react-native';
+import { Platform, useWindowDimensions } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { ConvexReactClient, useConvexAuth, useMutation } from 'convex/react';
@@ -21,8 +21,7 @@ import {
   useAuth,
   useUser,
 } from '@clerk/clerk-expo';
-// import { tokenCache } from '@/cache';
-import { tokenCache } from '@clerk/clerk-expo/token-cache';
+import { tokenCache } from '@/cache';
 import { ConvexProviderWithClerk } from 'convex/react-clerk';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {
@@ -32,12 +31,10 @@ import {
   Inter_700Bold,
   useFonts,
 } from '@expo-google-fonts/inter';
-import AllBottomSheet from '@/components/AllBottomSheet';
 import TabBarSidebar from '@/components/TabBarSidebar';
 import { PortalHost } from '@rn-primitives/portal';
 import { ConvexQueryCacheProvider } from 'convex-helpers/react/cache';
 import * as SystemUI from 'expo-system-ui';
-import { ConvexQueryClient } from '@convex-dev/react-query';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '@/global.css';
 import { NAV_THEME } from '@/lib/theme';
@@ -48,6 +45,8 @@ import {
 import { ToastProvider } from 'react-native-toast-notifications';
 import { AlertProvider } from '@/hooks/useAlert';
 import { api } from '@/convex/_generated/api';
+import OfflineSyncProvider from '@/components/OfflineSyncProvider';
+import { useOfflineDataStore } from '@/store/offlineDataStore';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -105,11 +104,14 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
   const { isLoaded, isSignedIn } = useAuth();
   const { user } = useUser();
   const { isAuthenticated: isConvexAuthenticated } = useConvexAuth();
+  const offlineHasHydrated = useOfflineDataStore(state => state.hasHydrated);
+  const offlineCurrentUser = useOfflineDataStore(state => state.currentUser);
   const ensureCurrentUser = useMutation(api.users.ensureCurrentUser);
   const syncedClerkId = React.useRef<string | null>(null);
   const segments = useSegments();
   const router = useRouter();
   const inOnboardingGroup = segments[0] === '(onboarding)';
+  const hasOfflineAccess = Boolean(offlineHasHydrated && offlineCurrentUser);
 
   // This prevent flash of white on navigation
   // Use useEffect to prevent infinite loops
@@ -164,17 +166,24 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
   }, [ensureCurrentUser, isConvexAuthenticated, isLoaded, isSignedIn, user]);
 
   useEffect(() => {
-    if (!isLoaded) return;
+    if (!isLoaded || !offlineHasHydrated) return;
 
-    if (!isSignedIn && !inOnboardingGroup) {
+    if (!isSignedIn && !hasOfflineAccess && !inOnboardingGroup) {
       router.replace('/(onboarding)/onboard');
       return;
     }
 
-    if (isSignedIn && inOnboardingGroup) {
+    if ((isSignedIn || hasOfflineAccess) && inOnboardingGroup) {
       router.replace('/(tabs)');
     }
-  }, [inOnboardingGroup, isLoaded, isSignedIn, router]);
+  }, [
+    hasOfflineAccess,
+    inOnboardingGroup,
+    isLoaded,
+    isSignedIn,
+    offlineHasHydrated,
+    router,
+  ]);
 
   const { width } = useWindowDimensions();
 
@@ -231,6 +240,22 @@ function RootLayout() {
     }
   }, [loaded]);
 
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') {
+      return;
+    }
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(registrationError => {
+        console.warn('Failed to register service worker', registrationError);
+      });
+    }
+
+    void navigator.storage?.persist?.().catch(storageError => {
+      console.warn('Failed to request persistent storage', storageError);
+    });
+  }, []);
+
   if (!isColorSchemeLoaded || !loaded) {
     return null;
   }
@@ -265,7 +290,9 @@ function ThemeProviderWrapper() {
         <SafeAreaProvider initialMetrics={initialWindowMetrics}>
           <AlertProvider>
             <ToastProvider>
-              <InitialLayout isDarkMode={isDarkMode} />
+              <OfflineSyncProvider>
+                <InitialLayout isDarkMode={isDarkMode} />
+              </OfflineSyncProvider>
             </ToastProvider>
           </AlertProvider>
           <PortalHost />

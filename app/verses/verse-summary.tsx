@@ -1,4 +1,4 @@
-import { ScrollView, View, Platform } from 'react-native';
+import { ScrollView, View, Platform, ActivityIndicator } from 'react-native';
 import React, { useCallback, useMemo, useRef, useEffect } from 'react';
 import ThemedText from '@/components/ThemedText';
 import BackHeader from '@/components/BackHeader';
@@ -14,13 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useMutation, useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
-import { Id } from '@/convex/_generated/dataModel';
 import { useIsCollOrVerse } from '@/store/tab-store';
-import { ActivityIndicator } from 'react-native';
-import { useQueries } from '@tanstack/react-query';
-import { BOOKS } from '@/lib/books';
 import SplitVersesBottomSheet, {
   SplitVersesBottomSheetRef,
 } from '@/components/SplitVersesBottomSheet';
@@ -31,59 +25,9 @@ import {
   normalizeVerseTextEntry,
   normalizeVerseTexts,
 } from '@/lib/verseText';
-
-type GetVerseTextsParams = {
-  bookName: string;
-  chapter: number;
-  verse: number;
-};
-
-function getVerseText(
-  chapterData: {
-    content: { type: string; number: number; content: unknown }[];
-  },
-  verseNumber: number
-) {
-  const verse = chapterData.content.find(
-    i => i.type === 'verse' && i.number === verseNumber
-  );
-
-  if (!verse) {
-    return null;
-  }
-
-  return {
-    text: normalizeBibleText(verse.content),
-    verse: verseNumber,
-  };
-}
-
-const getVerseTexts = async ({
-  bookName,
-  chapter,
-  verse,
-}: GetVerseTextsParams) => {
-  try {
-    const bookId = BOOKS.find(book => book.name === bookName)?.id;
-    const chapterData = await fetch(
-      `https://bible.helloao.org/api/eng-kjv/${bookId}/${chapter}.json`
-    );
-
-    if (!chapterData.ok) {
-      console.error(`Failed to fetch data for ${bookId} ${chapter}`);
-      // Consider throwing an error here if you want the sequence to stop on failure
-      return null; // Or handle the error gracefully
-    }
-    const chapterDataJson = await chapterData.json();
-
-    // console.log(`Fetched ${bookName} ${chapter}:${verse}:`, verseJson);
-
-    return getVerseText(chapterDataJson.chapter, verse); // Return the fetched data if you need it
-  } catch (error) {
-    console.error(`Error fetching ${bookName} ${chapter}:${verse}:`, error);
-    return null;
-  }
-};
+import { getOfflineVerseTexts } from '@/lib/offlineBible';
+import { useOfflineVerse, useOfflineVerses } from '@/hooks/useOfflineData';
+import { useOfflineDataStore } from '@/store/offlineDataStore';
 
 export default function VerseSummary() {
   const router = useRouter();
@@ -122,19 +66,13 @@ export default function VerseSummary() {
   const { showError, ErrorAlertComponent } = useErrorAlert();
   const { showDuplicateAlert, DuplicateVersesAlertComponent } =
     useDuplicateVersesAlert();
-
-  const addVerse = useMutation(api.verses.addVerse);
-  const updateVerse = useMutation(api.verses.updateVerse);
+  const saveVerseLocal = useOfflineDataStore(state => state.saveVerseLocal);
+  const allVerses = useOfflineVerses();
 
   // Check if we're in edit mode
   const isEditMode = !!verseIdURL;
-  const verseId = verseIdURL as Id<'verses'> | undefined;
-
-  // Load existing verse if editing
-  const existingVerse = useQuery(
-    api.verses.getVerseById,
-    isEditMode && verseId ? { id: verseId } : 'skip'
-  );
+  const verseId = typeof verseIdURL === 'string' ? verseIdURL : undefined;
+  const existingVerse = useOfflineVerse(verseId);
 
   // Load reviewFreq from existing verse when editing
   React.useEffect(() => {
@@ -167,40 +105,32 @@ export default function VerseSummary() {
     setVerses,
   ]);
 
-  // Validate that we have the required data
-  const hasValidData = bookName && chapter && verses && verses.length > 0;
-
   const versesList = useMemo(() => {
     return verses ? verses.map(Number) : [];
   }, [verses]);
 
-  const queries = useMemo(() => {
-    return versesList
-      ? versesList
-          .sort((a, b) => a - b)
-          .map(verse => ({
-            queryKey: ['verse', bookName, chapter, verse],
-            queryFn: () => getVerseTexts({ bookName, chapter, verse }),
-            enabled: !!bookName && !!chapter && !!verses,
-          }))
-      : [];
-  }, [versesList, bookName, chapter, verses]);
-
-  const verseTextsList = useQueries({
-    queries,
-  });
+  const sortedVersesList = useMemo(
+    () => [...versesList].sort((a, b) => a - b),
+    [versesList]
+  );
 
   const verseTexts = useMemo(() => {
-    const texts = verseTextsList.map(query => query.data).filter(Boolean);
-    return texts;
-  }, [verseTextsList, versesList.length]);
+    if (!bookName || !chapter || sortedVersesList.length === 0) {
+      return [];
+    }
 
-  const isVerseTextsListLoading = useMemo(() => {
-    return verseTextsList.some(query => query.isLoading);
-  }, [verseTextsList]);
+    try {
+      return getOfflineVerseTexts(bookName, chapter, sortedVersesList);
+    } catch (error) {
+      console.error(
+        `Error loading offline verses for ${bookName} ${chapter}:`,
+        error
+      );
+      return [];
+    }
+  }, [bookName, chapter, sortedVersesList]);
 
-  // const verseTexts = [];
-  // const isVerseTextsListLoading = false;
+  const isVerseTextsListLoading = false;
 
   const minVerse = useMemo(() => Math.min(...versesList), [versesList]);
   const maxVerse = useMemo(() => Math.max(...versesList), [versesList]);
@@ -276,19 +206,16 @@ export default function VerseSummary() {
       }
 
       try {
-        // If editing, use updateVerse instead of addVerse
         if (isEditMode && verseId) {
-          // Update existing verse
-          const payload = {
-            id: verseId,
-            bookName: bookName,
-            chapter: chapter,
+          saveVerseLocal({
+            syncId: verseId,
+            remoteId: existingVerse?.remoteId,
+            bookName,
+            chapter,
             verses: versesList.map(v => v.toString()),
             reviewFreq: reviewFreqValue,
             verseTexts: normalizeVerseTexts(verseTexts),
-          };
-          console.log('📝 Updating verse:', payload);
-          await updateVerse(payload);
+          });
 
           setIsLoading(false);
           resetAll();
@@ -296,43 +223,50 @@ export default function VerseSummary() {
           return;
         }
 
-        // Original add logic for new verses
+        if (!splitIntoIndividual && versesList.length === 1) {
+          const singleVerse = versesList[0]?.toString();
+          const duplicateVerse = allVerses.find(
+            verse =>
+              verse.syncId !== verseId &&
+              verse.bookName === bookName &&
+              verse.chapter === chapter &&
+              verse.verses.length === 1 &&
+              verse.verses[0] === singleVerse
+          );
+
+          if (duplicateVerse) {
+            setIsLoading(false);
+            showError(
+              'Duplicate Verse',
+              `${bookName} ${chapter}:${singleVerse} is already in your verses.`
+            );
+            return;
+          }
+        }
+
         if (splitIntoIndividual) {
-          // Add each verse individually
           for (const verse of versesList) {
             const verseText = verseTexts.find(vt => vt?.verse === verse);
-            console.log(`🔍 Found verse text:`, verseText);
-            if (verseText) {
-              const payload = {
-                bookName: bookName,
-                chapter: chapter,
-                verses: [verse.toString()],
-                reviewFreq: reviewFreqValue,
-                verseTexts: [normalizeVerseTextEntry(verseText)],
-                isGroup: false, // Single verse - check for duplicates
-              };
-              console.log('📝 Adding individual verse:', payload);
-              await addVerse(payload);
-            } else {
-              console.error(`❌ No verse text found for verse ${verse}`);
+            if (!verseText) {
+              continue;
             }
+
+            saveVerseLocal({
+              bookName,
+              chapter,
+              verses: [verse.toString()],
+              reviewFreq: reviewFreqValue,
+              verseTexts: [normalizeVerseTextEntry(verseText)],
+            });
           }
         } else {
-          // Add as a group - isGroup determined by number of verses
-          const isGroup = versesList.length > 1;
-          // console.log('🔍 Group addition - verseTexts:', verseTexts);
-          // console.log('🔍 Group addition - versesList:', versesList);
-
-          const payload = {
-            bookName: bookName,
-            chapter: chapter,
+          saveVerseLocal({
+            bookName,
+            chapter,
             verses: versesList.map(v => v.toString()),
             reviewFreq: reviewFreqValue,
             verseTexts: normalizeVerseTexts(verseTexts),
-            isGroup: isGroup, // Multiple verses = group (allow duplicates), single verse = individual (check duplicates)
-          };
-          // console.log('📝 Adding verse group:', payload);
-          await addVerse(payload);
+          });
         }
 
         setIsLoading(false);
@@ -358,14 +292,20 @@ export default function VerseSummary() {
             errorMessage = error.message;
           }
 
-          // Determine error type and title
           if (errorMessage.includes('already exist')) {
             errorTitle = 'Duplicate Verses';
-          } else {
-            errorTitle = 'Error';
-            if (!errorMessage.includes('Failed to add verses')) {
-              errorMessage = 'Failed to add verses. Please try again.';
-            }
+          } else if (
+            errorMessage.includes('Authentication required') ||
+            errorMessage.includes('account is still syncing')
+          ) {
+            errorTitle = 'Account Issue';
+          } else if (errorMessage.includes('Mismatch:')) {
+            errorTitle = 'Verse Data Error';
+          } else if (
+            errorMessage.includes('Server Error') ||
+            errorMessage.includes('Called by client')
+          ) {
+            errorMessage = 'Failed to add verses. Please try again.';
           }
         }
 
@@ -373,10 +313,11 @@ export default function VerseSummary() {
       }
     },
     [
-      addVerse,
-      updateVerse,
+      allVerses,
       bookName,
       chapter,
+      existingVerse?.remoteId,
+      saveVerseLocal,
       versesList,
       reviewFreqValue,
       router,
@@ -387,6 +328,8 @@ export default function VerseSummary() {
       verseTexts,
       isEditMode,
       verseId,
+      showDuplicateAlert,
+      showError,
     ]
   );
 
@@ -440,6 +383,7 @@ export default function VerseSummary() {
     isCollOrVerse,
     isEditMode,
     processAddVerse,
+    showError,
   ]);
 
   const handleSplitIntoIndividual = useCallback(() => {

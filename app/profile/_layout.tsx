@@ -1,5 +1,5 @@
 import React from 'react';
-import { Redirect, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
 import { useAuth } from '@clerk/clerk-expo';
 
 const ProfileLayout = () => {
@@ -10,7 +10,7 @@ const ProfileLayout = () => {
   }
 
   if (!isSignedIn) {
-    return <Redirect href='/(onboarding)/onboard' />;
+    return null;
   }
 
   return (

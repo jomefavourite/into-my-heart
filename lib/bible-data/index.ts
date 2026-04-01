@@ -1,0 +1,93 @@
+export type OfflineBibleBookData = {
+  id: string;
+  name: string;
+  chapters: Record<string, Record<string, string>>;
+};
+
+const loaders = {
+  "GEN": () => require('./GEN.json'),
+  "EXO": () => require('./EXO.json'),
+  "LEV": () => require('./LEV.json'),
+  "NUM": () => require('./NUM.json'),
+  "DEU": () => require('./DEU.json'),
+  "JOS": () => require('./JOS.json'),
+  "JDG": () => require('./JDG.json'),
+  "RUT": () => require('./RUT.json'),
+  "1SA": () => require('./1SA.json'),
+  "2SA": () => require('./2SA.json'),
+  "1KI": () => require('./1KI.json'),
+  "2KI": () => require('./2KI.json'),
+  "1CH": () => require('./1CH.json'),
+  "2CH": () => require('./2CH.json'),
+  "EZR": () => require('./EZR.json'),
+  "NEH": () => require('./NEH.json'),
+  "EST": () => require('./EST.json'),
+  "JOB": () => require('./JOB.json'),
+  "PSA": () => require('./PSA.json'),
+  "PRO": () => require('./PRO.json'),
+  "ECC": () => require('./ECC.json'),
+  "SNG": () => require('./SNG.json'),
+  "ISA": () => require('./ISA.json'),
+  "JER": () => require('./JER.json'),
+  "LAM": () => require('./LAM.json'),
+  "EZK": () => require('./EZK.json'),
+  "DAN": () => require('./DAN.json'),
+  "HOS": () => require('./HOS.json'),
+  "JOL": () => require('./JOL.json'),
+  "AMO": () => require('./AMO.json'),
+  "OBA": () => require('./OBA.json'),
+  "JON": () => require('./JON.json'),
+  "MIC": () => require('./MIC.json'),
+  "NAM": () => require('./NAM.json'),
+  "HAB": () => require('./HAB.json'),
+  "ZEP": () => require('./ZEP.json'),
+  "HAG": () => require('./HAG.json'),
+  "ZEC": () => require('./ZEC.json'),
+  "MAL": () => require('./MAL.json'),
+  "MAT": () => require('./MAT.json'),
+  "MRK": () => require('./MRK.json'),
+  "LUK": () => require('./LUK.json'),
+  "JHN": () => require('./JHN.json'),
+  "ACT": () => require('./ACT.json'),
+  "ROM": () => require('./ROM.json'),
+  "1CO": () => require('./1CO.json'),
+  "2CO": () => require('./2CO.json'),
+  "GAL": () => require('./GAL.json'),
+  "EPH": () => require('./EPH.json'),
+  "PHP": () => require('./PHP.json'),
+  "COL": () => require('./COL.json'),
+  "1TH": () => require('./1TH.json'),
+  "2TH": () => require('./2TH.json'),
+  "1TI": () => require('./1TI.json'),
+  "2TI": () => require('./2TI.json'),
+  "TIT": () => require('./TIT.json'),
+  "PHM": () => require('./PHM.json'),
+  "HEB": () => require('./HEB.json'),
+  "JAS": () => require('./JAS.json'),
+  "1PE": () => require('./1PE.json'),
+  "2PE": () => require('./2PE.json'),
+  "1JN": () => require('./1JN.json'),
+  "2JN": () => require('./2JN.json'),
+  "3JN": () => require('./3JN.json'),
+  "JUD": () => require('./JUD.json'),
+  "REV": () => require('./REV.json'),
+} as const;
+
+const cache = new Map<string, OfflineBibleBookData>();
+
+export const loadOfflineBibleBook = (bookId: string): OfflineBibleBookData => {
+  const cached = cache.get(bookId);
+  if (cached) {
+    return cached;
+  }
+
+  const loader = loaders[bookId as keyof typeof loaders];
+  if (!loader) {
+    throw new Error(`Offline Bible data not found for ${bookId}`);
+  }
+
+  const module = loader();
+  const book = (module?.default ?? module) as OfflineBibleBookData;
+  cache.set(bookId, book);
+  return book;
+};

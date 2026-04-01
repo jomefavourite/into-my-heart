@@ -40,6 +40,12 @@ export default function Root({ children }: PropsWithChildren) {
         {/* Theme Color */}
         <meta name='theme-color' content='#313131' />
         <meta name='msapplication-TileColor' content='#313131' />
+        <meta name='mobile-web-app-capable' content='yes' />
+        <meta name='apple-mobile-web-app-capable' content='yes' />
+        <meta name='apple-mobile-web-app-status-bar-style' content='default' />
+        <meta name='apple-mobile-web-app-title' content='Into My Heart' />
+        <link rel='manifest' href='/manifest.webmanifest' />
+        <link rel='apple-touch-icon' href='/icon.png' />
 
         {/*
           Disable body scrolling on web. This makes ScrollView components work closer to how they do on native.

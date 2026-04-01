@@ -1,6 +1,11 @@
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
-import { TokenCache } from '@clerk/clerk-expo/dist/cache';
+import { PlatformStorage } from '@/utils/PlatformStorage';
+
+type TokenCache = {
+  getToken: (key: string) => Promise<string | null>;
+  saveToken: (key: string, token: string) => Promise<void>;
+};
 
 const createTokenCache = (): TokenCache => {
   return {
@@ -25,6 +30,25 @@ const createTokenCache = (): TokenCache => {
   };
 };
 
-// SecureStore is not supported on the web
+const createWebTokenCache = (): TokenCache => {
+  return {
+    getToken: async (key: string) => {
+      try {
+        return await PlatformStorage.getItem(key);
+      } catch (error) {
+        console.error('web token cache get item error: ', error);
+        return null;
+      }
+    },
+    saveToken: async (key: string, token: string) => {
+      try {
+        await PlatformStorage.setItem(key, token);
+      } catch (error) {
+        console.error('web token cache save error: ', error);
+      }
+    },
+  };
+};
+
 export const tokenCache =
-  Platform.OS !== 'web' ? createTokenCache() : undefined;
+  Platform.OS === 'web' ? createWebTokenCache() : createTokenCache();

@@ -7,11 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import ThemedText from '@/components/ThemedText';
 import CustomButton from '@/components/CustomButton';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useMutation, useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
-import { Id } from '@/convex/_generated/dataModel';
 import { useToast } from 'react-native-toast-notifications';
 import { useAlert } from '@/hooks/useAlert';
+import { useOfflineAffirmation } from '@/hooks/useOfflineData';
+import { useOfflineDataStore } from '@/store/offlineDataStore';
 
 const CreateAffirmation = () => {
   const router = useRouter();
@@ -23,18 +22,13 @@ const CreateAffirmation = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const isEditMode = !!affirmationId;
-
-  // Fetch affirmation if editing
-  const existingAffirmation = useQuery(
-    api.affirmations.getAffirmationById,
-    isEditMode && affirmationId
-      ? { id: affirmationId as Id<'affirmations'> }
-      : 'skip'
+  const existingAffirmation = useOfflineAffirmation(affirmationId);
+  const saveAffirmationLocal = useOfflineDataStore(
+    state => state.saveAffirmationLocal
   );
-
-  const addAffirmation = useMutation(api.affirmations.addAffirmation);
-  const updateAffirmation = useMutation(api.affirmations.updateAffirmation);
-  const deleteAffirmation = useMutation(api.affirmations.deleteAffirmation);
+  const deleteAffirmation = useOfflineDataStore(
+    state => state.deleteAffirmationLocal
+  );
   const { alert } = useAlert();
 
   // Load existing affirmation data when editing
@@ -54,14 +48,15 @@ const CreateAffirmation = () => {
     setIsLoading(true);
 
     try {
-      if (isEditMode && affirmationId) {
-        await updateAffirmation({
-          id: affirmationId as Id<'affirmations'>,
+      if (isEditMode && typeof affirmationId === 'string') {
+        saveAffirmationLocal({
+          syncId: affirmationId,
+          remoteId: existingAffirmation?.remoteId,
           content: content.trim(),
         });
         toast.show('Affirmation updated successfully', { type: 'success' });
       } else {
-        await addAffirmation({
+        saveAffirmationLocal({
           content: content.trim(),
         });
         toast.show('Affirmation saved successfully', { type: 'success' });
@@ -92,9 +87,7 @@ const CreateAffirmation = () => {
           onPress: async () => {
             try {
               setIsLoading(true);
-              await deleteAffirmation({
-                id: affirmationId as Id<'affirmations'>,
-              });
+              deleteAffirmation(String(affirmationId));
               toast.show('Affirmation deleted successfully', {
                 type: 'success',
               });

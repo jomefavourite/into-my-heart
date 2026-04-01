@@ -132,13 +132,13 @@ const HeroSection = (): JSX.Element => {
               <Image
                 className='mx-auto hidden h-auto w-full object-contain md:block'
                 alt='iPhone showing app interface'
-                source={require('/assets/images/hero-phone.png')}
+                source={require('../../assets/images/hero-phone.png')}
                 resizeMode='contain'
               />
               <Image
                 className='mx-auto block h-auto w-full object-contain md:hidden'
                 alt='iPhone showing app interface'
-                source={require('/assets/images/hero-phone-mobile.png')}
+                source={require('../../assets/images/hero-phone-mobile.png')}
                 resizeMode='contain'
               />
               <div className='[background:linear-gradient(0deg, #F0F0F0 37.23%, rgba(255, 255, 255, 0.00) 109.02%)] absolute bottom-0 left-0 h-[61px] w-full backdrop-blur-[5px]' />

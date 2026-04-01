@@ -1,14 +1,10 @@
 import { Platform, View } from 'react-native';
 import React, { useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useQuery } from 'convex-helpers/react/cache';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ThemedText from '@/components/ThemedText';
 import BackHeader from '@/components/BackHeader';
 import { Button } from '@/components/ui/button';
-import RemoveCircleIcon from '@/components/icons/RemoveCircleIcon';
-import { Id } from '@/convex/_generated/dataModel';
-import { api } from '@/convex/_generated/api';
 import { FlatList } from 'react-native';
 import AddVersesEmpty from '@/components/EmptyScreen/AddVersesEmpty';
 import VerseCard from '@/components/Verses/VerseCard';
@@ -19,8 +15,6 @@ import CancelIcon from '@/components/icons/CancelIcon';
 import DeleteIcon from '@/components/icons/DeleteIcon';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useMutation } from 'convex/react';
-import { useAuth } from '@clerk/clerk-expo';
 import FlashListSkeletonLoader from '@/components/FlashListSkeletonLoader';
 import {
   DropdownMenu,
@@ -30,9 +24,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import MoreVerticalIcon from '@/components/icons/MoreVerticalIcon';
 import { useBookStore } from '@/store/bookStore';
+import { useOfflineCollection } from '@/hooks/useOfflineData';
+import { useOfflineDataStore } from '@/store/offlineDataStore';
 
 export default function CollectionPage() {
-  const { isSignedIn, isLoaded } = useAuth();
   const { collectionId } = useLocalSearchParams();
   const { gridView } = useGridListView();
   const [shouldDelete, setShouldDelete] = useState(false);
@@ -43,23 +38,13 @@ export default function CollectionPage() {
   const router = useRouter();
   const {
     setCollectionName,
-    setCollectionVerses,
     setCollectionVersesArray,
     setVerses,
     setIsCollectionUpdate,
   } = useBookStore();
-
-  const collection = useQuery(
-    api.collections.getCollectionById,
-    isSignedIn && isLoaded && collectionId
-      ? {
-          id: collectionId as Id<'collections'>,
-        }
-      : 'skip'
-  );
-
-  const updateCollectionVerses = useMutation(
-    api.collections.updateCollectionVerses
+  const collection = useOfflineCollection(collectionId);
+  const saveCollectionLocal = useOfflineDataStore(
+    state => state.saveCollectionLocal
   );
 
   const toggleSelectedVerse = (index: number) => {
@@ -69,14 +54,19 @@ export default function CollectionPage() {
   };
 
   const handleDeleteCollections: () => Promise<void> = async () => {
-    await updateCollectionVerses({
-      id: collectionId as Id<'collections'>,
+    if (!collection) {
+      return;
+    }
+
+    saveCollectionLocal({
+      syncId: collection.syncId,
+      remoteId: collection.remoteId,
+      collectionName: collection.collectionName,
       collectionVerses:
-        collection?.collectionVerses?.filter(
+        collection.collectionVerses.filter(
           (_, index) => !selectedToDelete.includes(index)
         ) ?? [],
     });
-    // toast is needed here
 
     setSelectedToDelete([]);
     setBottomSheetIndex(-1);
@@ -102,7 +92,7 @@ export default function CollectionPage() {
     setCollectionVersesArray(versesArray);
 
     setIsCollectionUpdate(true);
-    router.push(`/verses/create-collection?id=${collectionId}`);
+    router.push(`/verses/create-collection?collectionId=${collectionId}`);
   };
 
   const RightComponent = shouldDelete ? (
@@ -202,7 +192,7 @@ export default function CollectionPage() {
           <FlatList
             key={gridView ? 'grid-myverses' : 'list-myverses'}
             data={collection?.collectionVerses}
-            keyExtractor={(item, index) => index.toString()}
+            keyExtractor={(_item, index) => index.toString()}
             numColumns={gridView ? 2 : 1}
             ListEmptyComponent={() => (
               <>

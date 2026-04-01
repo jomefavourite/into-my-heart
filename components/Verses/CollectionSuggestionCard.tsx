@@ -2,14 +2,13 @@ import React, { memo, useState } from 'react';
 import { View, TouchableOpacity, Pressable } from 'react-native';
 import AddCircleIcon from '@/components/icons/AddCircleIcon';
 import ThemedText from '../ThemedText';
-import { Id } from '@/convex/_generated/dataModel';
 import VerseCard from './VerseCard';
 import ItemSeparator from '../ItemSeparator';
 import ChevronDownIcon from '../icons/ChevronDownIcon';
 import ChevronUpIcon from '../icons/ChevronUpIcon';
 
 interface CollectionSuggestionCardProps {
-  _id: Id<'collectionSuggestions'>;
+  _id: string;
   collectionName: string;
   versesLength?: number;
   collectionVerses?: Array<{
@@ -28,7 +27,6 @@ interface CollectionSuggestionCardProps {
 }
 
 const CollectionSuggestionCard: React.FC<CollectionSuggestionCardProps> = ({
-  _id,
   collectionName = 'Genesis',
   versesLength = 0,
   collectionVerses = [],
