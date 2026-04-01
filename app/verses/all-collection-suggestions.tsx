@@ -1,54 +1,31 @@
-import { View, Text, ScrollView, Platform, FlatList } from 'react-native';
-import React, { useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import RemoveCircleIcon from '@/components/icons/RemoveCircleIcon';
+import { View, Platform, FlatList } from 'react-native';
+import React from 'react';
 import BackHeader from '@/components/BackHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { api } from '@/convex/_generated/api';
-import { usePaginatedQuery } from 'convex-helpers/react/cache';
 import AddVersesEmpty from '@/components/EmptyScreen/AddVersesEmpty';
-import VerseCard from '@/components/Verses/VerseCard';
 import ItemSeparator from '@/components/ItemSeparator';
-import ThemedText from '@/components/ThemedText';
-import DeleteIcon from '@/components/icons/DeleteIcon';
-import { Id } from '@/convex/_generated/dataModel';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import CustomButton from '@/components/CustomButton';
-import { useMutation, useQuery } from 'convex/react';
-import CancelIcon from '@/components/icons/CancelIcon';
 import { useGridListView } from '@/store/tab-store';
-import { useAuth } from '@clerk/clerk-expo';
 import FlashListSkeletonLoader from '@/components/FlashListSkeletonLoader';
 import CollectionSuggestionCard from '@/components/Verses/CollectionSuggestionCard';
+import {
+  useOfflineCollectionSuggestions,
+  useOfflineSyncStatus,
+} from '@/hooks/useOfflineData';
+import { useOfflineDataStore } from '@/store/offlineDataStore';
 
 const AllCollectionSuggestions = () => {
-  const { isSignedIn, isLoaded } = useAuth();
   const { gridView } = useGridListView();
-
-  const { isDarkMode } = useColorScheme();
-
-  const addCollectionSuggestionToCollection = useMutation(
-    api.collectionSuggestions.addCollectionSuggestionToUser
+  const addCollectionSuggestionToCollection = useOfflineDataStore(
+    state => state.adoptCollectionSuggestionLocal
   );
-
-  const results =
-    useQuery(
-      api.collectionSuggestions.getAllCollectionSuggestions,
-      isSignedIn && isLoaded ? {} : 'skip'
-    ) ?? [];
-
-  const isLoading = !results;
+  const results = useOfflineCollectionSuggestions();
+  const { hasHydrated } = useOfflineSyncStatus();
 
   const handleAddCollectionSuggestion = async (collectionData: any) => {
     try {
-      await addCollectionSuggestionToCollection({
-        suggestionId: collectionData._id,
-      });
-      // The UI will automatically update due to Convex reactivity
+      addCollectionSuggestionToCollection(collectionData.syncId);
     } catch (error) {
       console.error('Error adding collection suggestion:', error);
-      // You might want to show an alert here
     }
   };
 
@@ -88,13 +65,13 @@ const AllCollectionSuggestions = () => {
       />
 
       <View className='flex-1 pb-[18px]'>
-        {isLoading ? (
+        {!hasHydrated ? (
           <FlashListSkeletonLoader type='collections' gridView={gridView} />
         ) : (
           <FlatList
             key={gridView ? 'grid-myverses' : 'list-myverses'}
             data={results}
-            keyExtractor={(item, index) => index.toString()}
+            keyExtractor={(_item, index) => index.toString()}
             contentContainerStyle={{ paddingHorizontal: 18 }}
             numColumns={gridView ? 2 : 1}
             ListEmptyComponent={() => (
@@ -104,7 +81,7 @@ const AllCollectionSuggestions = () => {
             )}
             renderItem={({ item }) => (
               <CollectionSuggestionCard
-                _id={item._id}
+                _id={item.syncId}
                 collectionName={item.collectionName}
                 versesLength={item.versesLength}
                 collectionVerses={item.collectionVerses}

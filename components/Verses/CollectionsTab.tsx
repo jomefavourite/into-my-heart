@@ -1,13 +1,7 @@
-import { FlatList, StyleSheet, View, ScrollView } from 'react-native';
+import { FlatList, View } from 'react-native';
 import React, { memo } from 'react';
-import VerseCard from '@/components/Verses/VerseCard';
-import { verses } from '@/lib/utils';
 import ThemedText from '../ThemedText';
 import ItemSeparator from '../ItemSeparator';
-// import { useQuery } from 'convex/react';
-import { useQuery } from 'convex-helpers/react/cache';
-import { useMutation } from 'convex/react';
-import { api } from '@/convex/_generated/api';
 import CollectionCard from './CollectionCard';
 import CollectionSuggestionCard from './CollectionSuggestionCard';
 import AddVersesEmpty from '../EmptyScreen/AddVersesEmpty';
@@ -16,42 +10,33 @@ import { Button } from '../ui/button';
 import { useRouter } from 'expo-router';
 import ArrowRightIcon from '../icons/ArrowRightIcon';
 import FlashListSkeletonLoader from '../FlashListSkeletonLoader';
-import { useAuthGuard } from '@/hooks/useAuthGuard';
+import {
+  useOfflineCollectionSuggestions,
+  useOfflineCollections,
+  useOfflineSyncStatus,
+} from '@/hooks/useOfflineData';
+import { useOfflineDataStore } from '@/store/offlineDataStore';
 
 type CollectionsTabProps = {
   gridView: boolean;
 };
 
 const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
-  const { canMakeQueries, isLoading } = useAuthGuard();
-  const getCollections = useQuery(
-    api.collections.getCollections,
-    canMakeQueries ? { take: 5 } : 'skip'
+  const getCollections = useOfflineCollections(5);
+  const collectionSuggestions = useOfflineCollectionSuggestions(5);
+  const addCollectionSuggestionToUser = useOfflineDataStore(
+    state => state.adoptCollectionSuggestionLocal
   );
-  const collectionSuggestions = useQuery(
-    api.collectionSuggestions.getCollectionsSuggestion,
-    canMakeQueries ? { take: 5 } : 'skip'
-  );
-
-  const addCollectionSuggestionToUser = useMutation(
-    api.collectionSuggestions.addCollectionSuggestionToUser
-  );
-
+  const { hasHydrated } = useOfflineSyncStatus();
   const router = useRouter();
 
   const handleAddCollectionSuggestion = async (collectionData: any) => {
     try {
-      await addCollectionSuggestionToUser({
-        suggestionId: collectionData._id,
-      });
-      // The UI will automatically update due to Convex reactivity
+      addCollectionSuggestionToUser(collectionData.syncId);
     } catch (error) {
       console.error('Error adding collection suggestion:', error);
-      // You might want to show an alert here
     }
   };
-
-  // console.log(getVerses, 'getVerses');
 
   return (
     <View style={{ flex: 1 }}>
@@ -72,13 +57,13 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
           </Button>
         </View>
 
-        {isLoading ? (
+        {!hasHydrated ? (
           <FlashListSkeletonLoader type='collections' gridView={gridView} />
         ) : (
           <FlatList
             key={gridView ? 'grid-myverses' : 'list-myverses'}
             data={getCollections}
-            keyExtractor={(item, index) => index.toString()}
+            keyExtractor={(_item, index) => index.toString()}
             numColumns={gridView ? 2 : 1}
             ListEmptyComponent={() => (
               <>
@@ -87,7 +72,7 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
             )}
             renderItem={({ item }) => (
               <CollectionCard
-                _id={item._id}
+                _id={item.syncId}
                 collectionName={item.collectionName}
                 versesLength={item.versesLength}
                 onAddPress={() => console.log(`${item} pressed`)}
@@ -121,13 +106,13 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
           </Button>
         </View>
 
-        {isLoading ? (
+        {!hasHydrated ? (
           <FlashListSkeletonLoader type='collections' gridView={gridView} />
         ) : (
           <FlatList
             key={gridView ? 'grid-suggestions' : 'list-suggestions'}
             data={collectionSuggestions}
-            keyExtractor={(item, index) => index.toString()}
+            keyExtractor={(_item, index) => index.toString()}
             numColumns={gridView ? 2 : 1}
             ListEmptyComponent={() => (
               <>
@@ -138,7 +123,7 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
             )}
             renderItem={({ item }) => (
               <CollectionSuggestionCard
-                _id={item._id}
+                _id={item.syncId}
                 collectionName={item.collectionName}
                 versesLength={item.versesLength}
                 collectionVerses={item.collectionVerses}
@@ -148,7 +133,6 @@ const CollectionsTab = ({ gridView }: CollectionsTabProps) => {
               />
             )}
             columnWrapperStyle={
-              // Apply gap between columns if gridView is true
               gridView ? { gap: 8, width: '100%' } : undefined
             }
             ItemSeparatorComponent={ItemSeparator}

@@ -3,12 +3,11 @@ import { View, TouchableOpacity, Pressable } from 'react-native';
 import AddCircleIcon from '@/components/icons/AddCircleIcon';
 import ThemedText from '../ThemedText';
 import { useRouter } from 'expo-router';
-import { Id } from '@/convex/_generated/dataModel';
 import CheckmarkCircleIcon from '../icons/CheckmarkCircleIcon';
 import CircleIcon from '../icons/CircleIcon';
 
 interface CollectionCardProps {
-  _id: Id<'collections'> | Id<'collectionSuggestions'>;
+  _id: string;
   collectionName: string;
   versesLength?: number;
   containerClassName?: string;

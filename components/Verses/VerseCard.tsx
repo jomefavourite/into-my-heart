@@ -4,7 +4,6 @@ import AddCircleIcon from '@/components/icons/AddCircleIcon';
 import ThemedText from '../ThemedText';
 import { Skeleton } from '../ui/skeleton';
 import { Link, useRouter } from 'expo-router';
-import { Id } from '@/convex/_generated/dataModel';
 import CircleIcon from '../icons/CircleIcon';
 import CheckmarkCircleIcon from '../icons/CheckmarkCircleIcon';
 import DeleteIcon from '../icons/DeleteIcon';
@@ -12,7 +11,7 @@ import { formatVerseDisplay } from '@/lib/utils';
 import { normalizeBibleText } from '@/lib/verseText';
 
 interface VerseCardProps {
-  _id?: Id<'verses'>;
+  _id?: string;
   bookName: string;
   chapter: number;
   verses?: string[];

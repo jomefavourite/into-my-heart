@@ -19,6 +19,7 @@ import Svg, { Path } from 'react-native-svg';
 import { useConvexAuth, useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import PageHeader from '@/components/PageHeader';
+import { useOfflineDataStore } from '@/store/offlineDataStore';
 
 interface ProfileLinkItem {
   title: string;
@@ -121,6 +122,7 @@ export default function ProfileScreen() {
   const { isDarkMode, setColorScheme } = useColorScheme();
   const { signOut } = useClerk();
   const { user } = useUser();
+  const clearOfflineData = useOfflineDataStore(state => state.clearOfflineData);
 
   // const data = useQuery(api.users.getUsers);
   // console.log(data);
@@ -132,8 +134,7 @@ export default function ProfileScreen() {
   const handleSignOut = async () => {
     try {
       await signOut();
-      // Redirect to your desired page
-      router.replace('/');
+      clearOfflineData();
     } catch (err) {
       console.error(JSON.stringify(err, null, 2));
     }

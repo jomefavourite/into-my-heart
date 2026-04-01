@@ -4,43 +4,37 @@ import { Button } from '@/components/ui/button';
 import RemoveCircleIcon from '@/components/icons/RemoveCircleIcon';
 import BackHeader from '@/components/BackHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { api } from '@/convex/_generated/api';
-import { usePaginatedQuery } from 'convex-helpers/react/cache';
 import AffirmationCard from '@/components/Affirmations/AffirmationCard';
 import ItemSeparator from '@/components/ItemSeparator';
 import ThemedText from '@/components/ThemedText';
 import DeleteIcon from '@/components/icons/DeleteIcon';
-import { Id } from '@/convex/_generated/dataModel';
 import CustomButton from '@/components/CustomButton';
-import { useMutation } from 'convex/react';
 import CancelIcon from '@/components/icons/CancelIcon';
 import { useGridListView } from '@/store/tab-store';
-import { useAuth } from '@clerk/clerk-expo';
 import FlashListSkeletonLoader from '@/components/FlashListSkeletonLoader';
 import { useRouter } from 'expo-router';
 import { useToast } from 'react-native-toast-notifications';
 import { useAlert } from '@/hooks/useAlert';
+import {
+  useOfflineAffirmations,
+  useOfflineSyncStatus,
+} from '@/hooks/useOfflineData';
+import { useOfflineDataStore } from '@/store/offlineDataStore';
 
 const AllAffirmationsScreen = () => {
-  const { isSignedIn, isLoaded } = useAuth();
   const { gridView } = useGridListView();
   const [shouldSelect, setShouldSelect] = useState(false);
-  const [selectedAffirmations, setSelectedAffirmations] = useState<
-    Id<'affirmations'>[]
-  >([]);
+  const [selectedAffirmations, setSelectedAffirmations] = useState<string[]>([]);
   const router = useRouter();
   const toast = useToast();
   const { alert } = useAlert();
-
-  const { results, status, loadMore, isLoading } = usePaginatedQuery(
-    api.affirmations.getAllAffirmations,
-    isSignedIn && isLoaded ? {} : 'skip',
-    { initialNumItems: 20 }
+  const results = useOfflineAffirmations();
+  const deleteAffirmation = useOfflineDataStore(
+    state => state.deleteAffirmationLocal
   );
+  const { hasHydrated } = useOfflineSyncStatus();
 
-  const deleteAffirmation = useMutation(api.affirmations.deleteAffirmation);
-
-  const toggleSelectedAffirmation = (_id: Id<'affirmations'>) => {
+  const toggleSelectedAffirmation = (_id: string) => {
     setSelectedAffirmations(prev =>
       prev.includes(_id) ? prev.filter(id => id !== _id) : [...prev, _id]
     );
@@ -48,9 +42,7 @@ const AllAffirmationsScreen = () => {
 
   const handleDeleteAffirmations: () => Promise<void> = async () => {
     try {
-      await Promise.all(
-        selectedAffirmations.map(id => deleteAffirmation({ id }))
-      );
+      selectedAffirmations.forEach(syncId => deleteAffirmation(syncId));
       toast.show('Affirmations deleted successfully', { type: 'success' });
       setSelectedAffirmations([]);
       setShouldSelect(false);
@@ -162,7 +154,7 @@ const AllAffirmationsScreen = () => {
       />
 
       <View className='flex-1 pb-[18px]'>
-        {isLoading && results === undefined ? (
+        {!hasHydrated ? (
           <FlashListSkeletonLoader type='verses' gridView={gridView} />
         ) : results && results.length > 0 ? (
           <FlatList
@@ -172,31 +164,16 @@ const AllAffirmationsScreen = () => {
             contentContainerStyle={{ paddingHorizontal: 18 }}
             renderItem={({ item }) => (
               <AffirmationCard
-                _id={item._id}
+                _id={item.syncId}
                 content={item.content}
                 containerClassName={gridView ? 'flex-1' : 'w-full'}
                 canDelete={shouldSelect}
-                onDeletePress={() => toggleSelectedAffirmation(item._id)}
+                onDeletePress={() => toggleSelectedAffirmation(item.syncId)}
                 noRoute={shouldSelect}
-                isSelectedForDelete={selectedAffirmations.includes(item._id)}
+                isSelectedForDelete={selectedAffirmations.includes(item.syncId)}
               />
             )}
             ItemSeparatorComponent={ItemSeparator}
-            onEndReached={() => {
-              if (status === 'CanLoadMore') {
-                loadMore(10);
-              }
-            }}
-            onEndReachedThreshold={0.5}
-            ListFooterComponent={
-              status === 'LoadingMore' ? (
-                <View className='py-4'>
-                  <ThemedText className='text-center text-muted-foreground'>
-                    Loading more...
-                  </ThemedText>
-                </View>
-              ) : null
-            }
             columnWrapperStyle={
               gridView ? { gap: 8, width: '100%' } : undefined
             }

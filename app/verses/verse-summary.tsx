@@ -14,9 +14,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useMutation, useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
-import { Id } from '@/convex/_generated/dataModel';
 import { useIsCollOrVerse } from '@/store/tab-store';
 import SplitVersesBottomSheet, {
   SplitVersesBottomSheetRef,
@@ -29,6 +26,8 @@ import {
   normalizeVerseTexts,
 } from '@/lib/verseText';
 import { getOfflineVerseTexts } from '@/lib/offlineBible';
+import { useOfflineVerse, useOfflineVerses } from '@/hooks/useOfflineData';
+import { useOfflineDataStore } from '@/store/offlineDataStore';
 
 export default function VerseSummary() {
   const router = useRouter();
@@ -67,20 +66,13 @@ export default function VerseSummary() {
   const { showError, ErrorAlertComponent } = useErrorAlert();
   const { showDuplicateAlert, DuplicateVersesAlertComponent } =
     useDuplicateVersesAlert();
-
-  const addVerse = useMutation(api.verses.addVerse);
-  const updateVerse = useMutation(api.verses.updateVerse);
-  const currentUser = useQuery(api.users.current, {});
+  const saveVerseLocal = useOfflineDataStore(state => state.saveVerseLocal);
+  const allVerses = useOfflineVerses();
 
   // Check if we're in edit mode
   const isEditMode = !!verseIdURL;
-  const verseId = verseIdURL as Id<'verses'> | undefined;
-
-  // Load existing verse if editing
-  const existingVerse = useQuery(
-    api.verses.getVerseById,
-    isEditMode && verseId ? { id: verseId } : 'skip'
-  );
+  const verseId = typeof verseIdURL === 'string' ? verseIdURL : undefined;
+  const existingVerse = useOfflineVerse(verseId);
 
   // Load reviewFreq from existing verse when editing
   React.useEffect(() => {
@@ -214,19 +206,16 @@ export default function VerseSummary() {
       }
 
       try {
-        // If editing, use updateVerse instead of addVerse
         if (isEditMode && verseId) {
-          // Update existing verse
-          const payload = {
-            id: verseId,
-            bookName: bookName,
-            chapter: chapter,
+          saveVerseLocal({
+            syncId: verseId,
+            remoteId: existingVerse?.remoteId,
+            bookName,
+            chapter,
             verses: versesList.map(v => v.toString()),
             reviewFreq: reviewFreqValue,
             verseTexts: normalizeVerseTexts(verseTexts),
-          };
-          console.log('📝 Updating verse:', payload);
-          await updateVerse(payload);
+          });
 
           setIsLoading(false);
           resetAll();
@@ -234,43 +223,50 @@ export default function VerseSummary() {
           return;
         }
 
-        // Original add logic for new verses
+        if (!splitIntoIndividual && versesList.length === 1) {
+          const singleVerse = versesList[0]?.toString();
+          const duplicateVerse = allVerses.find(
+            verse =>
+              verse.syncId !== verseId &&
+              verse.bookName === bookName &&
+              verse.chapter === chapter &&
+              verse.verses.length === 1 &&
+              verse.verses[0] === singleVerse
+          );
+
+          if (duplicateVerse) {
+            setIsLoading(false);
+            showError(
+              'Duplicate Verse',
+              `${bookName} ${chapter}:${singleVerse} is already in your verses.`
+            );
+            return;
+          }
+        }
+
         if (splitIntoIndividual) {
-          // Add each verse individually
           for (const verse of versesList) {
             const verseText = verseTexts.find(vt => vt?.verse === verse);
-            console.log(`🔍 Found verse text:`, verseText);
-            if (verseText) {
-              const payload = {
-                bookName: bookName,
-                chapter: chapter,
-                verses: [verse.toString()],
-                reviewFreq: reviewFreqValue,
-                verseTexts: [normalizeVerseTextEntry(verseText)],
-                isGroup: false, // Single verse - check for duplicates
-              };
-              console.log('📝 Adding individual verse:', payload);
-              await addVerse(payload);
-            } else {
-              console.error(`❌ No verse text found for verse ${verse}`);
+            if (!verseText) {
+              continue;
             }
+
+            saveVerseLocal({
+              bookName,
+              chapter,
+              verses: [verse.toString()],
+              reviewFreq: reviewFreqValue,
+              verseTexts: [normalizeVerseTextEntry(verseText)],
+            });
           }
         } else {
-          // Add as a group - isGroup determined by number of verses
-          const isGroup = versesList.length > 1;
-          // console.log('🔍 Group addition - verseTexts:', verseTexts);
-          // console.log('🔍 Group addition - versesList:', versesList);
-
-          const payload = {
-            bookName: bookName,
-            chapter: chapter,
+          saveVerseLocal({
+            bookName,
+            chapter,
             verses: versesList.map(v => v.toString()),
             reviewFreq: reviewFreqValue,
             verseTexts: normalizeVerseTexts(verseTexts),
-            isGroup: isGroup, // Multiple verses = group (allow duplicates), single verse = individual (check duplicates)
-          };
-          // console.log('📝 Adding verse group:', payload);
-          await addVerse(payload);
+          });
         }
 
         setIsLoading(false);
@@ -317,10 +313,11 @@ export default function VerseSummary() {
       }
     },
     [
-      addVerse,
-      updateVerse,
+      allVerses,
       bookName,
       chapter,
+      existingVerse?.remoteId,
+      saveVerseLocal,
       versesList,
       reviewFreqValue,
       router,
@@ -341,14 +338,6 @@ export default function VerseSummary() {
 
     if (!bookName || !chapter) {
       console.error('Book name or chapter is not set');
-      return;
-    }
-
-    if (currentUser === null) {
-      showError(
-        'Account Syncing',
-        'Your account is still syncing. Please wait a moment and try again.'
-      );
       return;
     }
 
@@ -394,7 +383,6 @@ export default function VerseSummary() {
     isCollOrVerse,
     isEditMode,
     processAddVerse,
-    currentUser,
     showError,
   ]);
 

@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BackHeader from '@/components/BackHeader';
@@ -13,19 +13,15 @@ import { useBookStore } from '@/store/bookStore';
 import VerseCard from '@/components/Verses/VerseCard';
 import ItemSeparator from '@/components/ItemSeparator';
 import CustomButton from '@/components/CustomButton';
-import ArrowRightIcon from '@/components/icons/ArrowRightIcon';
 import AddVersesEmpty from '@/components/EmptyScreen/AddVersesEmpty';
-import { useMutation, useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
 import { useIsCollOrVerse } from '@/store/tab-store';
-import { Id } from '@/convex/_generated/dataModel';
 import { useLocalSearchParams } from 'expo-router';
-import { useAuth } from '@clerk/clerk-expo';
+import { useOfflineCollection, useOfflineVerses } from '@/hooks/useOfflineData';
+import { useOfflineDataStore } from '@/store/offlineDataStore';
 
 const CreateCollection = () => {
   const router = useRouter();
   const { collectionId, moveVerses } = useLocalSearchParams();
-  const { isSignedIn, isLoaded } = useAuth();
 
   const {
     collectionName,
@@ -38,32 +34,18 @@ const CreateCollection = () => {
     setCollectionVersesArray,
     removeCollectionVerse,
   } = useBookStore();
-
-  const addCollection = useMutation(api.collections.addCollection);
-  const updateCollection = useMutation(api.collections.updateCollection);
-  const addVersesToCollection = useMutation(
-    api.collections.addVersesToCollection
+  const saveCollectionLocal = useOfflineDataStore(
+    state => state.saveCollectionLocal
   );
+  const existingCollection = useOfflineCollection(collectionId);
+  const allVerses = useOfflineVerses();
 
   const { setIsCollOrVerse } = useIsCollOrVerse();
 
   const [hasInputError, setHasInputError] = useState(false);
   const [isMovingVerses, setIsMovingVerses] = useState(false);
-
-  // If we're moving verses to an existing collection, fetch the collection data
-  const existingCollection = useQuery(
-    api.collections.getCollectionById,
-    isSignedIn && isLoaded && collectionId && moveVerses
-      ? { id: collectionId as Id<'collections'> }
-      : 'skip'
-  );
-
-  // Fetch selected verses when moving verses
-  const selectedVerses = useQuery(
-    api.verses.getVersesByIds,
-    moveVerses === 'true' && selectedVerseIds.length > 0
-      ? { ids: selectedVerseIds as Id<'verses'>[] }
-      : 'skip'
+  const selectedVerses = allVerses.filter(verse =>
+    selectedVerseIds.includes(verse.syncId)
   );
 
   // Handle moving verses to existing collection
@@ -127,37 +109,34 @@ const CreateCollection = () => {
 
     try {
       if (isMovingVerses && collectionId) {
-        // Moving verses to existing collection - update the collection with combined verses
         const mappedCollectionVerses = collectionVerses.map(verse => ({
           ...verse,
           reviewFreq: verse.reviewFreq ?? '',
         }));
 
-        await updateCollection({
-          id: collectionId as Id<'collections'>,
+        saveCollectionLocal({
+          syncId: String(collectionId),
+          remoteId: existingCollection?.remoteId,
           collectionName,
           collectionVerses: mappedCollectionVerses,
-          // versesLength: mappedCollectionVerses.length,
         });
         resetAll();
         router.push('/verses#collections');
       } else if (isCollectionUpdate) {
-        // Updating existing collection
         const mappedCollectionVerses = collectionVerses.map(verse => ({
           ...verse,
           reviewFreq: verse.reviewFreq ?? '',
         }));
 
-        await updateCollection({
-          id: collectionId as Id<'collections'>,
+        saveCollectionLocal({
+          syncId: String(collectionId),
+          remoteId: existingCollection?.remoteId,
           collectionName,
           collectionVerses: mappedCollectionVerses,
-          // versesLength: mappedCollectionVerses.length,
         });
         resetAll();
         router.push('/verses#collections');
       } else {
-        // Creating new collection
         const mappedCollectionVerses = collectionVerses.map(verse => ({
           ...verse,
           reviewFreq: verse.reviewFreq ?? '',
@@ -168,7 +147,7 @@ const CreateCollection = () => {
           collectionVerses: mappedCollectionVerses,
         };
 
-        await addCollection(payload);
+        saveCollectionLocal(payload);
         resetAll();
         router.push('/verses#collections');
       }
@@ -232,7 +211,7 @@ const CreateCollection = () => {
 
           <FlatList
             data={collectionVerses}
-            keyExtractor={(item, index) => index.toString()}
+            keyExtractor={(_item, index) => index.toString()}
             renderItem={({ item, index }) => (
               <VerseCard
                 // _id={item._id}

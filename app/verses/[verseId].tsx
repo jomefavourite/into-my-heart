@@ -1,8 +1,6 @@
 import { View, ScrollView, Platform } from 'react-native';
 import React, { useRef, useState, useEffect } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useQuery } from 'convex-helpers/react/cache';
-import { useMutation } from 'convex/react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ViewShot from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
@@ -10,18 +8,13 @@ import * as Speech from 'expo-speech';
 import ThemedText from '@/components/ThemedText';
 import BackHeader from '@/components/BackHeader';
 import { Button } from '@/components/ui/button';
-import { Id } from '@/convex/_generated/dataModel';
-import { api } from '@/convex/_generated/api';
 import { Card } from '@/components/ui/card';
 import NoteIcon from '@/components/icons/NoteIcon';
 import ImageIcon from '@/components/icons/ImageIcon';
 import IdeaIcon from '@/components/icons/IdeaIcon';
 import CustomButton from '@/components/CustomButton';
-import { useAuth } from '@clerk/clerk-expo';
 import { formatVerseDisplay } from '@/lib/utils';
-import { Image } from 'expo-image';
 import Logo from '@/components/icons/logo/Logo';
-import WithTooltip from '@/components/WithTooltip';
 import VolumeHighIcon from '@/components/icons/VolumeHighIcon';
 import { Pause, Star } from 'lucide-react-native';
 import MoreVerticalIcon from '@/components/icons/MoreVerticalIcon';
@@ -35,24 +28,20 @@ import {
 import { useAlert } from '@/hooks/useAlert';
 import { BOOKS } from '@/lib/books';
 import { normalizeBibleText } from '@/lib/verseText';
+import { useOfflineVerse } from '@/hooks/useOfflineData';
+import { useOfflineDataStore } from '@/store/offlineDataStore';
 
 export default function VersePage() {
   const router = useRouter();
-  const { isSignedIn, isLoaded } = useAuth();
   const { verseId } = useLocalSearchParams();
-  const verse = useQuery(
-    api.verses.getVerseById,
-    isSignedIn && isLoaded
-      ? {
-          id: verseId as Id<'verses'>,
-        }
-      : 'skip'
-  );
+  const verse = useOfflineVerse(verseId);
   const viewShotRef = useRef<ViewShot>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const speechUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
-  const setFeaturedVerse = useMutation(api.verses.setFeaturedVerse);
-  const deleteVerse = useMutation(api.verses.deleteVerses);
+  const toggleFeaturedVerseLocal = useOfflineDataStore(
+    state => state.toggleFeaturedVerseLocal
+  );
+  const deleteVerse = useOfflineDataStore(state => state.deleteVerseLocal);
   const { isDarkMode } = useColorScheme();
   const { alert } = useAlert();
 
@@ -81,10 +70,7 @@ export default function VersePage() {
     if (!verse) return;
 
     try {
-      await setFeaturedVerse({
-        id: verse._id,
-        isFeatured: !verse.isFeatured,
-      });
+      toggleFeaturedVerseLocal(verse.syncId, !verse.isFeatured);
     } catch (error) {
       console.error('Error toggling featured verse:', error);
       alert('Error', 'Failed to update featured verse. Please try again.');
@@ -232,9 +218,7 @@ export default function VersePage() {
         text: 'Delete',
         style: 'destructive',
         onPress: () => {
-          deleteVerse({
-            ids: [verseId as Id<'verses'>],
-          });
+          deleteVerse(String(verseId));
           router.back();
         },
       },

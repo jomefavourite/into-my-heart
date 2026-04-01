@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
-import { View, Platform } from 'react-native';
+import { View } from 'react-native';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
-import { useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
-import { Id } from '@/convex/_generated/dataModel';
 import ThemedText from '@/components/ThemedText';
 import CustomButton from '@/components/CustomButton';
 import { Button } from '@/components/ui/button';
@@ -15,9 +12,10 @@ import AddIcon from '@/components/icons/AddIcon';
 import { useRouter } from 'expo-router';
 import { useBookStore } from '@/store/bookStore';
 import { useIsCollOrVerse } from '@/store/tab-store';
+import { useOfflineCollections } from '@/hooks/useOfflineData';
 
 interface MoveToCollectionBottomSheetProps {
-  selectedVerses: Id<'verses'>[];
+  selectedVerses: string[];
   onClose: () => void;
 }
 
@@ -32,13 +30,10 @@ const MoveToCollectionBottomSheet: React.FC<
   const { setCollectionName, setVerses, setSelectedVerseIds } = useBookStore();
   const { setIsCollOrVerse: setTabStore } = useIsCollOrVerse();
 
-  // Fetch existing collections
-  const collections = useQuery(api.collections.getCollections, {});
+  const collections = useOfflineCollections();
 
-  const handleSelectExistingCollection = (collectionId: Id<'collections'>) => {
-    // Store the selected verse IDs in the store
+  const handleSelectExistingCollection = (collectionId: string) => {
     setSelectedVerseIds(selectedVerses);
-    // Navigate to create-collection page with the selected collection ID
     router.push(
       `/verses/create-collection?collectionId=${collectionId}&moveVerses=true`
     );
@@ -53,9 +48,9 @@ const MoveToCollectionBottomSheet: React.FC<
 
     setHasInputError(false);
     setCollectionName(newCollectionName.trim());
-    setSelectedVerseIds(selectedVerses); // Store the selected verse IDs
+    setSelectedVerseIds(selectedVerses);
     setTabStore('collections');
-    setVerses([]); // Clear any existing verses
+    setVerses([]);
     router.push('/verses/create-collection?moveVerses=true');
     onClose();
   };
@@ -65,7 +60,7 @@ const MoveToCollectionBottomSheet: React.FC<
       <Button
         variant='ghost'
         className='w-full justify-start p-0'
-        onPress={() => handleSelectExistingCollection(item._id)}
+        onPress={() => handleSelectExistingCollection(item.syncId)}
       >
         <View className='w-full flex-row items-center justify-between'>
           <View className='flex-1'>
@@ -109,7 +104,7 @@ const MoveToCollectionBottomSheet: React.FC<
             {collections && collections.length > 0 ? (
               <FlatList
                 data={collections}
-                keyExtractor={item => item._id}
+                keyExtractor={item => item.syncId}
                 renderItem={renderCollectionItem}
                 ItemSeparatorComponent={ItemSeparator}
                 className='flex-1'

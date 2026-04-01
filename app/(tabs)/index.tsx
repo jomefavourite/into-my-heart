@@ -1,48 +1,32 @@
 import { View, Pressable, Image, Platform } from 'react-native';
-import CustomButton from '@/components/CustomButton';
 import ThemedText from '@/components/ThemedText';
-import { useRef } from 'react';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import HomeHeader from '@/components/Home/Header';
 import { Button } from '@/components/ui/button';
-import FavouriteIcon from '@/components/icons/FavouriteIcon';
-import ShareIcon from '@/components/icons/ShareIcon';
 import { Link, useRouter } from 'expo-router';
 import ArrowRightIcon from '@/components/icons/ArrowRightIcon';
 import { FlatList } from 'react-native';
 import VerseCard from '@/components/Verses/VerseCard';
 import ItemSeparator from '@/components/ItemSeparator';
 import AddVersesEmpty from '@/components/EmptyScreen/AddVersesEmpty';
-import { api } from '@/convex/_generated/api';
 import '@/global.css';
 import Loader from '@/components/Loader';
-import { useAuthGuard } from '@/hooks/useAuthGuard';
-import { useQuery } from 'convex-helpers/react/cache';
 import PageHeader from '@/components/PageHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import VersesSuggestion from '@/components/Verses/VersesSuggestion';
 import { formatVerseDisplay } from '@/lib/utils';
 import { normalizeBibleText } from '@/lib/verseText';
+import {
+  useOfflineFeaturedVerse,
+  useOfflineSyncStatus,
+  useOfflineVerseSuggestions,
+  useOfflineVerses,
+} from '@/hooks/useOfflineData';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { canMakeQueries, isLoading } = useAuthGuard();
-
-  // Only fetch verses when authentication is fully ready
-  const getVerses = useQuery(
-    api.verses.getVerses,
-    canMakeQueries ? { take: 6 } : 'skip'
-  );
-
-  const featuredVerse = useQuery(
-    api.verses.getFeaturedVerse,
-    canMakeQueries ? undefined : 'skip'
-  );
-
-  const getVerseSuggestions = useQuery(
-    api.verseSuggestions.getAvailableVerseSuggestions,
-    canMakeQueries ? { take: 1 } : 'skip'
-  );
+  const getVerses = useOfflineVerses(6);
+  const featuredVerse = useOfflineFeaturedVerse();
+  const getVerseSuggestions = useOfflineVerseSuggestions(1);
+  const { hasHydrated } = useOfflineSyncStatus();
 
   // Determine which verse to show (featured or first suggestion)
   const displayVerse =
@@ -110,15 +94,15 @@ export default function HomeScreen() {
                   )}
                 </View>
 
-                {!canMakeQueries || isLoading ? (
+                {!hasHydrated ? (
                   <View className='mt-2 rounded-3xl border-none bg-[#313131] px-5 py-6 dark:bg-[#343434]'>
                     <Loader />
                   </View>
                 ) : displayVerse ? (
                   <Pressable
                     onPress={() => {
-                      if (displayVerse._id && !isSuggestedVerse) {
-                        router.push(`/verses/${displayVerse._id}`);
+                      if (displayVerse.syncId && !isSuggestedVerse) {
+                        router.push(`/verses/${displayVerse.syncId}`);
                       }
                     }}
                     className='mt-2 rounded-3xl border-none bg-[#313131] px-5 py-6 dark:bg-[#343434]'
@@ -184,9 +168,7 @@ export default function HomeScreen() {
                   </Button>
                 </View>
 
-                {!canMakeQueries ? (
-                  <AddVersesEmpty />
-                ) : isLoading || getVerses === undefined ? (
+                {!hasHydrated ? (
                   <View className='flex-1 items-center justify-center py-8'>
                     <Loader />
                   </View>
@@ -194,10 +176,10 @@ export default function HomeScreen() {
                   <FlatList
                     data={getVerses}
                     // style={{ height: 300 }}
-                    keyExtractor={(item, index) => index.toString()}
+                    keyExtractor={(_item, index) => index.toString()}
                     renderItem={({ item }) => (
                       <VerseCard
-                        _id={item._id}
+                        _id={item.syncId}
                         bookName={item.bookName}
                         chapter={item.chapter}
                         verses={item.verses}

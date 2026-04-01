@@ -70,7 +70,7 @@ const HowItWorksSection = (): JSX.Element => {
               <Image
                 className='mx-auto w-full object-center'
                 alt='iPhone showing app interface'
-                source={require('/assets/images/phone-mock.png')}
+                source={require('../../assets/images/phone-mock.png')}
               />
               <div className='[background:linear-gradient(0deg, #F0F0F0 37.23%, rgba(255, 255, 255, 0.00) 109.02%)] absolute bottom-0 left-0 h-[61px] w-full backdrop-blur-[5px]' />
             </div>

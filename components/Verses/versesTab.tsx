@@ -1,60 +1,24 @@
-import { FlatList, StyleSheet, View } from 'react-native';
-import React, { memo, useEffect } from 'react';
-import VerseCard, { VerseCardSkeleton } from '@/components/Verses/VerseCard';
-import { verses } from '@/lib/utils';
+import { FlatList, View } from 'react-native';
+import React, { memo } from 'react';
+import VerseCard from '@/components/Verses/VerseCard';
 import ThemedText from '../ThemedText';
 import ItemSeparator from '../ItemSeparator';
-// import { useQuery } from 'convex/react';
-import { useQuery } from 'convex-helpers/react/cache';
-import { api } from '@/convex/_generated/api';
 import { Button } from '../ui/button';
 import { useRouter } from 'expo-router';
 import ArrowRightIcon from '../icons/ArrowRightIcon';
-import { useMutation } from 'convex/react';
-import { addVerseSuggestion } from '@/convex/verseSuggestions';
 import AddVersesEmpty from '../EmptyScreen/AddVersesEmpty';
-import SuggestionEmpty from '../EmptyScreen/SuggestionEmpty';
-import Loader from '../Loader';
-import { useAuthGuard } from '@/hooks/useAuthGuard';
 import FlashListSkeletonLoader from '../FlashListSkeletonLoader';
 import VersesSuggestion from './VersesSuggestion';
+import { useOfflineSyncStatus, useOfflineVerses } from '@/hooks/useOfflineData';
 
 type VersesTabProps = {
   gridView: boolean;
 };
 
 const VersesTab = ({ gridView }: VersesTabProps) => {
-  const { canMakeQueries, isLoading } = useAuthGuard();
   const router = useRouter();
-
-  const getVerses = useQuery(
-    api.verses.getVerses,
-    canMakeQueries ? { take: 6 } : 'skip'
-  );
-
-  const getVerseSuggestions = useQuery(
-    api.verseSuggestions.getAvailableVerseSuggestions,
-    canMakeQueries ? { take: 6 } : 'skip'
-  );
-
-  const addVerse = useMutation(api.verses.addVerse);
-  const addVerseSuggestionToUser = useMutation(
-    api.verseSuggestions.addVerseSuggestionToUser
-  );
-
-  // console.log(getVerses, 'getVerses');
-
-  const handleAddVerseSuggestion = async (verseData: any) => {
-    try {
-      await addVerseSuggestionToUser({
-        suggestionId: verseData._id,
-      });
-      // The UI will automatically update due to Convex reactivity
-    } catch (error) {
-      console.error('Error adding verse suggestion:', error);
-      // You might want to show an alert here
-    }
-  };
+  const getVerses = useOfflineVerses(6);
+  const { hasHydrated } = useOfflineSyncStatus();
 
   return (
     <View style={{ flex: 1 }}>
@@ -75,13 +39,13 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
           </Button>
         </View>
 
-        {getVerses === undefined ? (
+        {!hasHydrated ? (
           <FlashListSkeletonLoader type='verses' gridView={gridView} />
         ) : (
           <FlatList
             key={gridView ? 'grid-myverses' : 'list-myverses'}
             data={getVerses}
-            keyExtractor={(item, index) => index.toString()}
+            keyExtractor={(_item, index) => index.toString()}
             numColumns={gridView ? 2 : 1}
             ListEmptyComponent={() => (
               <>
@@ -90,7 +54,7 @@ const VersesTab = ({ gridView }: VersesTabProps) => {
             )}
             renderItem={({ item }) => (
               <VerseCard
-                _id={item._id}
+                _id={item.syncId}
                 bookName={item.bookName}
                 chapter={item.chapter}
                 verses={item.verses}

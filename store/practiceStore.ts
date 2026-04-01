@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
+import { PlatformStorage } from '@/utils/PlatformStorage';
 
 export interface Verse {
   _id: string;
@@ -73,6 +74,7 @@ export const usePracticeStore = create<PracticeStore>()(
     }),
     {
       name: 'practice-store',
+      storage: createJSONStorage(() => PlatformStorage),
       // Only persist the current session, not the entire store
       partialize: state => ({ currentSession: state.currentSession }),
     }

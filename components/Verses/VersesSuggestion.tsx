@@ -4,13 +4,12 @@ import ThemedText from '../ThemedText';
 import ArrowRightIcon from '../icons/ArrowRightIcon';
 import { Button } from '../ui/button';
 import { FlatList } from 'react-native';
-import { router, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import VerseCard from './VerseCard';
 import ItemSeparator from '../ItemSeparator';
 import SuggestionEmpty from '../EmptyScreen/SuggestionEmpty';
-import { useMutation, useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
-import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { useOfflineVerseSuggestions } from '@/hooks/useOfflineData';
+import { useOfflineDataStore } from '@/store/offlineDataStore';
 
 const VersesSuggestion = ({
   gridView = false,
@@ -19,29 +18,17 @@ const VersesSuggestion = ({
   gridView: boolean;
   isHome?: boolean;
 }) => {
-  const { canMakeQueries, isLoading } = useAuthGuard();
   const router = useRouter();
-
-  const getVerseSuggestions = useQuery(
-    api.verseSuggestions.getAvailableVerseSuggestions,
-    canMakeQueries ? { take: 6 } : 'skip'
+  const getVerseSuggestions = useOfflineVerseSuggestions(6);
+  const addVerseSuggestionToUser = useOfflineDataStore(
+    state => state.adoptVerseSuggestionLocal
   );
-
-  const addVerseSuggestionToUser = useMutation(
-    api.verseSuggestions.addVerseSuggestionToUser
-  );
-
-  // console.log(getVerses, 'getVerses');
 
   const handleAddVerseSuggestion = async (verseData: any) => {
     try {
-      await addVerseSuggestionToUser({
-        suggestionId: verseData._id,
-      });
-      // The UI will automatically update due to Convex reactivity
+      addVerseSuggestionToUser(verseData.syncId);
     } catch (error) {
       console.error('Error adding verse suggestion:', error);
-      // You might want to show an alert here
     }
   };
   return (
@@ -69,7 +56,7 @@ const VersesSuggestion = ({
       <FlatList
         key={gridView ? 'grid-suggestions' : 'list-suggestions'}
         data={getVerseSuggestions}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(_item, index) => index.toString()}
         numColumns={gridView ? 2 : 1}
         ListEmptyComponent={() => (
           <>
@@ -80,26 +67,20 @@ const VersesSuggestion = ({
         )}
         renderItem={({ item }) => (
           <VerseCard
-            _id={item._id as any} // Type assertion to handle ID mismatch
+            _id={item.syncId}
             bookName={item.bookName}
             chapter={item.chapter}
             verses={item.verses}
-            verseTexts={item.verseTexts || []} // Provide default empty array
+            verseTexts={item.verseTexts || []}
             onAddPress={() => handleAddVerseSuggestion(item)}
-            containerClassName={gridView ? 'flex-1' : 'w-full'} // Keep this for card sizing
+            containerClassName={gridView ? 'flex-1' : 'w-full'}
             noRoute={true}
           />
         )}
         columnWrapperStyle={
-          // Apply gap between columns if gridView is true
           gridView ? { gap: 8, width: '100%' } : undefined
         }
         ItemSeparatorComponent={ItemSeparator}
-        // contentContainerStyle={
-        //   gridView
-        //     ? { paddingVertical: 8, paddingHorizontal: 16 }
-        //     : { paddingVertical: 8, paddingHorizontal: 16 }
-        // }
         scrollEnabled={false}
       />
     </View>

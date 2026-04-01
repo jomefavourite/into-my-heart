@@ -3,13 +3,12 @@ import { View, TouchableOpacity, Pressable } from 'react-native';
 import ThemedText from '../ThemedText';
 import { Skeleton } from '../ui/skeleton';
 import { useRouter } from 'expo-router';
-import { Id } from '@/convex/_generated/dataModel';
 import DeleteIcon from '../icons/DeleteIcon';
 import CircleIcon from '../icons/CircleIcon';
 import CheckmarkCircleIcon from '../icons/CheckmarkCircleIcon';
 
 interface AffirmationCardProps {
-  _id: Id<'affirmations'>;
+  _id: string;
   content: string;
   onDeletePress?: () => void;
   containerClassName?: string;

@@ -14,6 +14,7 @@ export const User = {
 
 export const Verse = {
   userId: v.id('users'),
+  syncId: v.optional(v.string()),
   bookName: v.string(),
   chapter: v.number(),
   verses: v.array(v.string()),
@@ -25,10 +26,13 @@ export const Verse = {
   ),
   reviewFreq: v.string(),
   isFeatured: v.optional(v.boolean()),
+  updatedAt: v.optional(v.number()),
+  deletedAt: v.optional(v.number()),
 };
 
 export const Collection = {
   userId: v.id('users'), // Reference to the user who created the collection
+  syncId: v.optional(v.string()),
   collectionName: v.string(),
   versesLength: v.number(),
   collectionVerses: v.array(
@@ -45,6 +49,8 @@ export const Collection = {
       ),
     })
   ),
+  updatedAt: v.optional(v.number()),
+  deletedAt: v.optional(v.number()),
 };
 
 export const VerseSuggestion = {
@@ -86,28 +92,39 @@ export const UserVerseSuggestion = {
 export const VerseNote = {
   userId: v.id('users'),
   verseId: v.id('verses'),
+  syncId: v.optional(v.string()),
   content: v.string(),
   updatedAt: v.number(),
+  deletedAt: v.optional(v.number()),
 };
 
 export const Affirmation = {
   userId: v.id('users'),
+  syncId: v.optional(v.string()),
   content: v.string(),
   createdAt: v.number(),
   updatedAt: v.number(),
+  deletedAt: v.optional(v.number()),
 };
 
 export default defineSchema({
   users: defineTable(User).index('byClerkId', ['clerkId']),
-  verses: defineTable(Verse),
+  verses: defineTable(Verse)
+    .index('byUserId', ['userId'])
+    .index('byUserIdSyncId', ['userId', 'syncId']),
   versesSuggestions: defineTable(VerseSuggestion),
   collectionSuggestions: defineTable(CollectionSuggestion),
-  collections: defineTable(Collection),
+  collections: defineTable(Collection)
+    .index('byUserId', ['userId'])
+    .index('byUserIdSyncId', ['userId', 'syncId']),
   userVerseSuggestions: defineTable(UserVerseSuggestion)
     .index('byUserId', ['userId'])
     .index('bySuggestionId', ['suggestionId']),
   verseNotes: defineTable(VerseNote)
     .index('byVerseId', ['verseId'])
-    .index('byUserId', ['userId']),
-  affirmations: defineTable(Affirmation).index('byUserId', ['userId']),
+    .index('byUserId', ['userId'])
+    .index('byUserIdSyncId', ['userId', 'syncId']),
+  affirmations: defineTable(Affirmation)
+    .index('byUserId', ['userId'])
+    .index('byUserIdSyncId', ['userId', 'syncId']),
 });

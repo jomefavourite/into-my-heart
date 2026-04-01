@@ -1,4 +1,4 @@
-import { Redirect, Slot, Tabs } from 'expo-router';
+import { Slot, Tabs } from 'expo-router';
 import React from 'react';
 import { Platform, useWindowDimensions } from 'react-native';
 import HomeIcon from '@/components/icons/tabs/HomeIcon';
@@ -16,7 +16,7 @@ export default function TabLayout() {
   }
 
   if (!isSignedIn) {
-    return <Redirect href='/(onboarding)/onboard' />;
+    return null;
   }
 
   if (Platform.OS === 'web' && width > 720) {

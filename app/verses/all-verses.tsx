@@ -1,59 +1,52 @@
-import { View, Text, ScrollView, Platform, FlatList } from 'react-native';
+import { View, Platform, FlatList } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import RemoveCircleIcon from '@/components/icons/RemoveCircleIcon';
 import BackHeader from '@/components/BackHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { api } from '@/convex/_generated/api';
-import { usePaginatedQuery } from 'convex-helpers/react/cache';
 import AddVersesEmpty from '@/components/EmptyScreen/AddVersesEmpty';
 import VerseCard from '@/components/Verses/VerseCard';
 import ItemSeparator from '@/components/ItemSeparator';
 import ThemedText from '@/components/ThemedText';
 import DeleteIcon from '@/components/icons/DeleteIcon';
-import { Id } from '@/convex/_generated/dataModel';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import CustomButton from '@/components/CustomButton';
-import { useMutation } from 'convex/react';
 import CancelIcon from '@/components/icons/CancelIcon';
 import { useAlert } from '@/hooks/useAlert';
 import { useGridListView } from '@/store/tab-store';
 import { useAuth } from '@clerk/clerk-expo';
-import FlashListSkeletonLoader from '@/components/FlashListSkeletonLoader';
 import MoveCollectionIcon from '@/components/icons/MoveCollectionIcon';
 import MoveToCollectionBottomSheet from '@/components/MoveToCollectionBottomSheet';
 import MoveToCollectionModal from '@/components/MoveToCollectionModal';
 import { useRouter } from 'expo-router';
+import { useOfflineSyncStatus, useOfflineVerses } from '@/hooks/useOfflineData';
+import { useOfflineDataStore } from '@/store/offlineDataStore';
 
 const AllVersesScreen = () => {
   const { isSignedIn, isLoaded } = useAuth();
   const router = useRouter();
   const { gridView } = useGridListView();
   const [shouldSelect, setShouldSelect] = useState(false);
-  const [selectedVerses, setSelectedVerses] = useState<Id<'verses'>[]>([]);
+  const [selectedVerses, setSelectedVerses] = useState<string[]>([]);
   const [moveBottomSheetIndex, setMoveBottomSheetIndex] = useState(-1);
   const moveBottomSheetRef = useRef<BottomSheet>(null);
   const { isDarkMode } = useColorScheme();
   const { alert } = useAlert();
-
-  const { results, status, loadMore, isLoading } = usePaginatedQuery(
-    api.verses.getAllVerses,
-    isSignedIn && isLoaded ? {} : 'skip',
-    { initialNumItems: 20 }
-  );
-
-  const deleteVerses = useMutation(api.verses.deleteVerses);
+  const results = useOfflineVerses();
+  const deleteVerse = useOfflineDataStore(state => state.deleteVerseLocal);
+  const { hasHydrated, currentUser } = useOfflineSyncStatus();
+  const hasOfflineAccess = Boolean(currentUser);
 
   useEffect(() => {
-    if (!isLoaded || isSignedIn) return;
+    if (!isLoaded || !hasHydrated || isSignedIn || hasOfflineAccess) return;
     const timeoutId = setTimeout(() => {
       router.replace('/(onboarding)/onboard');
     }, 1200);
     return () => clearTimeout(timeoutId);
-  }, [isLoaded, isSignedIn, router]);
+  }, [hasHydrated, hasOfflineAccess, isLoaded, isSignedIn, router]);
 
-  if (!isLoaded) {
+  if (!isLoaded || !hasHydrated) {
     return (
       <SafeAreaView className='flex-1 items-center justify-center px-[18px]'>
         <ThemedText className='text-center text-base text-[#909090]'>
@@ -63,16 +56,14 @@ const AllVersesScreen = () => {
     );
   }
 
-  const toggleSelectedVerse = (_id: Id<'verses'>) => {
+  const toggleSelectedVerse = (_id: string) => {
     setSelectedVerses(prev =>
       prev.includes(_id) ? prev.filter(id => id !== _id) : [...prev, _id]
     );
   };
 
   const handleDeleteVerses: () => Promise<void> = async () => {
-    await deleteVerses({ ids: selectedVerses });
-    // toast is needed here
-
+    selectedVerses.forEach(syncId => deleteVerse(syncId));
     setSelectedVerses([]);
     setShouldSelect(false);
   };
@@ -145,7 +136,7 @@ const AllVersesScreen = () => {
 
   return (
     <SafeAreaView className='flex-1'>
-      {!isSignedIn ? (
+      {!isSignedIn && !hasOfflineAccess ? (
         <View className='flex-1 items-center justify-center gap-3 px-[18px]'>
           <ThemedText className='text-center text-xl font-semibold'>
             Sign in required
@@ -203,13 +194,11 @@ const AllVersesScreen = () => {
           />
 
           <View className='flex-1 pb-[18px]'>
-            {isLoading && results?.length === 0 ? (
-              <FlashListSkeletonLoader type='verses' gridView={gridView} />
-            ) : (
+            {results.length === 0 ? (
               <FlatList
                 key={gridView ? 'grid-myverses' : 'list-myverses'}
                 data={results}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(_item, index) => index.toString()}
                 numColumns={gridView ? 2 : 1}
                 contentContainerStyle={{ paddingHorizontal: 18 }}
                 ListEmptyComponent={() => (
@@ -219,7 +208,7 @@ const AllVersesScreen = () => {
                 )}
                 renderItem={({ item }) => (
                   <VerseCard
-                    _id={item._id}
+                    _id={item.syncId}
                     bookName={item.bookName}
                     chapter={item.chapter}
                     verses={item.verses}
@@ -227,8 +216,34 @@ const AllVersesScreen = () => {
                     containerClassName={gridView ? 'flex-1' : 'w-full'}
                     canCheck={false}
                     canDelete={shouldSelect}
-                    onDeletePress={() => toggleSelectedVerse(item._id)}
-                    isSelectedForDelete={selectedVerses.includes(item._id)}
+                    onDeletePress={() => toggleSelectedVerse(item.syncId)}
+                    isSelectedForDelete={selectedVerses.includes(item.syncId)}
+                  />
+                )}
+                columnWrapperStyle={
+                  gridView ? { gap: 8, width: '100%' } : undefined
+                }
+                ItemSeparatorComponent={ItemSeparator}
+              />
+            ) : (
+              <FlatList
+                key={gridView ? 'grid-myverses' : 'list-myverses'}
+                data={results}
+                keyExtractor={(_item, index) => index.toString()}
+                numColumns={gridView ? 2 : 1}
+                contentContainerStyle={{ paddingHorizontal: 18 }}
+                renderItem={({ item }) => (
+                  <VerseCard
+                    _id={item.syncId}
+                    bookName={item.bookName}
+                    chapter={item.chapter}
+                    verses={item.verses}
+                    verseTexts={item.verseTexts}
+                    containerClassName={gridView ? 'flex-1' : 'w-full'}
+                    canCheck={false}
+                    canDelete={shouldSelect}
+                    onDeletePress={() => toggleSelectedVerse(item.syncId)}
+                    isSelectedForDelete={selectedVerses.includes(item.syncId)}
                   />
                 )}
                 columnWrapperStyle={

@@ -12,41 +12,21 @@ import CollectionCard from '../Verses/CollectionCard';
 import ItemSeparator from '../ItemSeparator';
 import VerseCard from '../Verses/VerseCard';
 import FlashCardIcon from '../icons/practice/FlashCardIcon';
-import { api } from '@/convex/_generated/api';
-import type { Id } from '@/convex/_generated/dataModel';
-import { useQuery } from 'convex-helpers/react/cache';
-import { useAuth } from '@clerk/clerk-expo';
 import FillInBlanksIcon from '../icons/practice/FillInBlanksIcon';
 import FlashListSkeletonLoader from '../FlashListSkeletonLoader';
 import { STARTER_FILL_IN_THE_BLANKS_VERSES } from '@/lib/starterVerses';
+import {
+  useOfflineCollections,
+  useOfflineSyncStatus,
+  useOfflineVerses,
+} from '@/hooks/useOfflineData';
 
 export default function PracticeComp({ name }: { name: string }) {
-  const { isSignedIn, isLoaded } = useAuth();
-  // const {
-  //   results: verses,
-  //   isLoading,
-  //   loadMore,
-  // } = usePaginatedQuery(
-  //   api.verses.getAllVerses,
-  //   isSignedIn && isLoaded ? {} : 'skip',
-  //   { initialNumItems: 10 }
-  // );
-  const verses = useQuery(
-    api.verses.getVerses,
-    isSignedIn && isLoaded ? {} : 'skip'
-  );
-  const collections = useQuery(
-    api.collections.getCollections,
-    isSignedIn && isLoaded ? {} : 'skip'
-  );
-  const totalVersesCount = useQuery(
-    api.verses.getTotalVersesCount,
-    isSignedIn && isLoaded ? {} : 'skip'
-  );
-  const totalCollectionsCount = useQuery(
-    api.collections.getTotalCollectionsCount,
-    isSignedIn && isLoaded ? {} : 'skip'
-  );
+  const verses = useOfflineVerses();
+  const collections = useOfflineCollections();
+  const totalVersesCount = verses.length;
+  const totalCollectionsCount = collections.length;
+  const { hasHydrated } = useOfflineSyncStatus();
   const [value, setValue] = useState('verses');
   const router = useRouter();
   const { gridView } = useGridListView();
@@ -141,40 +121,37 @@ export default function PracticeComp({ name }: { name: string }) {
               className='flex-1'
               style={{ minHeight: Platform.OS === 'web' ? 400 : undefined }}
             >
-              {verses === undefined ? (
+              {!hasHydrated ? (
                 <FlashListSkeletonLoader type='verses' gridView={gridView} />
               ) : (
                 <FlatList
                   key={gridView ? 'grid-myverses' : 'list-myverses'}
                   data={versesForCurrentTechnique}
-                  keyExtractor={(item, index) => index.toString()}
+                  keyExtractor={(_item, index) => index.toString()}
                   numColumns={gridView ? 2 : 1}
                   ListEmptyComponent={() => (
                     <>
                       <AddVersesEmpty />
                     </>
                   )}
-                  renderItem={({ item }) => {
-                    const verseId =
-                      typeof item === 'object' &&
-                      item !== null &&
-                      '_id' in item &&
-                      typeof item._id === 'string'
-                        ? (item._id as Id<'verses'>)
-                        : undefined;
-
-                    return (
-                      <VerseCard
-                        _id={verseId}
-                        bookName={item.bookName}
-                        chapter={item.chapter}
-                        verses={item.verses}
-                        verseTexts={item.verseTexts}
-                        containerClassName={gridView ? 'flex-1' : 'w-full'}
-                        canCheck={false}
-                      />
-                    );
-                  }}
+                  renderItem={({ item }) => (
+                    <VerseCard
+                      _id={
+                        typeof item === 'object' &&
+                        item !== null &&
+                        'syncId' in item &&
+                        typeof item.syncId === 'string'
+                          ? item.syncId
+                          : undefined
+                      }
+                      bookName={item.bookName}
+                      chapter={item.chapter}
+                      verses={item.verses}
+                      verseTexts={item.verseTexts}
+                      containerClassName={gridView ? 'flex-1' : 'w-full'}
+                      canCheck={false}
+                    />
+                  )}
                   columnWrapperStyle={
                     gridView ? { gap: 8, width: '100%' } : undefined
                   }
@@ -224,7 +201,7 @@ export default function PracticeComp({ name }: { name: string }) {
               className='flex-1'
               style={{ minHeight: Platform.OS === 'web' ? 400 : undefined }}
             >
-              {collections === undefined ? (
+              {!hasHydrated ? (
                 <FlashListSkeletonLoader
                   type='collections'
                   gridView={gridView}
@@ -233,7 +210,7 @@ export default function PracticeComp({ name }: { name: string }) {
                 <FlatList
                   key={gridView ? 'grid-collections' : 'list-collections'}
                   data={collections || []}
-                  keyExtractor={(item, index) => index.toString()}
+                  keyExtractor={(_item, index) => index.toString()}
                   numColumns={gridView ? 2 : 1}
                   ListEmptyComponent={() => (
                     <>
@@ -242,7 +219,7 @@ export default function PracticeComp({ name }: { name: string }) {
                   )}
                   renderItem={({ item }) => (
                     <CollectionCard
-                      _id={item._id}
+                      _id={item.syncId}
                       collectionName={item.collectionName}
                       versesLength={item.versesLength}
                       onAddPress={() => console.log(`${item} pressed`)}

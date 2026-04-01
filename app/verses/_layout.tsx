@@ -1,4 +1,4 @@
-import { Redirect, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useAuth } from '@clerk/clerk-expo';
 
@@ -11,7 +11,7 @@ export default function VersesLayout() {
   }
 
   if (!isSignedIn) {
-    return <Redirect href='/(onboarding)/onboard' />;
+    return null;
   }
 
   return (

@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
-import { View, Platform } from 'react-native';
-import { useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
-import { Id } from '@/convex/_generated/dataModel';
+import { View } from 'react-native';
 import ThemedText from '@/components/ThemedText';
 import CustomButton from '@/components/CustomButton';
 import { Button } from '@/components/ui/button';
@@ -21,10 +18,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { useAuth } from '@clerk/clerk-expo';
+import { useOfflineCollections } from '@/hooks/useOfflineData';
 
 interface MoveToCollectionModalProps {
-  selectedVerses: Id<'verses'>[];
+  selectedVerses: string[];
   isOpen: boolean;
   onClose: () => void;
 }
@@ -35,7 +32,6 @@ const MoveToCollectionModal: React.FC<MoveToCollectionModalProps> = ({
   onClose,
 }) => {
   const router = useRouter();
-  const { isSignedIn, isLoaded } = useAuth();
   const [showCreateNew, setShowCreateNew] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState('');
   const [hasInputError, setHasInputError] = useState(false);
@@ -43,16 +39,10 @@ const MoveToCollectionModal: React.FC<MoveToCollectionModalProps> = ({
   const { setCollectionName, setVerses, setSelectedVerseIds } = useBookStore();
   const { setIsCollOrVerse: setTabStore } = useIsCollOrVerse();
 
-  // Fetch existing collections
-  const collections = useQuery(
-    api.collections.getCollections,
-    isOpen && isLoaded && isSignedIn ? {} : 'skip'
-  );
+  const collections = useOfflineCollections();
 
-  const handleSelectExistingCollection = (collectionId: Id<'collections'>) => {
-    // Store the selected verse IDs in the store
+  const handleSelectExistingCollection = (collectionId: string) => {
     setSelectedVerseIds(selectedVerses);
-    // Navigate to create-collection page with the selected collection ID
     router.push(
       `/verses/create-collection?collectionId=${collectionId}&moveVerses=true`
     );
@@ -67,9 +57,9 @@ const MoveToCollectionModal: React.FC<MoveToCollectionModalProps> = ({
 
     setHasInputError(false);
     setCollectionName(newCollectionName.trim());
-    setSelectedVerseIds(selectedVerses); // Store the selected verse IDs
+    setSelectedVerseIds(selectedVerses);
     setTabStore('collections');
-    setVerses([]); // Clear any existing verses
+    setVerses([]);
     router.push('/verses/create-collection?moveVerses=true');
     onClose();
   };
@@ -79,7 +69,7 @@ const MoveToCollectionModal: React.FC<MoveToCollectionModalProps> = ({
       <Button
         variant='ghost'
         className='w-full justify-start p-0'
-        onPress={() => handleSelectExistingCollection(item._id)}
+        onPress={() => handleSelectExistingCollection(item.syncId)}
       >
         <View className='w-full flex-row items-center justify-between'>
           <View className='flex-1'>
@@ -131,7 +121,7 @@ const MoveToCollectionModal: React.FC<MoveToCollectionModalProps> = ({
                 <View className='max-h-60'>
                   <FlatList
                     data={collections}
-                    keyExtractor={item => item._id}
+                    keyExtractor={item => item.syncId}
                     renderItem={renderCollectionItem}
                     ItemSeparatorComponent={ItemSeparator}
                     showsVerticalScrollIndicator={false}
