@@ -13,6 +13,7 @@ import ItemSeparator from '../ItemSeparator';
 import VerseCard from '../Verses/VerseCard';
 import FlashCardIcon from '../icons/practice/FlashCardIcon';
 import FillInBlanksIcon from '../icons/practice/FillInBlanksIcon';
+import RecitationIcon from '../icons/practice/RecitationIcon';
 import FlashListSkeletonLoader from '../FlashListSkeletonLoader';
 import { STARTER_FILL_IN_THE_BLANKS_VERSES } from '@/lib/starterVerses';
 import {
@@ -20,8 +21,12 @@ import {
   useOfflineSyncStatus,
   useOfflineVerses,
 } from '@/hooks/useOfflineData';
+import {
+  getPracticeMethodMeta,
+  type PracticeMethod,
+} from '@/lib/practiceFlow';
 
-export default function PracticeComp({ name }: { name: string }) {
+export default function PracticeComp({ name }: { name: PracticeMethod }) {
   const verses = useOfflineVerses();
   const collections = useOfflineCollections();
   const totalVersesCount = verses.length;
@@ -31,28 +36,26 @@ export default function PracticeComp({ name }: { name: string }) {
   const router = useRouter();
   const { gridView } = useGridListView();
   const { setPracticeSession } = usePracticeStore();
+  const practiceMeta = getPracticeMethodMeta(name);
 
   const versesForCurrentTechnique = useMemo(() => {
     if (verses === undefined) {
       return undefined;
     }
 
-    if (name !== 'fillInBlanks') {
-      return verses;
+    if (name === 'fillInBlanks' && verses.length === 0) {
+      return STARTER_FILL_IN_THE_BLANKS_VERSES.slice(0, practiceMeta.verseLimit);
     }
 
-    if (verses.length > 0) {
-      return verses.slice(0, 10);
-    }
-
-    return STARTER_FILL_IN_THE_BLANKS_VERSES.slice(0, 10);
-  }, [name, verses]);
+    return verses.slice(0, practiceMeta.verseLimit);
+  }, [name, practiceMeta.verseLimit, verses]);
 
   const usingStarterVerses =
     name === 'fillInBlanks' && verses !== undefined && verses.length === 0;
+  const sessionVerseCount = versesForCurrentTechnique?.length ?? 0;
 
-  const isFillInBlanksLimited =
-    name === 'fillInBlanks' && verses !== undefined && verses.length > 10;
+  const isLimitedSession =
+    verses !== undefined && totalVersesCount > practiceMeta.verseLimit;
 
   // const handleLoadMore = () => {
   //   if (!isLoading) {
@@ -64,23 +67,33 @@ export default function PracticeComp({ name }: { name: string }) {
     [key: string]: { title: string; icon: React.ReactNode };
   } = {
     flashcards: {
-      title: 'Practice verses using the Flashcards technique',
+      title: 'Start with references and recall the verse before you flip',
       icon: <FlashCardIcon />,
     },
     fillInBlanks: {
-      title: 'Practice verses using the Fill in the blanks technique',
+      title: 'Fill in missing words to strengthen recall',
       icon: <FillInBlanksIcon />,
+    },
+    recitation: {
+      title: 'Recite aloud with light prompts before checking yourself',
+      icon: <RecitationIcon />,
     },
   };
   return (
     <View className='flex-1 p-[18]'>
-      <View className='flex-row items-center justify-between'>
-        <ThemedText>{practiceData[name].title}</ThemedText>
+      <View className='gap-2'>
+        <View className='flex-row items-center justify-between gap-3'>
+          <ThemedText className='flex-1'>{practiceData[name].title}</ThemedText>
 
-        {
-          practiceData[name as keyof typeof practiceData]
-            .icon as React.ReactNode
-        }
+          {
+            practiceData[name as keyof typeof practiceData]
+              .icon as React.ReactNode
+          }
+        </View>
+
+        <ThemedText className='text-sm text-muted-foreground'>
+          {practiceMeta.tip}
+        </ThemedText>
       </View>
 
       <Tabs
@@ -100,9 +113,9 @@ export default function PracticeComp({ name }: { name: string }) {
         <TabsContent value='verses' className='flex-1'>
           <View className='flex-1 gap-3'>
             <ThemedText className='text-[13px]'>
-              {name === 'fillInBlanks'
-                ? `${versesForCurrentTechnique?.length ?? 0} verses`
-                : `${totalVersesCount ?? 0} verses`}
+              {isLimitedSession
+                ? `Showing ${sessionVerseCount} of ${totalVersesCount} verses`
+                : `${sessionVerseCount} verses`}
             </ThemedText>
 
             {usingStarterVerses && (
@@ -111,9 +124,18 @@ export default function PracticeComp({ name }: { name: string }) {
               </ThemedText>
             )}
 
-            {isFillInBlanksLimited && (
+            {isLimitedSession && (
               <ThemedText className='text-xs text-muted-foreground'>
-                Fill in the blanks currently uses up to 10 verses per session.
+                {practiceMeta.shortLabel} currently uses up to{' '}
+                {practiceMeta.verseLimit} verses per session to keep practice
+                focused.
+              </ThemedText>
+            )}
+
+            {isLimitedSession && !usingStarterVerses && (
+              <ThemedText className='text-xs text-muted-foreground'>
+                Starting with your {practiceMeta.verseLimit} most recent verses
+                helps you memorize in smaller, repeatable chunks.
               </ThemedText>
             )}
 
@@ -175,11 +197,7 @@ export default function PracticeComp({ name }: { name: string }) {
                   versesForCurrentTechnique.length > 0
                 ) {
                   setPracticeSession(versesForCurrentTechnique, 'verses');
-                  router.push(
-                    name === 'flashcards'
-                      ? '/memorize/flashcards/practice'
-                      : '/memorize/fill-in-blanks/practice'
-                  );
+                  router.push(practiceMeta.practiceRoute);
                 }
               }}
               disabled={
@@ -195,6 +213,11 @@ export default function PracticeComp({ name }: { name: string }) {
           <View className='flex-1 gap-3'>
             <ThemedText className='text-[13px]'>
               {totalCollectionsCount ?? 0} collections
+            </ThemedText>
+
+            <ThemedText className='text-xs text-muted-foreground'>
+              Collections practice also starts in smaller batches so longer
+              sessions do not become overwhelming.
             </ThemedText>
 
             <View
@@ -238,10 +261,11 @@ export default function PracticeComp({ name }: { name: string }) {
             <CustomButton
               onPress={() => {
                 // Get all verses from all collections
-                const allCollectionVerses =
+                const allCollectionVerses = (
                   collections?.flatMap(
                     collection => collection.collectionVerses
-                  ) || [];
+                  ) ?? []
+                ).slice(0, practiceMeta.verseLimit);
 
                 if (allCollectionVerses.length === 0) {
                   // Show an alert or message that no collections are available
@@ -249,11 +273,7 @@ export default function PracticeComp({ name }: { name: string }) {
                 }
 
                 setPracticeSession(allCollectionVerses, 'collections');
-                router.push(
-                  name === 'flashcards'
-                    ? '/memorize/flashcards/practice'
-                    : '/memorize/fill-in-blanks/practice'
-                );
+                router.push(practiceMeta.practiceRoute);
               }}
               disabled={
                 !collections ||

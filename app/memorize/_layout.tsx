@@ -28,12 +28,12 @@ const MemorizeLayout = () => {
             headerShown: false,
           }}
         />
-        {/* <Stack.Screen
+        <Stack.Screen
           name='recitation'
           options={{
             headerShown: false,
           }}
-        /> */}
+        />
       </Stack>
     </>
   );

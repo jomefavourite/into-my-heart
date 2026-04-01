@@ -2,14 +2,9 @@ import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Platform } from 'react-native';
 import BackHeader from '@/components/BackHeader';
-import SettingsIcon from '@/components/icons/SettingsIcon';
-import { Button } from '@/components/ui/button';
-import { useRouter } from 'expo-router';
 import PracticeComp from '@/components/PracticeScreen/PracticeComp';
 
 export default function FillInBlanks() {
-  const router = useRouter();
-
   return (
     <SafeAreaView className='flex-1'>
       {Platform.OS === 'web' && (
@@ -35,15 +30,7 @@ export default function FillInBlanks() {
       )}
 
       <BackHeader
-        RightComponent={
-          <Button
-            size={'icon'}
-            variant='ghost'
-            onPress={() => router.push('/memorize/fill-in-blanks/settings')}
-          >
-            <SettingsIcon />
-          </Button>
-        }
+        title='Fill in the blanks'
         items={[
           { label: 'Memorize', href: '/memorize' },
           { label: 'Fill in the blanks', href: '/memorize/fill-in-blanks' },

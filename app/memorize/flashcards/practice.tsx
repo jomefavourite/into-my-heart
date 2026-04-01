@@ -6,109 +6,115 @@ import {
   StyleSheet,
   ScrollView,
 } from 'react-native';
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BackHeader from '@/components/BackHeader';
 import ThemedText from '@/components/ThemedText';
 import OpenBookIcon from '@/components/icons/OpenBook';
 import CustomButton from '@/components/CustomButton';
 import { useRouter } from 'expo-router';
-import { usePracticeStore } from '@/store/practiceStore';
-import Loader from '@/components/Loader';
+import { type PracticeVerse, usePracticeStore } from '@/store/practiceStore';
 import { formatVerseDisplay } from '@/lib/utils';
-import { useOfflineSyncStatus, useOfflineVerses } from '@/hooks/useOfflineData';
+import { getPracticeVerseKey } from '@/lib/practiceFlow';
 
 export default function FlashcardPractice() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isFlipped, setIsFlipped] = useState(false);
   const { currentSession, clearPracticeSession } = usePracticeStore();
-  const offlineVerses = useOfflineVerses();
-  const { hasHydrated } = useOfflineSyncStatus();
-
   const router = useRouter();
 
-  // Check if this is collections practice
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [sessionVerses, setSessionVerses] = useState<PracticeVerse[]>(
+    currentSession?.verses ?? []
+  );
+  const [reviewLaterKeys, setReviewLaterKeys] = useState<string[]>([]);
+
   const isCollectionsPractice = currentSession?.practiceType === 'collections';
 
-  // Use practice session verses if available, otherwise use all verses
-  const verses = currentSession?.verses || offlineVerses;
+  useEffect(() => {
+    if (!currentSession) {
+      router.replace('/memorize/flashcards');
+      return;
+    }
 
-  // Reset flip state when moving to next verse
+    setSessionVerses(currentSession.verses);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+    setReviewLaterKeys([]);
+  }, [currentSession, router]);
+
   useEffect(() => {
     setIsFlipped(false);
   }, [currentIndex]);
 
-  // Clear practice session when component unmounts (but not when navigating to complete screen)
-  useEffect(() => {
-    return () => {
-      // Only clear if we're not at the end of the practice session
-      // (if we're at the end, we're navigating to complete screen, so don't clear yet)
-      if (verses && currentIndex < verses.length - 1) {
-        clearPracticeSession();
+  const currentVerse = sessionVerses[currentIndex];
+  const totalVerses = sessionVerses.length;
+
+  const progressLabel = useMemo(() => {
+    if (!currentVerse) {
+      return '';
+    }
+
+    return `${currentVerse.bookName} ${currentVerse.chapter}:${formatVerseDisplay(currentVerse.verses)}`;
+  }, [currentVerse]);
+
+  const advanceToNextVerse = (needsReview: boolean) => {
+    if (!currentVerse) {
+      return;
+    }
+
+    const verseKey = getPracticeVerseKey(currentVerse);
+    const shouldAppendForReview =
+      needsReview && !reviewLaterKeys.includes(verseKey);
+
+    if (needsReview) {
+      if (shouldAppendForReview) {
+        setSessionVerses(previous => [...previous, currentVerse]);
+        setReviewLaterKeys(previous => [...previous, verseKey]);
       }
-    };
-  }, [verses, currentIndex, clearPracticeSession]);
-
-  const handleNext = () => {
-    if (verses && currentIndex < verses.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    } else if (verses && currentIndex >= verses.length - 1) {
-      // Practice session completed - navigate to practice complete screen
-      router.replace('./practice-complete');
     }
+
+    if (currentIndex < totalVerses - 1 || shouldAppendForReview) {
+      setCurrentIndex(previous => previous + 1);
+      return;
+    }
+
+    router.replace('/memorize/flashcards/practice-complete');
   };
 
-  const handlePrevious = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    }
+  const handleExitPractice = () => {
+    clearPracticeSession();
+    router.replace('/memorize/flashcards');
   };
 
-  // Check if user can proceed to next question
-  const canProceedToNext = isFlipped;
-  const canProceedToPrevious = currentIndex > 0;
-
-  // console.log({
-  //   verses,
-  //   isLoading,
-  //   currentSession,
-  //   isActuallyLoading,
-  //   shouldFetchVerses,
-  // });
-
-  if (!hasHydrated) {
+  if (!currentSession || !currentVerse) {
     return (
-      <SafeAreaView className='flex-1 items-center justify-center'>
-        <Loader />
+      <SafeAreaView className='flex-1'>
+        <BackHeader
+          title='Flashcards'
+          items={[
+            { label: 'Memorize', href: '/memorize' },
+            { label: 'Flashcards', href: '/memorize/flashcards' },
+          ]}
+        />
+        <View className='flex-1 items-center justify-center p-6'>
+          <ThemedText className='text-center text-base'>
+            No flashcard session found.
+          </ThemedText>
+          <CustomButton
+            onPress={() => router.replace('/memorize/flashcards')}
+            className='mt-4 px-6'
+          >
+            Start Flashcards
+          </CustomButton>
+        </View>
       </SafeAreaView>
     );
   }
-
-  if (!verses || verses.length === 0) {
-    return (
-      <SafeAreaView className='flex-1 items-center justify-center'>
-        <ThemedText>
-          {isCollectionsPractice
-            ? 'No verses available in your collections'
-            : 'No verses available for practice'}
-        </ThemedText>
-        <CustomButton
-          onPress={() => {
-            clearPracticeSession();
-            router.back();
-          }}
-        >
-          Go Back
-        </CustomButton>
-      </SafeAreaView>
-    );
-  }
-
-  const currentVerse = verses[currentIndex];
 
   return (
     <SafeAreaView className='flex-1'>
       <BackHeader
+        title='Flashcards'
         items={[
           { label: 'Memorize', href: '/memorize' },
           { label: 'Flashcards', href: '/memorize/flashcards' },
@@ -122,66 +128,85 @@ export default function FlashcardPractice() {
       />
 
       <View className='flex-1 p-[18px]'>
-        <View className='mb-4 flex-row items-center justify-between'>
-          <ThemedText className='text-lg font-semibold'>
-            Flashcard {currentIndex + 1} of {verses.length}
-          </ThemedText>
-          <ThemedText className='text-sm text-muted-foreground'>
-            {currentVerse.bookName} {currentVerse.chapter}:
-            {formatVerseDisplay(currentVerse.verses)}
+        <View className='rounded-2xl bg-container p-4'>
+          <View className='flex-row items-center justify-between gap-4'>
+            <ThemedText className='text-lg font-semibold'>
+              Flashcard {currentIndex + 1} of {totalVerses}
+            </ThemedText>
+            <ThemedText className='text-right text-sm text-muted-foreground'>
+              {progressLabel}
+            </ThemedText>
+          </View>
+          <ThemedText className='mt-2 text-sm text-muted-foreground'>
+            Say the verse aloud before flipping the card. If you needed help,
+            send it to the end for one more review.
           </ThemedText>
         </View>
 
-        <View className='flex-1 justify-center'>
+        <View className='flex-1 justify-center py-4'>
           <FlashCard
-            key={currentIndex} // Force re-render when question changes
+            key={`${getPracticeVerseKey(currentVerse)}-${currentIndex}`}
             front={`${currentVerse.bookName} ${currentVerse.chapter}:${formatVerseDisplay(currentVerse.verses)}`}
             back={`${currentVerse.bookName} ${currentVerse.chapter}:${currentVerse.verses.join(', ')}\n\n${currentVerse.verseTexts
-              .map(
-                (vt: { verse: string; text: string }) =>
-                  `${vt.verse}. ${vt.text}`
-              )
+              .map(verseText => `${verseText.verse}. ${verseText.text}`)
               .join('\n\n')}`}
             isFlipped={isFlipped}
             setIsFlipped={setIsFlipped}
           />
         </View>
 
-        <View className='mt-4 items-center'>
-          <ThemedText className='text-center text-sm text-muted-foreground'>
-            Tap the flashcard to reveal the answer before proceeding
-          </ThemedText>
-        </View>
-
-        <View className='mt-6 flex-row items-center justify-between'>
-          <CustomButton
-            onPress={handlePrevious}
-            disabled={!canProceedToPrevious}
-            className={!canProceedToPrevious ? 'opacity-50' : ''}
-          >
-            Previous
-          </CustomButton>
-
-          <View className='flex-row items-center gap-2'>
-            <ThemedText className='text-sm text-muted-foreground'>
-              {currentIndex + 1} / {verses.length}
+        <View className='gap-3'>
+          <View className='items-center'>
+            <ThemedText className='text-center text-sm text-muted-foreground'>
+              {isFlipped
+                ? 'Rate your recall honestly before moving on.'
+                : 'Tap the card only after you have tried to say it from memory.'}
             </ThemedText>
           </View>
 
-          <CustomButton
-            onPress={handleNext}
-            disabled={!canProceedToNext}
-            className={!canProceedToNext ? 'opacity-50' : ''}
-          >
-            {currentIndex >= (verses?.length || 0) - 1
-              ? 'Finish Practice'
-              : 'I got it - Next'}
-          </CustomButton>
+          <View className='flex-row items-center justify-between gap-3'>
+            <CustomButton
+              variant='outline'
+              onPress={() => setCurrentIndex(previous => previous - 1)}
+              disabled={currentIndex === 0}
+              className='flex-1 bg-transparent'
+            >
+              Previous
+            </CustomButton>
+
+            <CustomButton
+              variant='outline'
+              onPress={handleExitPractice}
+              className='flex-1 bg-transparent'
+            >
+              Exit
+            </CustomButton>
+          </View>
+
+          <View className='flex-row items-center justify-between gap-3'>
+            <CustomButton
+              variant='outline'
+              onPress={() => advanceToNextVerse(true)}
+              disabled={!isFlipped}
+              className='flex-1 bg-transparent'
+            >
+              Need another look
+            </CustomButton>
+
+            <CustomButton
+              onPress={() => advanceToNextVerse(false)}
+              disabled={!isFlipped}
+              className='flex-1'
+            >
+              {currentIndex >= totalVerses - 1 ? 'Finish Practice' : 'I got it'}
+            </CustomButton>
+          </View>
         </View>
       </View>
     </SafeAreaView>
   );
 }
+
 const FlashCard = ({
   front,
   back,
@@ -195,37 +220,21 @@ const FlashCard = ({
 }) => {
   const flipAnimation = useRef(new Animated.Value(0)).current;
 
-  // Reset animation value when navigating to a new question
   useEffect(() => {
     if (!isFlipped) {
       flipAnimation.setValue(0);
     }
-  }, [isFlipped, flipAnimation]);
+  }, [flipAnimation, isFlipped]);
 
   const flipCard = () => {
-    if (isFlipped) {
-      // Flip back to front with smooth animation
-      Animated.spring(flipAnimation, {
-        toValue: 0,
-        friction: 8,
-        tension: 10,
-        useNativeDriver: true,
-      }).start(() => {
-        // Only update state after animation completes
-        setIsFlipped(false);
-      });
-    } else {
-      // Flip to back with smooth animation
-      Animated.spring(flipAnimation, {
-        toValue: 1,
-        friction: 8,
-        tension: 10,
-        useNativeDriver: true,
-      }).start(() => {
-        // Only update state after animation completes
-        setIsFlipped(true);
-      });
-    }
+    Animated.spring(flipAnimation, {
+      toValue: isFlipped ? 0 : 1,
+      friction: 8,
+      tension: 10,
+      useNativeDriver: true,
+    }).start(() => {
+      setIsFlipped(!isFlipped);
+    });
   };
 
   const frontInterpolate = flipAnimation.interpolate({
@@ -238,19 +247,11 @@ const FlashCard = ({
     outputRange: ['180deg', '360deg'],
   });
 
-  const frontAnimatedStyle = {
-    transform: [{ rotateY: frontInterpolate }],
-  };
-
-  const backAnimatedStyle = {
-    transform: [{ rotateY: backInterpolate }],
-  };
-
   return (
-    <TouchableOpacity onPress={flipCard} activeOpacity={0.8}>
+    <TouchableOpacity onPress={flipCard} activeOpacity={0.85}>
       <View className='h-[395px] w-full'>
         <Animated.View
-          style={[styles.card, styles.cardFront, frontAnimatedStyle]}
+          style={[styles.card, styles.cardFront, { transform: [{ rotateY: frontInterpolate }] }]}
           className='bg-[#3D3D3D]'
         >
           <View className='flex-1 items-center justify-center px-4'>
@@ -282,16 +283,13 @@ const FlashCard = ({
           showsVerticalScrollIndicator={false}
         >
           <Animated.View
-            style={[styles.card, styles.cardBack, backAnimatedStyle]}
-            className='bg-[#3D3D3D]'
+            style={[styles.card, styles.cardBack, { transform: [{ rotateY: backInterpolate }] }]}
+            className='bg-[#FAFAFA]'
           >
-            <ThemedText
-              size={18}
-              className='text-center leading-6 text-black dark:text-white'
-            >
+            <ThemedText size={18} className='text-center leading-7 text-black'>
               {back}
             </ThemedText>
-            <Text className='mt-4 text-center text-base italic text-black dark:text-white'>
+            <Text className='mt-4 text-center text-base italic text-black'>
               Tap to flip back
             </Text>
 
@@ -306,38 +304,11 @@ const FlashCard = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  header: {
-    alignItems: 'center',
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 5,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-  },
-  cardsContainer: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  cardContainer: {
-    marginBottom: 20,
-    height: 395,
-  },
   card: {
     position: 'absolute',
     width: '100%',
     height: 395,
-    borderRadius: 15,
+    borderRadius: 24,
     padding: 20,
     justifyContent: 'center',
     alignItems: 'center',
