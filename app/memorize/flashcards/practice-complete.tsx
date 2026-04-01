@@ -9,53 +9,66 @@ import { usePracticeStore } from '@/store/practiceStore';
 
 export default function PracticeComplete() {
   const router = useRouter();
-  const { clearPracticeSession } = usePracticeStore();
+  const { currentSession, clearPracticeSession } = usePracticeStore();
 
   const handleGoBack = () => {
     clearPracticeSession();
-    router.push('/memorize/flashcards');
+    router.replace('/memorize/flashcards');
   };
 
   const handlePracticeAgain = () => {
-    clearPracticeSession();
-    router.push('/memorize/flashcards');
+    router.replace('/memorize/flashcards/practice');
+  };
+
+  const handleContinue = () => {
+    router.replace('/memorize/fill-in-blanks/practice');
   };
 
   return (
     <SafeAreaView className='flex-1 items-center justify-center p-6'>
-      <View className='items-center'>
-        {/* Success Icon */}
+      <View className='w-full max-w-md items-center rounded-3xl bg-container p-6'>
         <View className='mb-6'>
           <CheckmarkCircleIcon width={80} height={80} />
         </View>
 
-        {/* Title */}
         <ThemedText
           size={27}
           variant='bold'
           className='mb-4 text-center text-foreground'
         >
-          Practice Complete!
+          Flashcards Complete
         </ThemedText>
 
-        {/* Subtitle */}
         <ThemedText
           size={16}
-          variant='regular'
-          className='mb-8 text-center text-muted-foreground'
+          className='mb-3 text-center text-muted-foreground'
         >
-          Great job! You've completed your flashcard practice session.
+          Great work. You started with recognition and active recall.
         </ThemedText>
 
-        {/* Action Buttons */}
-        <View className='w-full max-w-sm space-y-4'>
-          <CustomButton onPress={handlePracticeAgain} className='w-full'>
-            Practice Again
+        <ThemedText className='mb-8 text-center text-sm text-muted-foreground'>
+          Next best step: fill in the missing words while the verses are still
+          fresh.
+        </ThemedText>
+
+        <View className='w-full gap-3'>
+          {currentSession && (
+            <CustomButton onPress={handleContinue} className='w-full'>
+              Continue to Fill in the blanks
+            </CustomButton>
+          )}
+
+          <CustomButton
+            onPress={handlePracticeAgain}
+            variant='outline'
+            className='w-full bg-transparent'
+          >
+            Practice Flashcards Again
           </CustomButton>
 
           <CustomButton
             onPress={handleGoBack}
-            variant='outline'
+            variant='ghost'
             className='w-full'
           >
             Back to Flashcards

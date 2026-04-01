@@ -47,6 +47,7 @@ import { AlertProvider } from '@/hooks/useAlert';
 import { api } from '@/convex/_generated/api';
 import OfflineSyncProvider from '@/components/OfflineSyncProvider';
 import { useOfflineDataStore } from '@/store/offlineDataStore';
+import AppLaunchSplash from '@/components/AppLaunchSplash';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -277,6 +278,9 @@ function RootLayout() {
 
 function ThemeProviderWrapper() {
   const { isDarkMode } = useColorScheme();
+  const [showLaunchSplash, setShowLaunchSplash] = React.useState(
+    Platform.OS !== 'web'
+  );
 
   // Memoize the theme to prevent unnecessary re-renders
   const theme = React.useMemo(
@@ -296,6 +300,9 @@ function ThemeProviderWrapper() {
             </ToastProvider>
           </AlertProvider>
           <PortalHost />
+          {showLaunchSplash ? (
+            <AppLaunchSplash onFinish={() => setShowLaunchSplash(false)} />
+          ) : null}
           <StatusBar style='auto' />
         </SafeAreaProvider>
       </GestureHandlerRootView>

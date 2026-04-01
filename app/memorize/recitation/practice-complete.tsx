@@ -7,14 +7,9 @@ import CustomButton from '@/components/CustomButton';
 import CheckmarkCircleIcon from '@/components/icons/CheckmarkCircleIcon';
 import { usePracticeStore } from '@/store/practiceStore';
 
-export default function FillInBlanksPracticeComplete() {
+export default function RecitationPracticeComplete() {
   const router = useRouter();
-  const { currentSession, clearPracticeSession } = usePracticeStore();
-
-  const handleGoBack = () => {
-    clearPracticeSession();
-    router.replace('/memorize/fill-in-blanks');
-  };
+  const { clearPracticeSession } = usePracticeStore();
 
   return (
     <SafeAreaView className='flex-1 items-center justify-center p-6'>
@@ -28,41 +23,35 @@ export default function FillInBlanksPracticeComplete() {
           variant='bold'
           className='mb-4 text-center text-foreground'
         >
-          Fill in the Blanks Complete
+          Recitation Complete
         </ThemedText>
 
         <ThemedText className='mb-3 text-center text-muted-foreground'>
-          Nice work. You moved from recognition into guided recall.
+          You finished the strongest recall step in the flow.
         </ThemedText>
 
         <ThemedText className='mb-8 text-center text-sm text-muted-foreground'>
-          Next best step: recite the verse aloud with lighter prompts.
+          Keep revisiting the verses that needed review. Consistent short
+          sessions will make them feel natural.
         </ThemedText>
 
         <View className='w-full gap-3'>
-          {currentSession && (
-            <CustomButton
-              onPress={() => router.replace('/memorize/recitation/practice')}
-              className='w-full'
-            >
-              Continue to Recitation
-            </CustomButton>
-          )}
-
           <CustomButton
-            onPress={() => router.replace('/memorize/fill-in-blanks/practice')}
-            variant='outline'
-            className='w-full bg-transparent'
+            onPress={() => router.replace('/memorize/recitation/practice')}
+            className='w-full'
           >
-            Practice Fill in the Blanks Again
+            Practice Recitation Again
           </CustomButton>
 
           <CustomButton
-            onPress={handleGoBack}
-            variant='ghost'
-            className='w-full'
+            onPress={() => {
+              clearPracticeSession();
+              router.replace('/memorize');
+            }}
+            variant='outline'
+            className='w-full bg-transparent'
           >
-            Back to Fill in the Blanks
+            Back to Memorize
           </CustomButton>
         </View>
       </View>

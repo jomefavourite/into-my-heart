@@ -110,7 +110,6 @@ export default function CreateAccount() {
   // );
 
   const redirectUrl = AuthSession.makeRedirectUri({
-    scheme: 'into-my-heart',
     path: 'auth',
     preferLocalhost: Platform.OS === 'web',
   });
