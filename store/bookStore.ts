@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { PlatformStorage } from '@/utils/PlatformStorage';
+import type { VerseImportSource } from '@/lib/offline-sync';
 
 type CollectionVerses = {
   bookName: string;
@@ -11,6 +12,7 @@ type CollectionVerses = {
     verse: string;
     text: string;
   }[];
+  importSource?: VerseImportSource;
 };
 
 interface BookStore {

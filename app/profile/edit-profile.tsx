@@ -1,21 +1,16 @@
 import { View } from 'react-native';
 import React, { useState } from 'react';
 import BackHeader from '@/components/BackHeader';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import ThemedText from '@/components/ThemedText';
 import { useUser } from '@clerk/clerk-expo';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import * as ImagePicker from 'expo-image-picker';
 import CustomButton from '@/components/CustomButton';
-import DeleteIcon, { DeleteLightIcon } from '@/components/icons/DeleteIcon';
-import CustomBottomSheet from '@/components/CustomBottomSheet';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack } from 'expo-router';
 import { useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
-import { useToast } from 'react-native-toast-notifications';
 import { useAlert } from '@/hooks/useAlert';
 
 export const metadata = {
@@ -26,9 +21,7 @@ export const metadata = {
 
 export default function EditProfile() {
   const { user } = useUser();
-  const bottomSheetRef = React.useRef<BottomSheet>(null);
   const updateUserProfile = useMutation(api.users.updateUserProfile);
-  const toast = useToast();
   const { alert } = useAlert();
 
   const [selectedImage, setSelectedImage] = useState<string | undefined>(
@@ -77,22 +70,13 @@ export default function EditProfile() {
         imageUrl: selectedImage || user.imageUrl,
       });
 
-      // toast.show('Profile updated successfully!', {
-      //   type: 'succes',
-      //   placement: 'bottom',
-      //   duration: 4000,
-      //   animationType: 'slide-in',
-      // });
-
-      // Alert.alert('Success', 'Profile updated successfully!');
+      alert('Profile updated', 'Your profile details have been saved.');
     } catch (error) {
       console.error('Error updating profile:', error);
-      // toast.show('Failed to update profile. Please try again.', {
-      //   type: 'danger',
-      //   placement: 'bottom',
-      //   duration: 4000,
-      // });
-      // Alert.alert('Error', 'Failed to update profile. Please try again.');
+      alert(
+        'Save failed',
+        'We could not update your profile right now. Please try again.'
+      );
     } finally {
       setIsLoading(false);
     }
@@ -179,38 +163,8 @@ export default function EditProfile() {
             >
               {isLoading ? 'Saving...' : 'Save Changes'}
             </CustomButton>
-
-            <CustomButton
-              leftIcon
-              variant='destructive'
-              className='w-full'
-              onPress={() => {
-                bottomSheetRef.current?.expand();
-              }}
-            >
-              Delete Account
-            </CustomButton>
           </View>
         </View>
-
-        <CustomBottomSheet ref={bottomSheetRef} index={-1} snapPoints={['30%']}>
-          <BottomSheetView className='p-4 py-8'>
-            <ThemedText className='text-center font-medium'>
-              Delete your account?
-            </ThemedText>
-            <ThemedText className='dark:text-[#909090 text-center text-[#707070]'>
-              This will permanently remove your data, including your saved
-              verses, progress, and goals. This action cannot be undone.
-            </ThemedText>
-
-            <View className='mt-7 gap-2'>
-              <CustomButton onPress={() => bottomSheetRef.current?.close()}>
-                Cancel
-              </CustomButton>
-              <CustomButton variant='destructive'>Delete Account</CustomButton>
-            </View>
-          </BottomSheetView>
-        </CustomBottomSheet>
       </View>
     </SafeAreaView>
   );

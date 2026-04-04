@@ -104,7 +104,7 @@ const SplitVersesBottomSheet = forwardRef<
             )}
           </View>
           <Text className='text-gray-600 dark:text-gray-300 text-base leading-6'>
-            You've selected {verseCount} verses from {bookName} {chapter}:
+            You have selected {verseCount} verses from {bookName} {chapter}:
             {verses.length > 5
               ? `${minVerse}...${maxVerse}`
               : verses.sort((a, b) => a - b).join(', ')}

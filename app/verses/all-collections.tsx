@@ -17,7 +17,10 @@ import CollectionCard from '@/components/Verses/CollectionCard';
 import { useAuth } from '@clerk/clerk-expo';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import CustomButton from '@/components/CustomButton';
-import { useOfflineCollections, useOfflineSyncStatus } from '@/hooks/useOfflineData';
+import {
+  useOfflineCollections,
+  useOfflineSyncStatus,
+} from '@/hooks/useOfflineData';
 import { useOfflineDataStore } from '@/store/offlineDataStore';
 
 const AllCollectionScreen = () => {
@@ -162,6 +165,10 @@ const AllCollectionScreen = () => {
           />
 
           <View className='flex-1 pb-[18px]'>
+            <View className='px-[18px] pb-4'>
+              <ThemedText className='text-sm'>{`${results.length} collections`}</ThemedText>
+            </View>
+
             {results.length === 0 ? (
               <FlatList
                 key={gridView ? 'grid-myverses' : 'list-myverses'}

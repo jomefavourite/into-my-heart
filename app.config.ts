@@ -9,11 +9,26 @@ const OWNER = 'into-my-heart';
 
 // App production config
 const APP_NAME = 'Into My Heart';
+const APP_DESCRIPTION =
+  'Memorize Bible verses with offline-friendly practice, notes, affirmations, and guided Scripture review.';
 const BUNDLE_IDENTIFIER = 'com.favouritejome.intomyheart';
 const PACKAGE_NAME = 'com.favouritejome.intomyheart';
 const ICON = './assets/images/icon.png';
 const ADAPTIVE_ICON = './assets/images/adaptive-icon.png';
 const SCHEME = 'intomyheart';
+const PHOTO_LIBRARY_PERMISSION =
+  'Into My Heart uses your photo library so you can choose a profile picture.';
+const PUBLIC_SITE_URL = (
+  process.env.EXPO_PUBLIC_SITE_URL ?? process.env.EXPO_PUBLIC_CONVEX_SITE_URL
+)?.replace(/\/+$/, '');
+const LEGAL_PATHS = {
+  privacy: '/privacy',
+  terms: '/terms',
+  accountDeletion: '/account-deletion',
+};
+
+const buildPublicUrl = (path: string) =>
+  PUBLIC_SITE_URL ? `${PUBLIC_SITE_URL}${path}` : path;
 
 export default ({ config }: ConfigContext): ExpoConfig => {
   const { name, bundleIdentifier, icon, adaptiveIcon, packageName, scheme } =
@@ -26,10 +41,10 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ...config,
     name: name,
     version, // Automatically bump your project version with `npm version patch`, `npm version minor` or `npm version major`.
+    description: APP_DESCRIPTION,
     slug: PROJECT_SLUG, // Must be consistent across all environments.
     orientation: 'portrait',
     userInterfaceStyle: 'automatic',
-    newArchEnabled: true,
     icon: icon,
     scheme: scheme,
     ios: {
@@ -37,9 +52,11 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       bundleIdentifier: bundleIdentifier,
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
+        NSPhotoLibraryUsageDescription: PHOTO_LIBRARY_PERMISSION,
       },
     },
     android: {
+      blockedPermissions: ['android.permission.RECORD_AUDIO'],
       adaptiveIcon: {
         foregroundImage: adaptiveIcon,
         backgroundColor: '#ffffff',
@@ -56,6 +73,13 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       router: {
         origin: false,
       },
+      publicSiteUrl: PUBLIC_SITE_URL,
+      legalPaths: LEGAL_PATHS,
+      legalUrls: {
+        privacy: buildPublicUrl(LEGAL_PATHS.privacy),
+        terms: buildPublicUrl(LEGAL_PATHS.terms),
+        accountDeletion: buildPublicUrl(LEGAL_PATHS.accountDeletion),
+      },
       eas: {
         projectId: EAS_PROJECT_ID,
       },
@@ -67,6 +91,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
     plugins: [
       'expo-router',
+      '@sentry/react-native',
       [
         'expo-splash-screen',
         {
@@ -80,6 +105,36 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         'expo-font',
         {
           fonts: ['node_modules/@expo-google-fonts/inter/Inter_900Black.ttf'],
+        },
+      ],
+      [
+        'expo-notifications',
+        {
+          defaultChannel: 'daily-reminders',
+        },
+      ],
+      'expo-image',
+      [
+        'expo-image-picker',
+        {
+          photosPermission: PHOTO_LIBRARY_PERMISSION,
+        },
+      ],
+      [
+        'expo-sharing',
+        {
+          ios: {
+            enabled: true,
+            activationRule: {
+              supportsText: true,
+              supportsWebUrlWithMaxCount: 1,
+              supportsWebPageWithMaxCount: 1,
+            },
+          },
+          android: {
+            enabled: true,
+            singleShareMimeTypes: ['text/*'],
+          },
         },
       ],
       'expo-secure-store',

@@ -1,3 +1,4 @@
+/* eslint-disable react/display-name, react/no-unescaped-entities */
 import React, { memo, useCallback, useMemo, useRef } from 'react';
 import { View, Text, TouchableOpacity, Pressable } from 'react-native';
 import BottomSheet, {

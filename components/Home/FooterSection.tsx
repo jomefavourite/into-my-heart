@@ -35,12 +35,12 @@ const socialIcons = [
 
 // Define footer policy links
 const policyLinks = [
-  { text: 'Privacy Policy', href: '#' },
-  { text: 'Terms of Service', href: '#' },
-  { text: 'Cookie Policy', href: '#' },
+  { text: 'Privacy Policy', href: '/privacy' },
+  { text: 'Terms of Service', href: '/terms' },
+  { text: 'Cookie Policy', href: '/privacy#cookies' },
 ];
 
-const FooterSection = (): JSX.Element => {
+const FooterSection = () => {
   return (
     <footer className='flex w-full flex-col gap-6 px-6 py-9 md:px-[107px]'>
       <div className='flex w-full flex-col items-start justify-between gap-8 md:flex-row'>
@@ -126,13 +126,13 @@ const FooterSection = (): JSX.Element => {
 
         <div className='flex flex-wrap items-center gap-3.5'>
           {policyLinks.map((link, index) => (
-            <a
+            <Link
               key={index}
-              href={link.href}
+              href={link.href as Href}
               className='text-sm font-medium text-[#707070] transition-colors hover:text-[#313131]'
             >
               {link.text}
-            </a>
+            </Link>
           ))}
         </div>
       </div>

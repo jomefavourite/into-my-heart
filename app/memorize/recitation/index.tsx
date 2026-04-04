@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BackHeader from '@/components/BackHeader';
 import PracticeComp from '@/components/PracticeScreen/PracticeComp';
+import PracticeSettingsButton from '@/components/PracticeScreen/PracticeSettingsButton';
 
 export default function RecitationIndex() {
   return (
@@ -23,6 +24,8 @@ export default function RecitationIndex() {
           { label: 'Memorize', href: '/memorize' },
           { label: 'Recitation', href: '/memorize/recitation' },
         ]}
+        RightComponent={<PracticeSettingsButton />}
+        BreadcrumbRightComponent={<PracticeSettingsButton />}
       />
 
       <PracticeComp name='recitation' />

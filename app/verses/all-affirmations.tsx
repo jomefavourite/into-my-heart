@@ -24,7 +24,9 @@ import { useOfflineDataStore } from '@/store/offlineDataStore';
 const AllAffirmationsScreen = () => {
   const { gridView } = useGridListView();
   const [shouldSelect, setShouldSelect] = useState(false);
-  const [selectedAffirmations, setSelectedAffirmations] = useState<string[]>([]);
+  const [selectedAffirmations, setSelectedAffirmations] = useState<string[]>(
+    []
+  );
   const router = useRouter();
   const toast = useToast();
   const { alert } = useAlert();
@@ -154,6 +156,10 @@ const AllAffirmationsScreen = () => {
       />
 
       <View className='flex-1 pb-[18px]'>
+        <View className='px-[18px] pb-4'>
+          <ThemedText className='text-sm'>{`${results.length} affirmations`}</ThemedText>
+        </View>
+
         {!hasHydrated ? (
           <FlashListSkeletonLoader type='verses' gridView={gridView} />
         ) : results && results.length > 0 ? (

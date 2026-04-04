@@ -1,5 +1,5 @@
 import { View, ScrollView, Platform } from 'react-native';
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ViewShot from 'react-native-view-shot';
@@ -27,14 +27,26 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAlert } from '@/hooks/useAlert';
 import { BOOKS } from '@/lib/books';
+import {
+  buildMemorizationVerseStates,
+  formatDueAtLabel,
+  getMemorizationStatusLabel,
+  getPracticeMethodLabel,
+} from '@/lib/memorization';
+import { getPracticeMethodMeta, type PracticeMethod } from '@/lib/practiceFlow';
 import { normalizeBibleText } from '@/lib/verseText';
-import { useOfflineVerse } from '@/hooks/useOfflineData';
+import {
+  useOfflineVerse,
+  useOfflineVerseProgress,
+} from '@/hooks/useOfflineData';
 import { useOfflineDataStore } from '@/store/offlineDataStore';
+import { usePracticeStore } from '@/store/practiceStore';
 
 export default function VersePage() {
   const router = useRouter();
   const { verseId } = useLocalSearchParams();
   const verse = useOfflineVerse(verseId);
+  const verseProgress = useOfflineVerseProgress();
   const viewShotRef = useRef<ViewShot>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const speechUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
@@ -42,8 +54,21 @@ export default function VersePage() {
     state => state.toggleFeaturedVerseLocal
   );
   const deleteVerse = useOfflineDataStore(state => state.deleteVerseLocal);
+  const setPracticeSession = usePracticeStore(
+    state => state.setPracticeSession
+  );
   const { isDarkMode } = useColorScheme();
   const { alert } = useAlert();
+  const memorizationState = useMemo(() => {
+    if (!verse) {
+      return null;
+    }
+
+    return buildMemorizationVerseStates({
+      verses: [verse],
+      verseProgress,
+    })[0];
+  }, [verse, verseProgress]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -225,6 +250,48 @@ export default function VersePage() {
     ]);
   };
 
+  const recommendedMethod =
+    memorizationState?.progress.nextMethod ?? 'flashcards';
+  const primaryPracticeLabel = (() => {
+    if (memorizationState?.isMastered || memorizationState?.isStrengthening) {
+      return 'Review this verse';
+    }
+
+    return 'Practice this verse';
+  })();
+  const importedFromLabel = verse?.importSource
+    ? `${verse.importSource.provider === 'bible.com' ? 'Bible.com' : 'shared text'}${
+        verse.importSource.version ? ` (${verse.importSource.version})` : ''
+      }`
+    : null;
+  const importTextFidelity = verse?.importSource?.textFidelity ?? null;
+
+  const handleStartPractice = (
+    method: PracticeMethod,
+    source: 'verseDetail' | 'manualTechnique' = 'verseDetail'
+  ) => {
+    if (!verse) {
+      return;
+    }
+
+    setPracticeSession(
+      [
+        {
+          _id: verse.syncId,
+          bookName: verse.bookName,
+          chapter: verse.chapter,
+          verses: verse.verses,
+          verseTexts: verse.verseTexts,
+          reviewFreq: verse.reviewFreq,
+        },
+      ],
+      'verses',
+      method,
+      source
+    );
+    router.push(getPracticeMethodMeta(method).practiceRoute);
+  };
+
   const RightComponent = (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -242,6 +309,76 @@ export default function VersePage() {
       </DropdownMenuContent>
     </DropdownMenu>
   );
+
+  const VerseImageDownload = () => {
+    return (
+      <>
+        {/* Hidden view for capturing */}
+        <ViewShot
+          ref={viewShotRef}
+          options={{ format: 'png', quality: 1.0 }}
+          style={{ position: 'absolute', top: -9999, width: 800, height: 600 }}
+        >
+          <View
+            style={{
+              backgroundColor: '#ffffff',
+              padding: 40,
+              width: 800,
+              height: 600,
+              justifyContent: 'space-between',
+            }}
+          >
+            {/* Logo */}
+            <Logo />
+
+            {/* Verse content */}
+            <View
+              style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <ThemedText
+                style={{ fontSize: 18, color: '#313131', marginBottom: 20 }}
+              >
+                {verse?.bookName} {verse?.chapter}:
+                {formatVerseDisplay(verse?.verses)}
+              </ThemedText>
+
+              {verse && verse?.verseTexts?.length > 0 ? (
+                <View style={{ alignItems: 'center', gap: 10 }}>
+                  {verse.verseTexts.map((text, index) => (
+                    <ThemedText
+                      key={index}
+                      style={{
+                        fontSize: 16,
+                        color: '#313131',
+                        textAlign: 'center',
+                      }}
+                    >
+                      {text.verse}. {normalizeBibleText(text.text)}
+                    </ThemedText>
+                  ))}
+                </View>
+              ) : (
+                <ThemedText style={{ fontSize: 16, color: '#313131' }}>
+                  ...
+                </ThemedText>
+              )}
+            </View>
+
+            {/* App name */}
+            <View style={{ alignItems: 'center', marginTop: 40 }}>
+              <ThemedText style={{ fontSize: 14, color: '#909090' }}>
+                Into My Heart
+              </ThemedText>
+            </View>
+          </View>
+        </ViewShot>
+      </>
+    );
+  };
 
   return (
     <SafeAreaView className='flex-1'>
@@ -275,65 +412,7 @@ export default function VersePage() {
         RightComponent={RightComponent}
       />
 
-      {/* Hidden view for capturing */}
-      <ViewShot
-        ref={viewShotRef}
-        options={{ format: 'png', quality: 1.0 }}
-        style={{ position: 'absolute', top: -9999, width: 800, height: 600 }}
-      >
-        <View
-          style={{
-            backgroundColor: '#ffffff',
-            padding: 40,
-            width: 800,
-            height: 600,
-            justifyContent: 'space-between',
-          }}
-        >
-          {/* Logo */}
-          <Logo />
-
-          {/* Verse content */}
-          <View
-            style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-          >
-            <ThemedText
-              style={{ fontSize: 18, color: '#313131', marginBottom: 20 }}
-            >
-              {verse?.bookName} {verse?.chapter}:
-              {formatVerseDisplay(verse?.verses)}
-            </ThemedText>
-
-            {verse && verse?.verseTexts?.length > 0 ? (
-              <View style={{ alignItems: 'center', gap: 10 }}>
-                {verse.verseTexts.map((text, index) => (
-                  <ThemedText
-                    key={index}
-                    style={{
-                      fontSize: 16,
-                      color: '#313131',
-                      textAlign: 'center',
-                    }}
-                  >
-                    {text.verse}. {normalizeBibleText(text.text)}
-                  </ThemedText>
-                ))}
-              </View>
-            ) : (
-              <ThemedText style={{ fontSize: 16, color: '#313131' }}>
-                '...'
-              </ThemedText>
-            )}
-          </View>
-
-          {/* App name */}
-          <View style={{ alignItems: 'center', marginTop: 40 }}>
-            <ThemedText style={{ fontSize: 14, color: '#909090' }}>
-              Into My Heart
-            </ThemedText>
-          </View>
-        </View>
-      </ViewShot>
+      <VerseImageDownload />
 
       <View className='flex-1 justify-between px-[18px] pb-[18px]'>
         <View>
@@ -341,7 +420,8 @@ export default function VersePage() {
             <View className='mx-auto max-w-[500px] gap-1'>
               <ThemedText className=''>
                 {verse?.bookName} {verse?.chapter}:
-                {formatVerseDisplay(verse?.verses)}
+                {formatVerseDisplay(verse?.verses)}{' '}
+                {verse?.importSource?.version || 'KJV'}
               </ThemedText>
               {Platform.OS === 'web' ? (
                 <View
@@ -358,7 +438,7 @@ export default function VersePage() {
                       </ThemedText>
                     ))
                   ) : (
-                    <ThemedText className=''>'...'</ThemedText>
+                    <ThemedText className=''>...</ThemedText>
                   )}
                 </View>
               ) : (
@@ -376,7 +456,7 @@ export default function VersePage() {
                       </ThemedText>
                     ))
                   ) : (
-                    <ThemedText className=''>'...'</ThemedText>
+                    <ThemedText className=''>...</ThemedText>
                   )}
                 </ScrollView>
               )}
@@ -441,13 +521,15 @@ export default function VersePage() {
             </Button> */}
 
             {/* <WithTooltip tooltipContents='Download image'> */}
-            <Button
+
+            {/* <Button
               size={'icon'}
               className='w-10'
               onPress={handleDownloadImage}
             >
               <ImageIcon />
-            </Button>
+            </Button> */}
+
             {/* </WithTooltip> */}
           </View>
 
@@ -462,9 +544,107 @@ export default function VersePage() {
               and meaning.
             </ThemedText>
           </View>
+
+          {verse?.importSource && importedFromLabel && (
+            <View className='mt-4 rounded-md bg-container p-3'>
+              <ThemedText className='text-md font-medium'>
+                Import Source
+              </ThemedText>
+              <ThemedText className='mt-2 text-sm'>
+                Imported from {importedFromLabel} via{' '}
+                {verse.importSource.channel === 'nativeShare'
+                  ? 'share sheet'
+                  : verse.importSource.channel === 'webShareTarget'
+                    ? 'web share target'
+                    : 'paste'}
+                .
+              </ThemedText>
+              {verse.importSource.version ? (
+                <ThemedText className='mt-1 text-sm'>
+                  {importTextFidelity === 'offlineFallback'
+                    ? `Imported from ${verse.importSource.version}, but stored verse text fell back to offline KJV because exact verse-by-verse parsing was unavailable.`
+                    : `Stored text keeps the imported ${verse.importSource.version} wording.`}
+                </ThemedText>
+              ) : null}
+              {verse.importSource.sourceUrl ? (
+                <ThemedText className='mt-1 text-xs text-muted-foreground'>
+                  {verse.importSource.sourceUrl}
+                </ThemedText>
+              ) : null}
+            </View>
+          )}
+
+          {memorizationState && (
+            <View className='mt-4 rounded-md bg-container p-3'>
+              <View className='flex-row items-center justify-between gap-3'>
+                <ThemedText className='text-md font-medium'>
+                  Memorization Progress
+                </ThemedText>
+                <ThemedText className='text-sm text-muted-foreground'>
+                  {getMemorizationStatusLabel(
+                    memorizationState.progress.status
+                  )}
+                </ThemedText>
+              </View>
+
+              <View className='mt-3 gap-2'>
+                <View className='flex-row items-center justify-between gap-3'>
+                  <ThemedText className='text-sm text-muted-foreground'>
+                    Recommended technique
+                  </ThemedText>
+                  <ThemedText className='text-sm'>
+                    {getPracticeMethodLabel(
+                      memorizationState.progress.nextMethod
+                    )}
+                  </ThemedText>
+                </View>
+
+                <View className='flex-row items-center justify-between gap-3'>
+                  <ThemedText className='text-sm text-muted-foreground'>
+                    Review again
+                  </ThemedText>
+                  <ThemedText className='text-sm'>
+                    {formatDueAtLabel(memorizationState.progress.dueAt)}
+                  </ThemedText>
+                </View>
+
+                <View className='flex-row items-center justify-between gap-3'>
+                  <ThemedText className='text-sm text-muted-foreground'>
+                    Successful reviews
+                  </ThemedText>
+                  <ThemedText className='text-sm'>
+                    {memorizationState.progress.successfulReviewCount}
+                  </ThemedText>
+                </View>
+              </View>
+            </View>
+          )}
+
+          <View className='mt-4 gap-3'>
+            <ThemedText className='text-sm font-medium'>
+              Choose a technique for this verse
+            </ThemedText>
+
+            <View className='flex-row flex-wrap gap-3'>
+              {(
+                ['flashcards', 'fillInBlanks', 'recitation'] as PracticeMethod[]
+              ).map(method => (
+                <CustomButton
+                  key={method}
+                  variant='outline'
+                  className='bg-transparent px-5'
+                  onPress={() => handleStartPractice(method, 'manualTechnique')}
+                >
+                  {getPracticeMethodLabel(method)}
+                </CustomButton>
+              ))}
+            </View>
+          </View>
         </View>
 
-        <CustomButton>Start practice</CustomButton>
+        <CustomButton onPress={() => handleStartPractice(recommendedMethod)}>
+          {primaryPracticeLabel}
+        </CustomButton>
       </View>
     </SafeAreaView>
   );

@@ -48,6 +48,8 @@ import { api } from '@/convex/_generated/api';
 import OfflineSyncProvider from '@/components/OfflineSyncProvider';
 import { useOfflineDataStore } from '@/store/offlineDataStore';
 import AppLaunchSplash from '@/components/AppLaunchSplash';
+import { useImportShareStore } from '@/store/importShareStore';
+import { rehydrateDailyReminderAsync } from '@/lib/notifications';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -107,11 +109,17 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
   const { isAuthenticated: isConvexAuthenticated } = useConvexAuth();
   const offlineHasHydrated = useOfflineDataStore(state => state.hasHydrated);
   const offlineCurrentUser = useOfflineDataStore(state => state.currentUser);
+  const pendingShare = useImportShareStore(state => state.pendingShare);
   const ensureCurrentUser = useMutation(api.users.ensureCurrentUser);
   const syncedClerkId = React.useRef<string | null>(null);
   const segments = useSegments();
   const router = useRouter();
   const inOnboardingGroup = segments[0] === '(onboarding)';
+  const isImportRoute =
+    segments[0] === 'verses' && segments[1] === 'import-verses';
+  const isPublicLegalRoute =
+    inOnboardingGroup &&
+    ['privacy', 'terms', 'account-deletion'].includes(segments[1] ?? '');
   const hasOfflineAccess = Boolean(offlineHasHydrated && offlineCurrentUser);
 
   // This prevent flash of white on navigation
@@ -169,20 +177,32 @@ function InitialLayout({ isDarkMode }: { isDarkMode: boolean }) {
   useEffect(() => {
     if (!isLoaded || !offlineHasHydrated) return;
 
-    if (!isSignedIn && !hasOfflineAccess && !inOnboardingGroup) {
+    if (
+      !isSignedIn &&
+      !hasOfflineAccess &&
+      !inOnboardingGroup &&
+      !isImportRoute
+    ) {
       router.replace('/(onboarding)/onboard');
       return;
     }
 
-    if ((isSignedIn || hasOfflineAccess) && inOnboardingGroup) {
-      router.replace('/(tabs)');
+    if (
+      (isSignedIn || hasOfflineAccess) &&
+      inOnboardingGroup &&
+      !isPublicLegalRoute
+    ) {
+      router.replace(pendingShare ? '/verses/import-verses' : '/(tabs)');
     }
   }, [
     hasOfflineAccess,
     inOnboardingGroup,
+    isImportRoute,
+    isPublicLegalRoute,
     isLoaded,
     isSignedIn,
     offlineHasHydrated,
+    pendingShare,
     router,
   ]);
 
@@ -288,12 +308,21 @@ function ThemeProviderWrapper() {
     [isDarkMode]
   );
 
+  React.useEffect(() => {
+    void rehydrateDailyReminderAsync();
+  }, []);
+
   return (
     <ThemeProvider value={theme}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider initialMetrics={initialWindowMetrics}>
           <AlertProvider>
-            <ToastProvider>
+            <ToastProvider
+              successColor='black'
+              dangerColor='black'
+              warningColor='black'
+              normalColor='black'
+            >
               <OfflineSyncProvider>
                 <InitialLayout isDarkMode={isDarkMode} />
               </OfflineSyncProvider>

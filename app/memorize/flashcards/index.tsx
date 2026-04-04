@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Platform } from 'react-native';
 import BackHeader from '@/components/BackHeader';
 import PracticeComp from '@/components/PracticeScreen/PracticeComp';
+import PracticeSettingsButton from '@/components/PracticeScreen/PracticeSettingsButton';
 
 export default function Flashcards() {
   return (
@@ -35,6 +36,8 @@ export default function Flashcards() {
           { label: 'Memorize', href: '/memorize' },
           { label: 'Flashcards', href: '/memorize/flashcards' },
         ]}
+        RightComponent={<PracticeSettingsButton />}
+        BreadcrumbRightComponent={<PracticeSettingsButton />}
       />
 
       <PracticeComp name='flashcards' />

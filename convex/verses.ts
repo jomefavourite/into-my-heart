@@ -3,6 +3,7 @@ import { mutation, query } from './_generated/server';
 import { getCurrentUserOrThrow } from './users';
 import { paginationOptsValidator } from 'convex/server';
 import { Id } from './_generated/dataModel';
+import { importSourceValidator, verseTextValidator } from './sharedValidators';
 
 export const addVerse = mutation({
   args: {
@@ -10,13 +11,9 @@ export const addVerse = mutation({
     chapter: v.number(),
     verses: v.array(v.string()),
     reviewFreq: v.string(),
-    verseTexts: v.array(
-      v.object({
-        verse: v.string(),
-        text: v.string(),
-      })
-    ),
+    verseTexts: v.array(verseTextValidator),
     isGroup: v.optional(v.boolean()),
+    importSource: v.optional(importSourceValidator),
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUserOrThrow(ctx);
@@ -65,6 +62,7 @@ export const addVerse = mutation({
       reviewFreq: args.reviewFreq,
       verseTexts: args.verseTexts,
       userId: user._id, // Reference to the user who created the verse
+      importSource: args.importSource,
     });
   },
 });
@@ -76,12 +74,7 @@ export const updateVerse = mutation({
     chapter: v.number(),
     verses: v.array(v.string()),
     reviewFreq: v.string(),
-    verseTexts: v.array(
-      v.object({
-        verse: v.string(),
-        text: v.string(),
-      })
-    ),
+    verseTexts: v.array(verseTextValidator),
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUserOrThrow(ctx);
@@ -137,6 +130,7 @@ export const updateVerse = mutation({
       verses: args.verses,
       reviewFreq: args.reviewFreq,
       verseTexts: args.verseTexts,
+      importSource: existingVerse.importSource,
     });
 
     return { success: true };
@@ -249,9 +243,12 @@ export const getVerseById = query({
     id: v.id('verses'),
   },
   handler: async (ctx, args) => {
-    await getCurrentUserOrThrow(ctx);
+    const user = await getCurrentUserOrThrow(ctx);
 
     const verse = await ctx.db.get(args.id);
+    if (!verse || verse.userId !== user._id) {
+      return null;
+    }
     return verse;
   },
 });

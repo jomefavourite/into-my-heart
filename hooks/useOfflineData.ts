@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { normalizeVerseProgress } from '@/lib/memorization';
 import { useShallow } from 'zustand/react/shallow';
 import { useOfflineDataStore } from '@/store/offlineDataStore';
 import { sortByUpdatedAtDesc } from '@/lib/offline-sync';
@@ -13,6 +14,7 @@ export const useOfflineSyncStatus = () =>
       lastSyncedAt: state.lastSyncedAt,
       lastSyncError: state.lastSyncError,
       pendingOperations: state.queue.length,
+      completedPracticeSessions: state.practiceSessions.length,
     }))
   );
 
@@ -103,5 +105,40 @@ export const useOfflineCollectionSuggestions = (limit?: number) => {
   return useMemo(
     () => (limit ? suggestions.slice(0, limit) : suggestions),
     [limit, suggestions]
+  );
+};
+
+export const useOfflinePracticeSessions = (limit?: number) => {
+  const practiceSessions = useOfflineDataStore(state => state.practiceSessions);
+  return useMemo(
+    () =>
+      limit
+        ? sortByUpdatedAtDesc(practiceSessions).slice(0, limit)
+        : sortByUpdatedAtDesc(practiceSessions),
+    [limit, practiceSessions]
+  );
+};
+
+export const useOfflineVerseProgress = () => {
+  const verseProgress = useOfflineDataStore(state => state.verseProgress);
+  return useMemo(
+    () => sortByUpdatedAtDesc(verseProgress).map(record => normalizeVerseProgress(record)),
+    [verseProgress]
+  );
+};
+
+export const useOfflineLaunchStats = () => {
+  const verses = useOfflineDataStore(state => state.verses);
+  const collections = useOfflineDataStore(state => state.collections);
+  const practiceSessions = useOfflineDataStore(state => state.practiceSessions);
+
+  return useMemo(
+    () => ({
+      savedVerses: verses.length,
+      savedCollections: collections.length,
+      completedPracticeSessions: practiceSessions.length,
+      lastPracticeSession: sortByUpdatedAtDesc(practiceSessions)[0] ?? null,
+    }),
+    [collections.length, practiceSessions, verses.length]
   );
 };

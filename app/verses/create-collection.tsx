@@ -63,6 +63,7 @@ const CreateCollection = () => {
             verses: verse.verses,
             reviewFreq: verse.reviewFreq ?? '',
             verseTexts: verse.verseTexts,
+            importSource: verse.importSource,
           }))
         : [];
 
@@ -89,6 +90,7 @@ const CreateCollection = () => {
         verses: verse.verses,
         reviewFreq: verse.reviewFreq ?? '',
         verseTexts: verse.verseTexts,
+        importSource: verse.importSource,
       }));
 
       setCollectionVersesArray(newVerses);
@@ -174,7 +176,7 @@ const CreateCollection = () => {
           <Input
             aria-aria-labelledby='collectionName'
             defaultValue={collectionName}
-            placeholder='Enter goal name'
+            placeholder='Enter collection name'
             className={`dark:text-white ${hasInputError ? 'border border-red-500' : ''}`}
             onChangeText={text => {
               setCollectionName(text);

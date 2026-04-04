@@ -3,24 +3,12 @@ import { mutation, query } from './_generated/server';
 import { getCurrentUserOrThrow } from './users';
 import { paginationOptsValidator } from 'convex/server';
 import { Id } from './_generated/dataModel';
+import { collectionVerseValidator } from './sharedValidators';
 
 export const addCollection = mutation({
   args: {
     collectionName: v.string(),
-    collectionVerses: v.array(
-      v.object({
-        bookName: v.string(),
-        chapter: v.number(),
-        verses: v.array(v.string()),
-        reviewFreq: v.string(),
-        verseTexts: v.array(
-          v.object({
-            verse: v.string(),
-            text: v.string(),
-          })
-        ),
-      })
-    ),
+    collectionVerses: v.array(collectionVerseValidator),
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUserOrThrow(ctx);
@@ -78,10 +66,11 @@ export const getTotalCollectionsCount = query({
 export const getAllCollections = query({
   args: { paginationOpts: paginationOptsValidator },
   handler: async (ctx, args) => {
-    await getCurrentUserOrThrow(ctx);
+    const user = await getCurrentUserOrThrow(ctx);
 
     const verses = await ctx.db
       .query('collections')
+      .withIndex('byUserId', q => q.eq('userId', user._id))
       .order('desc')
       .paginate(args.paginationOpts);
     return verses;
@@ -115,9 +104,12 @@ export const getCollectionById = query({
     id: v.id('collections'),
   },
   handler: async (ctx, args) => {
-    await getCurrentUserOrThrow(ctx);
+    const user = await getCurrentUserOrThrow(ctx);
 
     const collection = await ctx.db.get(args.id);
+    if (!collection || collection.userId !== user._id) {
+      return null;
+    }
     return collection;
   },
 });
@@ -125,27 +117,14 @@ export const getCollectionById = query({
 export const updateCollectionVerses = mutation({
   args: {
     id: v.id('collections'),
-    collectionVerses: v.array(
-      v.object({
-        bookName: v.string(),
-        chapter: v.number(),
-        verses: v.array(v.string()),
-        reviewFreq: v.string(),
-        verseTexts: v.array(
-          v.object({
-            verse: v.string(),
-            text: v.string(),
-          })
-        ),
-      })
-    ),
+    collectionVerses: v.array(collectionVerseValidator),
   },
   handler: async (ctx, args) => {
-    await getCurrentUserOrThrow(ctx);
+    const user = await getCurrentUserOrThrow(ctx);
 
     const collection = await ctx.db.get(args.id);
 
-    if (!collection) {
+    if (!collection || collection.userId !== user._id) {
       throw new Error('Collection not found');
     }
 
@@ -162,25 +141,17 @@ export const updateCollection = mutation({
   args: {
     id: v.id('collections'),
     collectionName: v.string(),
-    collectionVerses: v.array(
-      v.object({
-        bookName: v.string(),
-        chapter: v.number(),
-        verses: v.array(v.string()),
-        reviewFreq: v.string(),
-        verseTexts: v.array(
-          v.object({
-            verse: v.string(),
-            text: v.string(),
-          })
-        ),
-      })
-    ),
+    collectionVerses: v.array(collectionVerseValidator),
   },
   handler: async (ctx, args) => {
-    await getCurrentUserOrThrow(ctx);
+    const user = await getCurrentUserOrThrow(ctx);
 
-    const collection = await ctx.db.patch(args.id, {
+    const collection = await ctx.db.get(args.id);
+    if (!collection || collection.userId !== user._id) {
+      throw new Error('Collection not found');
+    }
+
+    const updatedCollection = await ctx.db.patch(args.id, {
       collectionName: args.collectionName,
       versesLength: args.collectionVerses.length, // Automatically calculate from collectionVerses
       collectionVerses: args.collectionVerses.map(verse => ({
@@ -189,7 +160,7 @@ export const updateCollection = mutation({
       })),
     });
 
-    return collection;
+    return updatedCollection;
   },
 });
 
@@ -237,6 +208,7 @@ export const addVersesToCollection = mutation({
         verses: verse!.verses,
         reviewFreq: verse!.reviewFreq ?? '',
         verseTexts: verse!.verseTexts,
+        importSource: verse!.importSource,
       }))
       .filter(newVerse => {
         // Check if this verse already exists in the collection

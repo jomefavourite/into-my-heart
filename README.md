@@ -1,50 +1,168 @@
-# Welcome to your Expo app 👋
+# Into My Heart
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Into My Heart is an Expo + React Native Bible verse memorization app backed by Convex and Clerk. The launch scope is a lean, offline-first core focused on saving verses, building collections, taking notes, writing affirmations, and practicing with flashcards, fill-in-the-blanks, and recitation.
 
-## Get started
+## Launch Scope
 
-1. Install dependencies
+- `KJV only` for verse text and practice
+- Offline-first local persistence with sync to Convex
+- Core memorization flows:
+  - verses
+  - collections
+  - notes
+  - affirmations
+  - featured verse
+  - flashcards
+  - fill in the blanks
+  - recitation
+- Basic progress tracking:
+  - completed practice sessions
+  - per-verse practice totals
+- Native daily reminder notifications
 
-   ```bash
-   npm install
-   ```
+Out of scope for this launch:
 
-2. Start the app
+- verse of the day
+- goals
+- streaks
+- badges
+- Bible version switching
 
-   ```bash
-    npx expo start
-   ```
+## Tech Stack
 
-In the output, you'll find options to open the app in a
+- Expo SDK 54
+- React Native
+- Expo Router
+- Convex
+- Clerk
+- Zustand
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Required Environment Variables
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### App
 
-## Get a fresh project
+- `EXPO_PUBLIC_CONVEX_URL`
+- `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY`
 
-When you're ready, run:
+### Convex / Clerk backend integration
+
+- `CLERK_JWT_ISSUER_DOMAIN`
+- `CLERK_WEBHOOK_SECRET`
+- `CLERK_SECRET_KEY`
+
+`CLERK_SECRET_KEY` is required for the server-side account deletion flow.
+
+## Local Setup
+
+1. Install dependencies:
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Set the required environment variables.
 
-## Learn more
+3. Start the app:
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+npx expo start
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Web
 
-## Join the community
+```bash
+npx expo start --web --port 8081
+```
 
-Join our community of developers creating universal apps.
+The web app runs at [http://localhost:8081](http://localhost:8081).
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Common Commands
+
+### Run
+
+```bash
+npm run start
+npm run web
+npm run ios
+npm run android
+```
+
+Native reminder notifications require an iOS or Android build. They are not available on web.
+
+### Lint
+
+```bash
+npx expo lint
+```
+
+### Tests
+
+```bash
+npx jest --passWithNoTests --watchAll=false
+npm run test:e2e
+```
+
+### Format
+
+```bash
+npm run format:check
+npm run format
+```
+
+## Convex Notes
+
+- Convex schema lives in `convex/schema.ts`.
+- The app uses offline-first state in `store/offlineDataStore.ts`.
+- Sync orchestration lives in `components/OfflineSyncProvider.tsx` and `convex/sync.ts`.
+- Practice progress uses:
+  - `practiceSessions`
+  - `verseProgress`
+
+When editing Convex code, read `convex/_generated/ai/guidelines.md` first.
+
+## Clerk Notes
+
+- Clerk handles auth and onboarding.
+- Convex auth is configured in `convex/auth.config.ts`.
+- Clerk user webhooks are handled in `convex/http.ts`.
+- Account deletion is a server-side Convex action that removes Convex data first and deletes the Clerk user last.
+
+## Admin Setup
+
+Admin tooling is internal-only for launch.
+
+To create the first admin, use one of the Convex mutations in `convex/users.ts`:
+
+- `setupFirstAdmin`
+- `setupAdminByClerkId`
+
+The admin page is available at `/admin` for authenticated admin users.
+
+## Account Deletion
+
+The launch build supports full account deletion.
+
+Deletion flow:
+
+1. Delete the user’s saved verses, collections, notes, affirmations, practice sessions, and verse progress from Convex.
+2. Delete the user document.
+3. Delete the Clerk account with `CLERK_SECRET_KEY`.
+4. Clear local offline state and return the user to onboarding.
+
+## Project Structure
+
+- `app/`: Expo Router screens
+- `components/`: shared UI and feature components
+- `convex/`: backend schema and functions
+- `hooks/`: shared hooks
+- `store/`: Zustand stores
+- `lib/`: utilities, Bible data access, practice helpers
+
+## Current Product Notes
+
+- Imported verses resolve to the app’s local KJV text.
+- Profile stats are launch-safe metrics:
+  - saved verses
+  - saved collections
+  - completed practice sessions
+- Collection and verse detail pages can start guided practice directly.

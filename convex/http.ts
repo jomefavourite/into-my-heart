@@ -7,21 +7,31 @@ import type { UserJSON, WebhookEvent } from '@clerk/backend';
 const http = httpRouter();
 
 const handleClerkWebhook = httpAction(async (ctx, request) => {
-  const { data, type } = await request.json();
+  const event = await validateRequest(request);
+  if (!event) {
+    return new Response('Invalid webhook signature', {
+      status: 401,
+    });
+  }
 
-  switch (type) {
+  switch (event.type) {
     case 'user.created':
       await ctx.runMutation(internal.users.upsertFromClerk, {
-        data: data as UserJSON,
+        data: event.data as UserJSON,
       });
       break;
     case 'user.deleted':
+      if (!('id' in event.data) || typeof event.data.id !== 'string') {
+        return new Response('Invalid user.deleted payload', {
+          status: 400,
+        });
+      }
       await ctx.runMutation(internal.users.deleteFromClerk, {
-        clerkUserId: data.id,
+        clerkUserId: event.data.id,
       });
       break;
     default:
-      console.log('Ignored Clerk webhook event', type);
+      console.log('Ignored Clerk webhook event', event.type);
       break;
   }
 
@@ -37,13 +47,28 @@ http.route({
 });
 
 async function validateRequest(req: Request): Promise<WebhookEvent | null> {
+  const webhookSecret = process.env.CLERK_WEBHOOK_SECRET;
+  if (!webhookSecret) {
+    console.error('CLERK_WEBHOOK_SECRET is not configured');
+    return null;
+  }
+
   const payloadString = await req.text();
+  const svixId = req.headers.get('svix-id');
+  const svixTimestamp = req.headers.get('svix-timestamp');
+  const svixSignature = req.headers.get('svix-signature');
+
+  if (!svixId || !svixTimestamp || !svixSignature) {
+    console.error('Missing Svix headers on Clerk webhook request');
+    return null;
+  }
+
   const svixHeaders = {
-    'svix-id': req.headers.get('svix-id')!,
-    'svix-timestamp': req.headers.get('svix-timestamp')!,
-    'svix-signature': req.headers.get('svix-signature')!,
+    'svix-id': svixId,
+    'svix-timestamp': svixTimestamp,
+    'svix-signature': svixSignature,
   };
-  const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET!);
+  const wh = new Webhook(webhookSecret);
   try {
     return wh.verify(payloadString, svixHeaders) as unknown as WebhookEvent;
   } catch (error) {

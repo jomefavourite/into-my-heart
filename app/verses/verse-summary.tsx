@@ -215,6 +215,7 @@ export default function VerseSummary() {
             verses: versesList.map(v => v.toString()),
             reviewFreq: reviewFreqValue,
             verseTexts: normalizeVerseTexts(verseTexts),
+            importSource: existingVerse?.importSource,
           });
 
           setIsLoading(false);

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Calendar } from 'react-native-calendars';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Text, StyleSheet } from 'react-native';
 import ArrowLeftIcon from '@/components/icons/ArrowLeftIcon';
 import ArrowRightIcon from '@/components/icons/ArrowRightIcon';
 import { Direction } from 'react-native-calendars/src/types';
@@ -26,7 +26,7 @@ const CustomCalendar = ({
         [selectedDate]: {
           selected: true,
           selectedColor: isDarkMode ? '#fff' : '#313131',
-          selectedTextColor: isDarkMode ? 'white' : null,
+          selectedTextColor: isDarkMode ? 'white' : undefined,
         },
       }
     : {};
@@ -40,41 +40,40 @@ const CustomCalendar = ({
             {direction === 'left' ? <ArrowLeftIcon /> : <ArrowRightIcon />}
           </Text>
         )}
-        theme={{
-          todayTextColor: null,
-          calendarBackground: null,
-          // Customize the theme for unselected days
-          'stylesheet.calendar.main': {
-            dayContainer: {
-              // Center the content
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: 'transparent', // Transparent background for unselected days
+        theme={
+          {
+            // Customize the theme for unselected days
+            'stylesheet.calendar.main': {
+              dayContainer: {
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: 'transparent',
+              },
             },
-          },
-          // Customize the theme for selected days
-          'stylesheet.day.basic': {
-            selected: {
-              backgroundColor: 'blue', // Overrides the selectedColor in markedDates
-              borderRadius: 5, // Round the selected date
+            // Customize the theme for selected days
+            'stylesheet.day.basic': {
+              selected: {
+                backgroundColor: 'blue',
+                borderRadius: 5,
+              },
+              selectedText: {
+                color: 'white',
+                fontWeight: 'bold',
+              },
+              base: {
+                width: 36,
+                height: 36,
+                alignItems: 'center',
+                justifyContent: 'center',
+              },
+              text: {
+                marginTop: 4,
+                fontSize: 16,
+                color: '#5d6970',
+              },
             },
-            selectedText: {
-              color: 'white', // Overrides the selectedTextColor in markedDates
-              fontWeight: 'bold', // Make the selected text bold
-            },
-            base: {
-              width: 36, // Fixed width for days
-              height: 36, // Fixed height for days
-              alignItems: 'center',
-              justifyContent: 'center',
-            },
-            text: {
-              marginTop: 4, // Adjust to center vertically
-              fontSize: 16,
-              color: '#5d6970', // Default color for unselected date
-            },
-          },
-        }}
+          } as any
+        }
         markedDates={markedDates}
       />
     </>

@@ -1,15 +1,13 @@
 import React from 'react';
-import { View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import ThemedText from '@/components/ThemedText';
 import CustomButton from '@/components/CustomButton';
-import CheckmarkCircleIcon from '@/components/icons/CheckmarkCircleIcon';
+import { MemorizePracticeCompleteScreen } from '@/components/PracticeScreen/MemorizePracticeCompleteScreen';
 import { usePracticeStore } from '@/store/practiceStore';
 
 export default function FillInBlanksPracticeComplete() {
   const router = useRouter();
-  const { currentSession, clearPracticeSession } = usePracticeStore();
+  const { currentSession, clearPracticeSession, setPracticeSession } =
+    usePracticeStore();
 
   const handleGoBack = () => {
     clearPracticeSession();
@@ -17,55 +15,40 @@ export default function FillInBlanksPracticeComplete() {
   };
 
   return (
-    <SafeAreaView className='flex-1 items-center justify-center p-6'>
-      <View className='w-full max-w-md items-center rounded-3xl bg-container p-6'>
-        <View className='mb-6'>
-          <CheckmarkCircleIcon width={80} height={80} />
-        </View>
-
-        <ThemedText
-          size={27}
-          variant='bold'
-          className='mb-4 text-center text-foreground'
+    <MemorizePracticeCompleteScreen
+      method='fillInBlanks'
+      title='Fill in the Blanks Complete'
+      bodyPrimary='Nice work. You moved from recognition into guided recall.'
+      bodySecondary='Next best step: recite the verse aloud with lighter prompts.'
+    >
+      {currentSession && (
+        <CustomButton
+          onPress={() => {
+            setPracticeSession(
+              currentSession.verses,
+              currentSession.practiceType,
+              'recitation',
+              currentSession.source ?? 'manualTechnique'
+            );
+            router.replace('/memorize/recitation/practice');
+          }}
+          className='w-full'
         >
-          Fill in the Blanks Complete
-        </ThemedText>
+          Continue to Recitation
+        </CustomButton>
+      )}
 
-        <ThemedText className='mb-3 text-center text-muted-foreground'>
-          Nice work. You moved from recognition into guided recall.
-        </ThemedText>
+      <CustomButton
+        onPress={() => router.replace('/memorize/fill-in-blanks/practice')}
+        variant='outline'
+        className='w-full bg-transparent'
+      >
+        Practice Fill in the Blanks Again
+      </CustomButton>
 
-        <ThemedText className='mb-8 text-center text-sm text-muted-foreground'>
-          Next best step: recite the verse aloud with lighter prompts.
-        </ThemedText>
-
-        <View className='w-full gap-3'>
-          {currentSession && (
-            <CustomButton
-              onPress={() => router.replace('/memorize/recitation/practice')}
-              className='w-full'
-            >
-              Continue to Recitation
-            </CustomButton>
-          )}
-
-          <CustomButton
-            onPress={() => router.replace('/memorize/fill-in-blanks/practice')}
-            variant='outline'
-            className='w-full bg-transparent'
-          >
-            Practice Fill in the Blanks Again
-          </CustomButton>
-
-          <CustomButton
-            onPress={handleGoBack}
-            variant='ghost'
-            className='w-full'
-          >
-            Back to Fill in the Blanks
-          </CustomButton>
-        </View>
-      </View>
-    </SafeAreaView>
+      <CustomButton onPress={handleGoBack} variant='ghost' className='w-full'>
+        Back to Fill in the Blanks
+      </CustomButton>
+    </MemorizePracticeCompleteScreen>
   );
 }

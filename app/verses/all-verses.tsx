@@ -194,6 +194,9 @@ const AllVersesScreen = () => {
           />
 
           <View className='flex-1 pb-[18px]'>
+            <View className='px-[18px] pb-4'>
+              <ThemedText className='text-sm'>{`${results.length} verses`}</ThemedText>
+            </View>
             {results.length === 0 ? (
               <FlatList
                 key={gridView ? 'grid-myverses' : 'list-myverses'}

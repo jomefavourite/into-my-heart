@@ -79,6 +79,8 @@ const ChapterItem = React.memo(
   }
 );
 
+ChapterItem.displayName = 'ChapterItem';
+
 export default function AddBookScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [containerWidth, setContainerWidth] = useState(0);

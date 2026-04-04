@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Platform } from 'react-native';
 import BackHeader from '@/components/BackHeader';
 import PracticeComp from '@/components/PracticeScreen/PracticeComp';
+import PracticeSettingsButton from '@/components/PracticeScreen/PracticeSettingsButton';
 
 export default function FillInBlanks() {
   return (
@@ -35,6 +36,8 @@ export default function FillInBlanks() {
           { label: 'Memorize', href: '/memorize' },
           { label: 'Fill in the blanks', href: '/memorize/fill-in-blanks' },
         ]}
+        RightComponent={<PracticeSettingsButton />}
+        BreadcrumbRightComponent={<PracticeSettingsButton />}
       />
 
       <PracticeComp name='fillInBlanks' />

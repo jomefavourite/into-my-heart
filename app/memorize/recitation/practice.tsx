@@ -65,7 +65,14 @@ const buildPromptText = (verse: PracticeVerse, stage: PromptStage) =>
 
 export default function RecitationPractice() {
   const router = useRouter();
-  const { currentSession, clearPracticeSession } = usePracticeStore();
+  const { currentSession, clearPracticeSession, setVerseOutcome } =
+    usePracticeStore();
+  const activeSessionId = currentSession?.sessionId;
+  const activeSessionVerses = useMemo(
+    () => currentSession?.verses ?? [],
+    [currentSession?.verses]
+  );
+  const hasActiveSession = Boolean(currentSession && activeSessionId);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [promptStage, setPromptStage] = useState<PromptStage>('full');
@@ -79,17 +86,17 @@ export default function RecitationPractice() {
   const isCollectionsPractice = currentSession?.practiceType === 'collections';
 
   useEffect(() => {
-    if (!currentSession) {
+    if (!hasActiveSession) {
       router.replace('/memorize/recitation');
       return;
     }
 
-    setSessionVerses(currentSession.verses);
+    setSessionVerses(activeSessionVerses);
     setCurrentIndex(0);
     setPromptStage('full');
     setReviewLaterKeys([]);
     setHasAttemptedRecall(false);
-  }, [currentSession, router]);
+  }, [activeSessionId, activeSessionVerses, hasActiveSession, router]);
 
   useEffect(() => {
     setPromptStage('full');
@@ -118,6 +125,7 @@ export default function RecitationPractice() {
     }
 
     const verseKey = getPracticeVerseKey(currentVerse);
+    setVerseOutcome(verseKey, needsReview ? 'needsReview' : 'pass');
     const shouldAppendForReview =
       needsReview && !reviewLaterKeys.includes(verseKey);
 

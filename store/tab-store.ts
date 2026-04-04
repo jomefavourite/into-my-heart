@@ -57,3 +57,24 @@ export const useGridListView = create<GridListView>()(
     }
   )
 );
+
+type PracticeLauncherPreferencesStore = {
+  randomizePracticeOrder: boolean;
+  setRandomizePracticeOrder: (value: boolean) => void;
+};
+
+export const usePracticeLauncherPreferences =
+  create<PracticeLauncherPreferencesStore>()(
+    persist(
+      set => ({
+        randomizePracticeOrder: false,
+        setRandomizePracticeOrder: value =>
+          set({ randomizePracticeOrder: value }),
+      }),
+      {
+        name: 'practice-launcher-preferences-store',
+        storage: createJSONStorage(() => PlatformStorage),
+        version: 1,
+      }
+    )
+  );

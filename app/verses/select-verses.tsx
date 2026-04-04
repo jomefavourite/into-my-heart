@@ -88,9 +88,16 @@ export default function SelectVerses() {
   }, []);
 
   const handlePress = useCallback(() => {
-    const url = `/verses/verse-summary?book=${bookName}&chapter=${chapter}&verseLength=${versesLength}&verses=${localVerses.join(',')}`;
-    const urlWithVerseId = verseIdURL ? `${url}&verseId=${verseIdURL}` : url;
-    router.push(urlWithVerseId);
+    router.push({
+      pathname: '/verses/verse-summary',
+      params: {
+        book: bookName,
+        chapter,
+        verseLength: String(versesLength),
+        verses: localVerses.join(','),
+        ...(verseIdURL ? { verseId: String(verseIdURL) } : {}),
+      },
+    });
   }, [bookName, chapter, versesLength, localVerses, verseIdURL, router]);
 
   const handleAddAllVerse = useCallback(() => {

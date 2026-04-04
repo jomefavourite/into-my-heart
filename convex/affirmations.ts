@@ -114,9 +114,12 @@ export const getAffirmationById = query({
     id: v.id('affirmations'),
   },
   handler: async (ctx, args) => {
-    await getCurrentUserOrThrow(ctx);
+    const user = await getCurrentUserOrThrow(ctx);
 
     const affirmation = await ctx.db.get(args.id);
+    if (!affirmation || affirmation.userId !== user._id) {
+      return null;
+    }
     return affirmation;
   },
 });

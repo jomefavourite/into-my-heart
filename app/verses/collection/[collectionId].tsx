@@ -26,6 +26,8 @@ import MoreVerticalIcon from '@/components/icons/MoreVerticalIcon';
 import { useBookStore } from '@/store/bookStore';
 import { useOfflineCollection } from '@/hooks/useOfflineData';
 import { useOfflineDataStore } from '@/store/offlineDataStore';
+import { usePracticeStore } from '@/store/practiceStore';
+import { getPracticeMethodMeta } from '@/lib/practiceFlow';
 
 export default function CollectionPage() {
   const { collectionId } = useLocalSearchParams();
@@ -46,6 +48,7 @@ export default function CollectionPage() {
   const saveCollectionLocal = useOfflineDataStore(
     state => state.saveCollectionLocal
   );
+  const setPracticeSession = usePracticeStore(state => state.setPracticeSession);
 
   const toggleSelectedVerse = (index: number) => {
     setSelectedToDelete(prev =>
@@ -87,12 +90,30 @@ export default function CollectionPage() {
         verses: verse.verses,
         reviewFreq: verse.reviewFreq,
         verseTexts: verse.verseTexts,
+        importSource: verse.importSource,
       })) ?? [];
 
     setCollectionVersesArray(versesArray);
 
     setIsCollectionUpdate(true);
     router.push(`/verses/create-collection?collectionId=${collectionId}`);
+  };
+
+  const handleStartPractice = () => {
+    if (!collection || collection.collectionVerses.length === 0) {
+      return;
+    }
+
+    setPracticeSession(
+      collection.collectionVerses.slice(
+        0,
+        getPracticeMethodMeta('flashcards').verseLimit
+      ),
+      'collections',
+      'flashcards',
+      'manualTechnique'
+    );
+    router.push('/memorize/flashcards/practice');
   };
 
   const RightComponent = shouldDelete ? (
@@ -221,7 +242,12 @@ export default function CollectionPage() {
           />
         )}
 
-        <CustomButton>Start practice</CustomButton>
+        <CustomButton
+          disabled={!collection || collection.collectionVerses.length === 0}
+          onPress={handleStartPractice}
+        >
+          Start practice
+        </CustomButton>
       </View>
 
       <BottomSheet

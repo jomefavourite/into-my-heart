@@ -21,23 +21,23 @@ export function ErrorAlert({
   showRetry = false,
 }: ErrorAlertProps) {
   const { alert } = useAlert();
+  const isWeb = Platform.OS === 'web';
+
+  React.useEffect(() => {
+    if (isWeb || !visible) return;
+
+    const buttons = [{ text: 'Close', onPress: onClose }];
+
+    if (showRetry && onRetry) {
+      buttons.unshift({ text: 'Try Again', onPress: onRetry });
+    }
+
+    alert(title, message, buttons);
+  }, [alert, isWeb, message, onClose, onRetry, showRetry, title, visible]);
 
   if (!visible) return null;
 
-  // Use BottomSheet on mobile
-  if (Platform.OS !== 'web') {
-    React.useEffect(() => {
-      if (!visible) return;
-
-      const buttons = [{ text: 'Close', onPress: onClose }];
-
-      if (showRetry && onRetry) {
-        buttons.unshift({ text: 'Try Again', onPress: onRetry });
-      }
-
-      alert(title, message, buttons);
-    }, [visible, title, message, onClose, onRetry, showRetry, alert]);
-
+  if (!isWeb) {
     return null;
   }
 

@@ -8,6 +8,15 @@
   "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#313131",
+  "share_target": {
+    "action": "/verses/import-verses",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
   "icons": [
     {
       "src": "/icon.png",

@@ -10,6 +10,8 @@ const syncPriority: Record<string, number> = {
   collection: 1,
   affirmation: 2,
   note: 3,
+  practiceSession: 4,
+  verseProgress: 5,
 };
 
 const resolveQueueMutationResult = (
@@ -59,6 +61,12 @@ export default function OfflineSyncProvider({ children }: PropsWithChildren) {
     (api as any).sync?.upsertAffirmationSync
   );
   const upsertNoteSync = useMutation((api as any).sync?.upsertNoteSync);
+  const upsertPracticeSessionSync = useMutation(
+    (api as any).sync?.upsertPracticeSessionSync
+  );
+  const upsertVerseProgressSync = useMutation(
+    (api as any).sync?.upsertVerseProgressSync
+  );
 
   useEffect(() => {
     if (!user) {
@@ -136,6 +144,14 @@ export default function OfflineSyncProvider({ children }: PropsWithChildren) {
             result = await upsertNoteSync({
               operation,
             });
+          } else if (operation.entityType === 'practiceSession') {
+            result = await upsertPracticeSessionSync({
+              operation,
+            });
+          } else if (operation.entityType === 'verseProgress') {
+            result = await upsertVerseProgressSync({
+              operation,
+            });
           }
 
           const resolved = resolveQueueMutationResult(result);
@@ -172,7 +188,9 @@ export default function OfflineSyncProvider({ children }: PropsWithChildren) {
     upsertAffirmationSync,
     upsertCollectionSync,
     upsertNoteSync,
+    upsertPracticeSessionSync,
     upsertVerseSync,
+    upsertVerseProgressSync,
   ]);
 
   useEffect(() => {

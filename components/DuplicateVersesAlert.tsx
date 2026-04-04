@@ -26,22 +26,21 @@ export function DuplicateVersesAlert({
   onContinue,
 }: DuplicateVersesAlertProps) {
   const { alert } = useAlert();
+  const message = `The following verses from ${bookName} ${chapter} already exist in your collection:\n\n${duplicateVerses.join(', ')}\n\nThese verses will be skipped. Do you want to continue adding the remaining verses?`;
+  const isWeb = Platform.OS === 'web';
+
+  React.useEffect(() => {
+    if (isWeb || !visible) return;
+
+    alert('Duplicate Verses Found', message, [
+      { text: 'Cancel', onPress: onClose, style: 'cancel' },
+      { text: 'Continue', onPress: onContinue, style: 'default' },
+    ]);
+  }, [alert, isWeb, message, onClose, onContinue, visible]);
 
   if (!visible) return null;
 
-  const message = `The following verses from ${bookName} ${chapter} already exist in your collection:\n\n${duplicateVerses.join(', ')}\n\nThese verses will be skipped. Do you want to continue adding the remaining verses?`;
-
-  // Use BottomSheet on mobile
-  if (Platform.OS !== 'web') {
-    React.useEffect(() => {
-      if (!visible) return;
-
-      alert('Duplicate Verses Found', message, [
-        { text: 'Cancel', onPress: onClose, style: 'cancel' },
-        { text: 'Continue', onPress: onContinue, style: 'default' },
-      ]);
-    }, [visible, message, onClose, onContinue, alert]);
-
+  if (!isWeb) {
     return null;
   }
 
