@@ -353,9 +353,6 @@ export default function ProfileScreen() {
               <ThemedText className='text-lg font-medium'>
                 {user?.firstName} {user?.lastName}
               </ThemedText>
-              <ThemedText className='text-sm text-muted-foreground'>
-                KJV currently supported for verse text and practice.
-              </ThemedText>
             </View>
 
             <View className='w-full flex-row items-center justify-between gap-4'>
