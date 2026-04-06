@@ -15,15 +15,15 @@ const steps = [
   },
   {
     number: 2,
-    title: 'Memorize the Word and track your progress',
+    title: 'Practice with guided memorization',
     description:
-      'Memorize the Word and track your progress with fill-in-the-blanks, flashcards, and recitation techniques.',
+      'Use flashcards, fill-in-the-blanks, and recitation to move from recognition to confident recall.',
   },
   {
     number: 3,
-    title: 'Set goals and meet your expectations ',
+    title: 'Pick up where you left off',
     description:
-      'Achieve your memorization targets through personalized goals, with daily reminders and progress tracking.',
+      'Your saved verses, collections, affirmations, and recent practice stay ready across sessions.',
   },
   {
     number: 4,
@@ -32,7 +32,7 @@ const steps = [
   },
 ];
 
-const HowItWorksSection = (): JSX.Element => {
+const HowItWorksSection = () => {
   return (
     <>
       <section
@@ -56,8 +56,8 @@ const HowItWorksSection = (): JSX.Element => {
               Simple, fun, and interactive
             </h2>
             <p className="max-w-[460px] text-base font-medium leading-6 tracking-[0.16px] text-[#707070] [font-family:'Inter',Helvetica]">
-              Our simple 4-step process makes Scripture memorization accessible
-              and effective for everyone.
+              Our simple 4-step process keeps Scripture memorization focused,
+              practical, and easy to return to.
             </p>
           </div>
         </div>

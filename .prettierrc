@@ -12,6 +12,5 @@
   "quoteProps": "as-needed",
   "jsxSingleQuote": true,
   "proseWrap": "preserve",
-  "plugins": ["prettier-plugin-tailwindcss"],
-  "tailwindStylesheet": "./resources/css/app.css"
+  "plugins": ["prettier-plugin-tailwindcss"]
 } 

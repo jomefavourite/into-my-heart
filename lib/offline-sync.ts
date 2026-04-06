@@ -3,12 +3,33 @@ export type VerseTextEntry = {
   text: string;
 };
 
+export type ImportSourceProvider = 'bible.com' | 'unknown';
+export type ImportSourceChannel = 'paste' | 'nativeShare' | 'webShareTarget';
+
+export type VerseImportSource = {
+  provider: ImportSourceProvider;
+  channel: ImportSourceChannel;
+  version: string | null;
+  sourceUrl: string | null;
+  sharedText: string;
+  textFidelity?: 'exactImported' | 'offlineFallback';
+};
+
+export type PendingImportShare = {
+  channel: ImportSourceChannel;
+  title?: string | null;
+  text?: string | null;
+  url?: string | null;
+  capturedAt: number;
+};
+
 export type CollectionVerseEntry = {
   bookName: string;
   chapter: number;
   verses: string[];
   reviewFreq: string;
   verseTexts: VerseTextEntry[];
+  importSource?: VerseImportSource;
 };
 
 export type SyncableRecord = {
@@ -27,6 +48,7 @@ export type OfflineVerse = SyncableRecord & {
   verseTexts: VerseTextEntry[];
   reviewFreq: string;
   isFeatured?: boolean;
+  importSource?: VerseImportSource;
 };
 
 export type OfflineCollection = SyncableRecord & {
@@ -43,6 +65,47 @@ export type OfflineNote = SyncableRecord & {
 export type OfflineAffirmation = SyncableRecord & {
   content: string;
   createdAt: number;
+};
+
+export type PracticeMethod = 'flashcards' | 'fillInBlanks' | 'recitation';
+export type PracticeType = 'verses' | 'collections';
+export type PracticeOutcome = 'pass' | 'needsReview';
+export type PracticeSessionSource =
+  | 'verseDetail'
+  | 'smartQueue'
+  | 'manualTechnique';
+export type MemorizationStatus =
+  | 'new'
+  | 'learning'
+  | 'strengthening'
+  | 'mastered';
+
+export type OfflinePracticeSession = SyncableRecord & {
+  method: PracticeMethod;
+  practiceType: PracticeType;
+  source: PracticeSessionSource;
+  verseKeys: string[];
+  verseCount: number;
+  passedVerseKeys: string[];
+  needsReviewVerseKeys: string[];
+  completedAt: number;
+};
+
+export type OfflineVerseProgress = SyncableRecord & {
+  verseKey: string;
+  totalCompletionCount: number;
+  flashcardsCount: number;
+  fillInBlanksCount: number;
+  recitationCount: number;
+  lastPracticedAt: number;
+  status: MemorizationStatus;
+  nextMethod: PracticeMethod;
+  dueAt: number;
+  successfulReviewCount: number;
+  lastOutcome: PracticeOutcome;
+  lastFlashcardsAt?: number;
+  lastFillInBlanksAt?: number;
+  lastRecitationAt?: number;
 };
 
 export type OfflineVerseSuggestion = {
@@ -77,6 +140,8 @@ export type SyncPayload = {
   collections: OfflineCollection[];
   notes: OfflineNote[];
   affirmations: OfflineAffirmation[];
+  practiceSessions: OfflinePracticeSession[];
+  verseProgress: OfflineVerseProgress[];
   verseSuggestions: OfflineVerseSuggestion[];
   collectionSuggestions: OfflineCollectionSuggestion[];
   syncedAt: number;
@@ -86,7 +151,9 @@ export type SyncEntityType =
   | 'verse'
   | 'collection'
   | 'note'
-  | 'affirmation';
+  | 'affirmation'
+  | 'practiceSession'
+  | 'verseProgress';
 
 export type SyncAction = 'upsert' | 'delete';
 

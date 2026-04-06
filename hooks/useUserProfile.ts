@@ -3,10 +3,8 @@ import { useUser } from '@clerk/clerk-expo';
 import { api } from '@/convex/_generated/api';
 
 export function useUserProfile() {
-  const { user } = useUser();
-  const clerkId = user?.id;
-
-  const userProfile = useQuery(api.users.getUserByClerkId, { clerkId });
+  const { user, isLoaded } = useUser();
+  const userProfile = useQuery(api.users.current, isLoaded && user ? {} : 'skip');
 
   return {
     userProfile,

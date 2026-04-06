@@ -16,6 +16,7 @@ import { formatVerseDisplay } from '@/lib/utils';
 import { normalizeBibleText } from '@/lib/verseText';
 import {
   useOfflineFeaturedVerse,
+  useOfflineLaunchStats,
   useOfflineSyncStatus,
   useOfflineVerseSuggestions,
   useOfflineVerses,
@@ -27,6 +28,7 @@ export default function HomeScreen() {
   const featuredVerse = useOfflineFeaturedVerse();
   const getVerseSuggestions = useOfflineVerseSuggestions(1);
   const { hasHydrated } = useOfflineSyncStatus();
+  const { lastPracticeSession } = useOfflineLaunchStats();
 
   // Determine which verse to show (featured or first suggestion)
   const displayVerse =
@@ -85,6 +87,9 @@ export default function HomeScreen() {
                   >
                     Featured Verse
                   </ThemedText>
+                  <View className='rounded-full bg-container px-2 py-0.5'>
+                    <ThemedText className='text-xs'>KJV</ThemedText>
+                  </View>
                   {isSuggestedVerse && (
                     <View className='rounded-full bg-[#909090] px-2 py-0.5'>
                       <ThemedText className='text-xs text-white'>
@@ -117,10 +122,13 @@ export default function HomeScreen() {
                     </ThemedText>
                     <ThemedText
                       variant='medium'
-                      className='my-4 text-base text-white dark:text-primary'
+                      className='my-2 text-base text-white dark:text-primary'
                     >
                       {displayVerse.verseTexts
-                        ?.map(text => `${text.verse}. ${normalizeBibleText(text.text)}`)
+                        ?.map(
+                          text =>
+                            `${text.verse}. ${normalizeBibleText(text.text)}`
+                        )
                         .join(' ') || '...'}
                     </ThemedText>
 
@@ -150,6 +158,15 @@ export default function HomeScreen() {
                     </ThemedText>
                   </View>
                 )}
+              </View>
+
+              <View className='rounded-3xl bg-container p-4'>
+                <ThemedText className='font-medium'>Recent Practice</ThemedText>
+                <ThemedText className='mt-2 text-sm text-muted-foreground'>
+                  {lastPracticeSession
+                    ? `${lastPracticeSession.method === 'fillInBlanks' ? 'Fill in the blanks' : lastPracticeSession.method === 'flashcards' ? 'Flashcards' : 'Recitation'} session completed with ${lastPracticeSession.verseCount} verse${lastPracticeSession.verseCount === 1 ? '' : 's'}.`
+                    : 'Finish a practice session to start building your launch progress history.'}
+                </ThemedText>
               </View>
 
               {/* My Verses */}
@@ -205,9 +222,9 @@ export default function HomeScreen() {
 
                 <ThemedText className='text-[#707070] dark:text-[#909090]'>
                   Discover practical ways to study scripture and memorize verses
-                  effectively. Whether you're just starting out or looking to
-                  deepen your understanding, these strategies will guide you
-                  every step of the way.
+                  effectively in KJV. These simple strategies will help you keep
+                  a steady practice rhythm without overcomplicating your study
+                  time.
                 </ThemedText>
 
                 <Image
@@ -216,12 +233,13 @@ export default function HomeScreen() {
                   className='my-2 w-full rounded-xl'
                 />
 
-                <Link
-                  href={'/memorization-tips'}
-                  className='ml-auto flex flex-row items-center gap-1'
-                >
-                  <ThemedText className='text-[13px]'>Read here</ThemedText>
-                  <ArrowRightIcon />
+                <Link href={'/memorization-tips'} className='ml-auto'>
+                  <View className='flex flex-row items-center gap-1'>
+                    <ThemedText className='text-center text-[13px]'>
+                      Read here
+                    </ThemedText>
+                    <ArrowRightIcon />
+                  </View>
                 </Link>
               </View>
             </View>

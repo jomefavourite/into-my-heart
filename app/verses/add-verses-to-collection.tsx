@@ -81,6 +81,7 @@ const AddVersesToCollection = () => {
             verses: verse.verses,
             reviewFreq: verse.reviewFreq,
             verseTexts: verse.verseTexts,
+            importSource: verse.importSource,
           })),
         ],
       });

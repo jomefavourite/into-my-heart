@@ -1,94 +1,77 @@
-import { View, Platform, FlatList } from 'react-native';
+import { FlatList, Platform, View } from 'react-native';
 import React, { useMemo, useState } from 'react';
-import ThemedText from '../ThemedText';
-import { Tabs, TabsContent, TabsList } from '../ui/tabs';
-import CustomTabsTrigger from '../CustomTabsTrigger';
-import CustomButton from '../CustomButton';
 import { useRouter } from 'expo-router';
-import { useGridListView } from '@/store/tab-store';
-import { usePracticeStore } from '@/store/practiceStore';
+import CustomButton from '../CustomButton';
+import CustomTabsTrigger from '../CustomTabsTrigger';
 import AddVersesEmpty from '../EmptyScreen/AddVersesEmpty';
+import FlashListSkeletonLoader from '../FlashListSkeletonLoader';
+import ThemedText from '../ThemedText';
 import CollectionCard from '../Verses/CollectionCard';
-import ItemSeparator from '../ItemSeparator';
 import VerseCard from '../Verses/VerseCard';
+import ItemSeparator from '../ItemSeparator';
 import FlashCardIcon from '../icons/practice/FlashCardIcon';
 import FillInBlanksIcon from '../icons/practice/FillInBlanksIcon';
 import RecitationIcon from '../icons/practice/RecitationIcon';
-import FlashListSkeletonLoader from '../FlashListSkeletonLoader';
-import { STARTER_FILL_IN_THE_BLANKS_VERSES } from '@/lib/starterVerses';
+import { Tabs, TabsContent, TabsList } from '../ui/tabs';
 import {
   useOfflineCollections,
   useOfflineSyncStatus,
   useOfflineVerses,
 } from '@/hooks/useOfflineData';
 import {
+  buildTechniqueCollectionSession,
+  buildTechniqueVerseSession,
   getPracticeMethodMeta,
   type PracticeMethod,
 } from '@/lib/practiceFlow';
+import { usePracticeStore } from '@/store/practiceStore';
+import {
+  useGridListView,
+  usePracticeLauncherPreferences,
+} from '@/store/tab-store';
+
+const practiceData: Record<PracticeMethod, { title: string; icon: React.ReactNode }> = {
+  flashcards: {
+    title: 'Start with references and recall the verse before you flip',
+    icon: <FlashCardIcon />,
+  },
+  fillInBlanks: {
+    title: 'Fill in missing words to strengthen recall',
+    icon: <FillInBlanksIcon />,
+  },
+  recitation: {
+    title: 'Recite aloud with light prompts before checking yourself',
+    icon: <RecitationIcon />,
+  },
+};
 
 export default function PracticeComp({ name }: { name: PracticeMethod }) {
   const verses = useOfflineVerses();
   const collections = useOfflineCollections();
-  const totalVersesCount = verses.length;
-  const totalCollectionsCount = collections.length;
   const { hasHydrated } = useOfflineSyncStatus();
   const [value, setValue] = useState('verses');
   const router = useRouter();
   const { gridView } = useGridListView();
   const { setPracticeSession } = usePracticeStore();
+  const randomizePracticeOrder = usePracticeLauncherPreferences(
+    state => state.randomizePracticeOrder
+  );
   const practiceMeta = getPracticeMethodMeta(name);
+  const totalCollectionsCount = collections.length;
+  const totalCollectionVerses = useMemo(
+    () => collections.flatMap(collection => collection.collectionVerses).length,
+    [collections]
+  );
+  const practiceOrderLabel = randomizePracticeOrder
+    ? 'Randomized each time you start'
+    : 'Same order as shown';
 
-  const versesForCurrentTechnique = useMemo(() => {
-    if (verses === undefined) {
-      return undefined;
-    }
-
-    if (name === 'fillInBlanks' && verses.length === 0) {
-      return STARTER_FILL_IN_THE_BLANKS_VERSES.slice(0, practiceMeta.verseLimit);
-    }
-
-    return verses.slice(0, practiceMeta.verseLimit);
-  }, [name, practiceMeta.verseLimit, verses]);
-
-  const usingStarterVerses =
-    name === 'fillInBlanks' && verses !== undefined && verses.length === 0;
-  const sessionVerseCount = versesForCurrentTechnique?.length ?? 0;
-
-  const isLimitedSession =
-    verses !== undefined && totalVersesCount > practiceMeta.verseLimit;
-
-  // const handleLoadMore = () => {
-  //   if (!isLoading) {
-  //     loadMore(2);
-  //   }
-  // };
-
-  const practiceData: {
-    [key: string]: { title: string; icon: React.ReactNode };
-  } = {
-    flashcards: {
-      title: 'Start with references and recall the verse before you flip',
-      icon: <FlashCardIcon />,
-    },
-    fillInBlanks: {
-      title: 'Fill in missing words to strengthen recall',
-      icon: <FillInBlanksIcon />,
-    },
-    recitation: {
-      title: 'Recite aloud with light prompts before checking yourself',
-      icon: <RecitationIcon />,
-    },
-  };
   return (
-    <View className='flex-1 p-[18]'>
+    <View className='flex-1 p-[18px]'>
       <View className='gap-2'>
         <View className='flex-row items-center justify-between gap-3'>
           <ThemedText className='flex-1'>{practiceData[name].title}</ThemedText>
-
-          {
-            practiceData[name as keyof typeof practiceData]
-              .icon as React.ReactNode
-          }
+          {practiceData[name].icon}
         </View>
 
         <ThemedText className='text-sm text-muted-foreground'>
@@ -113,31 +96,12 @@ export default function PracticeComp({ name }: { name: PracticeMethod }) {
         <TabsContent value='verses' className='flex-1'>
           <View className='flex-1 gap-3'>
             <ThemedText className='text-[13px]'>
-              {isLimitedSession
-                ? `Showing ${sessionVerseCount} of ${totalVersesCount} verses`
-                : `${sessionVerseCount} verses`}
+              {verses.length} saved verse{verses.length === 1 ? '' : 's'}
             </ThemedText>
 
-            {usingStarterVerses && (
-              <ThemedText className='text-xs text-muted-foreground'>
-                Using starter verses so you can practice right away.
-              </ThemedText>
-            )}
-
-            {isLimitedSession && (
-              <ThemedText className='text-xs text-muted-foreground'>
-                {practiceMeta.shortLabel} currently uses up to{' '}
-                {practiceMeta.verseLimit} verses per session to keep practice
-                focused.
-              </ThemedText>
-            )}
-
-            {isLimitedSession && !usingStarterVerses && (
-              <ThemedText className='text-xs text-muted-foreground'>
-                Starting with your {practiceMeta.verseLimit} most recent verses
-                helps you memorize in smaller, repeatable chunks.
-              </ThemedText>
-            )}
+            <ThemedText className='text-xs text-muted-foreground'>
+              Practice order: {practiceOrderLabel}
+            </ThemedText>
 
             <View
               className='flex-1'
@@ -148,14 +112,10 @@ export default function PracticeComp({ name }: { name: PracticeMethod }) {
               ) : (
                 <FlatList
                   key={gridView ? 'grid-myverses' : 'list-myverses'}
-                  data={versesForCurrentTechnique}
+                  data={verses}
                   keyExtractor={(_item, index) => index.toString()}
                   numColumns={gridView ? 2 : 1}
-                  ListEmptyComponent={() => (
-                    <>
-                      <AddVersesEmpty />
-                    </>
-                  )}
+                  ListEmptyComponent={() => <AddVersesEmpty />}
                   renderItem={({ item }) => (
                     <VerseCard
                       _id={
@@ -178,12 +138,6 @@ export default function PracticeComp({ name }: { name: PracticeMethod }) {
                     gridView ? { gap: 8, width: '100%' } : undefined
                   }
                   ItemSeparatorComponent={ItemSeparator}
-                  scrollEnabled={true}
-                  // onEndReached={handleLoadMore}
-                  onEndReachedThreshold={0.1}
-                  // ListFooterComponent={() =>
-                  //   isLoading ? <ActivityIndicator /> : null
-                  // }
                   style={{ flex: 1 }}
                   contentContainerStyle={{ flexGrow: 1 }}
                 />
@@ -192,32 +146,41 @@ export default function PracticeComp({ name }: { name: PracticeMethod }) {
 
             <CustomButton
               onPress={() => {
-                if (
-                  versesForCurrentTechnique &&
-                  versesForCurrentTechnique.length > 0
-                ) {
-                  setPracticeSession(versesForCurrentTechnique, 'verses');
-                  router.push(practiceMeta.practiceRoute);
+                const versesForSession = buildTechniqueVerseSession({
+                  verses,
+                  randomizeOrder: randomizePracticeOrder,
+                });
+
+                if (versesForSession.length === 0) {
+                  return;
                 }
+
+                setPracticeSession(
+                  versesForSession,
+                  'verses',
+                  name,
+                  'manualTechnique'
+                );
+                router.push(practiceMeta.practiceRoute);
               }}
-              disabled={
-                !versesForCurrentTechnique ||
-                versesForCurrentTechnique.length === 0
-              }
+              disabled={verses.length === 0}
             >
-              Start Verses Practice
+              Practice all verses
             </CustomButton>
           </View>
         </TabsContent>
+
         <TabsContent value='collections' className='flex-1'>
           <View className='flex-1 gap-3'>
             <ThemedText className='text-[13px]'>
-              {totalCollectionsCount ?? 0} collections
+              {totalCollectionsCount} collection
+              {totalCollectionsCount === 1 ? '' : 's'}
             </ThemedText>
 
             <ThemedText className='text-xs text-muted-foreground'>
-              Collections practice also starts in smaller batches so longer
-              sessions do not become overwhelming.
+              {totalCollectionVerses} saved verse
+              {totalCollectionVerses === 1 ? '' : 's'} across your collections.
+              Practice order: {practiceOrderLabel}
             </ThemedText>
 
             <View
@@ -225,21 +188,14 @@ export default function PracticeComp({ name }: { name: PracticeMethod }) {
               style={{ minHeight: Platform.OS === 'web' ? 400 : undefined }}
             >
               {!hasHydrated ? (
-                <FlashListSkeletonLoader
-                  type='collections'
-                  gridView={gridView}
-                />
+                <FlashListSkeletonLoader type='collections' gridView={gridView} />
               ) : (
                 <FlatList
                   key={gridView ? 'grid-collections' : 'list-collections'}
                   data={collections || []}
                   keyExtractor={(_item, index) => index.toString()}
                   numColumns={gridView ? 2 : 1}
-                  ListEmptyComponent={() => (
-                    <>
-                      <AddVersesEmpty collection />
-                    </>
-                  )}
+                  ListEmptyComponent={() => <AddVersesEmpty collection />}
                   renderItem={({ item }) => (
                     <CollectionCard
                       _id={item.syncId}
@@ -260,28 +216,26 @@ export default function PracticeComp({ name }: { name: PracticeMethod }) {
 
             <CustomButton
               onPress={() => {
-                // Get all verses from all collections
-                const allCollectionVerses = (
-                  collections?.flatMap(
-                    collection => collection.collectionVerses
-                  ) ?? []
-                ).slice(0, practiceMeta.verseLimit);
+                const allCollectionVerses = buildTechniqueCollectionSession({
+                  collections,
+                  randomizeOrder: randomizePracticeOrder,
+                });
 
                 if (allCollectionVerses.length === 0) {
-                  // Show an alert or message that no collections are available
                   return;
                 }
 
-                setPracticeSession(allCollectionVerses, 'collections');
+                setPracticeSession(
+                  allCollectionVerses,
+                  'collections',
+                  name,
+                  'manualTechnique'
+                );
                 router.push(practiceMeta.practiceRoute);
               }}
-              disabled={
-                !collections ||
-                collections.length === 0 ||
-                collections.every(c => c.collectionVerses.length === 0)
-              }
+              disabled={totalCollectionVerses === 0}
             >
-              Start Collections Practice
+              Practice all collections
             </CustomButton>
           </View>
         </TabsContent>

@@ -7,7 +7,7 @@ import * as AuthSession from 'expo-auth-session';
 import { useSSO, useSignIn, useSignUp } from '@clerk/clerk-expo';
 import Logo from '@/components/icons/logo/Logo';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Link } from 'expo-router';
+import { Href, Link } from 'expo-router';
 import { useAlert } from '@/hooks/useAlert';
 import { Input } from '@/components/ui/input';
 
@@ -68,6 +68,9 @@ const useIsSafari = () => {
 };
 
 WebBrowser.maybeCompleteAuthSession();
+
+const TERMS_HREF = '/terms' as Href;
+const PRIVACY_HREF = '/privacy' as Href;
 
 export default function CreateAccount() {
   useWarmUpBrowser();
@@ -470,9 +473,24 @@ export default function CreateAccount() {
           </View>
         </View>
 
-        <ThemedText size={12} className='text-center text-sm'>
-          By signing up, you agree to our Terms and have read our Privacy Policy
-        </ThemedText>
+        <View className='flex-row flex-wrap items-center justify-center gap-1'>
+          <ThemedText size={12} className='text-center text-sm'>
+            By signing up, you agree to our
+          </ThemedText>
+          <Link href={TERMS_HREF}>
+            <ThemedText size={12} className='text-center text-sm underline'>
+              Terms
+            </ThemedText>
+          </Link>
+          <ThemedText size={12} className='text-center text-sm'>
+            and have read our
+          </ThemedText>
+          <Link href={PRIVACY_HREF}>
+            <ThemedText size={12} className='text-center text-sm underline'>
+              Privacy Policy
+            </ThemedText>
+          </Link>
+        </View>
       </View>
     </SafeAreaView>
   );

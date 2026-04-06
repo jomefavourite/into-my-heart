@@ -1,205 +1,323 @@
-import { View, TextInput, ScrollView, Platform } from 'react-native';
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Platform, ScrollView, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useAuth } from '@clerk/clerk-expo';
+import { useAction } from 'convex/react';
 import BackHeader from '@/components/BackHeader';
-import { Label } from '@/components/ui/label';
-import ThemedText from '@/components/ThemedText';
-import { Button } from '@/components/ui/button';
-import { useRouter } from 'expo-router';
 import CustomButton from '@/components/CustomButton';
-import { BOOKS } from '@/lib/books';
-import { useMutation } from 'convex/react';
+import ThemedText from '@/components/ThemedText';
+import { Label } from '@/components/ui/label';
 import { api } from '@/convex/_generated/api';
+import { useIncomingImportShare } from '@/hooks/useIncomingImportShare';
+import {
+  buildImportTextFromShare,
+  createPendingShare,
+  parseImportedVerse,
+  type ParsedImportedVerse,
+} from '@/lib/verseImport';
+import { useOfflineVerses } from '@/hooks/useOfflineData';
+import type { ImportSourceChannel } from '@/lib/offline-sync';
 import { useBookStore } from '@/store/bookStore';
+import { useImportShareStore } from '@/store/importShareStore';
+import { useOfflineDataStore } from '@/store/offlineDataStore';
 
-interface ParsedVerse {
-  bookName: string;
-  chapter: number;
-  verses: string[];
-  verseTexts: Array<{ verse: string; text: string }>;
-  version?: string;
-  error?: string;
-}
+type ShareDraft = {
+  channel: ImportSourceChannel;
+  title?: string | null;
+  text?: string | null;
+  url?: string | null;
+};
+
+const buildNativeShareDraft = (
+  sharedPayloads: Array<{ value: string; shareType: string }>
+): ShareDraft | null => {
+  if (sharedPayloads.length === 0) {
+    return null;
+  }
+
+  const textParts = sharedPayloads
+    .filter(payload => payload.shareType === 'text')
+    .map(payload => payload.value.trim())
+    .filter(Boolean);
+  const url = sharedPayloads.find(payload => payload.shareType === 'url')?.value ?? null;
+
+  if (textParts.length === 0 && !url) {
+    return null;
+  }
+
+  return {
+    channel: 'nativeShare',
+    text: textParts.join('\n\n'),
+    url,
+  };
+};
+
+const getDuplicateVerses = (
+  allVerses: ReturnType<typeof useOfflineVerses>,
+  parsedVerse: ParsedImportedVerse
+) => {
+  const duplicateVerses = new Set<string>();
+
+  allVerses.forEach(existingVerse => {
+    if (
+      existingVerse.bookName === parsedVerse.bookName &&
+      existingVerse.chapter === parsedVerse.chapter
+    ) {
+      parsedVerse.verses.forEach(verse => {
+        if (existingVerse.verses.includes(verse)) {
+          duplicateVerses.add(verse);
+        }
+      });
+    }
+  });
+
+  return [...duplicateVerses].sort((left, right) => Number(left) - Number(right));
+};
+
+type ExactVerseTextResolver = Parameters<typeof parseImportedVerse>[0]['exactVerseTextResolver'];
+
+const applyParseResult = async (
+  sharedText: string,
+  channel: 'paste' | 'nativeShare' | 'webShareTarget',
+  sourceUrl: string | null,
+  exactVerseTextResolver: ExactVerseTextResolver
+) => {
+  return parseImportedVerse({
+    channel,
+    sharedText,
+    sourceUrl,
+    exactVerseTextResolver,
+  });
+};
 
 const ImportVerses = () => {
   const router = useRouter();
+  const { isLoaded, isSignedIn } = useAuth();
+  const params = useLocalSearchParams<{
+    title?: string;
+    text?: string;
+    url?: string;
+  }>();
+  const resolveExactBibleDotComVerseTexts = useAction(
+    api.verseImport.resolveExactBibleDotComVerseTexts
+  );
   const [pastedText, setPastedText] = useState('');
-  const [parsedVerse, setParsedVerse] = useState<ParsedVerse | null>(null);
+  const [parsedVerse, setParsedVerse] = useState<ParsedImportedVerse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isParsing, setIsParsing] = useState(false);
+  const allVerses = useOfflineVerses();
+  const currentUser = useOfflineDataStore(state => state.currentUser);
+  const saveVerseLocal = useOfflineDataStore(state => state.saveVerseLocal);
+  const { setCollectionVersesArray } = useBookStore();
+  const pendingShare = useImportShareStore(state => state.pendingShare);
+  const setPendingShare = useImportShareStore(state => state.setPendingShare);
+  const clearPendingShare = useImportShareStore(state => state.clearPendingShare);
+  const incomingShare = useIncomingImportShare();
+  const hasAppliedDraftRef = useRef<string | null>(null);
 
-  const addVerse = useMutation(api.verses.addVerse);
-  const { setCollectionVersesArray, resetAll } = useBookStore();
+  const canSave = Boolean(isSignedIn || currentUser);
 
-  // Normalize book names for matching
-  const normalizeBookName = (name: string): string => {
-    const normalized = name.trim();
-    const normalizedLower = normalized.toLowerCase();
-
-    // Handle plural to singular conversions
-    if (normalizedLower === 'psalms' || normalizedLower === 'psalm') {
-      return 'Psalm';
-    }
-    if (normalizedLower === 'proverbs' || normalizedLower === 'proverb') {
-      return 'Proverbs'; // This book is actually plural in the Bible
-    }
-
-    // Check against BOOKS array for exact match
-    const book = BOOKS.find(
-      b =>
-        b.name.toLowerCase() === normalizedLower ||
-        b.abbreviation.toLowerCase() === normalizedLower ||
-        b.id.toLowerCase() === normalizedLower
-    );
-
-    return book ? book.name : normalized;
-  };
-
-  const parseVerse = (text: string): ParsedVerse | null => {
-    try {
-      // Remove URLs
-      const urlRegex = /https?:\/\/[^\s]+/g;
-      let cleanedText = text.replace(urlRegex, '').trim();
-
-      // Extract verse reference pattern: "BookName Chapter:Verse Version"
-      // Example: "Psalms 119:1 NKJV"
-      const referencePattern =
-        /([A-Za-z\s]+?)\s+(\d+):(\d+(?:-\d+)?)\s+([A-Z]+)/;
-      const match = cleanedText.match(referencePattern);
-
-      if (!match) {
-        // Try without version
-        const refPattern2 = /([A-Za-z\s]+?)\s+(\d+):(\d+(?:-\d+)?)/;
-        const match2 = cleanedText.match(refPattern2);
-        if (!match2) {
-          setError(
-            'Could not parse verse reference. Expected format: "Book Chapter:Verse" or "Book Chapter:Verse Version"'
-          );
-          return null;
-        }
-
-        const bookName = normalizeBookName(match2[1].trim());
-        const chapter = parseInt(match2[2]);
-        const verseRange = match2[3];
-        const version = undefined;
-
-        // Find the book
-        const book = BOOKS.find(
-          b => b.name === bookName || b.abbreviation === bookName
-        );
-        if (!book) {
-          setError(`Book "${match2[1].trim()}" not found.`);
-          return null;
-        }
-
-        // Parse verse range (e.g., "1", "1-5", "1,3-5")
-        const verses: string[] = [];
-        if (verseRange.includes('-')) {
-          const [start, end] = verseRange.split('-').map(Number);
-          for (let i = start; i <= end; i++) {
-            verses.push(i.toString());
-          }
-        } else {
-          verses.push(verseRange);
-        }
-
-        // Extract the verse text itself (everything before the reference)
-        const verseReference = match2[0];
-        const textBeforeRef = cleanedText
-          .substring(0, cleanedText.indexOf(verseReference))
-          .trim();
-
-        const verseTexts = verses.map(v => ({
-          verse: v,
-          text: textBeforeRef || 'Imported text',
-        }));
-
-        return {
-          bookName,
-          chapter,
-          verses,
-          verseTexts,
-          version,
-        };
-      }
-
-      const bookName = normalizeBookName(match[1].trim());
-      const chapter = parseInt(match[2]);
-      const verseRange = match[3];
-      const version = match[4];
-
-      // Find the book
-      const book = BOOKS.find(
-        b => b.name === bookName || b.abbreviation === bookName
-      );
-      if (!book) {
-        setError(`Book "${match[1].trim()}" not found.`);
-        return null;
-      }
-
-      // Parse verse range (e.g., "1", "1-5", "1,3-5")
-      const verses: string[] = [];
-      if (verseRange.includes('-')) {
-        const [start, end] = verseRange.split('-').map(Number);
-        for (let i = start; i <= end; i++) {
-          verses.push(i.toString());
-        }
-      } else {
-        verses.push(verseRange);
-      }
-
-      // Extract the verse text itself (everything before the reference)
-      const verseReference = match[0];
-      const textBeforeRef = cleanedText
-        .substring(0, cleanedText.indexOf(verseReference))
-        .trim();
-
-      const verseTexts = verses.map(v => ({
-        verse: v,
-        text: textBeforeRef || 'Imported text',
-      }));
-
-      return {
-        bookName,
-        chapter,
-        verses,
-        verseTexts,
-        version,
-      };
-    } catch (err) {
-      setError('Failed to parse verse. Please check the format.');
+  const queryDraft = useMemo<ShareDraft | null>(() => {
+    if (!params.text && !params.url && !params.title) {
       return null;
     }
-  };
 
-  const handleParse = () => {
+    return {
+      channel: 'webShareTarget',
+      title: typeof params.title === 'string' ? params.title : null,
+      text: typeof params.text === 'string' ? params.text : null,
+      url: typeof params.url === 'string' ? params.url : null,
+    };
+  }, [params.text, params.title, params.url]);
+
+  const nativeDraft = useMemo(
+    () =>
+      buildNativeShareDraft(
+        incomingShare.sharedPayloads.map(payload => ({
+          value: payload.value,
+          shareType: payload.shareType,
+        }))
+      ),
+    [incomingShare.sharedPayloads]
+  );
+
+  const handleParsedResult = useCallback(async (
+    nextText: string,
+    nextChannel: 'paste' | 'nativeShare' | 'webShareTarget',
+    sourceUrl: string | null
+  ) => {
+    setIsParsing(true);
     setError(null);
-    const parsed = parseVerse(pastedText);
-    setParsedVerse(parsed);
-  };
-
-  const handleSaveToVerses = async () => {
-    if (!parsedVerse) return;
 
     try {
-      await addVerse({
-        bookName: parsedVerse.bookName,
-        chapter: parsedVerse.chapter,
-        verses: parsedVerse.verses,
-        verseTexts: parsedVerse.verseTexts,
-        reviewFreq: '',
-      });
-      router.back();
-    } catch (error) {
-      console.error('Error saving verse:', error);
-      setError('Failed to save verse. Please try again.');
+      const result = await applyParseResult(
+        nextText,
+        nextChannel,
+        sourceUrl,
+        resolveExactBibleDotComVerseTexts
+      );
+      setPastedText(nextText);
+      setParsedVerse(result.parsed);
+      setError(result.error);
+    } finally {
+      setIsParsing(false);
     }
+  }, [resolveExactBibleDotComVerseTexts]);
+
+  const applyShareDraft = useCallback(
+    async (
+      draft: ShareDraft,
+      options?: { clearPending?: boolean; clearNativeShare?: boolean }
+    ) => {
+      const combinedText = buildImportTextFromShare(draft);
+      if (!combinedText) {
+        return;
+      }
+
+      const signature = JSON.stringify({
+        channel: draft.channel,
+        title: draft.title ?? null,
+        text: draft.text ?? null,
+        url: draft.url ?? null,
+      });
+
+      if (hasAppliedDraftRef.current === signature) {
+        return;
+      }
+
+      if (isLoaded && !canSave) {
+        setPendingShare(createPendingShare(draft));
+        hasAppliedDraftRef.current = signature;
+        router.replace('/(onboarding)/onboard');
+        return;
+      }
+
+      await handleParsedResult(combinedText, draft.channel, draft.url ?? null);
+      hasAppliedDraftRef.current = signature;
+
+      if (options?.clearPending) {
+        clearPendingShare();
+      }
+      if (options?.clearNativeShare) {
+        incomingShare.clearSharedPayloads();
+      }
+    },
+    [
+      canSave,
+      clearPendingShare,
+      handleParsedResult,
+      incomingShare,
+      isLoaded,
+      router,
+      setPendingShare,
+    ]
+  );
+
+  useEffect(() => {
+    if (!isLoaded && !currentUser) {
+      return;
+    }
+
+    if (pendingShare) {
+      void applyShareDraft(pendingShare, { clearPending: true });
+      return;
+    }
+
+    if (queryDraft) {
+      void applyShareDraft(queryDraft);
+      return;
+    }
+
+    if (nativeDraft) {
+      void applyShareDraft(nativeDraft, { clearNativeShare: true });
+    }
+  }, [
+    applyShareDraft,
+    currentUser,
+    isLoaded,
+    nativeDraft,
+    pendingShare,
+    queryDraft,
+  ]);
+
+  const handleParse = async () => {
+    hasAppliedDraftRef.current = null;
+    await handleParsedResult(pastedText, 'paste', null);
+  };
+
+  const handleSaveToVerses = () => {
+    if (!parsedVerse) {
+      return;
+    }
+
+    if (!canSave) {
+      setPendingShare(
+        createPendingShare({
+          channel: parsedVerse.importSource.channel,
+          text: pastedText,
+          url: parsedVerse.importSource.sourceUrl,
+        })
+      );
+      router.replace('/(onboarding)/onboard');
+      return;
+    }
+
+    const duplicateVerses = getDuplicateVerses(allVerses, parsedVerse);
+    if (duplicateVerses.length > 0) {
+      setError(
+        `These verses are already in your library: ${duplicateVerses.join(', ')}.`
+      );
+      return;
+    }
+
+    saveVerseLocal({
+      bookName: parsedVerse.bookName,
+      chapter: parsedVerse.chapter,
+      verses: parsedVerse.verses,
+      verseTexts: parsedVerse.verseTexts,
+      reviewFreq: '',
+      importSource: parsedVerse.importSource,
+    });
+    clearPendingShare();
+    router.replace('/verses');
   };
 
   const handleSaveToCollection = () => {
-    if (!parsedVerse) return;
-    setCollectionVersesArray([parsedVerse]);
+    if (!parsedVerse) {
+      return;
+    }
+
+    if (!canSave) {
+      setPendingShare(
+        createPendingShare({
+          channel: parsedVerse.importSource.channel,
+          text: pastedText,
+          url: parsedVerse.importSource.sourceUrl,
+        })
+      );
+      router.replace('/(onboarding)/onboard');
+      return;
+    }
+
+    setCollectionVersesArray([
+      {
+        bookName: parsedVerse.bookName,
+        chapter: parsedVerse.chapter,
+        verses: parsedVerse.verses,
+        reviewFreq: '',
+        verseTexts: parsedVerse.verseTexts,
+        importSource: parsedVerse.importSource,
+      },
+    ]);
+    clearPendingShare();
     router.push('/verses/create-collection');
   };
+
+  const showSharedSourceText = Boolean(
+    parsedVerse?.sourceTextPreview &&
+      parsedVerse.sourceTextPreview !== parsedVerse.storedVersePreview
+  );
 
   return (
     <SafeAreaView className='flex-1'>
@@ -213,23 +331,37 @@ const ImportVerses = () => {
 
       <View className='flex-1 px-[18px] py-4'>
         <View className='mb-4'>
-          <Label nativeID='verseInput'>Paste verse text</Label>
+          <Label nativeID='verseInput'>Paste or share Bible text</Label>
           <TextInput
             className='mt-2 h-40 rounded-md border border-gray-300 bg-white p-3 dark:border-gray-700 dark:bg-gray-800 dark:text-white'
             multiline
             numberOfLines={10}
-            placeholder='Paste your verse here...'
+            placeholder='Paste a Bible.com link or shared verse text here...'
             value={pastedText}
             onChangeText={setPastedText}
             textAlignVertical='top'
+            accessibilityLabel='Import verse text'
           />
           <ThemedText className='mt-1 text-xs text-gray-500'>
-            Example: Bible verse text... Psalms 119:1 NKJV
+            Supported inputs: Bible.com links, shared verse text with a citation
+            like &quot;John 3:16 NIV&quot;, and same-chapter lists or ranges.
+            Into My Heart stores the pasted translation text when it is present
+            in the share, and keeps the source version as metadata.
           </ThemedText>
+          {!canSave && (
+            <ThemedText className='mt-2 text-xs text-amber-600 dark:text-amber-300'>
+              Shared imports will be held until you sign in, then reopened here.
+            </ThemedText>
+          )}
         </View>
 
-        <CustomButton onPress={handleParse} className='mb-4'>
-          Parse Verse
+        <CustomButton
+          onPress={() => void handleParse()}
+          className='mb-4'
+          isLoading={isParsing}
+          disabled={isParsing}
+        >
+          {isParsing ? 'Parsing...' : 'Parse Verse'}
         </CustomButton>
 
         {error && (
@@ -240,36 +372,69 @@ const ImportVerses = () => {
           </View>
         )}
 
-        {parsedVerse && (
-          <View className='mb-4 rounded-md bg-green-100 p-4 dark:bg-green-900'>
-            <ThemedText className='mb-2 font-semibold text-green-800 dark:text-green-200'>
-              Parsed Successfully!
+        {incomingShare.error && Platform.OS !== 'web' && (
+          <View className='mb-4 rounded-md bg-red-100 p-3 dark:bg-red-900'>
+            <ThemedText className='text-red-800 dark:text-red-200'>
+              Failed to resolve the shared content. You can still paste the text
+              manually below.
             </ThemedText>
-            <ThemedText className='text-green-800 dark:text-green-200'>
-              Book: {parsedVerse.bookName}
-            </ThemedText>
-            <ThemedText className='text-green-800 dark:text-green-200'>
-              Chapter: {parsedVerse.chapter}
-            </ThemedText>
-            <ThemedText className='text-green-800 dark:text-green-200'>
-              Verses: {parsedVerse.verses.join(', ')}
-            </ThemedText>
-            {parsedVerse.version && (
-              <ThemedText className='text-green-800 dark:text-green-200'>
-                Version: {parsedVerse.version}
-              </ThemedText>
-            )}
-            <ScrollView className='mt-2 max-h-32'>
-              {parsedVerse.verseTexts.map((vt, i) => (
-                <ThemedText
-                  key={i}
-                  className='text-green-800 dark:text-green-200'
-                >
-                  {vt.verse}. {vt.text}
-                </ThemedText>
-              ))}
-            </ScrollView>
           </View>
+        )}
+
+        {parsedVerse && (
+          <ScrollView className='mb-4 flex-1'>
+            <View className='mb-3 rounded-md bg-green-100 p-4 dark:bg-green-900'>
+              <ThemedText className='mb-2 font-semibold text-green-800 dark:text-green-200'>
+                Ready to import
+              </ThemedText>
+              <ThemedText className='text-green-800 dark:text-green-200'>
+                Reference: {parsedVerse.referenceLabel}
+              </ThemedText>
+              <ThemedText className='text-green-800 dark:text-green-200'>
+                Source: {parsedVerse.importSource.provider}
+                {parsedVerse.importSource.version
+                  ? ` (${parsedVerse.importSource.version})`
+                  : ''}
+              </ThemedText>
+              <ThemedText className='text-green-800 dark:text-green-200'>
+                Entry path: {parsedVerse.importSource.channel}
+              </ThemedText>
+              <ThemedText className='mt-1 text-green-800 dark:text-green-200'>
+                Preview translation: {parsedVerse.previewVersionLabel ?? 'KJV'}
+              </ThemedText>
+              <ThemedText className='mt-1 text-green-800 dark:text-green-200'>
+                Stored verse text: {parsedVerse.storedVersionLabel ?? 'KJV fallback'}
+              </ThemedText>
+              {parsedVerse.textFidelity === 'offlineFallback' &&
+              parsedVerse.exactSplitUnavailableReason ? (
+                <ThemedText className='mt-1 text-sm text-green-800 dark:text-green-200'>
+                  Exact verse-by-verse import was unavailable for this share.
+                  Saving will use offline KJV verse boundaries.
+                </ThemedText>
+              ) : null}
+              {parsedVerse.importSource.sourceUrl && (
+                <ThemedText className='mt-1 text-xs text-green-800 dark:text-green-200'>
+                  Source URL: {parsedVerse.importSource.sourceUrl}
+                </ThemedText>
+              )}
+            </View>
+
+            {showSharedSourceText && (
+              <View className='mb-3 rounded-md bg-container p-4'>
+                <ThemedText className='mb-2 font-semibold'>
+                  Shared source text
+                </ThemedText>
+                <ThemedText>{parsedVerse.sourceTextPreview}</ThemedText>
+              </View>
+            )}
+
+            <View className='rounded-md bg-container p-4'>
+              <ThemedText className='mb-2 font-semibold'>
+                Stored verse preview
+              </ThemedText>
+              <ThemedText>{parsedVerse.storedVersePreview}</ThemedText>
+            </View>
+          </ScrollView>
         )}
 
         {parsedVerse && (

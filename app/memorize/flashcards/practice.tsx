@@ -18,8 +18,15 @@ import { formatVerseDisplay } from '@/lib/utils';
 import { getPracticeVerseKey } from '@/lib/practiceFlow';
 
 export default function FlashcardPractice() {
-  const { currentSession, clearPracticeSession } = usePracticeStore();
+  const { currentSession, clearPracticeSession, setVerseOutcome } =
+    usePracticeStore();
   const router = useRouter();
+  const activeSessionId = currentSession?.sessionId;
+  const activeSessionVerses = useMemo(
+    () => currentSession?.verses ?? [],
+    [currentSession?.verses]
+  );
+  const hasActiveSession = Boolean(currentSession && activeSessionId);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -31,16 +38,16 @@ export default function FlashcardPractice() {
   const isCollectionsPractice = currentSession?.practiceType === 'collections';
 
   useEffect(() => {
-    if (!currentSession) {
+    if (!hasActiveSession) {
       router.replace('/memorize/flashcards');
       return;
     }
 
-    setSessionVerses(currentSession.verses);
+    setSessionVerses(activeSessionVerses);
     setCurrentIndex(0);
     setIsFlipped(false);
     setReviewLaterKeys([]);
-  }, [currentSession, router]);
+  }, [activeSessionId, activeSessionVerses, hasActiveSession, router]);
 
   useEffect(() => {
     setIsFlipped(false);
@@ -63,6 +70,7 @@ export default function FlashcardPractice() {
     }
 
     const verseKey = getPracticeVerseKey(currentVerse);
+    setVerseOutcome(verseKey, needsReview ? 'needsReview' : 'pass');
     const shouldAppendForReview =
       needsReview && !reviewLaterKeys.includes(verseKey);
 

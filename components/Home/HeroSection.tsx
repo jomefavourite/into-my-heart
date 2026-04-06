@@ -16,7 +16,7 @@ const navigationLinks: { name: string; href: Href }[] = [
   // { name: 'Donate', href: '/donate' },
 ];
 
-const HeroSection = (): JSX.Element => {
+const HeroSection = () => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -76,10 +76,17 @@ const HeroSection = (): JSX.Element => {
 
                 {/* Mobile Action Buttons */}
                 <div className='flex flex-col space-y-3 border-t pt-6'>
-                  <Button variant='outline' className='w-full bg-transparent'>
+                  <Button
+                    variant='outline'
+                    className='w-full bg-transparent'
+                    onPress={() => router.push('/onboard')}
+                  >
                     Sign In
                   </Button>
-                  <Button className='w-full bg-gray-900 hover:bg-gray-800'>
+                  <Button
+                    className='w-full bg-gray-900 hover:bg-gray-800'
+                    onPress={() => router.push('/onboard')}
+                  >
                     Get Started
                   </Button>
                 </div>
@@ -100,8 +107,8 @@ const HeroSection = (): JSX.Element => {
 
             <p className='max-w-xl text-center text-base font-medium leading-6 tracking-[0.16px] text-[#707070] lg:ml-0 lg:text-left'>
               Build a daily habit of engaging with God&#39;s Word. Our app helps
-              you memorize Bible verses with proven techniques, track your
-              progress, and grow spiritually.
+              you memorize Bible verses in KJV with proven techniques, save
+              notes, and return to guided practice whenever you&apos;re ready.
             </p>
           </div>
 
@@ -112,15 +119,6 @@ const HeroSection = (): JSX.Element => {
               className='w-full flex-1'
             >
               Get Started
-            </CustomButton>
-
-            <CustomButton
-              variant='outline'
-              innerElement={<span className='text-xs'>Coming soon</span>}
-              disabled
-              className='cursor-not-allowed flex-col gap-0'
-            >
-              Download the App
             </CustomButton>
           </div>
         </div>

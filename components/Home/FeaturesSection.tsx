@@ -5,8 +5,6 @@ import OpenBookSVG from '../icons/onboarding/open-book.svg';
 import MicSVG from '../../assets/images/home/mic.svg';
 import FlashcardSVG from '../../assets/images/home/flashcard.svg';
 import PuzzleSVG from '../../assets/images/home/puzzle.svg';
-import StreakSVG from '../../assets/images/home/streak.svg';
-import GoalSVG from '../../assets/images/home/goal.svg';
 
 // Feature cards data
 const featureCards = [
@@ -98,69 +96,38 @@ const featureCards = [
   },
   {
     id: 3,
-    title: 'Streak & progress tracking',
+    title: 'Offline-ready sync',
     description:
-      'Stay on track with streak reminders, progress milestones, and a satisfying "you did it" after each session keep you going strong.',
+      "Keep adding verses, notes, affirmations, and collections locally, then sync your updates when you're back online.",
     imageContent: (
-      <div className='relative mx-auto h-[251px] w-[251px]'>
-        <div className='relative -left-4 h-[251px] w-[282px]'>
-          <StreakSVG className='bg-gray-100 text-gray-100' />
+      <div className='relative mx-auto flex h-[251px] w-[251px] items-center justify-center'>
+        <div className='w-full rounded-[24px] border border-[#e8e8e8] bg-white p-6 shadow-[0px_9px_18px_-6px_#00000012]'>
+          <div className='rounded-2xl bg-neutral-50 p-4'>
+            <div className="text-sm font-semibold text-[#313131] [font-family:'Inter',Helvetica]">
+              Sync Status
+            </div>
+            <div className="mt-2 text-xs text-[#707070] [font-family:'Inter',Helvetica]">
+              Your saved verses and recent changes stay ready across sessions.
+            </div>
+          </div>
         </div>
       </div>
     ),
   },
   {
     id: 4,
-    title: 'Set memorization goals',
+    title: 'Verse notes and affirmations',
     description:
-      "Create goals that work for you—daily, weekly, or monthly. It's not about speed, it's about growing deeper in the Word.",
+      "Capture reflections, prayers, and encouragement alongside the verses you're hiding in your heart.",
     imageContent: (
       <div className='relative flex h-[251px] items-center justify-center'>
-        <div className='absolute top-[187px] flex w-[352px] flex-col items-start gap-1 overflow-hidden rounded-[10px] bg-[#fdfdfd] px-[18px] py-4 shadow-[0px_4px_10px_-6px_#00000012]'>
-          <div className='relative flex w-full items-center justify-between self-stretch'>
-            <div className="relative w-fit whitespace-nowrap text-[13px] font-medium leading-[18px] tracking-[0] text-[#313131] [font-family:'Inter',Helvetica]">
-              Memorize Psalm 91
-            </div>
-            <GoalSVG />
+        <div className='w-[352px] rounded-[20px] border border-[#e8e8e8] bg-white p-[18px] shadow-[0px_10px_17px_-6px_#00000012]'>
+          <div className="text-[13px] font-medium text-[#313131] [font-family:'Inter',Helvetica]">
+            Notes and Affirmations
           </div>
-          <div className='relative flex w-full items-center justify-between self-stretch'>
-            <div className="relative mt-[-1.00px] w-fit whitespace-nowrap text-xs font-normal leading-[18px] tracking-[0] text-[#707070] [font-family:'Inter',Helvetica]">
-              Daily
-            </div>
-            <div className="relative mt-[-1.00px] w-fit whitespace-nowrap text-xs font-normal leading-[18px] tracking-[0] text-[#707070] [font-family:'Inter',Helvetica]">
-              Completed
-            </div>
-          </div>
-        </div>
-
-        <div className='absolute top-[105px] flex w-[352px] rotate-1 flex-col items-start gap-1 overflow-hidden rounded-[10px] bg-[#fdfdfd] px-[18px] py-4 shadow-[0px_10px_17px_-6px_#00000012]'>
-          <div className='relative flex w-full items-center justify-between self-stretch'>
-            <div className="relative w-fit whitespace-nowrap text-[13px] font-medium leading-[18px] tracking-[0] text-[#313131] [font-family:'Inter',Helvetica]">
-              Memorize Psalm 91
-            </div>
-            <GoalSVG />
-          </div>
-          <div className='relative flex w-full items-center justify-between self-stretch'>
-            <div className="relative mt-[-1.00px] w-fit whitespace-nowrap text-xs font-normal leading-[18px] tracking-[0] text-[#707070] [font-family:'Inter',Helvetica]">
-              Daily
-            </div>
-            <div className="relative mt-[-1.00px] w-fit whitespace-nowrap text-xs font-normal leading-[18px] tracking-[0] text-[#707070] [font-family:'Inter',Helvetica]">
-              Completed
-            </div>
-          </div>
-        </div>
-
-        <div className='absolute top-6 flex w-[352px] -rotate-3 flex-col items-start gap-1 overflow-hidden rounded-[10px] bg-[#fdfdfd] p-[18px] shadow-[0px_10px_17px_-6px_#00000012]'>
-          <div className="relative mt-[-1.00px] w-fit whitespace-nowrap text-[13px] font-medium leading-[18px] tracking-[0] text-[#313131] [font-family:'Inter',Helvetica]">
-            Memorize Psalm 91
-          </div>
-          <div className='relative flex w-full items-center justify-between self-stretch'>
-            <div className="relative mt-[-1.00px] w-fit whitespace-nowrap text-xs font-normal leading-[18px] tracking-[0] text-[#707070] [font-family:'Inter',Helvetica]">
-              Daily
-            </div>
-            <div className="relative mt-[-1.00px] w-fit whitespace-nowrap text-xs font-normal leading-[18px] tracking-[0] text-[#707070] [font-family:'Inter',Helvetica]">
-              Due 17 Jan
-            </div>
+          <div className="mt-2 text-xs leading-[18px] text-[#707070] [font-family:'Inter',Helvetica]">
+            Save the truth you&apos;re practicing, what you&apos;re learning, and
+            the encouragement you want to revisit later.
           </div>
         </div>
       </div>
@@ -168,7 +135,7 @@ const featureCards = [
   },
 ];
 
-const FeaturesSection = (): JSX.Element => {
+const FeaturesSection = () => {
   return (
     <section
       id='key-features'

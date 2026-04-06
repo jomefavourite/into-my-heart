@@ -1,5 +1,10 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import {
+  applyPracticeOutcomeToProgress,
+  getMemorizationVerseKey,
+  normalizeVerseProgress,
+} from '@/lib/memorization';
 import { PlatformStorage } from '@/utils/PlatformStorage';
 import {
   createSyncId,
@@ -10,12 +15,19 @@ import {
   type OfflineCollection,
   type OfflineCollectionSuggestion,
   type OfflineNote,
+  type OfflinePracticeSession,
   type OfflineUserProfile,
   type OfflineVerse,
+  type OfflineVerseProgress,
   type OfflineVerseSuggestion,
+  type PracticeOutcome,
+  type PracticeMethod,
+  type PracticeSessionSource,
+  type PracticeType,
   type SyncEntityType,
   type SyncPayload,
   type SyncQueueOperation,
+  type VerseImportSource,
   type VerseTextEntry,
 } from '@/lib/offline-sync';
 
@@ -28,6 +40,7 @@ type SaveVerseInput = {
   verseTexts: VerseTextEntry[];
   reviewFreq: string;
   isFeatured?: boolean;
+  importSource?: VerseImportSource;
 };
 
 type SaveCollectionInput = {
@@ -50,6 +63,20 @@ type SaveNoteInput = {
   content: string;
 };
 
+type RecordPracticeSessionInput = {
+  method: PracticeMethod;
+  practiceType: PracticeType;
+  source: PracticeSessionSource;
+  verses: Array<{
+    bookName: string;
+    chapter: number;
+    verses: string[];
+    reviewFreq?: string;
+    _id?: string;
+  }>;
+  outcomesByVerseKey?: Record<string, PracticeOutcome>;
+};
+
 type OfflineDataStore = {
   hasHydrated: boolean;
   currentUser: OfflineUserProfile | null;
@@ -57,6 +84,8 @@ type OfflineDataStore = {
   collections: OfflineCollection[];
   notes: OfflineNote[];
   affirmations: OfflineAffirmation[];
+  practiceSessions: OfflinePracticeSession[];
+  verseProgress: OfflineVerseProgress[];
   verseSuggestions: OfflineVerseSuggestion[];
   collectionSuggestions: OfflineCollectionSuggestion[];
   queue: SyncQueueOperation[];
@@ -80,6 +109,7 @@ type OfflineDataStore = {
   deleteAffirmationLocal: (syncId: string) => void;
   saveNoteLocal: (input: SaveNoteInput) => string;
   deleteNoteLocal: (syncId: string) => void;
+  recordPracticeSessionLocal: (input: RecordPracticeSessionInput) => string | null;
   adoptVerseSuggestionLocal: (suggestionSyncId: string) => string | null;
   adoptCollectionSuggestionLocal: (suggestionSyncId: string) => string | null;
   markOperationSynced: (
@@ -127,9 +157,17 @@ const enqueueOperation = (
   ];
 };
 
-const mergeRemoteRecords = <T extends { syncId: string; updatedAt: number; pendingSync?: boolean; remoteId?: string; deletedAt?: number | null }>(
-  localRecords: T[],
-  remoteRecords: T[]
+const mergeRemoteRecords = <
+  T extends {
+    syncId: string;
+    updatedAt: number;
+    pendingSync?: boolean;
+    remoteId?: string;
+    deletedAt?: number | null;
+  },
+>(
+  localRecords: T[] = [],
+  remoteRecords: T[] = []
 ) => {
   const localMap = new Map(localRecords.map(record => [record.syncId, record]));
 
@@ -154,6 +192,9 @@ const mergeRemoteRecords = <T extends { syncId: string; updatedAt: number; pendi
   return [...localMap.values()];
 };
 
+const normalizeRemoteRecords = <T>(records: T[] | null | undefined) =>
+  Array.isArray(records) ? records : [];
+
 export const useOfflineDataStore = create<OfflineDataStore>()(
   persist(
     (set, get) => ({
@@ -163,6 +204,8 @@ export const useOfflineDataStore = create<OfflineDataStore>()(
       collections: [],
       notes: [],
       affirmations: [],
+      practiceSessions: [],
+      verseProgress: [],
       verseSuggestions: [],
       collectionSuggestions: [],
       queue: [],
@@ -185,6 +228,8 @@ export const useOfflineDataStore = create<OfflineDataStore>()(
           collections: [],
           notes: [],
           affirmations: [],
+          practiceSessions: [],
+          verseProgress: [],
           verseSuggestions: [],
           collectionSuggestions: [],
           queue: [],
@@ -195,37 +240,75 @@ export const useOfflineDataStore = create<OfflineDataStore>()(
           lastSyncError: null,
         })),
       applyRemoteSnapshot: payload =>
-        set(state => ({
-          currentUser: payload.user,
-          verses: sortByUpdatedAtDesc(
-            mergeRemoteRecords(state.verses, payload.verses).filter(
-              record => !isDeletedRecord(record)
-            )
-          ),
-          collections: sortByUpdatedAtDesc(
-            mergeRemoteRecords(state.collections, payload.collections).filter(
-              record => !isDeletedRecord(record)
-            )
-          ),
-          notes: sortByUpdatedAtDesc(
-            mergeRemoteRecords(state.notes, payload.notes).filter(
-              record => !isDeletedRecord(record)
-            )
-          ),
-          affirmations: sortByUpdatedAtDesc(
-            mergeRemoteRecords(state.affirmations, payload.affirmations).filter(
-              record => !isDeletedRecord(record)
-            )
-          ),
-          verseSuggestions: payload.verseSuggestions,
-          collectionSuggestions: payload.collectionSuggestions,
-          hasCompletedInitialSync: true,
-          lastSyncedAt: payload.syncedAt,
-          lastSyncError: null,
-        })),
+        set(state => {
+          const now = Date.now();
+          const verses = normalizeRemoteRecords(payload.verses);
+          const collections = normalizeRemoteRecords(payload.collections);
+          const notes = normalizeRemoteRecords(payload.notes);
+          const affirmations = normalizeRemoteRecords(payload.affirmations);
+          const practiceSessions = normalizeRemoteRecords(
+            payload.practiceSessions
+          ).map(record => ({
+            ...record,
+            source: record.source ?? 'manualTechnique',
+            passedVerseKeys: record.passedVerseKeys ?? [],
+            needsReviewVerseKeys: record.needsReviewVerseKeys ?? [],
+          }));
+          const verseProgress = normalizeRemoteRecords(payload.verseProgress).map(
+            record => normalizeVerseProgress(record, now)
+          );
+          const verseSuggestions = normalizeRemoteRecords(
+            payload.verseSuggestions
+          );
+          const collectionSuggestions = normalizeRemoteRecords(
+            payload.collectionSuggestions
+          );
+
+          return {
+            currentUser: payload.user ?? null,
+            verses: sortByUpdatedAtDesc(
+              mergeRemoteRecords(state.verses, verses).filter(
+                record => !isDeletedRecord(record)
+              )
+            ),
+            collections: sortByUpdatedAtDesc(
+              mergeRemoteRecords(state.collections, collections).filter(
+                record => !isDeletedRecord(record)
+              )
+            ),
+            notes: sortByUpdatedAtDesc(
+              mergeRemoteRecords(state.notes, notes).filter(
+                record => !isDeletedRecord(record)
+              )
+            ),
+            affirmations: sortByUpdatedAtDesc(
+              mergeRemoteRecords(state.affirmations, affirmations).filter(
+                record => !isDeletedRecord(record)
+              )
+            ),
+            practiceSessions: sortByUpdatedAtDesc(
+              mergeRemoteRecords(state.practiceSessions, practiceSessions).filter(
+                record => !isDeletedRecord(record)
+              )
+            ),
+            verseProgress: sortByUpdatedAtDesc(
+              mergeRemoteRecords(state.verseProgress, verseProgress)
+                .filter(record => !isDeletedRecord(record))
+                .map(record => normalizeVerseProgress(record, now))
+            ),
+            verseSuggestions,
+            collectionSuggestions,
+            hasCompletedInitialSync: true,
+            lastSyncedAt: payload.syncedAt ?? now,
+            lastSyncError: null,
+          };
+        }),
       saveVerseLocal: input => {
         const now = Date.now();
         const syncId = input.syncId ?? createSyncId('verse');
+        const existingRecord = input.syncId
+          ? get().verses.find(record => record.syncId === input.syncId)
+          : null;
         const nextRecord: OfflineVerse = {
           syncId,
           remoteId: input.remoteId,
@@ -235,6 +318,7 @@ export const useOfflineDataStore = create<OfflineDataStore>()(
           verseTexts: input.verseTexts,
           reviewFreq: input.reviewFreq,
           isFeatured: input.isFeatured ?? false,
+          importSource: input.importSource ?? existingRecord?.importSource,
           updatedAt: now,
           deletedAt: null,
           pendingSync: true,
@@ -541,6 +625,103 @@ export const useOfflineDataStore = create<OfflineDataStore>()(
             lastSyncError: null,
           };
         }),
+      recordPracticeSessionLocal: input => {
+        if (input.verses.length === 0) {
+          return null;
+        }
+
+        const now = Date.now();
+        const verseEntries = input.verses.map(verse => {
+          const verseKey = getMemorizationVerseKey(verse);
+          return {
+            verse,
+            verseKey,
+            outcome: input.outcomesByVerseKey?.[verseKey] ?? 'pass',
+          };
+        });
+        const verseKeys = verseEntries.map(entry => entry.verseKey);
+        const sessionSyncId = createSyncId('practice-session');
+        const passedVerseKeys = verseEntries
+          .filter(entry => entry.outcome === 'pass')
+          .map(entry => entry.verseKey);
+        const needsReviewVerseKeys = verseEntries
+          .filter(entry => entry.outcome === 'needsReview')
+          .map(entry => entry.verseKey);
+        const practiceSession: OfflinePracticeSession = {
+          syncId: sessionSyncId,
+          method: input.method,
+          practiceType: input.practiceType,
+          source: input.source,
+          verseKeys,
+          verseCount: verseKeys.length,
+          passedVerseKeys,
+          needsReviewVerseKeys,
+          completedAt: now,
+          updatedAt: now,
+          pendingSync: true,
+        };
+
+        set(state => {
+          const nextPracticeSessions = sortByUpdatedAtDesc([
+            practiceSession,
+            ...state.practiceSessions,
+          ]);
+
+          const nextVerseProgress = [...state.verseProgress];
+          let nextQueue = enqueueOperation(
+            state.queue,
+            'practiceSession',
+            'upsert',
+            sessionSyncId,
+            practiceSession
+          );
+
+          verseEntries.forEach(({ verse, verseKey, outcome }) => {
+            const existingIndex = nextVerseProgress.findIndex(
+              record => record.verseKey === verseKey
+            );
+            const existingRecord =
+              existingIndex === -1 ? null : nextVerseProgress[existingIndex];
+            const nextRecord: OfflineVerseProgress = {
+              ...applyPracticeOutcomeToProgress({
+                currentProgress: existingRecord,
+                verse,
+                method: input.method,
+                outcome,
+                now,
+              }),
+              syncId: existingRecord?.syncId ?? `verse-progress-${verseKey}`,
+              remoteId: existingRecord?.remoteId,
+              deletedAt: null,
+              pendingSync: true,
+            };
+
+            if (existingIndex === -1) {
+              nextVerseProgress.push(nextRecord);
+            } else {
+              nextVerseProgress[existingIndex] = nextRecord;
+            }
+
+            nextQueue = enqueueOperation(
+              nextQueue,
+              'verseProgress',
+              'upsert',
+              nextRecord.syncId,
+              nextRecord
+            );
+          });
+
+          return {
+            practiceSessions: nextPracticeSessions,
+            verseProgress: sortByUpdatedAtDesc(nextVerseProgress),
+            queue: nextQueue,
+            syncTick: state.syncTick + 1,
+            lastSyncError: null,
+          };
+        });
+
+        return sessionSyncId;
+      },
       adoptVerseSuggestionLocal: suggestionSyncId => {
         const suggestion = get().verseSuggestions.find(
           item => item.syncId === suggestionSyncId
@@ -618,6 +799,14 @@ export const useOfflineDataStore = create<OfflineDataStore>()(
               entityType === 'affirmation'
                 ? markArray(state.affirmations)
                 : state.affirmations,
+            practiceSessions:
+              entityType === 'practiceSession'
+                ? markArray(state.practiceSessions)
+                : state.practiceSessions,
+            verseProgress:
+              entityType === 'verseProgress'
+                ? markArray(state.verseProgress)
+                : state.verseProgress,
             queue: state.queue.filter(
               item => !(item.entityType === entityType && item.syncId === syncId)
             ),
@@ -635,6 +824,8 @@ export const useOfflineDataStore = create<OfflineDataStore>()(
         collections: state.collections,
         notes: state.notes,
         affirmations: state.affirmations,
+        practiceSessions: state.practiceSessions,
+        verseProgress: state.verseProgress,
         verseSuggestions: state.verseSuggestions,
         collectionSuggestions: state.collectionSuggestions,
         queue: state.queue,

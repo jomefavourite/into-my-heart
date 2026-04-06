@@ -12,6 +12,7 @@ import {
   useOfflineVerseSuggestions,
 } from '@/hooks/useOfflineData';
 import { useOfflineDataStore } from '@/store/offlineDataStore';
+import ThemedText from '@/components/ThemedText';
 
 const AllVersesSuggestion = () => {
   const { gridView } = useGridListView();
@@ -65,6 +66,9 @@ const AllVersesSuggestion = () => {
       />
 
       <View className='flex-1 pb-[18px]'>
+        <View className='px-[18px] pb-4'>
+          <ThemedText className='text-sm'>{`${results.length} verse suggestions`}</ThemedText>
+        </View>
         {!hasHydrated ? (
           <FlashListSkeletonLoader type='verses' gridView={gridView} />
         ) : (

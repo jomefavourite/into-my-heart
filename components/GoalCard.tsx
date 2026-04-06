@@ -1,10 +1,9 @@
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import ThemedText from './ThemedText';
-import CheckmarkCircleIcon from '@/components/icons/CheckmarkCircleIcon';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import Svg, { SvgProps, Path } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 import { Button } from './ui/button';
 import { Link } from 'expo-router';
 
@@ -32,7 +31,7 @@ export default function GoalCard({
   const itemClassName = view === 'grid' ? 'w-[49%]' : ' ';
 
   return (
-    <Link href={'/goals/kdjsdds'}>
+    <Link href='/verses'>
       <View className={cn('gap-1 rounded-lg bg-container p-4', itemClassName)}>
         <View className='flex-row items-center justify-between'>
           <ThemedText className='text-sm font-medium' numberOfLines={2}>

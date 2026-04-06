@@ -18,7 +18,7 @@ export default function AddVersesEmpty({ collection = false }) {
         // variant='medium'
         className=' text-center max-w-[160px] mx-auto'
       >
-        Start hiding God's Word in your heart
+        Start hiding {"God's"} Word in your heart
       </ThemedText>
       <CustomButton
         variant='ghost'

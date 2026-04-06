@@ -11,6 +11,7 @@ import { useRouter } from 'expo-router';
 import BackHeader from '@/components/BackHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { formatVerseDisplay } from '@/lib/utils';
+import { getPracticeVerseKey } from '@/lib/practiceFlow';
 
 interface BlankData {
   id: string;
@@ -48,8 +49,10 @@ const shuffleArray = <T,>(array: T[]) => {
 };
 
 export default function FillInTheBlanks() {
-  const { currentSession, clearPracticeSession } = usePracticeStore();
+  const { currentSession, clearPracticeSession, setVerseOutcome } =
+    usePracticeStore();
   const router = useRouter();
+  const activeSessionId = currentSession?.sessionId;
 
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
   const [verseData, setVerseData] = useState<VerseData[]>([]);
@@ -188,6 +191,12 @@ export default function FillInTheBlanks() {
     }
   }, [currentSession, router]);
 
+  useEffect(() => {
+    setCurrentVerseIndex(0);
+    setSelectedBlankId(null);
+    setShowResults(false);
+  }, [activeSessionId]);
+
   const handleBlankClick = (blankId: string) => {
     if (showResults) return;
     setSelectedBlankId(blankId);
@@ -237,6 +246,14 @@ export default function FillInTheBlanks() {
   };
 
   const handleNextVerse = () => {
+    if (currentVerse) {
+      const outcome =
+        totalBlanks === 0 || correctAnswers / totalBlanks >= 0.8
+          ? 'pass'
+          : 'needsReview';
+      setVerseOutcome(getPracticeVerseKey(currentVerse), outcome);
+    }
+
     if (currentVerseIndex < verses.length - 1) {
       setCurrentVerseIndex(previous => previous + 1);
     } else {
@@ -313,7 +330,7 @@ export default function FillInTheBlanks() {
 
   const totalBlanks = blanks.length;
   const allBlanksCompleted =
-    totalBlanks > 0 && blanks.every(blank => blank.selectedAnswer !== null);
+    totalBlanks === 0 || blanks.every(blank => blank.selectedAnswer !== null);
   const correctAnswers = blanks.filter(
     blank => blank.selectedAnswer === blank.correctAnswer
   ).length;
@@ -424,7 +441,7 @@ export default function FillInTheBlanks() {
             </View>
 
             {showResults && (
-              <Card className='border-blue-200 bg-blue-50'>
+              <Card className='border-blue-200 bg-blue-50 my-4'>
                 <CardContent className='pt-6'>
                   <View className='space-y-2 text-center'>
                     <View className='flex items-center justify-center gap-2'>
@@ -433,7 +450,9 @@ export default function FillInTheBlanks() {
                       </ThemedText>
                     </View>
                     <ThemedText className='text-muted-foreground'>
-                      {correctAnswers === totalBlanks
+                      {totalBlanks === 0
+                        ? 'No eligible blanks were generated for this verse, so you can continue.'
+                        : correctAnswers === totalBlanks
                         ? 'Perfect! You got all answers correct!'
                         : 'Good try! Review the incorrect answers and try again.'}
                     </ThemedText>
@@ -444,7 +463,7 @@ export default function FillInTheBlanks() {
 
             <View className='space-y-3'>
               {!showResults && (
-                <View className='flex justify-center'>
+                <View className='flex justify-center mt-4'>
                   <CustomButton
                     onPress={handleCheckAnswers}
                     disabled={!allBlanksCompleted}

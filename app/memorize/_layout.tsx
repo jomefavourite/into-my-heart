@@ -15,25 +15,21 @@ const MemorizeLayout = () => {
 
   return (
     <>
-      <Stack>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
         <Stack.Screen
           name='fill-in-blanks'
-          options={{
-            headerShown: false,
-          }}
         />
         <Stack.Screen
           name='flashcards'
-          options={{
-            headerShown: false,
-          }}
         />
         <Stack.Screen
           name='recitation'
-          options={{
-            headerShown: false,
-          }}
         />
+        <Stack.Screen name='settings' />
       </Stack>
     </>
   );

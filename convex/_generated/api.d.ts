@@ -8,13 +8,18 @@
  * @module
  */
 
+import type * as account from "../account.js";
+import type * as accountMutations from "../accountMutations.js";
 import type * as affirmations from "../affirmations.js";
 import type * as collectionSuggestions from "../collectionSuggestions.js";
 import type * as collections from "../collections.js";
 import type * as http from "../http.js";
 import type * as notes from "../notes.js";
+import type * as progress from "../progress.js";
+import type * as sharedValidators from "../sharedValidators.js";
 import type * as sync from "../sync.js";
 import type * as users from "../users.js";
+import type * as verseImport from "../verseImport.js";
 import type * as verseSuggestions from "../verseSuggestions.js";
 import type * as verses from "../verses.js";
 
@@ -25,13 +30,18 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  account: typeof account;
+  accountMutations: typeof accountMutations;
   affirmations: typeof affirmations;
   collectionSuggestions: typeof collectionSuggestions;
   collections: typeof collections;
   http: typeof http;
   notes: typeof notes;
+  progress: typeof progress;
+  sharedValidators: typeof sharedValidators;
   sync: typeof sync;
   users: typeof users;
+  verseImport: typeof verseImport;
   verseSuggestions: typeof verseSuggestions;
   verses: typeof verses;
 }>;
