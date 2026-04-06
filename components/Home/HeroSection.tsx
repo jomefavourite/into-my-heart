@@ -45,7 +45,7 @@ const HeroSection = () => {
 
           {/* Desktop Action Buttons */}
           <div className='hidden items-center space-x-3 md:flex'>
-            <CustomButton onPress={() => router.push('/onboard')}>
+            <CustomButton onPress={() => router.push('/sign-up')}>
               Get Started
             </CustomButton>
           </div>
@@ -85,7 +85,7 @@ const HeroSection = () => {
                   </Button>
                   <Button
                     className='w-full bg-gray-900 hover:bg-gray-800'
-                    onPress={() => router.push('/onboard')}
+                    onPress={() => router.push('/sign-up')}
                   >
                     Get Started
                   </Button>
@@ -106,16 +106,16 @@ const HeroSection = () => {
             </h1>
 
             <p className='max-w-xl text-center text-base font-medium leading-6 tracking-[0.16px] text-[#707070] lg:ml-0 lg:text-left'>
-              Build a daily habit of engaging with God&#39;s Word. Our app helps
-              you memorize Bible verses in KJV with proven techniques, save
-              notes, and return to guided practice whenever you&apos;re ready.
+              Build a daily habit of engaging with God's Word. Our app helps you
+              memorize Bible verses with proven techniques, track your progress,
+              and grow spiritually.
             </p>
           </div>
 
           {/* CTA Buttons */}
           <div className='mx-auto flex gap-3 lg:ml-0'>
             <CustomButton
-              onPress={() => router.push('/onboard')}
+              onPress={() => router.push('/sign-up')}
               className='w-full flex-1'
             >
               Get Started

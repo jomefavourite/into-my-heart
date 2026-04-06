@@ -77,7 +77,7 @@ export default function LegalPageLayout({
               </ThemedText>
               <View className='flex-row flex-wrap gap-3'>
                 <Link
-                  href='/onboard'
+                  href='/sign-up'
                   className='rounded-full bg-[#313131] px-5 py-3'
                 >
                   <ThemedText className='text-sm font-medium text-white'>

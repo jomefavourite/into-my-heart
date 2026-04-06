@@ -74,7 +74,7 @@ export default function Onboarding({
             onPress={
               stepNumber < 3
                 ? onNext
-                : () => router.push('/(onboarding)/onboard')
+                : () => router.push('/(onboarding)/sign-up')
             }
             className='flex-1'
           >

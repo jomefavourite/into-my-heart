@@ -39,6 +39,11 @@ The first bundle takes ~30 seconds. The app runs at `http://localhost:8081`.
 - The app's `_layout.tsx` throws if `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` is falsy — ensure the env var is set before starting.
 - Package manager is **npm** (`package-lock.json`).
 
+### Clerk MCP
+
+- For Clerk-related debugging and configuration work in this repo, prefer the Clerk MCP endpoint: `https://mcp.clerk.com/mcp` when it is available in the local Codex environment.
+- Treat Clerk Dashboard and Clerk MCP as the primary sources of truth for auth provider behavior, OAuth setup, sign-in/sign-up routing, and session activation issues.
+
 <!-- convex-ai-start -->
 This project uses [Convex](https://convex.dev) as its backend.
 

@@ -1,26 +1,23 @@
-import { SignIn } from '@clerk/clerk-react';
+import { SignUp } from '@clerk/clerk-react';
 import { Link } from 'expo-router';
 import ThemedText from '@/components/ThemedText';
 import { View } from 'react-native';
 
-export default function OnboardWebPage() {
+export default function SignUpWebPage() {
   return (
     <View className='min-h-screen flex-1 items-center justify-center bg-background px-4 py-8'>
       <View className='items-center gap-4'>
-        <SignIn
+        <SignUp
           routing='path'
-          path='/onboard'
-          oauthFlow='redirect'
+          path='/sign-up'
           forceRedirectUrl='/'
           fallbackRedirectUrl='/'
-          signUpUrl='/sign-up'
-          signUpForceRedirectUrl='/'
-          signUpFallbackRedirectUrl='/'
-          withSignUp
+          signInUrl='/onboard'
+          signInForceRedirectUrl='/'
         />
-        <Link href='/sign-up'>
+        <Link href='/onboard'>
           <ThemedText className='text-sm text-[#5d5d5d] underline'>
-            New here? Create an account
+            Already have an account? Sign in
           </ThemedText>
         </Link>
       </View>
